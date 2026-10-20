@@ -12,6 +12,9 @@ import * as vaults from '@/loaders/vaults';
 import * as contacts from '@/loaders/contacts';
 import * as groups from '@/loaders/groups';
 import * as journals from '@/loaders/journals';
+import * as dashboard from '@/loaders/dashboard';
+import * as modulesA from '@/loaders/modules-a';
+import * as modulesB from '@/loaders/modules-b';
 
 const page = (name) => () => import(`../Pages/${name}.vue`);
 
@@ -165,12 +168,17 @@ export default [
   // Vaults
   r('/vaults', 'vault.index', 'Vault/Index', vaults.index),
   r('/vaults/create', 'vault.create', 'Vault/Create', vaults.create),
-  r('/vaults/:vault', 'vault.show', 'Vault/Dashboard/Index', vaults.dashboard),
+  r('/vaults/:vault', 'vault.show', 'Vault/Dashboard/Index', dashboard.dashboard),
   r('/vaults/:vault/edit', 'vault.edit', 'Vault/Edit', vaults.edit),
   r('/vaults/:vault/calendar', 'vault.calendar.index', 'Vault/Calendar/Index', vaults.calendar),
-  r('/vaults/:vault/calendar/years/:year/months/:month', 'vault.calendar.month', 'Vault/Calendar/Index', vaults.calendar),
-  r('/vaults/:vault/reminders', 'vault.reminder.index', 'Vault/Dashboard/Reminder/Index', vaults.reminders),
-  r('/vaults/:vault/tasks', 'vault.tasks.index', 'Vault/Dashboard/Task/Index', vaults.tasks),
+  r(
+    '/vaults/:vault/calendar/years/:year/months/:month',
+    'vault.calendar.month',
+    'Vault/Calendar/Index',
+    vaults.calendar,
+  ),
+  r('/vaults/:vault/reminders', 'vault.reminder.index', 'Vault/Dashboard/Reminder/Index', dashboard.reminders),
+  r('/vaults/:vault/tasks', 'vault.tasks.index', 'Vault/Dashboard/Task/Index', dashboard.tasks),
   r('/vaults/:vault/reports', 'vault.reports.index', 'Vault/Reports/Index', vaults.reports),
   r(
     '/vaults/:vault/reports/addresses',
@@ -227,20 +235,20 @@ export default [
     'Vault/Contact/ImportantDates/Index',
     contacts.importantDates,
   ),
-  r('/vaults/:vault/contacts/:contact/notes', 'contact.note.index', 'Vault/Contact/Notes/Index', contacts.notes),
-  r('/vaults/:vault/contacts/:contact/goals/:goal', 'contact.goal.show', 'Vault/Contact/Goals/Show', contacts.goal),
+  r('/vaults/:vault/contacts/:contact/notes', 'contact.note.index', 'Vault/Contact/Notes/Index', modulesA.notes),
+  r('/vaults/:vault/contacts/:contact/goals/:goal', 'contact.goal.show', 'Vault/Contact/Goals/Show', modulesA.goal),
   r(
     '/vaults/:vault/contacts/:contact/relationships/create',
     'contact.relationships.create',
     'Vault/Contact/Relationships/Create',
-    contacts.createRelationship,
+    modulesB.createRelationship,
   ),
-  r('/vaults/:vault/contacts/:contact/photos', 'contact.photo.index', 'Vault/Contact/Photos/Index', contacts.photos),
+  r('/vaults/:vault/contacts/:contact/photos', 'contact.photo.index', 'Vault/Contact/Photos/Index', modulesB.photos),
   r(
     '/vaults/:vault/contacts/:contact/photos/:photo',
     'contact.photo.show',
     'Vault/Contact/Photos/Show',
-    contacts.photo,
+    modulesB.photo,
   ),
 
   // Groups

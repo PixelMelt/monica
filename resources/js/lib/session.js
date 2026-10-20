@@ -68,4 +68,5 @@ export function vaultPermission(vaultId) {
 }
 
 /** `$user->locale_ietf`: the user's locale as a language tag (`pt-BR`). */
-export const localeIetf = () => (session.user?.preferences.locale ?? session.instance?.locale ?? 'en').replace('_', '-');
+export const localeIetf = () =>
+  (session.user?.preferences.locale ?? session.instance?.locale ?? 'en').replace('_', '-');

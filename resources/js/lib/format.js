@@ -103,7 +103,8 @@ export const formatShortMonthAndDay = (value) => isoFormat(value, trans('format.
 export const formatShortDay = (value) => isoFormat(value, trans('format.short_day'));
 
 /** `DateHelper::formatDayAndMonthInParenthesis`: "Monday (Jul 29th)". */
-export const formatDayAndMonthInParenthesis = (value, tz) => isoFormat(value, trans('format.day_month_parenthesis'), tz);
+export const formatDayAndMonthInParenthesis = (value, tz) =>
+  isoFormat(value, trans('format.day_month_parenthesis'), tz);
 
 /** `DateHelper::formatFullDate`: "Monday, Jul 29th 2020". */
 export const formatFullDate = (value) => isoFormat(value, trans('format.full_date'));
@@ -128,7 +129,8 @@ export function getDays() {
 }
 
 /** Today in the user's timezone, as dayjs. */
-export const today = () => (session.user?.preferences.timezone ? dayjs().tz(session.user.preferences.timezone) : dayjs()).locale(dayjsLocale);
+export const today = () =>
+  (session.user?.preferences.timezone ? dayjs().tz(session.user.preferences.timezone) : dayjs()).locale(dayjsLocale);
 
 /**
  * `NameHelper::formatContactName`: the contact's name built from the user's
