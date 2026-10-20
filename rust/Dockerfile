@@ -22,9 +22,8 @@ ARG MONICA_VERSION=
 ARG MONICA_COMMIT=
 COPY lang ./lang
 COPY rust ./rust
-RUN mkdir -p config \
-    && if [ -n "$MONICA_VERSION" ]; then echo "$MONICA_VERSION" > config/.version; fi \
-    && if [ -n "$MONICA_COMMIT" ]; then echo "$MONICA_COMMIT" > config/.commit; fi \
+RUN if [ -n "$MONICA_VERSION" ]; then echo "$MONICA_VERSION" > rust/.version; fi \
+    && if [ -n "$MONICA_COMMIT" ]; then echo "$MONICA_COMMIT" > rust/.commit; fi \
     && cd rust && cargo build --release --locked
 
 ## The image

@@ -22,10 +22,12 @@
 
 ## Monica is an open source personal relationship management system, that lets you document your life.
 
-> [!WARNING]
-> This branch is in development. It’s our beta version.
->
-> If you want to browse the stable and current version, see the [4.x branch](https://github.com/monicahq/monica/tree/4.x).
+> [!NOTE]
+> This branch replaces the Laravel backend with a Rust server (`rust/`) and
+> makes Monica a single-user install: the first visit creates your account,
+> you sign in with a username and password, and reminders go to Pushover.
+> There is no email. To build and run it, see [rust/README.md](rust/README.md)
+> (or `yarn docker:build` and `yarn docker:run`).
 
 ## Table of contents
 
