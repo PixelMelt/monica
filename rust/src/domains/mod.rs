@@ -3,3 +3,4 @@
 
 pub mod base;
 pub mod settings;
+pub mod vault;
