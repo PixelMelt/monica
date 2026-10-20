@@ -79,9 +79,6 @@ pub struct CreatePostTemplateSection {
 impl CreatePostTemplateSection {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<post_template_sections::Model> {
         let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
         v.max_len("label", self.label.as_deref(), 255);
         v.max_len("label_translation_key", self.label_translation_key.as_deref(), 255);
         v.finish()?;
@@ -132,11 +129,6 @@ pub struct DestroyPostTemplate {
 
 impl DestroyPostTemplate {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -169,14 +161,6 @@ pub struct DestroyPostTemplateSection {
 
 impl DestroyPostTemplateSection {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
-        if post_template_sections::Entity::find_by_id(self.post_template_section_id).one(db).await?.is_none() {
-            v.fail("post_template_section_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -213,9 +197,6 @@ pub struct UpdatePostTemplate {
 impl UpdatePostTemplate {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<post_templates::Model> {
         let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
         if self.label.trim().is_empty() {
             v.fail("label", "required", &[]);
         }
@@ -255,11 +236,6 @@ impl UpdatePostTemplatePosition {
     }
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<(post_templates::Model, i32)> {
-        let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -331,12 +307,6 @@ pub struct UpdatePostTemplateSection {
 impl UpdatePostTemplateSection {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<post_template_sections::Model> {
         let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
-        if post_template_sections::Entity::find_by_id(self.post_template_section_id).one(db).await?.is_none() {
-            v.fail("post_template_section_id", "exists", &[]);
-        }
         if self.label.trim().is_empty() {
             v.fail("label", "required", &[]);
         }
@@ -383,14 +353,6 @@ impl UpdatePostTemplateSectionPosition {
         &self,
         db: &C,
     ) -> ApiResult<(post_templates::Model, post_template_sections::Model, i32)> {
-        let mut v = Validator::new();
-        if post_templates::Entity::find_by_id(self.post_template_id).one(db).await?.is_none() {
-            v.fail("post_template_id", "exists", &[]);
-        }
-        if post_template_sections::Entity::find_by_id(self.post_template_section_id).one(db).await?.is_none() {
-            v.fail("post_template_section_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {

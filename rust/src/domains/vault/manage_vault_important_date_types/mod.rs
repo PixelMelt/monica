@@ -7,7 +7,7 @@ use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, 
 
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
-use crate::domains::base::{Check, VaultPermission, check};
+use crate::domains::base::{Check, VaultPermission, check, value_or_null};
 use crate::entities::contact_important_date_types;
 use crate::error::{ApiError, ApiResult, Code};
 use crate::validate::Validator;
@@ -66,9 +66,6 @@ pub struct DestroyContactImportantDateType {
 
 impl DestroyContactImportantDateType {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        exists(db, &mut v, self.contact_important_date_type_id).await?;
-        v.finish()?;
         let checked = check(
             db,
             &Check {
@@ -105,7 +102,6 @@ pub struct UpdateContactImportantDateType {
 impl UpdateContactImportantDateType {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<contact_important_date_types::Model> {
         let mut v = Validator::new();
-        exists(db, &mut v, self.contact_important_date_type_id).await?;
         if self.label.trim().is_empty() {
             v.fail("label", "required", &[]);
         }
@@ -133,14 +129,6 @@ impl UpdateContactImportantDateType {
     }
 }
 
-/// `exists:contact_important_date_types,id`.
-async fn exists<C: ConnectionTrait>(db: &C, v: &mut Validator, id: Id) -> ApiResult<()> {
-    if contact_important_date_types::Entity::find_by_id(id).one(db).await?.is_none() {
-        v.fail("contact_important_date_type_id", "exists", &[]);
-    }
-    Ok(())
-}
-
 /// `$this->vault->contactImportantDateTypes()->findOrFail($id)`.
 async fn find<C: ConnectionTrait>(db: &C, vault_id: Uuid, id: Id) -> ApiResult<contact_important_date_types::Model> {
     contact_important_date_types::Entity::find_by_id(id)
@@ -148,9 +136,4 @@ async fn find<C: ConnectionTrait>(db: &C, vault_id: Uuid, id: Id) -> ApiResult<c
         .one(db)
         .await?
         .ok_or_else(ApiError::not_found)
-}
-
-/// `valueOrNull`: `null` when PHP's `empty()` holds (`""`, `"0"`).
-fn value_or_null(value: Option<String>) -> Option<String> {
-    value.filter(|s| !s.is_empty() && s != "0")
 }

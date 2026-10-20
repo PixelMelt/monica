@@ -148,3 +148,9 @@ pub async fn contact_in_vault<C: ConnectionTrait>(
         .await?
         .ok_or_else(ApiError::not_found)
 }
+
+/// `BaseService::valueOrNull`: `None` for what PHP's `empty()` calls empty
+/// (no value, `""` or `"0"`).
+pub fn value_or_null(value: Option<String>) -> Option<String> {
+    value.filter(|v| !v.is_empty() && v != "0")
+}

@@ -5,8 +5,7 @@ mod tests;
 
 use sea_orm::sea_query::Expr;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, ExprTrait, PrimaryKeyTrait,
-    QueryFilter, QuerySelect,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, ExprTrait, QueryFilter, QuerySelect,
 };
 
 use crate::db::id::Id;
@@ -71,11 +70,6 @@ impl AssociateModuleToTemplatePage {
     }
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<(modules::Model, template_pages::Model)> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
-        exists::<modules::Entity, _>(db, &mut v, "module_id", self.module_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -208,7 +202,6 @@ pub struct CreateTemplatePage {
 impl CreateTemplatePage {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<template_pages::Model> {
         let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
         v.max_len("name", self.name.as_deref(), 255);
         v.max_len("name_translation_key", self.name_translation_key.as_deref(), 255);
         v.max_len("type", self.r#type.as_deref(), 255);
@@ -264,9 +257,6 @@ pub struct DestroyModule {
 
 impl DestroyModule {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        exists::<modules::Entity, _>(db, &mut v, "module_id", self.module_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -298,9 +288,6 @@ pub struct DestroyTemplate {
 
 impl DestroyTemplate {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -333,10 +320,6 @@ pub struct DestroyTemplatePage {
 
 impl DestroyTemplatePage {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -372,11 +355,6 @@ pub struct RemoveModuleFromTemplatePage {
 
 impl RemoveModuleFromTemplatePage {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<modules::Model> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
-        exists::<modules::Entity, _>(db, &mut v, "module_id", self.module_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -418,7 +396,6 @@ pub struct UpdateModule {
 impl UpdateModule {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<modules::Model> {
         let mut v = Validator::new();
-        exists::<modules::Entity, _>(db, &mut v, "module_id", self.module_id).await?;
         if self.name.trim().is_empty() {
             v.fail("name", "required", &[]);
         }
@@ -462,11 +439,6 @@ impl UpdateModulePosition {
     }
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<(template_pages::Model, modules::Model, i32)> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
-        exists::<modules::Entity, _>(db, &mut v, "module_id", self.module_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -564,7 +536,6 @@ pub struct UpdateTemplate {
 impl UpdateTemplate {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<templates::Model> {
         let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
         if self.name.trim().is_empty() {
             v.fail("name", "required", &[]);
         }
@@ -601,8 +572,6 @@ pub struct UpdateTemplatePage {
 impl UpdateTemplatePage {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<template_pages::Model> {
         let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
         if self.name.trim().is_empty() {
             v.fail("name", "required", &[]);
         }
@@ -648,10 +617,6 @@ impl UpdateTemplatePagePosition {
     }
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<(templates::Model, template_pages::Model, i32)> {
-        let mut v = Validator::new();
-        exists::<templates::Entity, _>(db, &mut v, "template_id", self.template_id).await?;
-        exists::<template_pages::Entity, _>(db, &mut v, "template_page_id", self.template_page_id).await?;
-        v.finish()?;
         check(
             db,
             &Check {
@@ -724,17 +689,6 @@ impl UpdateTemplatePagePosition {
             .await?;
         Ok(())
     }
-}
-
-/// `exists:<table>,id`.
-async fn exists<E: EntityTrait, C: ConnectionTrait>(db: &C, v: &mut Validator, field: &str, id: Id) -> ApiResult<()>
-where
-    Id: Into<<E::PrimaryKey as PrimaryKeyTrait>::ValueType>,
-{
-    if E::find_by_id(id).one(db).await?.is_none() {
-        v.fail(field, "exists", &[]);
-    }
-    Ok(())
 }
 
 /// `$this->account()->modules()->findOrFail($id)`.

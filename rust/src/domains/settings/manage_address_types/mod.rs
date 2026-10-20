@@ -7,7 +7,7 @@ use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, 
 
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
-use crate::domains::base::{Check, check};
+use crate::domains::base::{Check, check, value_or_null};
 use crate::entities::address_types;
 use crate::error::{ApiError, ApiResult};
 use crate::validate::Validator;
@@ -122,9 +122,4 @@ async fn find<C: ConnectionTrait>(db: &C, account_id: Uuid, address_type_id: Id)
         .one(db)
         .await?
         .ok_or_else(ApiError::not_found)
-}
-
-/// `valueOrNull`: `empty()` values become null.
-fn value_or_null(value: Option<String>) -> Option<String> {
-    value.filter(|v| !v.is_empty() && v != "0")
 }
