@@ -93,10 +93,10 @@ pub fn tasks() -> Vec<Task> {
 /// Runs the tasks that are due at `now`.
 pub async fn run_due(state: &AppState, now: NaiveDateTime) -> anyhow::Result<()> {
     for task in tasks() {
-        if is_due(&state.db, task.command, task.frequency, now).await? {
-            if let Err(e) = (task.run)(state).await {
-                tracing::error!(task = task.command, "scheduled task failed: {e:#}");
-            }
+        if is_due(&state.db, task.command, task.frequency, now).await?
+            && let Err(e) = (task.run)(state).await
+        {
+            tracing::error!(task = task.command, "scheduled task failed: {e:#}");
         }
     }
     Ok(())
