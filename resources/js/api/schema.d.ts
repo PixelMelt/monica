@@ -6958,8 +6958,10 @@ export interface components {
       settled: boolean;
       /** @description Set to now each time `settled` changes. */
       settled_at: components['schemas']['Timestamp'] | null;
-      loaners: components['schemas']['ContactSummary'][];
-      loanees: components['schemas']['ContactSummary'][];
+      /** @description With what the contact hover card shows (`ContactCardHelper`). */
+      loaners: components['schemas']['ContactCard'][];
+      /** @description With what the contact hover card shows (`ContactCardHelper`). */
+      loanees: components['schemas']['ContactCard'][];
       created_at: components['schemas']['Timestamp'];
       updated_at: components['schemas']['Timestamp'];
     };
@@ -7293,15 +7295,16 @@ export interface components {
       paid_by_contact_id: string | null;
       duration_in_minutes: number | null;
       distance: number | null;
-      /** @enum {string|null} */
-      distance_unit: 'km' | 'mi' | null;
+      /**
+       * @description The web form writes `km` or `miles`.
+       * @enum {string|null}
+       */
+      distance_unit: 'km' | 'mi' | 'miles' | null;
       from_place: string | null;
       to_place: string | null;
       place: string | null;
-      participants: (components['schemas']['ContactSummary'] & {
-        /** @description Computed from the contact's birthdate important date; null when unknown. */
-        age: number | null;
-      })[];
+      /** @description With what the contact hover card shows (`ContactCardHelper`, age and groups). */
+      participants: components['schemas']['ContactCard'][];
       created_at: components['schemas']['Timestamp'];
       updated_at: components['schemas']['Timestamp'];
     };
@@ -7327,8 +7330,11 @@ export interface components {
       paid_by_contact_id?: string | null;
       duration_in_minutes?: number | null;
       distance?: number | null;
-      /** @enum {string|null} */
-      distance_unit?: 'km' | 'mi' | null;
+      /**
+       * @description The web form writes `km` or `miles`.
+       * @enum {string|null}
+       */
+      distance_unit?: 'km' | 'mi' | 'miles' | null;
       from_place?: string | null;
       to_place?: string | null;
       place?: string | null;
@@ -7351,8 +7357,11 @@ export interface components {
       paid_by_contact_id?: string | null;
       duration_in_minutes?: number | null;
       distance?: number | null;
-      /** @enum {string|null} */
-      distance_unit?: 'km' | 'mi' | null;
+      /**
+       * @description The web form writes `km` or `miles`.
+       * @enum {string|null}
+       */
+      distance_unit?: 'km' | 'mi' | 'miles' | null;
       from_place?: string | null;
       to_place?: string | null;
       place?: string | null;
@@ -7748,6 +7757,11 @@ export interface components {
     VaultDashboard: {
       /** @enum {string} */
       default_activity_tab: 'activity' | 'life_events' | 'life_metrics';
+      /** @description The current user's own contact in the vault (`Vault.user_contact_id`):
+       *     the mood form and the life events module act on it, and the life
+       *     events form shows it as the first participant.
+       *      */
+      user_contact: components['schemas']['ContactSummary'];
       /** @description Contacts the current user marked favorite in this vault. */
       favorites: components['schemas']['ContactSummary'][];
       /** @description The 5 contacts with the latest `last_updated_at`. */
@@ -8094,8 +8108,8 @@ export interface components {
       sections: components['schemas']['PostSection'][];
       /** @description The post's tags, by name. */
       tags: components['schemas']['Tag'][];
-      /** @description Contacts mentioned in the post. */
-      contacts: components['schemas']['ContactSummary'][];
+      /** @description Contacts mentioned in the post, with what the show page's hover card shows (`ContactCardHelper`). */
+      contacts: components['schemas']['ContactCard'][];
       /** @description The post's photos, by id. */
       photos: components['schemas']['File'][];
       /** @description One entry per metric of the journal (by id), with this post's values. */
@@ -8179,8 +8193,8 @@ export interface components {
       };
       /** @description The slice's posts, `written_at` descending. */
       posts: components['schemas']['PostSummary'][];
-      /** @description Computed. Distinct contacts mentioned in those posts. */
-      contacts: components['schemas']['ContactSummary'][];
+      /** @description Computed. Distinct contacts mentioned in those posts, with what the hover card shows (`ContactCardHelper`). */
+      contacts: components['schemas']['ContactCard'][];
     };
     SliceOfLifeList: {
       data: components['schemas']['SliceOfLife'][];

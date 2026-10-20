@@ -15093,12 +15093,14 @@ components:
           - type: 'null'
         loaners:
           type: array
+          description: With what the contact hover card shows (`ContactCardHelper`).
           items:
-            $ref: '#/components/schemas/ContactSummary'
+            $ref: '#/components/schemas/ContactCard'
         loanees:
           type: array
+          description: With what the contact hover card shows (`ContactCardHelper`).
           items:
-            $ref: '#/components/schemas/ContactSummary'
+            $ref: '#/components/schemas/ContactCard'
         created_at:
           $ref: '#/components/schemas/Timestamp'
         updated_at:
@@ -15967,7 +15969,9 @@ components:
           enum:
           - km
           - mi
+          - miles
           - null
+          description: The web form writes `km` or `miles`.
         from_place:
           type:
           - string
@@ -15982,18 +15986,9 @@ components:
           - 'null'
         participants:
           type: array
+          description: With what the contact hover card shows (`ContactCardHelper`, age and groups).
           items:
-            allOf:
-            - $ref: '#/components/schemas/ContactSummary'
-            - type: object
-              required:
-              - age
-              properties:
-                age:
-                  type:
-                  - integer
-                  - 'null'
-                  description: Computed from the contact's birthdate important date; null when unknown.
+            $ref: '#/components/schemas/ContactCard'
         created_at:
           $ref: '#/components/schemas/Timestamp'
         updated_at:
@@ -16051,7 +16046,9 @@ components:
           enum:
           - km
           - mi
+          - miles
           - null
+          description: The web form writes `km` or `miles`.
         from_place:
           type:
           - string
@@ -16121,7 +16118,9 @@ components:
           enum:
           - km
           - mi
+          - miles
           - null
+          description: The web form writes `km` or `miles`.
         from_place:
           type:
           - string
@@ -17161,6 +17160,7 @@ components:
       type: object
       required:
       - default_activity_tab
+      - user_contact
       - favorites
       - last_updated_contacts
       - upcoming_reminders
@@ -17176,6 +17176,15 @@ components:
           - activity
           - life_events
           - life_metrics
+        user_contact:
+          $ref: '#/components/schemas/ContactSummary'
+          description: 'The current user''s own contact in the vault (`Vault.user_contact_id`):
+
+            the mood form and the life events module act on it, and the life
+
+            events form shows it as the first participant.
+
+            '
         favorites:
           type: array
           description: Contacts the current user marked favorite in this vault.
@@ -18146,9 +18155,9 @@ components:
             $ref: '#/components/schemas/Tag'
         contacts:
           type: array
-          description: Contacts mentioned in the post.
+          description: Contacts mentioned in the post, with what the show page's hover card shows (`ContactCardHelper`).
           items:
-            $ref: '#/components/schemas/ContactSummary'
+            $ref: '#/components/schemas/ContactCard'
         photos:
           type: array
           description: The post's photos, by id.
@@ -18375,9 +18384,10 @@ components:
               $ref: '#/components/schemas/PostSummary'
           contacts:
             type: array
-            description: Computed. Distinct contacts mentioned in those posts.
+            description: Computed. Distinct contacts mentioned in those posts, with what the hover card
+              shows (`ContactCardHelper`).
             items:
-              $ref: '#/components/schemas/ContactSummary'
+              $ref: '#/components/schemas/ContactCard'
     SliceOfLifeList:
       type: object
       required:

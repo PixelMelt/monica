@@ -39,7 +39,7 @@
           <!-- pet categories -->
           <dropdown
             v-model.number="form.pet_category_id"
-            :data="data.pet_categories"
+            :data="petCategories"
             :required="true"
             :placeholder="$t('Choose a value')"
             :dropdown-class="'block w-full'"
@@ -104,7 +104,7 @@
                 <!-- pet categories -->
                 <dropdown
                   v-model.number="form.pet_category_id"
-                  :data="data.pet_categories"
+                  :data="petCategories"
                   :required="true"
                   :placeholder="$t('Choose a value')"
                   :dropdown-class="'block w-full'"
@@ -138,6 +138,8 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { Dog } from 'lucide-vue-next';
+import { createContactPet, deleteContactPet, listPetCategories, updateContactPet } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 export default {
   components: {
@@ -161,6 +163,7 @@ export default {
       loadingState: '',
       addPetModalShown: false,
       localPets: [],
+      petCategories: [],
       editedPetId: 0,
       form: {
         name: '',
@@ -172,6 +175,11 @@ export default {
 
   created() {
     this.localPets = this.data.pets;
+
+    // the categories of the form (ModulePetsViewHelper::data)
+    listPetCategories().then((response) => {
+      this.petCategories = response.data.map(dto.petCategory);
+    });
   },
 
   methods: {
@@ -193,14 +201,20 @@ export default {
       this.form.name = pet.name;
     },
 
+    petBody() {
+      return {
+        pet_category_id: dto.toInt(this.form.pet_category_id),
+        name: dto.blank(this.form.name),
+      };
+    },
+
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createContactPet({ vault_id: this.data.vault_id, contact_id: this.data.contact_id }, this.petBody())
+        .then((pet) => {
           this.flash(this.$t('The pet has been added'), 'success');
-          this.localPets.unshift(response.data.data);
+          this.localPets.unshift(dto.pet(pet));
           this.loadingState = '';
           this.addPetModalShown = false;
         })
@@ -213,12 +227,14 @@ export default {
     update(pet) {
       this.loadingState = 'loading';
 
-      axios
-        .put(pet.url.update, this.form)
-        .then((response) => {
+      updateContactPet(
+        { vault_id: this.data.vault_id, contact_id: this.data.contact_id, pet_id: pet.id },
+        this.petBody(),
+      )
+        .then((updated) => {
           this.loadingState = '';
           this.flash(this.$t('The pet has been updated'), 'success');
-          this.localPets[this.localPets.findIndex((x) => x.id === pet.id)] = response.data.data;
+          this.localPets[this.localPets.findIndex((x) => x.id === pet.id)] = dto.pet(updated);
           this.editedPetId = 0;
         })
         .catch((error) => {
@@ -229,8 +245,7 @@ export default {
 
     destroy(pet) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(pet.url.destroy)
+        deleteContactPet({ vault_id: this.data.vault_id, contact_id: this.data.contact_id, pet_id: pet.id })
           .then(() => {
             this.flash(this.$t('The pet has been deleted'), 'success');
             var id = this.localPets.findIndex((x) => x.id === pet.id);

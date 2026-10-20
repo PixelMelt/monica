@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { trans } from 'laravel-vue-i18n';
 import Loading from '@/Shared/Loading.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -10,7 +10,18 @@ import ChevronIcon from '@/Shared/Icons/ChevronIcon.vue';
 import ClockIcon from '@/Shared/Icons/ClockIcon.vue';
 import TwoPinMapIcon from '@/Shared/Icons/TwoPinMapIcon.vue';
 import { Flame } from 'lucide-vue-next';
+import {
+  deleteContactLifeEvent,
+  deleteContactTimelineEvent,
+  listContactTimelineEvents,
+  listVaultLifeEventCategories,
+  updateContactLifeEvent,
+  updateContactTimelineEvent,
+} from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
+// `data`: `adapters/modules-a#lifeEventsModule` (the contact page's module,
+// or the user's own contact on the dashboard).
 const props = defineProps({
   layoutData: Object,
   data: Object,
@@ -21,37 +32,51 @@ const loadingData = ref(true);
 const paginator = ref([]);
 const localTimelines = ref([]);
 const showAddLifeEventModalForTimelineEventId = ref(0);
+const lifeEventCategories = ref(props.data.life_event_categories ?? []);
+let page = 0;
+
+// the module's data with the categories of the life event form
+const formData = computed(() => ({ ...props.data, life_event_categories: lifeEventCategories.value }));
+
+const ids = () => ({ vault_id: props.data.vault_id, contact_id: props.data.contact_id });
+
+const receive = (timelineEvents, meta) => {
+  timelineEvents.forEach((entry) => {
+    localTimelines.value.push(entry);
+  });
+  page = meta.page;
+  paginator.value = { hasMorePages: meta.page < meta.last_page };
+};
 
 onMounted(() => {
-  axios
-    .get(props.data.url.load)
-    .then((response) => {
-      loadingData.value = false;
-      response.data.data.timeline_events.forEach((entry) => {
-        localTimelines.value.push(entry);
+  // the first page of timeline events comes with the module; the categories
+  // of the form are loaded when the page didn't pass them
+  const categories = props.data.life_event_categories
+    ? Promise.resolve()
+    : listVaultLifeEventCategories({ vault_id: props.data.vault_id }).then((response) => {
+        lifeEventCategories.value = response.data.map(dto.lifeEventCategory);
       });
-      paginator.value = response.data.paginator;
+
+  categories
+    .then(() => {
+      loadingData.value = false;
+      receive(props.data.timeline_events, props.data.meta);
     })
     .catch(() => {});
 });
 
 const loadMore = () => {
-  axios
-    .get(paginator.value.nextPageUrl)
+  listContactTimelineEvents({ ...ids(), page: page + 1 })
     .then((response) => {
       loadingData.value = false;
-      response.data.data.timeline_events.forEach((entry) => {
-        localTimelines.value.push(entry);
-      });
-      paginator.value = response.data.paginator;
+      receive(response.data.map(dto.timelineEvent), response.meta);
     })
     .catch(() => {});
 };
 
 const destroy = (timelineEvent) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(timelineEvent.url.destroy)
+    deleteContactTimelineEvent({ ...ids(), timeline_event_id: timelineEvent.id })
       .then(() => {
         var id = localTimelines.value.findIndex((x) => x.id === timelineEvent.id);
         localTimelines.value.splice(id, 1);
@@ -62,8 +87,7 @@ const destroy = (timelineEvent) => {
 
 const destroyLifeEvent = (timelineEvent, lifeEvent) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(lifeEvent.url.destroy)
+    deleteContactLifeEvent({ ...ids(), timeline_event_id: timelineEvent.id, life_event_id: lifeEvent.id })
       .then(() => {
         var id = localTimelines.value.findIndex((x) => x.id === timelineEvent.id);
         var lifeEventId = localTimelines.value[id].life_events.findIndex((x) => x.id === lifeEvent.id);
@@ -95,13 +119,16 @@ const showCreateLifeEventModal = () => {
 const toggleTimelineEventVisibility = (timelineEvent) => {
   timelineEvent.collapsed = !timelineEvent.collapsed;
 
-  axios.post(timelineEvent.url.toggle);
+  updateContactTimelineEvent({ ...ids(), timeline_event_id: timelineEvent.id }, { collapsed: timelineEvent.collapsed });
 };
 
 const toggleLifeEventVisibility = (lifeEvent) => {
   lifeEvent.collapsed = !lifeEvent.collapsed;
 
-  axios.post(lifeEvent.url.toggle);
+  updateContactLifeEvent(
+    { ...ids(), timeline_event_id: lifeEvent.timeline_event.id, life_event_id: lifeEvent.id },
+    { collapsed: lifeEvent.collapsed },
+  );
 };
 </script>
 
@@ -124,7 +151,8 @@ const toggleLifeEventVisibility = (lifeEvent) => {
     <div>
       <!-- add a timeline event -->
       <create-life-event
-        :data="data"
+        v-if="!loadingData"
+        :data="formData"
         :layout-data="layoutData"
         :open-modal="createLifeEventModalShown"
         :create-timeline-event="true"
@@ -169,7 +197,7 @@ const toggleLifeEventVisibility = (lifeEvent) => {
               class="mb-2 ms-6 rounded-lg border-gray-200 dark:border-gray-700 dark:bg-gray-900">
               <template v-if="lifeEvent.edit">
                 <create-life-event
-                  :data="data"
+                  :data="formData"
                   :layout-data="layoutData"
                   :open-modal="lifeEvent.edit"
                   :life-event="lifeEvent"
@@ -267,7 +295,7 @@ const toggleLifeEventVisibility = (lifeEvent) => {
               </span>
 
               <create-life-event
-                :data="data"
+                :data="formData"
                 :layout-data="layoutData"
                 :open-modal="showAddLifeEventModalForTimelineEventId === timelineEvent.id"
                 :create-timeline-event="false"

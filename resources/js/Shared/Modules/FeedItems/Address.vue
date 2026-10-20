@@ -36,13 +36,6 @@
           </p>
         </div>
       </div>
-
-      <!-- map image -->
-      <div v-if="data.address.object.image">
-        <a :href="data.address.object.url.show" target="_blank">
-          <img :src="data.address.object.image" class="rounded-xs" :alt="data.address.object.description" />
-        </a>
-      </div>
     </div>
 
     <div v-else class="flex justify-between px-3 py-3">

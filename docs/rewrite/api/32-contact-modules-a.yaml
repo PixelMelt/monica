@@ -1238,10 +1238,12 @@ components:
             - type: 'null'
         loaners:
           type: array
-          items: { $ref: '#/components/schemas/ContactSummary' }
+          description: With what the contact hover card shows (`ContactCardHelper`).
+          items: { $ref: '#/components/schemas/ContactCard' }
         loanees:
           type: array
-          items: { $ref: '#/components/schemas/ContactSummary' }
+          description: With what the contact hover card shows (`ContactCardHelper`).
+          items: { $ref: '#/components/schemas/ContactCard' }
         created_at: { $ref: '#/components/schemas/Timestamp' }
         updated_at: { $ref: '#/components/schemas/Timestamp' }
     LoanList:

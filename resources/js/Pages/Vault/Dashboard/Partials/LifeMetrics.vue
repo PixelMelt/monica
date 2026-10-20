@@ -10,6 +10,13 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import HoverMenu from '@/Shared/HoverMenu.vue';
 import { ChartSpline } from 'lucide-vue-next';
+import {
+  createVaultLifeMetric,
+  deleteVaultLifeMetric,
+  incrementVaultLifeMetric,
+  updateVaultLifeMetric,
+} from '@/api/client';
+import * as dto from '@/adapters/dashboard';
 
 const props = defineProps({
   data: Object,
@@ -50,13 +57,12 @@ const toggleGraph = (lifeMetric) => {
 const store = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createVaultLifeMetric({ vault_id: props.data.vault_id }, { label: form.label })
+    .then((lifeMetric) => {
       flash(trans('The life metric has been created'), 'success');
       loadingState.value = '';
       createLifeMetricModalShown.value = false;
-      localLifeMetrics.value.push(response.data.data);
+      localLifeMetrics.value.push(dto.lifeMetric(lifeMetric));
     })
     .catch(() => {
       loadingState.value = '';
@@ -66,11 +72,11 @@ const store = () => {
 const increment = (lifeMetric) => {
   loadingState.value = 'loading';
 
-  axios
-    .post(lifeMetric.url.store, form)
-    .then((response) => {
+  incrementVaultLifeMetric({ vault_id: props.data.vault_id, life_metric_id: lifeMetric.id })
+    .then((incremented) => {
       loadingState.value = '';
-      localLifeMetrics.value[localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id)] = response.data.data;
+      localLifeMetrics.value[localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id)] =
+        dto.lifeMetric(incremented);
       localLifeMetrics.value[localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id)].incremented = true;
     })
     .catch(() => {
@@ -81,13 +87,12 @@ const increment = (lifeMetric) => {
 const update = (lifeMetric) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(lifeMetric.url.update, form)
-    .then((response) => {
+  updateVaultLifeMetric({ vault_id: props.data.vault_id, life_metric_id: lifeMetric.id }, { label: form.label })
+    .then((updated) => {
       flash(trans('The life metric has been updated'), 'success');
       loadingState.value = '';
       editedLifeMetricId.value = 0;
-      localLifeMetrics.value[localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id)] = response.data.data;
+      localLifeMetrics.value[localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id)] = dto.lifeMetric(updated);
     })
     .catch(() => {
       loadingState.value = '';
@@ -96,8 +101,7 @@ const update = (lifeMetric) => {
 
 const destroy = (lifeMetric) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(lifeMetric.url.destroy)
+    deleteVaultLifeMetric({ vault_id: props.data.vault_id, life_metric_id: lifeMetric.id })
       .then(() => {
         flash(trans('The life metric has been deleted'), 'success');
         let id = localLifeMetrics.value.findIndex((x) => x.id === lifeMetric.id);

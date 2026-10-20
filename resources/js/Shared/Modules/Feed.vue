@@ -176,6 +176,20 @@
 </template>
 
 <script>
+// The activity feed of a contact (contact page) or of a whole vault
+// (dashboard activity tab). It loads its pages itself.
+//
+// Props:
+// - `data` (Object): `{ vault_id, contact_id, items, meta }`
+//   - `vault_id`: the vault.
+//   - `contact_id`: the contact whose feed to show; null for the feed of
+//     every contact of the vault (`listVaultFeed`).
+//   - `items`, `meta` (optional): the first page, already loaded: the feed
+//     module's data (`adapters/modules-a#feed`, items as `feedItem`, `meta`
+//     the API's `PaginationMeta`). Without them the component loads page 1.
+//   `url` is accepted as another name of `data`.
+// - `contactViewMode` (Boolean, default true): true on the contact page;
+//   false shows the contact of each entry (dashboard).
 import Link from '@/router/Link.vue';
 import Loading from '@/Shared/Loading.vue';
 import Avatar from '@/Shared/Avatar.vue';
@@ -188,6 +202,8 @@ import Goal from '@/Shared/Modules/FeedItems/Goal.vue';
 import MoodTrackingEvent from '@/Shared/Modules/FeedItems/MoodTrackingEvent.vue';
 import Note from '@/Shared/Modules/FeedItems/Note.vue';
 import { CalendarDays } from 'lucide-vue-next';
+import { listContactFeedItems, listVaultFeed } from '@/api/client';
+import { feedItem } from '@/adapters/modules-a';
 
 export default {
   components: {
@@ -210,9 +226,13 @@ export default {
       type: Boolean,
       default: true,
     },
+    data: {
+      type: Object,
+      default: null,
+    },
     url: {
-      type: String,
-      default: '',
+      type: Object,
+      default: null,
     },
   },
 
@@ -221,7 +241,14 @@ export default {
       feed: [],
       loading: false,
       paginator: [],
+      page: 0,
     };
+  },
+
+  computed: {
+    source() {
+      return this.data ?? this.url;
+    },
   },
 
   mounted() {
@@ -229,28 +256,40 @@ export default {
   },
 
   methods: {
+    // ContactFeedController@show, VaultFeedController@show: 15 entries per page
+    loadPage(page) {
+      const { vault_id, contact_id } = this.source;
+
+      return contact_id ? listContactFeedItems({ vault_id, contact_id, page }) : listVaultFeed({ vault_id, page });
+    },
+
+    receive(items, meta) {
+      items.forEach((entry) => {
+        this.feed.push(entry);
+      });
+      this.page = meta.page;
+      this.paginator = { hasMorePages: meta.page < meta.last_page };
+    },
+
     initialLoad() {
+      if (this.source.items) {
+        this.receive(this.source.items, this.source.meta);
+        return;
+      }
+
       this.loading = true;
-      axios
-        .get(this.url)
+      this.loadPage(1)
         .then((response) => {
           this.loading = false;
-          response.data.data.items.forEach((entry) => {
-            this.feed.push(entry);
-          });
-          this.paginator = response.data.paginator;
+          this.receive(response.data.map(feedItem), response.meta);
         })
         .catch(() => {});
     },
 
     load() {
-      axios
-        .get(this.paginator.nextPageUrl)
+      this.loadPage(this.page + 1)
         .then((response) => {
-          response.data.data.items.forEach((entry) => {
-            this.feed.push(entry);
-          });
-          this.paginator = response.data.paginator;
+          this.receive(response.data.map(feedItem), response.meta);
         })
         .catch(() => {});
     },

@@ -15,6 +15,9 @@ import Dropdown from '@/Shared/Form/Dropdown.vue';
 import ContactCard from '@/Shared/ContactCard.vue';
 import ArrowIcon from '@/Shared/Icons/ArrowIcon.vue';
 import { HandCoins } from 'lucide-vue-next';
+import { createContactLoan, deleteContactLoan, listAccountCurrencies, updateContactLoan } from '@/api/client';
+import { parseMoneyInput } from '@/lib/helpers';
+import * as dto from '@/adapters/modules-a';
 
 const props = defineProps({
   layoutData: Object,
@@ -37,7 +40,6 @@ const form = useForm({
   currency_id: '',
   loaners: [],
   loanees: [],
-  errors: [],
 });
 const masks = ref({
   modelValue: 'YYYY-MM-DD',
@@ -72,11 +74,30 @@ const showEditLoanModal = (loan) => {
 
 const getCurrencies = () => {
   if (localCurrencies.value.length === 0) {
-    axios.get(props.data.url.currencies, form).then((response) => {
-      localCurrencies.value = response.data.data;
+    listAccountCurrencies({ active: true }).then((response) => {
+      localCurrencies.value = response.data.map(dto.currencyOption);
     });
   }
 };
+
+// ContactModuleLoanController: the contacts' ids, the amount in the currency's minor unit
+const loanBody = () => {
+  const currencyId = dto.toInt(form.currency_id) || null;
+  const currency = localCurrencies.value.find((c) => c.id === currencyId);
+
+  return {
+    type: form.type,
+    name: form.name,
+    description: dto.blank(form.description),
+    loaner_ids: form.loaners.map((contact) => contact.id),
+    loanee_ids: form.loanees.map((contact) => contact.id),
+    amount_lent: form.amount_lent ? parseMoneyInput(form.amount_lent, currency?.name ?? null) : null,
+    currency_id: currencyId,
+    loaned_at: dto.blank(form.loaned_at),
+  };
+};
+
+const ids = (loan) => ({ vault_id: props.data.vault_id, contact_id: props.data.contact_id, loan_id: loan.id });
 
 const submit = () => {
   if (form.loaners.length === 0 || form.loanees.length === 0) {
@@ -86,11 +107,10 @@ const submit = () => {
 
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createContactLoan({ vault_id: props.data.vault_id, contact_id: props.data.contact_id }, loanBody())
+    .then((loan) => {
       flash(trans('The loan has been created'), 'success');
-      localLoans.value.unshift(response.data.data);
+      localLoans.value.unshift(dto.loan(loan));
       loadingState.value = '';
       createLoanModalShown.value = false;
     })
@@ -103,12 +123,11 @@ const submit = () => {
 const update = (loan) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(loan.url.update, form)
-    .then((response) => {
+  updateContactLoan(ids(loan), loanBody())
+    .then((updated) => {
       loadingState.value = '';
       flash(trans('The loan has been updated'), 'success');
-      localLoans.value[localLoans.value.findIndex((x) => x.id === loan.id)] = response.data.data;
+      localLoans.value[localLoans.value.findIndex((x) => x.id === loan.id)] = dto.loan(updated);
       editedLoanId.value = 0;
     })
     .catch((error) => {
@@ -119,8 +138,7 @@ const update = (loan) => {
 
 const destroy = (loan) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(loan.url.destroy)
+    deleteContactLoan(ids(loan))
       .then(() => {
         flash(trans('The loan has been deleted'), 'success');
         let id = localLoans.value.findIndex((x) => x.id === loan.id);
@@ -134,11 +152,10 @@ const destroy = (loan) => {
 };
 
 const toggle = (loan) => {
-  axios
-    .put(loan.url.toggle, form)
-    .then((response) => {
+  updateContactLoan(ids(loan), { settled: !loan.settled })
+    .then((updated) => {
       flash(trans('The loan has been settled'), 'success');
-      localLoans.value[localLoans.value.findIndex((x) => x.id === loan.id)] = response.data.data;
+      localLoans.value[localLoans.value.findIndex((x) => x.id === loan.id)] = dto.loan(updated);
     })
     .catch((error) => {
       form.errors = error.response.data;
@@ -272,8 +289,6 @@ const toggle = (loan) => {
           <div class="flex items-center items-stretch border-b border-gray-200 dark:border-gray-700">
             <contact-selector
               v-model="form.loaners"
-              :search-url="layoutData.vault.url.search_contacts_only"
-              :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
               :display-most-consulted-contacts="false"
               :label="$t('Who makes the loan?')"
               :add-multiple-contacts="true"
@@ -282,8 +297,6 @@ const toggle = (loan) => {
 
             <contact-selector
               v-model="form.loanees"
-              :search-url="layoutData.vault.url.search_contacts_only"
-              :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
               :display-most-consulted-contacts="true"
               :label="$t('Who the loan is for?')"
               :add-multiple-contacts="true"
@@ -488,8 +501,6 @@ const toggle = (loan) => {
             <div class="flex items-center items-stretch border-b border-gray-200 dark:border-gray-700">
               <contact-selector
                 v-model="form.loaners"
-                :search-url="layoutData.vault.url.search_contacts_only"
-                :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
                 :display-most-consulted-contacts="false"
                 :label="$t('Who makes the loan?')"
                 :add-multiple-contacts="true"
@@ -498,8 +509,6 @@ const toggle = (loan) => {
 
               <contact-selector
                 v-model="form.loanees"
-                :search-url="layoutData.vault.url.search_contacts_only"
-                :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
                 :display-most-consulted-contacts="true"
                 :label="$t('Who the loan is for?')"
                 :add-multiple-contacts="true"

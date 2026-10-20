@@ -10,6 +10,8 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import ArrowIcon from '@/Shared/Icons/ArrowIcon.vue';
+import { createContactLifeEvent, createContactTimelineEvent, updateContactLifeEvent } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 const props = defineProps({
   layoutData: Object,
@@ -72,7 +74,7 @@ onMounted(() => {
       addDescriptionFieldShown.value = true;
     }
     if (props.lifeEvent.distance) {
-      form.distance = props.lifeEvent.distance;
+      form.distance = props.lifeEvent.distance_value;
       form.distance_unit = props.lifeEvent.distance_unit;
       addDistanceFieldShown.value = true;
     }
@@ -133,32 +135,49 @@ const showAddDistanceField = () => {
 const store = () => {
   loadingState.value = 'loading';
 
+  // ContactModuleTimelineEventController, ContactModuleLifeEventController:
+  // the contact of the module is always a participant
+  const params = { vault_id: props.data.vault_id, contact_id: props.data.contact_id };
+  const lifeEvent = {
+    life_event_type_id: form.lifeEventTypeId,
+    happened_at: dto.pickedDate(form.started_at),
+    summary: dto.blank(form.summary),
+    description: dto.blank(form.description),
+    distance: dto.toInt(form.distance) || null,
+    distance_unit: dto.blank(form.distance_unit),
+    participant_ids: [...new Set([...form.participants.map((contact) => contact.id), props.data.contact_id])],
+  };
+
   // we either called the Create life event modal from inside an existing timeline
   // event, or from a new timeline event
-  // this changes the url we post to as we need to pass the right info back to
+  // this changes the operation we call as we need to pass the right info back to
   // the parent (ie. if it needs to refresh a specific timeline event, or the entire
   // timeline)
-  let request = {
-    method: 'post',
-    data: form,
-  };
+  let request;
   if (props.lifeEvent) {
-    request.url = props.lifeEvent.url.edit;
-    request.method = 'put';
+    request = updateContactLifeEvent(
+      { ...params, timeline_event_id: props.lifeEvent.timeline_event.id, life_event_id: props.lifeEvent.id },
+      lifeEvent,
+    ).then(dto.lifeEvent);
+  } else if (props.createTimelineEvent) {
+    request = createContactTimelineEvent(params, { label: dto.blank(form.label), life_event: lifeEvent }).then(
+      dto.timelineEvent,
+    );
   } else {
-    request.url = props.createTimelineEvent ? props.data.url.store : props.timelineEvent.url.store;
+    request = createContactLifeEvent({ ...params, timeline_event_id: props.timelineEvent.id }, lifeEvent).then(
+      dto.lifeEvent,
+    );
   }
 
-  axios
-    .request(request)
-    .then((response) => {
+  request
+    .then((result) => {
       loadingState.value = '';
       nextTick().then(() => emit('closeModal'));
 
       if (props.createTimelineEvent) {
-        emit('timelineEventCreated', response.data.data);
+        emit('timelineEventCreated', result);
       } else {
-        emit('lifeEventCreated', response.data.data);
+        emit('lifeEventCreated', result);
       }
 
       selectedLifeEventType.value = null;
@@ -284,8 +303,6 @@ const store = () => {
         <!-- all other participants -->
         <contact-selector
           v-model="form.participants"
-          :search-url="layoutData.vault.url.search_contacts_only"
-          :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
           :display-most-consulted-contacts="true"
           :add-multiple-contacts="true"
           :required="true"

@@ -43,7 +43,7 @@
         <!-- emotion -->
         <div v-if="emotionFieldShown" class="mt-2 block w-full">
           <p class="mb-2">{{ $t('How did you feel?') }}</p>
-          <div v-for="emotion in data.emotions" :key="emotion.id" class="mb-2 flex items-center">
+          <div v-for="emotion in emotions" :key="emotion.id" class="mb-2 flex items-center">
             <input
               :id="emotion.type"
               v-model="form.emotion"
@@ -168,7 +168,7 @@
             <!-- emotion -->
             <div v-if="form.emotion" class="mt-2 block w-full">
               <p class="mb-2">How did you feel?</p>
-              <div v-for="emotion in data.emotions" :key="emotion.id" class="mb-2 flex items-center">
+              <div v-for="emotion in emotions" :key="emotion.id" class="mb-2 flex items-center">
                 <input
                   :id="emotion.type"
                   v-model="form.emotion"
@@ -224,6 +224,8 @@ import Errors from '@/Shared/Form/Errors.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { NotebookPen, CalendarDays } from 'lucide-vue-next';
+import { createContactNote, deleteContactNote, listEmotions, updateContactNote } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 export default {
   components: {
@@ -262,6 +264,7 @@ export default {
       emotionFieldShown: false,
       createNoteModalShown: false,
       localNotes: [],
+      emotions: [],
       editedNoteId: 0,
       form: {
         title: '',
@@ -274,6 +277,15 @@ export default {
 
   created() {
     this.localNotes = this.data.notes;
+
+    // the notes page passes the emotions; the module loads them
+    if (this.data.emotions) {
+      this.emotions = this.data.emotions;
+    } else {
+      listEmotions().then((response) => {
+        this.emotions = response.data.map(dto.emotion);
+      });
+    }
   },
 
   methods: {
@@ -309,14 +321,21 @@ export default {
       this.localNotes[this.localNotes.findIndex((x) => x.id === note.id)].show_full_content = true;
     },
 
+    noteBody() {
+      return {
+        title: dto.blank(this.form.title),
+        body: this.form.body,
+        emotion_id: dto.toInt(this.form.emotion),
+      };
+    },
+
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createContactNote({ vault_id: this.data.vault_id, contact_id: this.data.contact_id }, this.noteBody())
+        .then((note) => {
           this.flash(this.$t('The note has been created'), 'success');
-          this.localNotes.unshift(response.data.data);
+          this.localNotes.unshift(dto.note(note));
           this.loadingState = '';
           this.createNoteModalShown = false;
         })
@@ -329,12 +348,14 @@ export default {
     update(note) {
       this.loadingState = 'loading';
 
-      axios
-        .put(note.url.update, this.form)
-        .then((response) => {
+      updateContactNote(
+        { vault_id: this.data.vault_id, contact_id: this.data.contact_id, note_id: note.id },
+        this.noteBody(),
+      )
+        .then((updated) => {
           this.loadingState = '';
           this.flash(this.$t('The note has been updated'), 'success');
-          this.localNotes[this.localNotes.findIndex((x) => x.id === note.id)] = response.data.data;
+          this.localNotes[this.localNotes.findIndex((x) => x.id === note.id)] = dto.note(updated);
           this.editedNoteId = 0;
         })
         .catch((error) => {
@@ -345,8 +366,7 @@ export default {
 
     destroy(note) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(note.url.destroy)
+        deleteContactNote({ vault_id: this.data.vault_id, contact_id: this.data.contact_id, note_id: note.id })
           .then(() => {
             this.flash(this.$t('The note has been deleted'), 'success');
             var id = this.localNotes.findIndex((x) => x.id === note.id);
