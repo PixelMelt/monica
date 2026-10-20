@@ -99,6 +99,11 @@ pub fn tasks() -> Vec<Task> {
             run: |s| Box::pin(prune_failed(s)),
         },
         Task {
+            command: "App\\Domains\\Contact\\DavClient\\Jobs\\UpdateAddressBooks",
+            frequency: Frequency::Hourly,
+            run: |s| Box::pin(crate::domains::contact::dav_client::update_address_books(s)),
+        },
+        Task {
             command: "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
             frequency: Frequency::Minutes(1),
             run: |s| Box::pin(process_reminders(s)),
@@ -233,6 +238,7 @@ mod tests {
                 ("model:prune", Frequency::Daily),
                 ("queue:prune-batches --hours=48 --unfinished=72 --cancelled=72", Frequency::Daily),
                 ("queue:prune-failed --hours=48", Frequency::Daily),
+                ("App\\Domains\\Contact\\DavClient\\Jobs\\UpdateAddressBooks", Frequency::Hourly),
                 (
                     "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
                     Frequency::Minutes(1)
