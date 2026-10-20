@@ -1563,6 +1563,123 @@ const modules = [
   ['posts', modulePosts],
 ];
 
+/**
+ * 8. CardDAV/CalDAV with a real client: an API token made on the API
+ * tokens page (with `write`), then vdirsyncer pulls the vault's address
+ * book and calendars, and pushes a new card, an edit and a deletion that
+ * the UI then shows.
+ */
+async function cardDav() {
+  await goto('/user/api-tokens');
+  await typeInto(await page.$('#name'), 'vdirsyncer');
+  const write = await page.evaluateHandle(() =>
+    [...document.querySelectorAll('label')].find((l) => l.textContent.trim() === 'write')?.querySelector('input'),
+  );
+  if (!write.asElement()) throw new Error('no write permission checkbox');
+  await clickElement(write.asElement());
+  await click('Create', { selector: 'button' });
+  await see('Please copy your new API token');
+  const token = await page.evaluate(() => /\d+\|[A-Za-z0-9]+/.exec(document.body.innerText)?.[0]);
+  if (!token) throw new Error('the new token is not shown');
+
+  const dir = path.join(OUT, 'vdirsyncer');
+  fs.rmSync(dir, { recursive: true, force: true });
+  fs.mkdirSync(path.join(dir, 'contacts'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'calendars'), { recursive: true });
+  const storage = (kind, type) => `[storage ${kind}_remote]
+type = "${type}"
+url = "${BASE}/dav/"
+username = "${user.email}"
+password = "${token}"
+`;
+  fs.writeFileSync(
+    path.join(dir, 'config'),
+    `[general]
+status_path = "${dir}/status/"
+
+[pair contacts]
+a = "contacts_local"
+b = "contacts_remote"
+collections = ["from b"]
+conflict_resolution = "b wins"
+
+[storage contacts_local]
+type = "filesystem"
+path = "${dir}/contacts/"
+fileext = ".vcf"
+
+${storage('contacts', 'carddav')}
+[pair calendars]
+a = "calendars_local"
+b = "calendars_remote"
+collections = ["from b"]
+conflict_resolution = "b wins"
+
+[storage calendars_local]
+type = "filesystem"
+path = "${dir}/calendars/"
+fileext = ".ics"
+
+${storage('calendars', 'caldav')}`,
+  );
+  const vdirsyncer = (...args) =>
+    execFileSync(process.env.VDIRSYNCER, args, {
+      env: { ...process.env, VDIRSYNCER_CONFIG: path.join(dir, 'config') },
+      input: 'y\n'.repeat(50),
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  vdirsyncer('discover');
+  vdirsyncer('sync');
+
+  // Pull: the vault's address book has a card per contact (with the user's own).
+  const books = fs.readdirSync(path.join(dir, 'contacts'));
+  if (books.length !== 1) throw new Error(`expected one address book, got ${JSON.stringify(books)}`);
+  const book = path.join(dir, 'contacts', books[0]);
+  const cards = () => fs.readdirSync(book).filter((f) => f.endsWith('.vcf'));
+  const pulled = cards().map((f) => fs.readFileSync(path.join(book, f), 'utf8'));
+  for (const c of state.contacts.slice(0, 2)) {
+    if (!pulled.some((card) => card.includes(c.name.split(' ')[0]))) throw new Error(`no card for ${c.name}`);
+  }
+  const calendars = fs.readdirSync(path.join(dir, 'calendars'));
+  if (!calendars.some((c) => c.startsWith('dates-')) || !calendars.some((c) => c.startsWith('tasks-'))) {
+    throw new Error(`expected the dates and tasks calendars, got ${JSON.stringify(calendars)}`);
+  }
+
+  // Push: a new card shows in the contact list.
+  const uid = crypto.randomUUID();
+  fs.writeFileSync(
+    path.join(book, `${uid}.vcf`),
+    `BEGIN:VCARD\r\nVERSION:3.0\r\nUID:${uid}\r\nFN:Grace Hopper\r\nN:Hopper;Grace;;;\r\nEMAIL;TYPE=WORK:grace@example.com\r\nEND:VCARD\r\n`,
+  );
+  vdirsyncer('sync', 'contacts');
+  await goto(vaultPath(`/contacts/${uid}`));
+  await see('Grace Hopper');
+  await see('grace@example.com');
+
+  // An edit made in the client shows in Monica.
+  const cardPath = path.join(book, `${uid}.vcf`);
+  fs.writeFileSync(
+    cardPath,
+    fs
+      .readFileSync(cardPath, 'utf8')
+      .replace(/^FN:.*$/m, 'FN:Grace Murray Hopper')
+      .replace(/^N:.*$/m, 'N:Murray Hopper;Grace;;;'),
+  );
+  vdirsyncer('sync', 'contacts');
+  await goto(vaultPath(`/contacts/${uid}`));
+  await see('Grace Murray Hopper');
+  // The server stores its own rendering of an imported card: the next sync
+  // brings it back to the client, as a periodic sync does.
+  vdirsyncer('sync', 'contacts');
+
+  // A deletion in the client removes the contact.
+  fs.rmSync(cardPath);
+  vdirsyncer('sync', 'contacts');
+  await goto(vaultPath('/contacts'));
+  await see('Grace Murray Hopper', { absent: true });
+}
+
 // --- main ----------------------------------------------------------------------
 
 page.on('dialog', (d) => d.accept());
@@ -1579,6 +1696,7 @@ const steps = [
   ['5-photo-and-document', files],
   ['6-reminder-email', reminderEmail],
   ['7-every-page', everyPage],
+  ['8-carddav-sync', cardDav],
 ];
 
 let stopped = false;
