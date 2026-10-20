@@ -302,3 +302,30 @@ async fn signup_can_be_disabled_after_the_first_account() {
     assert_eq!(app.post("/auth/register", body("second@example.com")).await.assert(403).code(), "signup_disabled");
     app.finish().await;
 }
+
+/// V032: deleting your own user is off unless `ENABLE_ACCOUNT_DELETION`;
+/// it needs the password, and the last administrator can't leave.
+#[tokio::test]
+async fn deletes_your_own_user_when_enabled() {
+    use axum::http::Method;
+    let mut app = TestApp::new().await;
+    let admin = factory::create_administrator(&app.state.db).await;
+    app.login(&admin.email).await;
+    app.request(Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(404);
+    app.finish().await;
+
+    let mut app = TestApp::with_config(|c| c.enable_account_deletion = true).await;
+    let admin = factory::create_administrator(&app.state.db).await;
+    let member = factory::user(&app.state.db, Some(admin.account_id)).await;
+    app.login(&admin.email).await;
+    let res = app.request(Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(409);
+    assert_eq!(res.code(), "conflict");
+
+    app.login(&member.email).await;
+    app.request(Method::DELETE, "/me", Some(json!({"password": "wrong"}))).await.assert(422);
+    app.request(Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(204);
+    app.get("/me").await.assert(401);
+    let gone = monica::entities::users::Entity::find_by_id(member.id).one(&app.state.db).await.unwrap();
+    assert!(gone.is_none());
+    app.finish().await;
+}
