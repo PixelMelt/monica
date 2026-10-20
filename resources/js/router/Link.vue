@@ -2,7 +2,7 @@
 // A link to a page of the SPA (Inertia's <Link>): a plain <a href> whose
 // clicks navigate in the app. Modified clicks, other targets and external
 // URLs behave as normal links.
-import { useRouter } from 'vue-router';
+import { visit } from '@/router';
 
 const props = defineProps({
   href: { type: String, default: '' },
@@ -10,8 +10,6 @@ const props = defineProps({
   replace: { type: Boolean, default: false },
   data: { type: Object, default: null },
 });
-
-const router = useRouter();
 
 const target = () => {
   if (!props.data) return props.href;
@@ -29,7 +27,7 @@ const onClick = (event) => {
   if (!props.href || external(props.href)) return;
   event.preventDefault();
   const to = target();
-  props.replace ? router.replace(to) : router.push(to);
+  visit(to, { replace: props.replace });
 };
 </script>
 

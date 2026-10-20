@@ -6,7 +6,6 @@ import { route, visit } from '@/router';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
 import { deleteContact, updateContact, setContactAvatar, deleteContactAvatar } from '@/api/client';
-import { visitPage } from '@/adapters/contacts';
 import JetDialogModal from '@/Components/Jetstream/DialogModal.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import JetButton from '@/Components/Button.vue';
@@ -89,7 +88,7 @@ const toggleArchive = () => {
       togglingArchive.value = false;
 
       localStorage.success = trans('Changes saved');
-      visitPage(contactUrl());
+      visit(contactUrl());
     })
     .catch((error) => {
       toggleArchiveForm.processing = false;
@@ -100,14 +99,14 @@ const toggleArchive = () => {
 const uploadAvatar = (body) => setContactAvatar(ids(), body);
 
 const onSuccess = () => {
-  visitPage(contactUrl());
+  visit(contactUrl());
   flash(trans('The photo has been added'), 'success');
 };
 
 const destroyAvatar = () => {
   deleteContactAvatar(ids())
     .then(() => {
-      visitPage(contactUrl());
+      visit(contactUrl());
       flash(trans('Changes saved'), 'success');
     })
     .catch((error) => {
