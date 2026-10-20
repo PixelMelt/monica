@@ -84,6 +84,7 @@ async fn main() -> anyhow::Result<()> {
         .with(
             fmt::layer()
                 .with_writer(std::io::stderr)
+                .with_ansi(std::io::IsTerminal::is_terminal(&std::io::stderr()))
                 .with_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())),
         )
         .with(monica::logging::layer().with_filter(Targets::new().with_target(monica::logging::TARGET, Level::DEBUG)))
