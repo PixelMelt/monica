@@ -89,6 +89,8 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import CheckedIcon from '@/Shared/Icons/CheckedIcon.vue';
 import { Pencil } from 'lucide-vue-next';
+import { listVaultLabels, createVaultLabel, assignContactLabel, unassignContactLabel } from '@/api/client';
+import * as dto from '@/adapters/contacts';
 
 export default {
   components: {
@@ -109,6 +111,7 @@ export default {
   data() {
     return {
       editLabelModalShown: false,
+      labelsInVaultLoaded: false,
       localLabels: [],
       localLabelsInVault: [],
       form: {
@@ -139,32 +142,61 @@ export default {
 
   created() {
     this.localLabels = this.data.labels_in_contact;
-
-    // TODO: this should not be loaded up front. we should do a async call once
-    // the edit mode is active to load all the labels from the backend instead.
-    this.localLabelsInVault = this.data.labels_in_vault;
+    this.localLabelsInVault = this.data.labels_in_vault ?? [];
   },
 
   methods: {
+    ids() {
+      return { vault_id: this.$route.params.vault, contact_id: this.$route.params.contact };
+    },
+
     showEditModal() {
       this.form.name = '';
       this.editLabelModalShown = true;
+      this.getLabels();
 
       this.$nextTick().then(() => {
         this.$refs.label.focus();
       });
     },
 
+    // the vault's labels, loaded once when the block is first edited
+    getLabels() {
+      if (this.labelsInVaultLoaded) {
+        return;
+      }
+
+      listVaultLabels({ vault_id: this.$route.params.vault })
+        .then((labels) => {
+          this.labelsInVaultLoaded = true;
+          // `$vault->labels`, in id order
+          this.localLabelsInVault = [...labels.data]
+            .sort((a, b) => a.id - b.id)
+            .map((label) =>
+              dto.label(
+                label,
+                this.localLabels.some((x) => x.id === label.id),
+              ),
+            );
+        })
+        .catch((error) => {
+          this.form.errors = error.response.data;
+        });
+    },
+
     store() {
       this.form.name = this.form.search;
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createVaultLabel(
+        { vault_id: this.$route.params.vault },
+        { name: this.form.name, bg_color: 'bg-neutral-200', text_color: 'text-neutral-800' },
+      )
+        .then((created) => assignContactLabel({ ...this.ids(), label_id: created.id }))
+        .then((label) => {
           this.flash(this.$t('The label has been added'), 'success');
           this.form.search = '';
-          this.localLabelsInVault.push(response.data.data);
-          this.localLabels.push(response.data.data);
+          this.localLabelsInVault.push(dto.label(label, true));
+          this.localLabels.push(dto.label(label, true));
         })
         .catch((error) => {
           this.form.errors = error.response.data;
@@ -177,11 +209,13 @@ export default {
         return;
       }
 
-      axios
-        .put(label.url.update)
-        .then((response) => {
-          this.localLabelsInVault[this.localLabelsInVault.findIndex((x) => x.id === label.id)] = response.data.data;
-          this.localLabels.push(response.data.data);
+      assignContactLabel({ ...this.ids(), label_id: label.id })
+        .then((assigned) => {
+          this.localLabelsInVault[this.localLabelsInVault.findIndex((x) => x.id === label.id)] = dto.label(
+            assigned,
+            true,
+          );
+          this.localLabels.push(dto.label(assigned, true));
         })
         .catch((error) => {
           this.form.errors = error.response.data;
@@ -189,10 +223,12 @@ export default {
     },
 
     remove(label) {
-      axios
-        .delete(label.url.destroy)
-        .then((response) => {
-          this.localLabelsInVault[this.localLabelsInVault.findIndex((x) => x.id === label.id)] = response.data.data;
+      unassignContactLabel({ ...this.ids(), label_id: label.id })
+        .then(() => {
+          this.localLabelsInVault[this.localLabelsInVault.findIndex((x) => x.id === label.id)] = {
+            ...label,
+            taken: false,
+          };
 
           var id = this.localLabels.findIndex((x) => x.id === label.id);
           this.localLabels.splice(id, 1);

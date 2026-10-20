@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
+import { listReligions, setContactReligion } from '@/api/client';
+import * as dto from '@/adapters/contacts';
 import Errors from '@/Shared/Form/Errors.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
@@ -15,28 +18,43 @@ const form = useForm({
   religion_id: props.data.religion?.id,
 });
 
+const current = useRoute();
 const loadingState = ref(false);
 const editReligion = ref(false);
-const localReligions = ref(props.data.religions);
+const localReligions = ref(props.data.religions ?? []);
 const religion = ref(props.data.religion?.name);
 
 const update = () => {
   loadingState.value = 'loading';
 
-  axios
-    .put(props.data.url.update, form)
+  setContactReligion(
+    { vault_id: current.params.vault, contact_id: current.params.contact },
+    { religion_id: dto.toId(form.religion_id) },
+  )
     .then((response) => {
       editReligion.value = false;
       loadingState.value = '';
-      religion.value = response.data.data.religion.name;
+      religion.value = dto.religionModule(response).religion.name;
     })
     .catch(() => {
       loadingState.value = '';
     });
 };
 
+// `ModuleReligionViewHelper::list`: the account's religions, loaded when the block is first edited
+const getReligions = () => {
+  if (props.data.religions || localReligions.value.length > 0) {
+    return;
+  }
+
+  listReligions().then((religions) => {
+    localReligions.value = religions.data.map((r) => dto.religion(r, props.data.religion?.id ?? null));
+  });
+};
+
 const showEditModal = () => {
   editReligion.value = true;
+  getReligions();
 };
 </script>
 

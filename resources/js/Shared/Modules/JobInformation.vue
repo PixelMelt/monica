@@ -108,6 +108,13 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { Pencil } from 'lucide-vue-next';
+import {
+  listVaultCompanies,
+  createVaultCompany,
+  setContactJobInformation,
+  deleteContactJobInformation,
+} from '@/api/client';
+import * as dto from '@/adapters/contacts';
 
 export default {
   components: {
@@ -175,10 +182,9 @@ export default {
         return;
       }
 
-      axios
-        .get(this.data.url.index)
-        .then((response) => {
-          this.localCompanies = response.data.data;
+      listVaultCompanies({ vault_id: this.$route.params.vault })
+        .then((companies) => {
+          this.localCompanies = companies.data.map((company) => dto.company(company, this.data.company?.id ?? null));
 
           if (this.localCompanies.length === 0) {
             this.showDropdownCompanies = false;
@@ -194,14 +200,25 @@ export default {
     update() {
       this.loadingState = 'loading';
 
-      axios
-        .put(this.data.url.update, this.form)
-        .then((response) => {
+      const vault = { vault_id: this.$route.params.vault };
+      const company = this.form.company_name
+        ? createVaultCompany(vault, { name: this.form.company_name, type: 'company' }).then((created) => created.id)
+        : Promise.resolve(dto.toId(this.form.company_id));
+
+      company
+        .then((companyId) =>
+          setContactJobInformation(
+            { ...vault, contact_id: this.$route.params.contact },
+            { company_id: companyId, job_position: dto.nullable(this.form.job_position) },
+          ),
+        )
+        .then((information) => {
+          const data = dto.jobInformation(information);
           this.flash(this.$t('The job information has been saved'), 'success');
           this.editJobInformation = false;
           this.loadingState = '';
-          this.company_name = response.data.data.company.name;
-          this.localCompanies.push(response.data.data);
+          this.company_name = data.company.name;
+          this.localCompanies.push(data);
         })
         .catch((error) => {
           this.loadingState = '';
@@ -210,8 +227,7 @@ export default {
     },
 
     reset() {
-      axios
-        .delete(this.data.url.destroy)
+      deleteContactJobInformation({ vault_id: this.$route.params.vault, contact_id: this.$route.params.contact })
         .then(() => {
           this.editJobInformation = false;
           this.company_name = '';

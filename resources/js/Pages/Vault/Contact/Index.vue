@@ -1,6 +1,10 @@
 <script setup>
-import { router, useForm, Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { route } from '@/router';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
+import { updateMyPreferences } from '@/api/client';
+import { visitPage } from '@/adapters/contacts';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
@@ -18,9 +22,9 @@ const form = useForm({
 });
 
 const update = () => {
-  axios.put(props.data.url.sort.update, form).then((response) => {
+  updateMyPreferences({}, { contact_sort_order: form.sort_order }).then(() => {
     localStorage.success = trans('Changes saved');
-    router.visit(response.data.data);
+    visitPage(route('contact.index', { vault: props.layoutData.vault.id }));
   });
 };
 </script>

@@ -29,6 +29,8 @@ import Link from '@/router/Link.vue';
 import { Tooltip as ATooltip } from 'ant-design-vue';
 import StarIcon from '@/Shared/Icons/StarIcon.vue';
 import { Pencil } from 'lucide-vue-next';
+import { updateContact } from '@/api/client';
+import * as dto from '@/adapters/contacts';
 
 export default {
   components: {
@@ -57,11 +59,13 @@ export default {
 
   methods: {
     toggleFavorite() {
-      axios
-        .put(this.data.url.toggle_favorite)
-        .then((response) => {
+      updateContact(
+        { vault_id: this.$route.params.vault, contact_id: this.$route.params.contact },
+        { is_favorite: !this.localData.is_favorite },
+      )
+        .then((contact) => {
           this.flash(this.$t('Changes saved'), 'success');
-          this.localData = response.data.data;
+          this.localData = dto.contactNames(contact);
         })
         .catch((error) => {
           this.form.errors = error.response.data;

@@ -1,9 +1,12 @@
 <script setup>
 import Link from '@/router/Link.vue';
+import { useRoute } from 'vue-router';
+import { route, visit } from '@/router';
 import { useForm } from '@/lib/form';
+import { moveContact } from '@/api/client';
 import Layout from '@/Layouts/Layout.vue';
 
-const props = defineProps({
+defineProps({
   layoutData: Object,
   data: Object,
 });
@@ -12,10 +15,21 @@ const form = useForm({
   other_vault_id: 0,
 });
 
+const current = useRoute();
+
 const move = (vault) => {
   form.other_vault_id = vault.id;
 
-  form.post(props.data.url.move);
+  form.submit(
+    (data) =>
+      moveContact(
+        { vault_id: current.params.vault, contact_id: current.params.contact },
+        { other_vault_id: data.other_vault_id },
+      ),
+    {
+      onSuccess: (contact) => visit(route('contact.show', { vault: contact.vault_id, contact: contact.id })),
+    },
+  );
 };
 </script>
 

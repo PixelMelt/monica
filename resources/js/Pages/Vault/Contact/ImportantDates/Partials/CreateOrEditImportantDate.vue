@@ -1,6 +1,10 @@
 <script setup>
 import { useForm } from '@/lib/form';
 import { nextTick, ref, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
+import { createContactImportantDate, updateContactImportantDate, createContactReminder } from '@/api/client';
+import { today } from '@/lib/format';
+import * as dto from '@/adapters/contacts';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 import { isDark } from '@/methods.js';
@@ -32,8 +36,8 @@ const form = useForm({
   contact_important_date_type_id: null,
   reminder: false,
   reminderChoice: 'recurring_year',
-  errors: [],
 });
+const current = useRoute();
 const masks = ref({
   modelValue: 'YYYY-MM-DD',
 });
@@ -68,27 +72,55 @@ const showMonth = () => {
   nextTick().then(() => monthInput.value.focus());
 };
 
+// `ContactImportantDatesController::getDateParts`: the day, month and year of the chosen kind of date
+const dateParts = () => {
+  switch (form.choice) {
+    case 'full_date': {
+      const [year, month, day] = (form.date || today().format('YYYY-MM-DD')).split('-').map(Number);
+      return { day, month, year };
+    }
+    case 'month_day':
+      return { day: dto.toId(form.day), month: dto.toId(form.month), year: null };
+    case 'year':
+      return { day: null, month: null, year: today().year() - Number(form.age || 0) };
+    default:
+      throw new Error('Invalid date type');
+  }
+};
+
 const submit = () => {
   loadingState.value = 'loading';
 
-  let request = {
-    method: 'post',
-    url: props.data.url.store,
-    data: form,
+  const ids = { vault_id: current.params.vault, contact_id: current.params.contact };
+  const parts = dateParts();
+  const body = {
+    label: form.label,
+    contact_important_date_type_id: dto.toId(form.contact_important_date_type_id),
+    ...parts,
   };
+  let request;
   let event = 'created';
 
   if (props.date) {
-    request.method = 'put';
-    request.url = props.date.url.update;
+    request = updateContactImportantDate({ ...ids, important_date_id: props.date.id }, body);
     event = 'update:date';
+  } else {
+    request = createContactImportantDate(ids, body).then((date) =>
+      form.reminder
+        ? createContactReminder(ids, {
+            label: form.label,
+            ...parts,
+            type: form.reminderChoice,
+            frequency_number: 1,
+          }).then(() => date)
+        : date,
+    );
   }
 
-  axios
-    .request(request)
-    .then((response) => {
+  request
+    .then((date) => {
       loadingState.value = null;
-      emit(event, response.data.data);
+      emit(event, dto.importantDate(date));
     })
     .catch((error) => {
       loadingState.value = null;

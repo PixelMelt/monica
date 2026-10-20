@@ -1,6 +1,8 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
+import { deleteContactImportantDate } from '@/api/client';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
 import Layout from '@/Layouts/Layout.vue';
@@ -13,6 +15,7 @@ const props = defineProps({
   data: Object,
 });
 
+const current = useRoute();
 const editedDateId = ref(0);
 const createDateModalShown = ref(false);
 const localDates = ref(props.data.dates);
@@ -46,8 +49,11 @@ const updated = (date) => {
 
 const destroy = (date) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(date.url.destroy)
+    deleteContactImportantDate({
+      vault_id: current.params.vault,
+      contact_id: current.params.contact,
+      important_date_id: date.id,
+    })
       .then(() => {
         flash(trans('The date has been deleted'), 'success');
         let id = localDates.value.findIndex((x) => x.id === date.id);
