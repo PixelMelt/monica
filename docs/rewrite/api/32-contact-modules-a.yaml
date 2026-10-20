@@ -1,0 +1,1351 @@
+# Contact modules, part A (area E): important dates, goals, labels, reminders,
+# addresses, contact information, loans, job information, religion.
+# Notes are in 30-contact-notes.yaml.
+paths:
+  # ---------------------------------------------------------------- important dates
+  /vaults/{vault_id}/contacts/{contact_id}/important-dates:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactImportantDates
+      tags: [Contact modules]
+      summary: List a contact's important dates
+      description: |
+        Feeds the important dates page (R061) and module, ordered by id. The
+        page's type dropdown comes from `listVaultContactImportantDateTypes`.
+      x-permission: vault:view
+      x-inventory: [R061]
+      x-services: []
+      responses:
+        '200':
+          description: The contact's important dates.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactImportantDate
+      tags: [Contact modules]
+      summary: Add an important date to a contact
+      description: |
+        Also sets the contact's `last_updated_at` and writes an
+        `important_date_created` feed item (X012, X013). The form's "Create a
+        reminder" option is a second call, `createContactReminder`, with the
+        same label and date parts, `type` `recurring_year` or `one_time` and
+        `frequency_number` 1.
+      x-permission: vault:edit
+      x-inventory: [R062]
+      x-services: [CreateContactImportantDate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactImportantDateCreate' }
+      responses:
+        '201':
+          description: The created date.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/important-dates/{important_date_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: important_date_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactImportantDate
+      tags: [Contact modules]
+      summary: Edit an important date
+      description: Writes an `important_date_updated` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R063]
+      x-services: [UpdateContactImportantDate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactImportantDateUpdate' }
+      responses:
+        '200':
+          description: The updated date.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactImportantDate
+      tags: [Contact modules]
+      summary: Delete an important date
+      description: |
+        Soft-deletes the row (kept for CalDAV sync) and writes an
+        `important_date_destroyed` feed item. Reminders created alongside are kept.
+      x-permission: vault:edit
+      x-inventory: [R064]
+      x-services: [DestroyContactImportantDate]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- goals
+  /vaults/{vault_id}/contacts/{contact_id}/goals:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactGoals
+      tags: [Contact modules]
+      summary: List a contact's goals
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      parameters:
+        - name: active
+          in: query
+          description: Only active (`true`) or inactive (`false`) goals.
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Goals, ordered by id.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GoalList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactGoal
+      tags: [Contact modules]
+      summary: Add a goal to a contact
+      description: New goals are active. Writes a `goal_created` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R070]
+      x-services: [CreateGoal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GoalCreate' }
+      responses:
+        '201':
+          description: The created goal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/goals/{goal_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: goal_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getContactGoal
+      tags: [Contact modules]
+      summary: Get a goal with its streaks of the last year
+      description: Feeds the goal page (R069) and its streak calendar.
+      x-permission: vault:view
+      x-inventory: [R069]
+      x-services: []
+      responses:
+        '200':
+          description: The goal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GoalDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateContactGoal
+      tags: [Contact modules]
+      summary: Rename a goal
+      description: Writes a `goal_updated` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R071]
+      x-services: [UpdateGoal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GoalUpdate' }
+      responses:
+        '200':
+          description: The updated goal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactGoal
+      tags: [Contact modules]
+      summary: Delete a goal and its streaks
+      description: Writes a `goal_destroyed` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R073]
+      x-services: [DestroyGoal]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/goals/{goal_id}/streaks/{date}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: goal_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: date
+        in: path
+        required: true
+        description: The day (`happened_at`); a goal has at most one streak per day.
+        schema: { $ref: '#/components/schemas/Date' }
+    put:
+      operationId: setContactGoalStreak
+      tags: [Contact modules]
+      summary: Mark a day as done for a goal
+      description: |
+        Idempotent; replaces the R072 toggle together with
+        `deleteContactGoalStreak`. Sets `last_updated_at`. Returns the goal so
+        the module can redraw its streak stats.
+      x-permission: vault:edit
+      x-inventory: [R072]
+      x-services: [ToggleStreak]
+      responses:
+        '200':
+          description: The goal with recomputed streak stats.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteContactGoalStreak
+      tags: [Contact modules]
+      summary: Unmark a day for a goal
+      description: |
+        Idempotent. Sets `last_updated_at`. Returns 200 with the goal rather
+        than 204, so the module can redraw its streak stats in one call as R072
+        does today.
+      x-permission: vault:edit
+      x-inventory: [R072]
+      x-services: [ToggleStreak]
+      responses:
+        '200':
+          description: The goal with recomputed streak stats.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Goal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- labels
+  /vaults/{vault_id}/contacts/{contact_id}/labels:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactLabels
+      tags: [Contact modules]
+      summary: List the labels assigned to a contact
+      description: The vault's labels (for the picker) come from `listVaultLabels`.
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The contact's labels.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactLabelList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/labels/{label_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: label_id
+        in: path
+        required: true
+        description: A label of the vault.
+        schema: { $ref: '#/components/schemas/Id' }
+    put:
+      operationId: assignContactLabel
+      tags: [Contact modules]
+      summary: Assign a vault label to a contact
+      description: |
+        Idempotent. Writes a `label_assigned` feed item and sets
+        `last_updated_at`. R074 (type a new name in the module) becomes
+        `createVaultLabel` with `bg_color` `bg-neutral-200` and `text_color`
+        `text-neutral-800`, then this call.
+      x-permission: vault:edit
+      x-inventory: [R074, R075]
+      x-services: [AssignLabel]
+      responses:
+        '200':
+          description: The assigned label.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Label' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: unassignContactLabel
+      tags: [Contact modules]
+      summary: Remove a label from a contact
+      description: The label stays in the vault. Writes a `label_removed` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R076]
+      x-services: [RemoveLabel]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- reminders
+  /vaults/{vault_id}/contacts/{contact_id}/reminders:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactReminders
+      tags: [Contact modules]
+      summary: List a contact's reminders
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Reminders, ordered by `month` then `day`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactReminderList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactReminder
+      tags: [Contact modules]
+      summary: Add a reminder to a contact
+      description: |
+        Schedules the reminder on the notification channels of every user of
+        the vault (`contact_reminder_scheduled`) and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R077]
+      x-services: [CreateContactReminder, ScheduleContactReminderForUser]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactReminderCreate' }
+      responses:
+        '201':
+          description: The created reminder.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactReminder' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/reminders/{reminder_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: reminder_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactReminder
+      tags: [Contact modules]
+      summary: Edit a reminder
+      description: Drops the reminder's scheduled notifications and schedules it again for every user of the vault.
+      x-permission: vault:edit
+      x-inventory: [R078]
+      x-services: [UpdateContactReminder, ScheduleContactReminderForUser]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactReminderUpdate' }
+      responses:
+        '200':
+          description: The updated reminder.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactReminder' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactReminder
+      tags: [Contact modules]
+      summary: Delete a reminder
+      description: Its scheduled notifications go with it.
+      x-permission: vault:edit
+      x-inventory: [R079]
+      x-services: [DestroyReminder]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- addresses
+  /vaults/{vault_id}/contacts/{contact_id}/addresses:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactAddresses
+      tags: [Contact modules]
+      summary: List a contact's addresses
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      parameters:
+        - name: is_past_address
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: The contact's addresses, ordered by id.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAddressList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactAddress
+      tags: [Contact modules]
+      summary: Add a new or existing vault address to a contact
+      description: |
+        With `address_id`, links an existing address of the vault; otherwise
+        creates the vault address from the body and links it. Composite because
+        an address must not exist without a contact (deleting the last link
+        deletes the address) and addresses have no vault-level endpoint. No
+        geocoding. Writes an `address_created` feed item and sets `last_updated_at`.
+      x-composite: true
+      x-permission: vault:edit
+      x-inventory: [R080]
+      x-services: [CreateAddress, AssociateAddressToContact]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactAddressCreate' }
+      responses:
+        '201':
+          description: The linked address.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAddress' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/addresses/{address_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: address_id
+        in: path
+        required: true
+        description: An address linked to the contact.
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactAddress
+      tags: [Contact modules]
+      summary: Edit an address and the contact's link to it
+      description: |
+        Address fields change the shared vault address, so every contact linked
+        to it sees the change; `is_past_address` changes only this contact's link.
+      x-permission: vault:edit
+      x-inventory: [R081]
+      x-services: [UpdateAddress]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactAddressUpdate' }
+      responses:
+        '200':
+          description: The updated address.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactAddress' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactAddress
+      tags: [Contact modules]
+      summary: Remove an address from a contact
+      description: |
+        Unlinks the address; deletes it when no other contact is linked to it.
+        Writes an `address_destroyed` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R082]
+      x-services: [RemoveAddressFromContact]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- contact information
+  /vaults/{vault_id}/contacts/{contact_id}/contact-information:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactInformation
+      tags: [Contact modules]
+      summary: List a contact's emails, phones and profiles
+      description: The types for the form come from `listContactInformationTypes`.
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Contact information, ordered by id.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformationList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactInformation
+      tags: [Contact modules]
+      summary: Add an email, phone or profile to a contact
+      description: Writes a `contact_information_created` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R084]
+      x-services: [CreateContactInformation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactInformationCreate' }
+      responses:
+        '201':
+          description: The created item.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformation' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/contact-information/{contact_information_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: contact_information_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactInformation
+      tags: [Contact modules]
+      summary: Edit an email, phone or profile
+      description: Writes a `contact_information_updated` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R085]
+      x-services: [UpdateContactInformation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactInformationUpdate' }
+      responses:
+        '200':
+          description: The updated item.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformation' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactInformation
+      tags: [Contact modules]
+      summary: Delete an email, phone or profile
+      description: Writes a `contact_information_destroyed` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R086]
+      x-services: [DestroyContactInformation]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- loans
+  /vaults/{vault_id}/contacts/{contact_id}/loans:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactLoans
+      tags: [Contact modules]
+      summary: List the loans a contact is a loaner or loanee in
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      parameters:
+        - name: settled
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Loans, ordered by `loaned_at`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoanList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactLoan
+      tags: [Contact modules]
+      summary: Record a loan
+      description: |
+        The loan belongs to the vault and links every loaner to every loanee
+        (`contact_loan`). The contact of the path must be one of them. Sets
+        `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R087]
+      x-services: [CreateLoan]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoanCreate' }
+      responses:
+        '201':
+          description: The created loan.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Loan' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/loans/{loan_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: loan_id
+        in: path
+        required: true
+        description: A loan the contact is a loaner or loanee in.
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactLoan
+      tags: [Contact modules]
+      summary: Edit a loan, or mark it settled or unsettled
+      description: |
+        Sending `loaner_ids`/`loanee_ids` replaces the links. Changing `settled`
+        replaces the R089 toggle and sets `settled_at` to now. Sets
+        `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R088, R089]
+      x-services: [UpdateLoan, ToggleLoan]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoanUpdate' }
+      responses:
+        '200':
+          description: The updated loan.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Loan' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactLoan
+      tags: [Contact modules]
+      summary: Delete a loan
+      description: Deletes it for every contact involved. Sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R090]
+      x-services: [DestroyLoan]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- job information
+  /vaults/{vault_id}/contacts/{contact_id}/job-information:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    put:
+      operationId: setContactJobInformation
+      tags: [Contact modules]
+      summary: Set a contact's company and job position
+      description: |
+        A new company typed in the form is `createVaultCompany` first, then this
+        call with its id. Writes a `job_information_updated` feed item and sets
+        `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R092]
+      x-services: [UpdateJobInformation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobInformationUpdate' }
+      responses:
+        '200':
+          description: The contact's job information.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JobInformation' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactJobInformation
+      tags: [Contact modules]
+      summary: Clear a contact's company and job position
+      description: The company stays in the vault. Writes a `job_information_updated` feed item.
+      x-permission: vault:edit
+      x-inventory: [R093]
+      x-services: [ResetJobInformation]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- religion
+  /vaults/{vault_id}/contacts/{contact_id}/religion:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    put:
+      operationId: setContactReligion
+      tags: [Contact modules]
+      summary: Set or clear a contact's religion
+      description: Writes a `religion_updated` feed item and sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R094]
+      x-services: [UpdateReligion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactReligionUpdate' }
+      responses:
+        '200':
+          description: The contact's religion.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactReligion' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+components:
+  schemas:
+    # ---------------------------------------------------------------- important dates
+    ContactImportantDate:
+      allOf:
+        - $ref: '#/components/schemas/PartialDate'
+        - type: object
+          required: [id, contact_id, label, contact_important_date_type, age, created_at, updated_at]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            contact_id: { $ref: '#/components/schemas/Uuid' }
+            label: { type: string }
+            contact_important_date_type:
+              description: The vault's date type (birthdate, deceased date, …), if any.
+              oneOf:
+                - $ref: '#/components/schemas/ContactImportantDateType'
+                - type: 'null'
+            age:
+              type: [integer, 'null']
+              description: |
+                Computed (`ImportantDateHelper::getAge`): whole years since a full
+                date, or the current year minus `year` for a year-only date; null
+                for a day-and-month date.
+            created_at: { $ref: '#/components/schemas/Timestamp' }
+            updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactImportantDateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactImportantDate' }
+    ContactImportantDateCreate:
+      type: object
+      description: |
+        The date parts must form a full date (day, month and year, an existing
+        day), a day and month, or a year alone. The form's "I only know an age"
+        sends `year` = current year − age.
+      required: [label, day, month, year]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        contact_important_date_type_id: { type: [integer, 'null'], format: int64, description: One of the vault's date types. }
+        day: { type: [integer, 'null'], minimum: 1, maximum: 31 }
+        month: { type: [integer, 'null'], minimum: 1, maximum: 12 }
+        year: { type: [integer, 'null'] }
+    ContactImportantDateUpdate:
+      type: object
+      description: '`day`, `month` and `year` are replaced together: send all three or none.'
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        contact_important_date_type_id: { type: [integer, 'null'], format: int64 }
+        day: { type: [integer, 'null'], minimum: 1, maximum: 31 }
+        month: { type: [integer, 'null'], minimum: 1, maximum: 12 }
+        year: { type: [integer, 'null'] }
+    ImportantDatesModule:
+      type: object
+      description: Important dates block of the contact page (`ModuleImportantDatesViewHelper`).
+      required: [important_dates]
+      properties:
+        important_dates:
+          type: array
+          items: { $ref: '#/components/schemas/ContactImportantDate' }
+
+    # ---------------------------------------------------------------- goals
+    Goal:
+      type: object
+      required: [id, contact_id, name, active, max_streak, current_streak, last_7_days, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        active: { type: boolean, description: True on creation; no operation changes it today. }
+        max_streak:
+          type: integer
+          minimum: 1
+          description: |
+            Computed (`GoalHelper::getStreakData`): the longest run of
+            consecutive days with a streak. 1 when the goal has no streaks, as today.
+        current_streak:
+          type: integer
+          minimum: 0
+          description: |
+            Computed (`GoalHelper::getStreakData`): when the latest streak is
+            today (UTC), the number of day-to-day steps in the run ending on it
+            (a run of n days gives n − 1, as today); otherwise 0.
+        last_7_days:
+          type: array
+          minItems: 7
+          maxItems: 7
+          description: Computed. Today (UTC) and the 6 days before it, oldest first.
+          items:
+            type: object
+            required: [date, has_streak]
+            properties:
+              date: { $ref: '#/components/schemas/Date' }
+              has_streak: { type: boolean }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    GoalDetail:
+      description: A goal with the data of its streak calendar.
+      allOf:
+        - $ref: '#/components/schemas/Goal'
+        - type: object
+          required: [streaks_from, streaks_to, streaks]
+          properties:
+            streaks_from: { $ref: '#/components/schemas/Date', description: 'Computed: the first day of the month, one year ago. The calendar starts here.' }
+            streaks_to: { $ref: '#/components/schemas/Date', description: 'Computed: today (UTC). The calendar ends here.' }
+            streaks:
+              type: array
+              description: Streaks from `streaks_from` to `streaks_to`, by `happened_at`. Their count is the page's "total streaks".
+              items: { $ref: '#/components/schemas/Streak' }
+    Streak:
+      type: object
+      description: A day on which the goal was done.
+      required: [id, goal_id, happened_at, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        goal_id: { $ref: '#/components/schemas/Id' }
+        happened_at: { $ref: '#/components/schemas/Date', description: 'Stored as a datetime at midnight.' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+    GoalList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Goal' }
+    GoalCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    GoalUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    GoalsModule:
+      type: object
+      description: Goals block of the contact page (`ModuleGoalsViewHelper`).
+      required: [goals, inactive_goals_count]
+      properties:
+        goals:
+          type: array
+          description: The active goals, as `listContactGoals?active=true`.
+          items: { $ref: '#/components/schemas/Goal' }
+        inactive_goals_count: { type: integer, minimum: 0 }
+
+    # ---------------------------------------------------------------- labels
+    ContactLabelList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Label' }
+    LabelsModule:
+      type: object
+      description: |
+        Labels block of the contact page (`ModuleLabelViewHelper`). The picker
+        loads the vault's labels with `listVaultLabels` when it opens; a label
+        is "taken" when it is in `labels`.
+      required: [labels]
+      properties:
+        labels:
+          type: array
+          items: { $ref: '#/components/schemas/Label' }
+
+    # ---------------------------------------------------------------- reminders
+    ContactReminder:
+      allOf:
+        - $ref: '#/components/schemas/PartialDate'
+        - type: object
+          description: '`day` and `month` are always set; `year` is null for a yearless date.'
+          required: [id, contact_id, label, type, frequency_number, last_triggered_at, number_times_triggered, next_occurrence, created_at, updated_at]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            contact_id: { $ref: '#/components/schemas/Uuid' }
+            label: { type: string }
+            type: { $ref: '#/components/schemas/ContactReminderType' }
+            frequency_number: { type: [integer, 'null'], description: 'Stored; the web UI offers 1–10 ("every n days/months/years").' }
+            last_triggered_at: { oneOf: [{ $ref: '#/components/schemas/Timestamp' }, { type: 'null' }] }
+            number_times_triggered: { type: integer, minimum: 0 }
+            next_occurrence:
+              type: [string, 'null']
+              format: date
+              description: |
+                Computed as `ScheduleContactReminderForUser` does: the reminder's
+                date if it is after today (UTC), else its day and month this year
+                if that is after today, else next year.
+            created_at: { $ref: '#/components/schemas/Timestamp' }
+            updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactReminderType:
+      type: string
+      enum: [one_time, recurring_day, recurring_month, recurring_year]
+    ContactReminderList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactReminder' }
+    ContactReminderCreate:
+      type: object
+      description: A full date must exist (no 31 February). The web UI sends `frequency_number` 1 for `one_time`.
+      required: [label, day, month, year, type]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        day: { type: integer, minimum: 1, maximum: 31 }
+        month: { type: integer, minimum: 1, maximum: 12 }
+        year: { type: [integer, 'null'] }
+        type: { $ref: '#/components/schemas/ContactReminderType' }
+        frequency_number: { type: [integer, 'null'], minimum: 1 }
+    ContactReminderUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        day: { type: integer, minimum: 1, maximum: 31 }
+        month: { type: integer, minimum: 1, maximum: 12 }
+        year: { type: [integer, 'null'] }
+        type: { $ref: '#/components/schemas/ContactReminderType' }
+        frequency_number: { type: [integer, 'null'], minimum: 1 }
+    RemindersModule:
+      type: object
+      description: Reminders block of the contact page (`ModuleRemindersViewHelper`).
+      required: [reminders]
+      properties:
+        reminders:
+          type: array
+          description: As `listContactReminders`.
+          items: { $ref: '#/components/schemas/ContactReminder' }
+
+    # ---------------------------------------------------------------- addresses
+    Address:
+      type: object
+      description: |
+        A vault address, shared by the contacts linked to it. The client builds
+        the "view on map" link from the user's `default_map_site`.
+      required: [id, vault_id, address_type, line_1, line_2, city, province, postal_code, country, latitude, longitude, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        address_type:
+          description: One of the account's address types.
+          oneOf:
+            - $ref: '#/components/schemas/AddressType'
+            - type: 'null'
+        line_1: { type: [string, 'null'] }
+        line_2: { type: [string, 'null'] }
+        city: { type: [string, 'null'] }
+        province: { type: [string, 'null'] }
+        postal_code: { type: [string, 'null'] }
+        country: { type: [string, 'null'], description: Free text, as entered. }
+        latitude: { type: [number, 'null'] }
+        longitude: { type: [number, 'null'] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactAddress:
+      description: An address as linked to one contact.
+      allOf:
+        - $ref: '#/components/schemas/Address'
+        - type: object
+          required: [is_past_address]
+          properties:
+            is_past_address: { type: boolean, description: 'From the `contact_address` link.' }
+    ContactAddressList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactAddress' }
+    ContactAddressCreate:
+      type: object
+      description: |
+        Either `address_id` (link an existing vault address, 409 if already
+        linked to this contact) or the address fields (create one), not both.
+      properties:
+        address_id: { type: integer, format: int64, description: An address of the vault. }
+        is_past_address: { type: boolean, default: false }
+        address_type_id: { type: [integer, 'null'], format: int64, description: One of the account's address types. }
+        line_1: { type: [string, 'null'], maxLength: 255 }
+        line_2: { type: [string, 'null'], maxLength: 255 }
+        city: { type: [string, 'null'], maxLength: 255 }
+        province: { type: [string, 'null'], maxLength: 255 }
+        postal_code: { type: [string, 'null'], maxLength: 255 }
+        country: { type: [string, 'null'], maxLength: 255 }
+        latitude: { type: [number, 'null'], minimum: -90, maximum: 90 }
+        longitude: { type: [number, 'null'], minimum: -180, maximum: 180 }
+    ContactAddressUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        is_past_address: { type: boolean }
+        address_type_id: { type: [integer, 'null'], format: int64 }
+        line_1: { type: [string, 'null'], maxLength: 255 }
+        line_2: { type: [string, 'null'], maxLength: 255 }
+        city: { type: [string, 'null'], maxLength: 255 }
+        province: { type: [string, 'null'], maxLength: 255 }
+        postal_code: { type: [string, 'null'], maxLength: 255 }
+        country: { type: [string, 'null'], maxLength: 255 }
+        latitude: { type: [number, 'null'], minimum: -90, maximum: 90 }
+        longitude: { type: [number, 'null'], minimum: -180, maximum: 180 }
+    AddressesModule:
+      type: object
+      description: |
+        Addresses block of the contact page (`ModuleContactAddressesViewHelper`).
+        Address types come from `listAddressTypes`.
+      required: [active_addresses, inactive_addresses, vault_addresses]
+      properties:
+        active_addresses:
+          type: array
+          description: Links with `is_past_address` false.
+          items: { $ref: '#/components/schemas/ContactAddress' }
+        inactive_addresses:
+          type: array
+          description: Links with `is_past_address` true.
+          items: { $ref: '#/components/schemas/ContactAddress' }
+        vault_addresses:
+          type: array
+          description: Every address of the vault, for the "choose an existing address" option.
+          items: { $ref: '#/components/schemas/Address' }
+
+    # ---------------------------------------------------------------- contact information
+    ContactInformation:
+      type: object
+      required: [id, contact_id, type, data, kind, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        type:
+          $ref: '#/components/schemas/ContactInformationType'
+          description: |
+            The account's type (column `type_id`). The client links `data` with
+            the type's `protocol` (`mailto:`, `tel:`), else with the matching
+            `social_protocols` prefix of ContactInformationModule.
+        data: { type: string }
+        kind:
+          type: [string, 'null']
+          description: A kind from ContactInformationModule `kinds` (`work`, `cell`, …), or a custom text shown as stored.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactInformationList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactInformation' }
+    ContactInformationCreate:
+      type: object
+      required: [type_id, data]
+      properties:
+        type_id: { type: integer, format: int64, description: One of the account's contact information types. }
+        kind: { type: [string, 'null'], maxLength: 255 }
+        data: { type: string, minLength: 1, maxLength: 255 }
+    ContactInformationUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        type_id: { type: integer, format: int64 }
+        kind: { type: [string, 'null'], maxLength: 255 }
+        data: { type: string, minLength: 1, maxLength: 255 }
+    ContactInformationModule:
+      type: object
+      description: |
+        Contact information block of the contact page
+        (`ModuleContactInformationViewHelper`). The types for the form come from
+        `listContactInformationTypes`; `groups`, `kinds` and
+        `social_protocols` are the static tables of `config/app.php`.
+      required: [contact_information, groups, kinds, social_protocols]
+      properties:
+        contact_information:
+          type: object
+          description: The contact's items grouped by their type's `type` (`email`, `phone`, `IMPP`, `X-SOCIAL-PROFILE`).
+          additionalProperties:
+            type: array
+            items: { $ref: '#/components/schemas/ContactInformation' }
+        groups:
+          type: array
+          description: The groups in display order, with their headings.
+          items:
+            type: object
+            required: [type, name_translation_key]
+            properties:
+              type: { type: string }
+              name_translation_key: { type: string }
+        kinds:
+          type: object
+          description: The suggested kinds per group type (`email`, `phone`).
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              required: [id, name_translation_key]
+              properties:
+                id: { type: string }
+                name_translation_key: { type: string }
+        social_protocols:
+          type: array
+          description: Link prefixes of the social profile types, matched on the type's `name_translation_key`.
+          items:
+            type: object
+            required: [name_translation_key, url, type]
+            properties:
+              name_translation_key: { type: string }
+              url: { type: string, description: 'Prefix put before `data`; empty when there is none (Mastodon).' }
+              type: { type: string }
+
+    # ---------------------------------------------------------------- loans
+    Loan:
+      type: object
+      description: A vault loan; every loaner lent to every loanee.
+      required: [id, vault_id, type, name, description, amount_lent, currency, loaned_at, settled, settled_at, loaners, loanees, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        type: { type: string, description: '`object` or `monetary` from the web UI.' }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        amount_lent: { type: [integer, 'null'], description: In the minor unit of `currency`. }
+        currency:
+          oneOf:
+            - $ref: '#/components/schemas/Currency'
+            - type: 'null'
+        loaned_at:
+          type: [string, 'null']
+          format: date
+          description: Stored as a datetime at midnight.
+        settled: { type: boolean }
+        settled_at:
+          description: Set to now each time `settled` changes.
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        loaners:
+          type: array
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        loanees:
+          type: array
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LoanList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Loan' }
+    LoanCreate:
+      type: object
+      required: [type, name, loaner_ids, loanee_ids]
+      properties:
+        type: { type: string, minLength: 1, maxLength: 255, examples: [object, monetary] }
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        amount_lent: { type: [integer, 'null'], description: In the minor unit of the currency. }
+        currency_id: { type: [integer, 'null'], format: int64 }
+        loaned_at: { type: [string, 'null'], format: date }
+        loaner_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          description: Contacts of the vault.
+          items: { $ref: '#/components/schemas/Uuid' }
+        loanee_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          description: Contacts of the vault.
+          items: { $ref: '#/components/schemas/Uuid' }
+    LoanUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        type: { type: string, minLength: 1, maxLength: 255 }
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        amount_lent: { type: [integer, 'null'] }
+        currency_id: { type: [integer, 'null'], format: int64 }
+        loaned_at: { type: [string, 'null'], format: date }
+        loaner_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Uuid' }
+        loanee_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Uuid' }
+        settled: { type: boolean }
+    LoansModule:
+      type: object
+      description: Loans block of the contact page (`ModuleLoanViewHelper`). Currencies come from the reference endpoints.
+      required: [loans]
+      properties:
+        loans:
+          type: array
+          description: The unsettled loans, as `listContactLoans?settled=false`.
+          items: { $ref: '#/components/schemas/Loan' }
+
+    # ---------------------------------------------------------------- job information
+    JobInformation:
+      type: object
+      description: The contact's `company_id` and `job_position` columns.
+      required: [company, job_position]
+      properties:
+        company:
+          oneOf:
+            - $ref: '#/components/schemas/Company'
+            - type: 'null'
+        job_position: { type: [string, 'null'] }
+    JobInformationUpdate:
+      type: object
+      required: [company_id, job_position]
+      properties:
+        company_id: { type: [integer, 'null'], format: int64, description: A company of the vault. }
+        job_position: { type: [string, 'null'], maxLength: 255 }
+    CompanyModule:
+      description: |
+        Job information block of the contact page (`ModuleCompanyViewHelper`).
+        The company picker uses `listVaultCompanies`.
+      allOf:
+        - $ref: '#/components/schemas/JobInformation'
+
+    # ---------------------------------------------------------------- religion
+    ContactReligion:
+      type: object
+      description: The contact's `religion_id` column.
+      required: [religion]
+      properties:
+        religion:
+          oneOf:
+            - $ref: '#/components/schemas/Religion'
+            - type: 'null'
+    ContactReligionUpdate:
+      type: object
+      required: [religion_id]
+      properties:
+        religion_id: { type: [integer, 'null'], format: int64, description: One of the account's religions; null clears it. }
+    ReligionsModule:
+      description: |
+        Religion block of the contact page (`ModuleReligionViewHelper`). The
+        dropdown uses `listReligions`.
+      allOf:
+        - $ref: '#/components/schemas/ContactReligion'

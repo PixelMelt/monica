@@ -1,0 +1,947 @@
+# Contacts and the contact page aggregate (area D).
+x-not-api:
+  - { id: R039, reason: "SPA page only (create contact form); pick-lists from listGenders, listPronouns, listTemplates, and the vault's default_template_id from getVault" }
+
+paths:
+  /vaults/{vault_id}/contacts:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listContacts
+      tags: [Contacts]
+      summary: List a vault's contacts
+      description: |
+        Feeds the contact list (R036, `listed=true`), the list filtered by a
+        label (R037; the SPA sends `sort=created_at&per_page=10` to keep
+        today's order) and the contact pickers (R210; `q`, `sort=first_name`,
+        `per_page=5`). Absent filters don't filter: unlisted (archived)
+        contacts are included unless `listed` is given.
+      x-permission: vault:view
+      x-inventory: [R036, R037, R210]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - $ref: '#/components/parameters/Query'
+        - name: label_id
+          in: query
+          description: Only contacts with this label.
+          schema: { $ref: '#/components/schemas/Id' }
+        - name: listed
+          in: query
+          description: '`true` for listed contacts, `false` for archived/unlisted ones.'
+          schema: { type: boolean }
+        - name: sort
+          in: query
+          description: |
+            `last_updated`: `last_updated_at` newest first. `asc`/`desc`: by the
+            first name part of the user's `name_order` (e.g. `last_name`).
+            `first_name`: `first_name` then `last_name`, A to Z. `created_at`:
+            oldest first. Default: the user's `contact_sort_order`
+            (saved with PATCH /me/preferences).
+          schema: { type: string, enum: [last_updated, asc, desc, first_name, created_at] }
+      responses:
+        '200':
+          description: Contacts.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    post:
+      operationId: createContact
+      tags: [Contacts]
+      summary: Create a contact
+      description: |
+        Without `template_id` the vault's `default_template_id` is used. Sets
+        `last_updated_at` and writes a `contact_created` feed item.
+      x-permission: vault:edit
+      x-inventory: [R040]
+      x-services: [CreateContact]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactCreate' }
+      responses:
+        '201':
+          description: The created contact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/most-consulted:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listMostConsultedContacts
+      tags: [Contacts]
+      summary: The current user's 5 most viewed contacts in the vault
+      description: |
+        Ordered by `contact_vault_user.number_of_views` descending (X014).
+        Shown by the contact pickers before the user types.
+      x-permission: vault:view
+      x-inventory: [R209, X014]
+      x-services: []
+      responses:
+        '200':
+          description: At most 5 contacts; not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MostConsultedContactList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: getContact
+      tags: [Contacts]
+      summary: Get a contact
+      description: |
+        Supplies the contact for the edit names page (R042, with
+        listGenders/listPronouns), the move page (R053, with the user's vaults)
+        and the template picker (R055, with listTemplates). Doesn't count a view.
+      x-permission: vault:view
+      x-inventory: [R042, R053, R055]
+      x-services: []
+      responses:
+        '200':
+          description: The contact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateContact
+      tags: [Contacts]
+      summary: Update a contact's names, flags or template
+      description: |
+        Each field group runs today's service with its side effects (see
+        `ContactUpdate`). Replaces the toggles R048, R051, R052 and the
+        template change R056 with explicit values.
+      x-permission: vault:edit
+      x-inventory: [R043, R048, R051, R052, R056]
+      x-services: [UpdateContact, ToggleArchiveContact, ToggleFavoriteContact, ToggleQuickFactModule, UpdateContactTemplate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactUpdate' }
+      responses:
+        '200':
+          description: The updated contact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContact
+      tags: [Contacts]
+      summary: Delete a contact
+      description: |
+        Deletes the contact's files (and their bytes, E009), then soft-deletes
+        the contact. 409 when `can_be_deleted` is false (a user's own contact).
+      x-permission: vault:edit
+      x-inventory: [R044]
+      x-services: [DestroyContact]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/page:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: getContactPage
+      tags: [Contacts]
+      summary: Everything the contact page shows (aggregate, api-design.md §12)
+      description: |
+        Also counts a view for the current user (`UpdateContactView`,
+        `contact_vault_user.number_of_views`). When the contact has no
+        template, `header_modules`, `template_pages` and `modules` are empty,
+        no view is counted, and the SPA shows the template picker (R055).
+      x-permission: vault:view
+      x-inventory: [R041, R057]
+      x-services: [UpdateContactView]
+      parameters:
+        - name: template_page
+          in: query
+          description: |
+            Slug of the template page (tab) to show. Default: the first page
+            by `position` that isn't the `contact_information` page. 404 when
+            the contact's template has no page with this slug.
+          schema: { type: string, maxLength: 255 }
+      responses:
+        '200':
+          description: The page data.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactPage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/vcard:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: getContactVCard
+      tags: [Contacts]
+      summary: Download the contact as a vCard
+      description: |
+        Also refreshes the cached `contacts.vcard` (without touching
+        `updated_at`), as `ExportVCard` does today.
+      x-permission: vault:view
+      x-inventory: [R045]
+      x-services: [ExportVCard]
+      responses:
+        '200':
+          description: The vCard 4.0.
+          headers:
+            Content-Disposition:
+              description: '`attachment; filename="<slug of the contact name>.vcf"`'
+              schema: { type: string }
+          content:
+            text/vcard:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/move:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    post:
+      operationId: moveContact
+      tags: [Contacts]
+      summary: Move a contact to another vault of the account
+      description: |
+        Needs edit rights in both vaults (403 otherwise). The contact's
+        company moves along when it has no other contact; otherwise it is
+        copied into the target vault. Sets `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R054]
+      x-services: [MoveContactToAnotherVault]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactMove' }
+      responses:
+        '200':
+          description: The contact, now in the target vault.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Contact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/avatar:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: getContactAvatar
+      tags: [Contacts]
+      summary: The contact's avatar image
+      description: |
+        The uploaded avatar's 300×300 `thumbnail` variant when the contact has
+        one, else the MultiAvatar SVG generated from `first_name + ' ' +
+        last_name`, or from the contact id when `first_name` is null (X021).
+        The URL doesn't change with the avatar, so it is served with an
+        `ETag` and `Cache-Control: private, no-cache`.
+      x-permission: vault:view
+      x-inventory: [X021]
+      x-services: []
+      responses:
+        '200':
+          description: The image.
+          headers:
+            ETag:
+              schema: { type: string }
+            Cache-Control:
+              schema: { type: string }
+          content:
+            image/jpeg: {}
+            image/png: {}
+            image/gif: {}
+            image/webp: {}
+            image/svg+xml: {}
+        '304':
+          description: Not modified (`If-None-Match` matched).
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      operationId: setContactAvatar
+      tags: [Contacts]
+      summary: Upload a photo as the contact's avatar
+      description: |
+        Stores the file (type `avatar`) and sets it as the avatar in one call
+        (api-design.md §10). The previous avatar file is deleted. Sets
+        `last_updated_at` and writes a `changed_avatar` feed item. JPEG, PNG,
+        GIF or WebP only.
+      x-permission: vault:edit
+      x-inventory: [R058]
+      x-services: [UploadFile, UpdatePhotoAsAvatar]
+      x-composite: true
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/FileUpload' }
+      responses:
+        '200':
+          description: The stored avatar file.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactAvatar
+      tags: [Contacts]
+      summary: Remove the uploaded avatar
+      description: |
+        Deletes the avatar file; the contact falls back to the generated
+        avatar. Sets `last_updated_at` and writes a `changed_avatar` feed item.
+      x-permission: vault:edit
+      x-inventory: [R059]
+      x-services: [DestroyAvatar]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/quick-facts:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactQuickFacts
+      tags: [Contacts]
+      summary: List a contact's quick facts
+      description: The quick facts block loads one template's facts at a time (R046).
+      x-permission: vault:view
+      x-inventory: [R046]
+      x-services: []
+      parameters:
+        - name: vault_quick_facts_template_id
+          in: query
+          description: Only the facts of this quick fact template.
+          schema: { $ref: '#/components/schemas/Id' }
+      responses:
+        '200':
+          description: Quick facts, oldest first; not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFactList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactQuickFact
+      tags: [Contacts]
+      summary: Add a quick fact
+      x-permission: vault:edit
+      x-inventory: [R047]
+      x-services: [CreateQuickFact]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuickFactCreate' }
+      responses:
+        '201':
+          description: The created quick fact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/quick-facts/{quick_fact_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: quick_fact_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactQuickFact
+      tags: [Contacts]
+      summary: Edit a quick fact
+      x-permission: vault:edit
+      x-inventory: [R049]
+      x-services: [UpdateQuickFact]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuickFactUpdate' }
+      responses:
+        '200':
+          description: The updated quick fact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFact' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactQuickFact
+      tags: [Contacts]
+      summary: Delete a quick fact
+      x-permission: vault:edit
+      x-inventory: [R050]
+      x-services: [DestroyQuickFact]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/feed:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactFeedItems
+      tags: [Contacts]
+      summary: A contact's activity feed, newest first
+      description: |
+        Feed items written by the services (X012), ordered by `created_at`
+        descending, 15 per page ("load previous entries" asks for the next page).
+      x-permission: vault:view
+      x-inventory: [R060, X012]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+      responses:
+        '200':
+          description: Feed items.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FeedItemList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    # ---------------------------------------------------------------- contact
+    Contact:
+      description: |
+        The full read model; `ContactSummary` is the embedded form. Archived
+        contacts have `listed: false` (R051).
+      allOf:
+        - $ref: '#/components/schemas/ContactSummary'
+        - type: object
+          required: [gender_id, pronoun_id, template_id, company_id, religion_id, job_position, can_be_deleted, show_quick_facts, is_favorite, last_updated_at, created_at, updated_at]
+          properties:
+            gender_id: { type: [integer, 'null'], format: int64 }
+            pronoun_id: { type: [integer, 'null'], format: int64 }
+            template_id: { type: [integer, 'null'], format: int64, description: Null until a template is chosen (R055). }
+            company_id: { type: [integer, 'null'], format: int64 }
+            religion_id: { type: [integer, 'null'], format: int64 }
+            job_position: { type: [string, 'null'] }
+            can_be_deleted: { type: boolean, description: False for the contacts that represent vault users. }
+            show_quick_facts: { type: boolean, description: Whether the quick facts block is expanded. }
+            is_favorite: { type: boolean, description: 'Computed: favorite of the current user (`contact_vault_user.is_favorite`).' }
+            last_updated_at: { oneOf: [{ $ref: '#/components/schemas/Timestamp' }, { type: 'null' }] }
+            created_at: { $ref: '#/components/schemas/Timestamp' }
+            updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactSummaryWithAge:
+      allOf:
+        - $ref: '#/components/schemas/ContactSummary'
+        - type: object
+          required: [age]
+          properties:
+            age:
+              type: [integer, 'null']
+              description: |
+                Computed: whole years since the contact's birthdate important
+                date; null when there is none or it has no year.
+    ContactList:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+    MostConsultedContactList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          maxItems: 5
+          items: { $ref: '#/components/schemas/ContactSummary' }
+    ContactCreate:
+      type: object
+      properties:
+        first_name: { type: [string, 'null'], maxLength: 255 }
+        last_name: { type: [string, 'null'], maxLength: 255 }
+        middle_name: { type: [string, 'null'], maxLength: 255 }
+        nickname: { type: [string, 'null'], maxLength: 255 }
+        maiden_name: { type: [string, 'null'], maxLength: 255 }
+        prefix: { type: [string, 'null'], maxLength: 255 }
+        suffix: { type: [string, 'null'], maxLength: 255 }
+        gender_id: { type: [integer, 'null'], format: int64, description: One of the account's genders. }
+        pronoun_id: { type: [integer, 'null'], format: int64, description: One of the account's pronouns. }
+        template_id: { type: [integer, 'null'], format: int64, description: "One of the account's templates; default: the vault's `default_template_id`." }
+        listed: { type: boolean, default: true }
+    ContactUpdate:
+      type: object
+      minProperties: 1
+      description: |
+        Field groups and what they trigger:
+        names, `gender_id`, `pronoun_id` → UpdateContact (`last_updated_at`,
+        feed `information_updated`); `listed` → archive/unarchive
+        (`last_updated_at`, feed `archived`/`unarchived`); `is_favorite` → for
+        the current user (`last_updated_at`, feed `favorited`/`unfavorited`);
+        `show_quick_facts`; `template_id` (`last_updated_at`). A boolean equal
+        to the stored value changes nothing.
+      properties:
+        first_name: { type: string, minLength: 1, maxLength: 255 }
+        last_name: { type: [string, 'null'], maxLength: 255 }
+        middle_name: { type: [string, 'null'], maxLength: 255 }
+        nickname: { type: [string, 'null'], maxLength: 255 }
+        maiden_name: { type: [string, 'null'], maxLength: 255 }
+        prefix: { type: [string, 'null'], maxLength: 255 }
+        suffix: { type: [string, 'null'], maxLength: 255 }
+        gender_id: { type: [integer, 'null'], format: int64, description: One of the account's genders. }
+        pronoun_id: { type: [integer, 'null'], format: int64, description: One of the account's pronouns. }
+        listed: { type: boolean, description: False archives the contact. }
+        is_favorite: { type: boolean }
+        show_quick_facts: { type: boolean }
+        template_id: { type: integer, format: int64, description: One of the account's templates. }
+    ContactMove:
+      type: object
+      required: [other_vault_id]
+      properties:
+        other_vault_id: { $ref: '#/components/schemas/Uuid' }
+
+    # ---------------------------------------------------------------- quick facts
+    QuickFact:
+      type: object
+      required: [id, contact_id, vault_quick_facts_template_id, content, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        vault_quick_facts_template_id: { $ref: '#/components/schemas/Id' }
+        content: { type: string }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    QuickFactList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/QuickFact' }
+    QuickFactCreate:
+      type: object
+      required: [vault_quick_facts_template_id, content]
+      properties:
+        vault_quick_facts_template_id: { type: integer, format: int64, description: One of the vault's quick fact templates. }
+        content: { type: string, minLength: 1, maxLength: 255 }
+    QuickFactUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        content: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- feed
+    FeedItem:
+      type: object
+      description: |
+        One entry of a contact's feed (also used by the vault feed). Exactly
+        one object field is present for the actions that have one, and it is
+        null when that object was deleted since (then `description` says what
+        it was): `label` for label_*, `address` for address_*,
+        `contact_information` for contact_information_*, `pet` for pet_*,
+        `note` for note_*, `goal` for goal_*, `mood_tracking_event` for
+        mood_tracking_event_*. Other actions carry no object.
+      required: [id, action, author, contact, description, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        action:
+          type: string
+          enum:
+            - contact_created
+            - information_updated
+            - contact_information_created
+            - contact_information_updated
+            - contact_information_destroyed
+            - job_information_updated
+            - religion_updated
+            - note_created
+            - note_updated
+            - note_destroyed
+            - pet_created
+            - pet_updated
+            - pet_destroyed
+            - goal_created
+            - goal_updated
+            - goal_destroyed
+            - important_date_created
+            - important_date_updated
+            - important_date_destroyed
+            - label_assigned
+            - label_removed
+            - address_created
+            - address_updated
+            - address_destroyed
+            - loan_created
+            - loan_updated
+            - added_to_group
+            - removed_from_group
+            - added_to_post
+            - removed_from_post
+            - archived
+            - unarchived
+            - favorited
+            - unfavorited
+            - changed_avatar
+            - mood_tracking_event_added
+            - mood_tracking_event_updated
+            - mood_tracking_event_deleted
+        author:
+          description: Null when the author was deleted.
+          oneOf:
+            - $ref: '#/components/schemas/UserSummary'
+            - type: 'null'
+        contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+        description: { type: [string, 'null'], description: Text stored with the item (e.g. the label name or a note excerpt). }
+        label:
+          oneOf: [{ $ref: '#/components/schemas/Label' }, { type: 'null' }]
+        address:
+          oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }]
+        contact_information:
+          oneOf: [{ $ref: '#/components/schemas/ContactInformation' }, { type: 'null' }]
+        pet:
+          oneOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'null' }]
+        note:
+          oneOf: [{ $ref: '#/components/schemas/Note' }, { type: 'null' }]
+        goal:
+          oneOf: [{ $ref: '#/components/schemas/Goal' }, { type: 'null' }]
+        mood_tracking_event:
+          oneOf: [{ $ref: '#/components/schemas/MoodTrackingEvent' }, { type: 'null' }]
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+    FeedItemList:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/FeedItem' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+
+    # ---------------------------------------------------------------- contact page
+    ContactPage:
+      type: object
+      description: Data of the contact page (Vault/Contact/Show), api-design.md §12.
+      required: [contact, is_current_user_contact, can_upload_file, header_modules, groups, quick_fact_templates, quick_facts, template_pages, active_template_page_id, modules]
+      properties:
+        contact: { $ref: '#/components/schemas/Contact' }
+        is_current_user_contact:
+          type: boolean
+          description: 'Computed: this is the current user''s own contact in the vault (the page hides archive and delete for it).'
+        can_upload_file:
+          type: boolean
+          description: 'Computed: the account is below its storage limit (X011).'
+        header_modules:
+          type: array
+          description: |
+            Modules of the template's `contact_information` page, in position
+            order (left column: avatar, contact_names, family_summary,
+            gender_pronoun, important_dates, labels, company, religions).
+          items: { $ref: '#/components/schemas/ContactPageModule' }
+        groups:
+          type: array
+          description: Groups the contact is part of, by name.
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { $ref: '#/components/schemas/Id' }
+              name: { type: string }
+        quick_fact_templates:
+          type: array
+          description: The vault's quick fact templates, in position order (the block is hidden when empty).
+          items: { $ref: '#/components/schemas/QuickFactTemplate' }
+        quick_facts:
+          type: array
+          description: The contact's quick facts for the first template.
+          items: { $ref: '#/components/schemas/QuickFact' }
+        template_pages:
+          type: array
+          description: The template's pages (tabs) other than `contact_information`, in position order.
+          items: { $ref: '#/components/schemas/TemplatePage' }
+        active_template_page_id:
+          type: [integer, 'null']
+          format: int64
+          description: The page whose modules are in `modules`; null when there is none.
+        modules:
+          type: array
+          description: Modules of the active page, in position order. Modules without a known type are left out.
+          items: { $ref: '#/components/schemas/ContactPageModule' }
+    ContactPageModuleBase:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Id', description: The module id. }
+    ContactPageModule:
+      description: One module block of the contact page; `data` depends on `type`.
+      oneOf:
+        - $ref: '#/components/schemas/ContactPageModuleNotes'
+        - $ref: '#/components/schemas/ContactPageModuleContactNames'
+        - $ref: '#/components/schemas/ContactPageModuleAvatar'
+        - $ref: '#/components/schemas/ContactPageModuleFamilySummary'
+        - $ref: '#/components/schemas/ContactPageModuleCompany'
+        - $ref: '#/components/schemas/ContactPageModuleFeed'
+        - $ref: '#/components/schemas/ContactPageModuleGenderPronoun'
+        - $ref: '#/components/schemas/ContactPageModuleImportantDates'
+        - $ref: '#/components/schemas/ContactPageModuleLabels'
+        - $ref: '#/components/schemas/ContactPageModuleReminders'
+        - $ref: '#/components/schemas/ContactPageModuleLoans'
+        - $ref: '#/components/schemas/ContactPageModuleRelationships'
+        - $ref: '#/components/schemas/ContactPageModuleTasks'
+        - $ref: '#/components/schemas/ContactPageModuleCalls'
+        - $ref: '#/components/schemas/ContactPageModulePets'
+        - $ref: '#/components/schemas/ContactPageModuleGoals'
+        - $ref: '#/components/schemas/ContactPageModuleAddresses'
+        - $ref: '#/components/schemas/ContactPageModuleGroups'
+        - $ref: '#/components/schemas/ContactPageModuleContactInformation'
+        - $ref: '#/components/schemas/ContactPageModuleDocuments'
+        - $ref: '#/components/schemas/ContactPageModulePhotos'
+        - $ref: '#/components/schemas/ContactPageModulePosts'
+        - $ref: '#/components/schemas/ContactPageModuleReligions'
+        - $ref: '#/components/schemas/ContactPageModuleLifeEvents'
+      discriminator:
+        propertyName: type
+        mapping:
+          notes: '#/components/schemas/ContactPageModuleNotes'
+          contact_names: '#/components/schemas/ContactPageModuleContactNames'
+          avatar: '#/components/schemas/ContactPageModuleAvatar'
+          family_summary: '#/components/schemas/ContactPageModuleFamilySummary'
+          company: '#/components/schemas/ContactPageModuleCompany'
+          feed: '#/components/schemas/ContactPageModuleFeed'
+          gender_pronoun: '#/components/schemas/ContactPageModuleGenderPronoun'
+          important_dates: '#/components/schemas/ContactPageModuleImportantDates'
+          labels: '#/components/schemas/ContactPageModuleLabels'
+          reminders: '#/components/schemas/ContactPageModuleReminders'
+          loans: '#/components/schemas/ContactPageModuleLoans'
+          relationships: '#/components/schemas/ContactPageModuleRelationships'
+          tasks: '#/components/schemas/ContactPageModuleTasks'
+          calls: '#/components/schemas/ContactPageModuleCalls'
+          pets: '#/components/schemas/ContactPageModulePets'
+          goals: '#/components/schemas/ContactPageModuleGoals'
+          addresses: '#/components/schemas/ContactPageModuleAddresses'
+          groups: '#/components/schemas/ContactPageModuleGroups'
+          contact_information: '#/components/schemas/ContactPageModuleContactInformation'
+          documents: '#/components/schemas/ContactPageModuleDocuments'
+          photos: '#/components/schemas/ContactPageModulePhotos'
+          posts: '#/components/schemas/ContactPageModulePosts'
+          religions: '#/components/schemas/ContactPageModuleReligions'
+          life_events: '#/components/schemas/ContactPageModuleLifeEvents'
+    ContactPageModuleNotes:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: notes }, data: { $ref: '#/components/schemas/NotesModule' } } }
+    ContactPageModuleContactNames:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: contact_names }, data: { $ref: '#/components/schemas/ContactNamesModule' } } }
+    ContactPageModuleAvatar:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: avatar }, data: { $ref: '#/components/schemas/AvatarModule' } } }
+    ContactPageModuleFamilySummary:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: family_summary }, data: { $ref: '#/components/schemas/FamilySummaryModule' } } }
+    ContactPageModuleCompany:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: company }, data: { $ref: '#/components/schemas/CompanyModule' } } }
+    ContactPageModuleFeed:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: feed }, data: { $ref: '#/components/schemas/FeedModule' } } }
+    ContactPageModuleGenderPronoun:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: gender_pronoun }, data: { $ref: '#/components/schemas/GenderPronounModule' } } }
+    ContactPageModuleImportantDates:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: important_dates }, data: { $ref: '#/components/schemas/ImportantDatesModule' } } }
+    ContactPageModuleLabels:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: labels }, data: { $ref: '#/components/schemas/LabelsModule' } } }
+    ContactPageModuleReminders:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: reminders }, data: { $ref: '#/components/schemas/RemindersModule' } } }
+    ContactPageModuleLoans:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: loans }, data: { $ref: '#/components/schemas/LoansModule' } } }
+    ContactPageModuleRelationships:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: relationships }, data: { $ref: '#/components/schemas/RelationshipsModule' } } }
+    ContactPageModuleTasks:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: tasks }, data: { $ref: '#/components/schemas/TasksModule' } } }
+    ContactPageModuleCalls:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: calls }, data: { $ref: '#/components/schemas/CallsModule' } } }
+    ContactPageModulePets:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: pets }, data: { $ref: '#/components/schemas/PetsModule' } } }
+    ContactPageModuleGoals:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: goals }, data: { $ref: '#/components/schemas/GoalsModule' } } }
+    ContactPageModuleAddresses:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: addresses }, data: { $ref: '#/components/schemas/AddressesModule' } } }
+    ContactPageModuleGroups:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: groups }, data: { $ref: '#/components/schemas/GroupsModule' } } }
+    ContactPageModuleContactInformation:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: contact_information }, data: { $ref: '#/components/schemas/ContactInformationModule' } } }
+    ContactPageModuleDocuments:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: documents }, data: { $ref: '#/components/schemas/DocumentsModule' } } }
+    ContactPageModulePhotos:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: photos }, data: { $ref: '#/components/schemas/PhotosModule' } } }
+    ContactPageModulePosts:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: posts }, data: { $ref: '#/components/schemas/PostsModule' } } }
+    ContactPageModuleReligions:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: religions }, data: { $ref: '#/components/schemas/ReligionsModule' } } }
+    ContactPageModuleLifeEvents:
+      allOf:
+        - $ref: '#/components/schemas/ContactPageModuleBase'
+        - { type: object, required: [type, data], properties: { type: { const: life_events }, data: { $ref: '#/components/schemas/LifeEventsModule' } } }
+
+    # ---------------------------------------------------------------- module data owned by area D
+    ContactNamesModule:
+      description: The name block, with the current user's favorite star.
+      allOf:
+        - $ref: '#/components/schemas/ContactSummary'
+        - type: object
+          required: [is_favorite]
+          properties:
+            is_favorite: { type: boolean, description: For the current user. }
+    AvatarModule:
+      type: object
+      description: The image itself comes from getContactAvatar.
+      required: [avatar_file_id]
+      properties:
+        avatar_file_id: { type: [integer, 'null'], format: int64, description: Null when the generated avatar is shown. }
+    GenderPronounModule:
+      type: object
+      required: [gender, pronoun]
+      properties:
+        gender:
+          oneOf: [{ $ref: '#/components/schemas/Gender' }, { type: 'null' }]
+        pronoun:
+          oneOf: [{ $ref: '#/components/schemas/Pronoun' }, { type: 'null' }]
+    FamilySummaryModule:
+      type: object
+      description: |
+        Partners (relationship types of type `love` in the account's `love`
+        group) and children (types of type `child` in the `family` group),
+        matched in either direction of the relationship.
+      required: [love_relationships, family_relationships]
+      properties:
+        love_relationships:
+          type: array
+          items: { $ref: '#/components/schemas/FamilySummaryMember' }
+        family_relationships:
+          type: array
+          items: { $ref: '#/components/schemas/FamilySummaryMember' }
+    FamilySummaryMember:
+      type: object
+      required: [relationship_id, relationship_type_id, contact]
+      properties:
+        relationship_id: { $ref: '#/components/schemas/Id' }
+        relationship_type_id: { $ref: '#/components/schemas/Id' }
+        contact:
+          description: The other contact; the client links to it only when `listed`.
+          allOf: [{ $ref: '#/components/schemas/ContactSummaryWithAge' }]
+    FeedModule:
+      type: object
+      description: The first page of listContactFeedItems; further pages come from that endpoint.
+      required: [feed_items, meta]
+      properties:
+        feed_items:
+          type: array
+          items: { $ref: '#/components/schemas/FeedItem' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+    PostsModule:
+      type: object
+      required: [posts]
+      properties:
+        posts:
+          type: array
+          description: Every post the contact is part of, newest `created_at` first.
+          items: { $ref: '#/components/schemas/PostSummary' }

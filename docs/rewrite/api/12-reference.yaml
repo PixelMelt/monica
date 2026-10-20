@@ -1,0 +1,144 @@
+# Reference data (A): currencies (D003), countries (D001), ISO-639 languages
+# (D002) and timezones (D004). Names are in the request locale (api-design.md
+# §8); none of these lists is paginated.
+paths:
+  /reference/currencies:
+    get:
+      operationId: listReferenceCurrencies
+      tags: [Reference]
+      summary: Currencies, ordered by code
+      description: |
+        With `active=true`, only the currencies enabled in the user's account
+        (`account_currency.active`), as the loan form's pick-list (R327).
+        Enabling and disabling them is account settings (AccountCurrency).
+      x-permission: user
+      x-inventory: [R327]
+      x-services: []
+      parameters:
+        - name: active
+          in: query
+          description: Keep only the currencies the account has enabled.
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: The currencies.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CurrencyList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /reference/countries:
+    get:
+      operationId: listReferenceCountries
+      tags: [Reference]
+      summary: Countries, ordered by name
+      description: ISO 3166-1 countries from the `rinvex/countries` data set.
+      x-permission: user
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The countries.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CountryList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /reference/languages:
+    get:
+      operationId: listReferenceLanguages
+      tags: [Reference]
+      summary: ISO 639-1 languages, ordered by name
+      description: From the `matriphe/iso-639` data set; `name` falls back to English when there is no translation.
+      x-permission: user
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The languages.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LanguageList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /reference/timezones:
+    get:
+      operationId: listReferenceTimezones
+      tags: [Reference]
+      summary: Timezones the user can pick, ordered by id
+      description: |
+        `GMT`, `UTC` and the IANA zone ids, for the preferences page (R212),
+        which groups them by the part before the first `/`.
+      x-permission: user
+      x-inventory: [R212]
+      x-services: []
+      responses:
+        '200':
+          description: The timezones.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimezoneList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  schemas:
+    Currency:
+      type: object
+      required: [id, code, name]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        code: { type: string, description: ISO 4217 code as seeded in `currencies` (includes some retired codes). }
+        name: { type: string, description: 'Name in the request locale (`lang/*/currencies.php`).' }
+    CurrencyList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Currency' }
+    Country:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, pattern: '^[A-Z]{2}$', description: ISO 3166-1 alpha-2. }
+        name: { type: string, description: Common name in the request locale. }
+    CountryList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Country' }
+    Language:
+      type: object
+      required: [code, name, native_name]
+      properties:
+        code: { type: string, pattern: '^[a-z]{2}$', description: ISO 639-1. }
+        name: { type: string, description: Name in the request locale. }
+        native_name: { type: string }
+    LanguageList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Language' }
+    Timezone:
+      type: object
+      required: [id, utc_offset]
+      properties:
+        id: { type: string, examples: ['America/Argentina/Buenos_Aires'] }
+        utc_offset:
+          type: integer
+          description: Computed. Current offset from UTC in minutes (the page shows it as `GMT/UTC - 03:00`).
+    TimezoneList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Timezone' }

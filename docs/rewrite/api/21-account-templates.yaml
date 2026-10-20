@@ -1,0 +1,923 @@
+# Account templates (B2): contact templates with their pages and modules (X023),
+# the account's module definitions, post templates with sections, group types
+# with roles.
+paths:
+  # ---------------------------------------------------------------- contact templates
+  /account/templates:
+    get:
+      operationId: listTemplates
+      tags: [Account]
+      summary: List the account's contact templates
+      description: |
+        Ordered by `id`. The settings page sorts by display name client-side,
+        as names can be translation keys. Also used to pick a template when
+        creating a contact, on a contact without a template and in vault
+        settings.
+      x-permission: account:member
+      x-inventory: [R298]
+      x-services: []
+      responses:
+        '200':
+          description: The templates.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createTemplate
+      tags: [Account]
+      summary: Create a contact template
+      description: |
+        Also creates the template's fixed contact information page
+        (`type: contact_information`, position 1, `can_be_deleted: false`).
+      x-permission: account:admin
+      x-inventory: [R299]
+      x-services: [CreateTemplate, CreateTemplatePage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplateCreate' }
+      responses:
+        '201':
+          description: The created template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Template' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/templates/{template_id}:
+    parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getTemplate
+      tags: [Account]
+      summary: Get a template with its pages
+      description: |
+        `pages` holds every page ordered by `position`, including the contact
+        information page; the settings page shows that one apart and doesn't
+        let it be renamed, moved or deleted.
+      x-permission: account:member
+      x-inventory: [R302]
+      x-services: []
+      responses:
+        '200':
+          description: The template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplateDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateTemplate
+      tags: [Account]
+      summary: Rename a template
+      x-permission: account:admin
+      x-inventory: [R300]
+      x-services: [UpdateTemplate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplateUpdate' }
+      responses:
+        '200':
+          description: The updated template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Template' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteTemplate
+      tags: [Account]
+      summary: Delete a template
+      description: |
+        Deletes its pages too. Contacts using it get `template_id = null` and
+        vaults using it as default get `default_template_id = null`. As today,
+        `can_be_deleted` isn't enforced here; the settings page hides the
+        action.
+      x-permission: account:admin
+      x-inventory: [R301]
+      x-services: [DestroyTemplate]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /account/templates/{template_id}/pages:
+    parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createTemplatePage
+      tags: [Account]
+      summary: Add a page to a template
+      description: |
+        Appended after the last page, with `type: null`, `can_be_deleted: true`
+        and `slug` derived from `name`.
+      x-permission: account:admin
+      x-inventory: [R303]
+      x-services: [CreateTemplatePage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplatePageCreate' }
+      responses:
+        '201':
+          description: The created page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/templates/{template_id}/pages/{template_page_id}:
+    parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: template_page_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getTemplatePage
+      tags: [Account]
+      summary: Get a template page with its modules
+      description: |
+        `modules` are the modules on the page, ordered by their position on
+        it. `available_modules` are the account's modules that may go on this
+        page: those with `reserved_to_contact_information` true for the
+        contact information page, false for any other page.
+      x-permission: account:member
+      x-inventory: [R306]
+      x-services: []
+      responses:
+        '200':
+          description: The page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePageDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateTemplatePage
+      tags: [Account]
+      summary: Rename or move a template page
+      description: |
+        Renaming also regenerates `slug`. Moving shifts the template's other
+        pages. Positions count every page of the template; the contact
+        information page sits at 1, so the settings page sends 2 or more.
+      x-permission: account:admin
+      x-inventory: [R304, R307]
+      x-services: [UpdateTemplatePage, UpdateTemplatePagePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplatePageUpdate' }
+      responses:
+        '200':
+          description: The updated page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteTemplatePage
+      tags: [Account]
+      summary: Delete a template page
+      description: |
+        Removes the page's module assignments; the modules and the contacts'
+        data stay. The other pages keep their positions. As today,
+        `can_be_deleted` isn't enforced here; the settings page offers no
+        delete for the contact information page.
+      x-permission: account:admin
+      x-inventory: [R305]
+      x-services: [DestroyTemplatePage]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /account/templates/{template_id}/pages/{template_page_id}/modules/{module_id}:
+    parameters:
+      - name: template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: template_page_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: module_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    put:
+      operationId: addTemplatePageModule
+      tags: [Account]
+      summary: Put a module on a template page
+      description: |
+        Appends the account module after the page's last module. If it is
+        already on the page, nothing changes.
+      x-permission: account:admin
+      x-inventory: [R308]
+      x-services: [AssociateModuleToTemplatePage]
+      responses:
+        '200':
+          description: The module as placed on the page.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePageModule' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateTemplatePageModule
+      tags: [Account]
+      summary: Move a module on a template page
+      description: Shifts the page's other modules. 404 if the module isn't on the page.
+      x-permission: account:admin
+      x-inventory: [R309]
+      x-services: [UpdateModulePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TemplatePageModuleUpdate' }
+      responses:
+        '200':
+          description: The module with its new position.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TemplatePageModule' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: removeTemplatePageModule
+      tags: [Account]
+      summary: Take a module off a template page
+      description: |
+        The module and the contacts' data stay; the page's other modules keep
+        their positions. 404 if the module isn't on the page.
+      x-permission: account:admin
+      x-inventory: [R310]
+      x-services: [RemoveModuleFromTemplatePage]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- modules
+  /account/modules:
+    get:
+      operationId: listAccountModules
+      tags: [Account]
+      summary: List the account's module definitions
+      description: |
+        Ordered by `id`; the settings page sorts by display name client-side.
+        Modules are seeded with the account and can't be created, edited or
+        deleted.
+      x-permission: account:member
+      x-inventory: [R311]
+      x-services: []
+      responses:
+        '200':
+          description: The modules.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountModuleList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ---------------------------------------------------------------- post templates
+  /account/post-templates:
+    get:
+      operationId: listPostTemplates
+      tags: [Account]
+      summary: List post templates with their sections
+      description: |
+        Ordered by `position`, sections too. Also feeds the template picker
+        when writing a journal post.
+      x-permission: account:member
+      x-inventory: [R260]
+      x-services: []
+      responses:
+        '200':
+          description: The post templates.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostTemplateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createPostTemplate
+      tags: [Account]
+      summary: Create a post template
+      description: "Appended after the last one, with `can_be_deleted: true` and no sections."
+      x-permission: account:admin
+      x-inventory: [R261]
+      x-services: [CreatePostTemplate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostTemplateCreate' }
+      responses:
+        '201':
+          description: The created post template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostTemplate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/post-templates/{post_template_id}:
+    parameters:
+      - name: post_template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updatePostTemplate
+      tags: [Account]
+      summary: Rename or move a post template
+      description: Moving shifts the other post templates.
+      x-permission: account:admin
+      x-inventory: [R262, R264]
+      x-services: [UpdatePostTemplate, UpdatePostTemplatePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostTemplateUpdate' }
+      responses:
+        '200':
+          description: The updated post template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostTemplate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deletePostTemplate
+      tags: [Account]
+      summary: Delete a post template
+      description: |
+        Deletes its sections; existing posts keep their own sections. The
+        others keep their positions. As today, `can_be_deleted` isn't enforced
+        here; the settings page hides the action.
+      x-permission: account:admin
+      x-inventory: [R263]
+      x-services: [DestroyPostTemplate]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /account/post-templates/{post_template_id}/sections:
+    parameters:
+      - name: post_template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createPostTemplateSection
+      tags: [Account]
+      summary: Add a section to a post template
+      description: "Appended after the last section, with `can_be_deleted: true`."
+      x-permission: account:admin
+      x-inventory: [R265]
+      x-services: [CreatePostTemplateSection]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostTemplateSectionCreate' }
+      responses:
+        '201':
+          description: The created section.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostTemplateSection' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/post-templates/{post_template_id}/sections/{post_template_section_id}:
+    parameters:
+      - name: post_template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: post_template_section_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updatePostTemplateSection
+      tags: [Account]
+      summary: Rename or move a post template section
+      description: Moving shifts the template's other sections.
+      x-permission: account:admin
+      x-inventory: [R266, R268]
+      x-services: [UpdatePostTemplateSection, UpdatePostTemplateSectionPosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostTemplateSectionUpdate' }
+      responses:
+        '200':
+          description: The updated section.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostTemplateSection' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deletePostTemplateSection
+      tags: [Account]
+      summary: Delete a post template section
+      description: |
+        The other sections keep their positions. As today, `can_be_deleted`
+        isn't enforced here.
+      x-permission: account:admin
+      x-inventory: [R267]
+      x-services: [DestroyPostTemplateSection]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- group types
+  /account/group-types:
+    get:
+      operationId: listGroupTypes
+      tags: [Account]
+      summary: List group types with their roles
+      description: |
+        Ordered by `position`, roles too. Also feeds the group type and role
+        pickers on groups and on a contact's groups module.
+      x-permission: account:member
+      x-inventory: [R269]
+      x-services: []
+      responses:
+        '200':
+          description: The group types.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createGroupType
+      tags: [Account]
+      summary: Create a group type
+      description: Appended after the last one, with no roles.
+      x-permission: account:admin
+      x-inventory: [R270]
+      x-services: [CreateGroupType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupTypeCreate' }
+      responses:
+        '201':
+          description: The created group type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/group-types/{group_type_id}:
+    parameters:
+      - name: group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateGroupType
+      tags: [Account]
+      summary: Rename or move a group type
+      description: Moving shifts the other group types.
+      x-permission: account:admin
+      x-inventory: [R271, R273]
+      x-services: [UpdateGroupType, UpdateGroupTypePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupTypeUpdate' }
+      responses:
+        '200':
+          description: The updated group type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteGroupType
+      tags: [Account]
+      summary: Delete a group type
+      description: |
+        Deletes its roles and moves the group types after it up by one.
+        Groups of this type get `group_type_id = null`; members with one of
+        its roles get `group_type_role_id = null`.
+      x-permission: account:admin
+      x-inventory: [R272]
+      x-services: [DestroyGroupType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /account/group-types/{group_type_id}/roles:
+    parameters:
+      - name: group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createGroupTypeRole
+      tags: [Account]
+      summary: Add a role to a group type
+      description: Appended after the last role.
+      x-permission: account:admin
+      x-inventory: [R274]
+      x-services: [CreateGroupTypeRole]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupTypeRoleCreate' }
+      responses:
+        '201':
+          description: The created role.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupTypeRole' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/group-types/{group_type_id}/roles/{group_type_role_id}:
+    parameters:
+      - name: group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: group_type_role_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateGroupTypeRole
+      tags: [Account]
+      summary: Rename or move a group type role
+      description: Moving shifts the group type's other roles.
+      x-permission: account:admin
+      x-inventory: [R275, R277]
+      x-services: [UpdateGroupTypeRole, UpdateGroupTypeRolePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupTypeRoleUpdate' }
+      responses:
+        '200':
+          description: The updated role.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupTypeRole' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteGroupTypeRole
+      tags: [Account]
+      summary: Delete a group type role
+      description: |
+        Moves the roles after it up by one. Group members with this role get
+        `group_type_role_id = null`.
+      x-permission: account:admin
+      x-inventory: [R276]
+      x-services: [DestroyGroupTypeRole]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    # ---------------------------------------------------------------- contact templates
+    Template:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, can_be_deleted]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            can_be_deleted: { type: boolean, description: False for the account's seeded default template. }
+    TemplateDetail:
+      allOf:
+        - $ref: '#/components/schemas/Template'
+        - type: object
+          required: [pages]
+          properties:
+            pages:
+              type: array
+              description: Every page of the template, ordered by `position`.
+              items: { $ref: '#/components/schemas/TemplatePage' }
+    TemplateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Template' }
+    TemplateCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    TemplateUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    TemplatePage:
+      description: A tab of the contact page.
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, template_id, slug, type, position, can_be_deleted]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            template_id: { $ref: '#/components/schemas/Id' }
+            slug: { type: string, description: Derived from the name; identifies the tab in contact page URLs. }
+            type:
+              type: [string, 'null']
+              enum: [contact_information, null]
+              description: |
+                `contact_information` for the fixed page every template has
+                (the contact header: avatar, names, labels, …); null for the
+                other pages.
+            position: { type: [integer, 'null'] }
+            can_be_deleted: { type: boolean, description: False for the contact information page. }
+    TemplatePageDetail:
+      allOf:
+        - $ref: '#/components/schemas/TemplatePage'
+        - type: object
+          required: [modules, available_modules]
+          properties:
+            modules:
+              type: array
+              description: The modules on the page, ordered by `position`.
+              items: { $ref: '#/components/schemas/TemplatePageModule' }
+            available_modules:
+              type: array
+              description: |
+                The account's modules that fit this page (see getTemplatePage),
+                ordered by `id`; the page sorts them by display name.
+              items: { $ref: '#/components/schemas/TemplatePageAvailableModule' }
+    TemplatePageModule:
+      description: An account module as placed on a template page.
+      allOf:
+        - $ref: '#/components/schemas/AccountModule'
+        - type: object
+          required: [position]
+          properties:
+            position: { type: [integer, 'null'], description: Position on the page (1-based). }
+    TemplatePageAvailableModule:
+      allOf:
+        - $ref: '#/components/schemas/AccountModule'
+        - type: object
+          required: [already_used]
+          properties:
+            already_used: { type: boolean, description: Computed. True when the module is already on this page. }
+    TemplatePageCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    TemplatePageUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+    TemplatePageModuleUpdate:
+      type: object
+      required: [position]
+      properties:
+        position: { type: integer, minimum: 1 }
+
+    # ---------------------------------------------------------------- modules
+    AccountModule:
+      description: |
+        One of the account's module definitions (`modules` table). `type`
+        decides what the module block on a contact page shows.
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, type, reserved_to_contact_information, can_be_deleted, pagination]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            type:
+              type: [string, 'null']
+              enum:
+                - avatar
+                - contact_names
+                - family_summary
+                - important_dates
+                - gender_pronoun
+                - labels
+                - company
+                - religions
+                - feed
+                - addresses
+                - contact_information
+                - relationships
+                - pets
+                - groups
+                - life_events
+                - goals
+                - documents
+                - photos
+                - notes
+                - reminders
+                - loans
+                - tasks
+                - calls
+                - posts
+                - null
+            reserved_to_contact_information:
+              type: boolean
+              description: True if the module can only go on the contact information page; false if it can only go on the other pages.
+            can_be_deleted: { type: boolean }
+            pagination: { type: [integer, 'null'], description: Stored page size; set only on the seeded notes module and not read by any page today. }
+    AccountModuleList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/AccountModule' }
+
+    # ---------------------------------------------------------------- post templates
+    PostTemplate:
+      type: object
+      description: |
+        Seeded rows keep `label_translation_key`; user-created rows have a
+        `label`. The client shows `label` when set, else translates the key.
+      required: [id, label, label_translation_key, position, can_be_deleted, sections]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: integer }
+        can_be_deleted: { type: boolean, description: False for the seeded "Regular post" template. }
+        sections:
+          type: array
+          description: Ordered by `position`.
+          items: { $ref: '#/components/schemas/PostTemplateSection' }
+    PostTemplateSection:
+      type: object
+      description: A section a new post starts with. `label` / `label_translation_key` as on `PostTemplate`.
+      required: [id, post_template_id, label, label_translation_key, position, can_be_deleted]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        post_template_id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: integer }
+        can_be_deleted: { type: boolean }
+    PostTemplateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/PostTemplate' }
+    PostTemplateCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    PostTemplateUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+    PostTemplateSectionCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    PostTemplateSectionUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+
+    # ---------------------------------------------------------------- group types
+    GroupType:
+      type: object
+      description: |
+        `label` / `label_translation_key`: the client shows `label` when set,
+        else translates the key.
+      required: [id, label, label_translation_key, position, roles]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: integer }
+        roles:
+          type: array
+          description: Ordered by `position`.
+          items: { $ref: '#/components/schemas/GroupTypeRole' }
+    GroupTypeRole:
+      type: object
+      required: [id, group_type_id, label, label_translation_key, position]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        group_type_id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'] }
+    GroupTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/GroupType' }
+    GroupTypeCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    GroupTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+    GroupTypeRoleCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    GroupTypeRoleUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }

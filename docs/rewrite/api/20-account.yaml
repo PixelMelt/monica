@@ -1,0 +1,1726 @@
+# Account administration (area B1): the account, its users, storage, cancellation,
+# and the personalization lists used by contact forms. Reads are open to every
+# account member; writes need the account administrator (api-design.md §2, §9).
+
+x-not-api:
+  - { id: R211, reason: "SPA page only (settings index: static links); the administrator flag that hides the account section comes from GET /me/bootstrap" }
+  - { id: R230, reason: "SPA page only (invite user form); submits to POST /account/users" }
+  - { id: R235, reason: "SPA page only (personalize index: static links)" }
+  - { id: R325, reason: "SPA page only (cancel account form); submits to DELETE /account" }
+
+paths:
+  /account:
+    get:
+      operationId: getAccount
+      tags: [Account]
+      summary: Get the current user's account
+      x-permission: account:member
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Account' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    delete:
+      operationId: cancelAccount
+      tags: [Account]
+      summary: Cancel the account
+      description: |
+        Needs a password confirmation (api-design.md §7.4). Queues the deletion
+        of the account with all its users, vaults, contacts and files (J018);
+        the client then goes to the login page.
+      x-permission: account:admin
+      x-inventory: [R326]
+      x-services: [CancelAccount]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CancelAccountRequest' }
+      responses:
+        '202':
+          description: Deletion queued; no body.
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /account/storage:
+    get:
+      operationId: getAccountStorage
+      tags: [Account]
+      summary: Storage used by the account's files, per file type
+      x-permission: account:member
+      x-inventory: [R324]
+      x-services: []
+      responses:
+        '200':
+          description: Usage totals and the account limit.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StorageUsage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /account/emotions:
+    get:
+      operationId: listEmotions
+      tags: [Account]
+      summary: List the account's emotions
+      description: Seeded per account at signup; there is no management UI. Ordered by id.
+      x-permission: account:member
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: All emotions, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmotionList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ------------------------------------------------------------------ users
+  /account/users:
+    get:
+      operationId: listAccountUsers
+      tags: [Account]
+      summary: List the users of the account
+      description: |
+        Includes invited users who haven't accepted yet. Ordered by
+        `created_at`. The client marks the current user by comparing ids with
+        GET /me/bootstrap.
+      x-permission: account:member
+      x-inventory: [R229, R330]
+      x-services: []
+      responses:
+        '200':
+          description: All users of the account, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountUserList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: inviteAccountUser
+      tags: [Account]
+      summary: Invite a user to the account
+      description: |
+        Creates the user with an invitation code and queues the invitation
+        email (E002), which links to the SPA's accept-invitation page.
+      x-permission: account:admin
+      x-inventory: [R231]
+      x-services: [InviteUser]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountUserInvite' }
+      responses:
+        '201':
+          description: The invited user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountUser' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/users/{user_id}:
+    parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Uuid' }
+    get:
+      operationId: getAccountUser
+      tags: [Account]
+      summary: Get a user of the account
+      x-permission: account:member
+      x-inventory: [R331]
+      x-services: []
+      responses:
+        '200':
+          description: The user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountUser' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateAccountUser
+      tags: [Account]
+      summary: Give or remove the administrator privilege
+      description: Removing your own privilege is a 409.
+      x-permission: account:admin
+      x-inventory: [R233]
+      x-services: [GiveAdministratorPrivilege, RemoveAdministratorPrivilege]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountUserUpdate' }
+      responses:
+        '200':
+          description: The updated user.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountUser' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteAccountUser
+      tags: [Account]
+      summary: Delete a user of the account
+      description: |
+        Needs a password confirmation (api-design.md §7.4). Also deletes every
+        vault the user manages that has no other manager. Deleting yourself is
+        a 409.
+      x-permission: account:admin
+      x-inventory: [R234]
+      x-services: [DestroyUser]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DeleteAccountUserRequest' }
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  # ------------------------------------------------------------------ genders
+  /account/genders:
+    get:
+      operationId: listGenders
+      tags: [Account]
+      summary: List the account's genders
+      description: Ordered by id; the client sorts by the displayed name (X017).
+      x-permission: account:member
+      x-inventory: [R278]
+      x-services: []
+      responses:
+        '200':
+          description: All genders, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenderList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createGender
+      tags: [Account]
+      summary: Add a gender
+      x-permission: account:admin
+      x-inventory: [R279]
+      x-services: [CreateGender]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GenderCreate' }
+      responses:
+        '201':
+          description: The created gender.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Gender' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/genders/{gender_id}:
+    parameters:
+      - name: gender_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateGender
+      tags: [Account]
+      summary: Rename a gender
+      x-permission: account:admin
+      x-inventory: [R280]
+      x-services: [UpdateGender]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GenderUpdate' }
+      responses:
+        '200':
+          description: The updated gender.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Gender' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteGender
+      tags: [Account]
+      summary: Delete a gender
+      description: Contacts with this gender get `gender_id` null.
+      x-permission: account:admin
+      x-inventory: [R281]
+      x-services: [DestroyGender]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ pronouns
+  /account/pronouns:
+    get:
+      operationId: listPronouns
+      tags: [Account]
+      summary: List the account's pronouns
+      description: Ordered by id; the client sorts by the displayed name (X017).
+      x-permission: account:member
+      x-inventory: [R282]
+      x-services: []
+      responses:
+        '200':
+          description: All pronouns, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PronounList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createPronoun
+      tags: [Account]
+      summary: Add a pronoun
+      x-permission: account:admin
+      x-inventory: [R283]
+      x-services: [CreatePronoun]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PronounCreate' }
+      responses:
+        '201':
+          description: The created pronoun.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pronoun' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/pronouns/{pronoun_id}:
+    parameters:
+      - name: pronoun_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updatePronoun
+      tags: [Account]
+      summary: Rename a pronoun
+      x-permission: account:admin
+      x-inventory: [R284]
+      x-services: [UpdatePronoun]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PronounUpdate' }
+      responses:
+        '200':
+          description: The updated pronoun.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pronoun' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deletePronoun
+      tags: [Account]
+      summary: Delete a pronoun
+      description: Contacts with this pronoun get `pronoun_id` null.
+      x-permission: account:admin
+      x-inventory: [R285]
+      x-services: [DestroyPronoun]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ address types
+  /account/address-types:
+    get:
+      operationId: listAddressTypes
+      tags: [Account]
+      summary: List the account's address types
+      description: Ordered by id; the client sorts by the displayed name (X017).
+      x-permission: account:member
+      x-inventory: [R286]
+      x-services: []
+      responses:
+        '200':
+          description: All address types, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createAddressType
+      tags: [Account]
+      summary: Add an address type
+      x-permission: account:admin
+      x-inventory: [R287]
+      x-services: [CreateAddressType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressTypeCreate' }
+      responses:
+        '201':
+          description: The created address type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/address-types/{address_type_id}:
+    parameters:
+      - name: address_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateAddressType
+      tags: [Account]
+      summary: Rename an address type
+      x-permission: account:admin
+      x-inventory: [R288]
+      x-services: [UpdateAddressType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressTypeUpdate' }
+      responses:
+        '200':
+          description: The updated address type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteAddressType
+      tags: [Account]
+      summary: Delete an address type
+      description: Addresses of this type get `address_type_id` null.
+      x-permission: account:admin
+      x-inventory: [R289]
+      x-services: [DestroyAddressType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ pet categories
+  /account/pet-categories:
+    get:
+      operationId: listPetCategories
+      tags: [Account]
+      summary: List the account's pet categories
+      description: Ordered by id; the client sorts by the displayed name (X017).
+      x-permission: account:member
+      x-inventory: [R290]
+      x-services: []
+      responses:
+        '200':
+          description: All pet categories, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PetCategoryList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createPetCategory
+      tags: [Account]
+      summary: Add a pet category
+      x-permission: account:admin
+      x-inventory: [R291]
+      x-services: [CreatePetCategory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PetCategoryCreate' }
+      responses:
+        '201':
+          description: The created pet category.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PetCategory' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/pet-categories/{pet_category_id}:
+    parameters:
+      - name: pet_category_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updatePetCategory
+      tags: [Account]
+      summary: Rename a pet category
+      x-permission: account:admin
+      x-inventory: [R292]
+      x-services: [UpdatePetCategory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PetCategoryUpdate' }
+      responses:
+        '200':
+          description: The updated pet category.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PetCategory' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deletePetCategory
+      tags: [Account]
+      summary: Delete a pet category
+      description: Also deletes the pets in this category (foreign key cascade).
+      x-permission: account:admin
+      x-inventory: [R293]
+      x-services: [DestroyPetCategory]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ contact information types
+  /account/contact-information-types:
+    get:
+      operationId: listContactInformationTypes
+      tags: [Account]
+      summary: List the account's contact information types
+      description: |
+        Ordered by id. The settings page groups them by `type` and sorts each
+        group by the displayed name (X017); group labels are static in the client.
+      x-permission: account:member
+      x-inventory: [R294]
+      x-services: []
+      responses:
+        '200':
+          description: All contact information types, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformationTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createContactInformationType
+      tags: [Account]
+      summary: Add a contact information type
+      x-permission: account:admin
+      x-inventory: [R295]
+      x-services: [CreateContactInformationType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactInformationTypeCreate' }
+      responses:
+        '201':
+          description: The created type (`can_be_deleted` is true).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformationType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/contact-information-types/{contact_information_type_id}:
+    parameters:
+      - name: contact_information_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactInformationType
+      tags: [Account]
+      summary: Edit a contact information type
+      x-permission: account:admin
+      x-inventory: [R296]
+      x-services: [UpdateContactInformationType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactInformationTypeUpdate' }
+      responses:
+        '200':
+          description: The updated type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactInformationType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactInformationType
+      tags: [Account]
+      summary: Delete a contact information type
+      description: |
+        Also deletes the contact information of this type (foreign key
+        cascade). A type with `can_be_deleted: false` (email, phone) is a 409.
+      x-permission: account:admin
+      x-inventory: [R297]
+      x-services: [DestroyContactInformationType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  # ------------------------------------------------------------------ call reasons
+  /account/call-reason-types:
+    get:
+      operationId: listCallReasonTypes
+      tags: [Account]
+      summary: List call reason types with their reasons
+      description: |
+        Types ordered by id (the client sorts by the displayed label, X017);
+        each type's `reasons` ordered by id.
+      x-permission: account:member
+      x-inventory: [R243]
+      x-services: []
+      responses:
+        '200':
+          description: All call reason types, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallReasonTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createCallReasonType
+      tags: [Account]
+      summary: Add a call reason type
+      x-permission: account:admin
+      x-inventory: [R244]
+      x-services: [CreateCallReasonType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallReasonTypeCreate' }
+      responses:
+        '201':
+          description: The created type, with no reasons.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallReasonType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/call-reason-types/{call_reason_type_id}:
+    parameters:
+      - name: call_reason_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateCallReasonType
+      tags: [Account]
+      summary: Rename a call reason type
+      x-permission: account:admin
+      x-inventory: [R245]
+      x-services: [UpdateCallReasonType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallReasonTypeUpdate' }
+      responses:
+        '200':
+          description: The updated type with its reasons.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallReasonType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteCallReasonType
+      tags: [Account]
+      summary: Delete a call reason type and its reasons
+      description: Also deletes every call logged with one of its reasons (foreign key cascade).
+      x-permission: account:admin
+      x-inventory: [R246]
+      x-services: [DestroyCallReasonType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /account/call-reason-types/{call_reason_type_id}/reasons:
+    parameters:
+      - name: call_reason_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createCallReason
+      tags: [Account]
+      summary: Add a call reason to a type
+      x-permission: account:admin
+      x-inventory: [R247]
+      x-services: [CreateCallReason]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallReasonCreate' }
+      responses:
+        '201':
+          description: The created reason.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallReason' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/call-reason-types/{call_reason_type_id}/reasons/{call_reason_id}:
+    parameters:
+      - name: call_reason_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: call_reason_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateCallReason
+      tags: [Account]
+      summary: Rename a call reason
+      x-permission: account:admin
+      x-inventory: [R248]
+      x-services: [UpdateCallReason]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallReasonUpdate' }
+      responses:
+        '200':
+          description: The updated reason.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallReason' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteCallReason
+      tags: [Account]
+      summary: Delete a call reason
+      description: Also deletes every call logged with this reason (foreign key cascade).
+      x-permission: account:admin
+      x-inventory: [R249]
+      x-services: [DestroyCallReason]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ gift occasions
+  /account/gift-occasions:
+    get:
+      operationId: listGiftOccasions
+      tags: [Account]
+      summary: List the account's gift occasions
+      x-permission: account:member
+      x-inventory: [R250]
+      x-services: []
+      responses:
+        '200':
+          description: All gift occasions ordered by `position`, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftOccasionList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createGiftOccasion
+      tags: [Account]
+      summary: Add a gift occasion
+      description: The new occasion goes last.
+      x-permission: account:admin
+      x-inventory: [R251]
+      x-services: [CreateGiftOccasion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GiftOccasionCreate' }
+      responses:
+        '201':
+          description: The created gift occasion.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftOccasion' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/gift-occasions/{gift_occasion_id}:
+    parameters:
+      - name: gift_occasion_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateGiftOccasion
+      tags: [Account]
+      summary: Rename or move a gift occasion
+      description: Changing `position` shifts the siblings in between.
+      x-permission: account:admin
+      x-inventory: [R252, R254]
+      x-services: [UpdateGiftOccasion, UpdateGiftOccasionPosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GiftOccasionUpdate' }
+      responses:
+        '200':
+          description: The updated gift occasion.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftOccasion' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteGiftOccasion
+      tags: [Account]
+      summary: Delete a gift occasion
+      description: The occasions after it move up one position.
+      x-permission: account:admin
+      x-inventory: [R253]
+      x-services: [DestroyGiftOccasion]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ gift states
+  /account/gift-states:
+    get:
+      operationId: listGiftStates
+      tags: [Account]
+      summary: List the account's gift states
+      x-permission: account:member
+      x-inventory: [R255]
+      x-services: []
+      responses:
+        '200':
+          description: All gift states ordered by `position`, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftStateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createGiftState
+      tags: [Account]
+      summary: Add a gift state
+      description: The new state goes last.
+      x-permission: account:admin
+      x-inventory: [R256]
+      x-services: [CreateGiftState]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GiftStateCreate' }
+      responses:
+        '201':
+          description: The created gift state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftState' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/gift-states/{gift_state_id}:
+    parameters:
+      - name: gift_state_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateGiftState
+      tags: [Account]
+      summary: Rename or move a gift state
+      description: Changing `position` shifts the siblings in between.
+      x-permission: account:admin
+      x-inventory: [R257, R259]
+      x-services: [UpdateGiftState, UpdateGiftStatePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GiftStateUpdate' }
+      responses:
+        '200':
+          description: The updated gift state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GiftState' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteGiftState
+      tags: [Account]
+      summary: Delete a gift state
+      description: The states after it move up one position.
+      x-permission: account:admin
+      x-inventory: [R258]
+      x-services: [DestroyGiftState]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ relationship types
+  /account/relationship-group-types:
+    get:
+      operationId: listRelationshipGroupTypes
+      tags: [Account]
+      summary: List relationship group types with their relationship types
+      description: |
+        Group types ordered by id (the client sorts by the displayed name,
+        X017); each group's `types` ordered by id.
+      x-permission: account:member
+      x-inventory: [R236]
+      x-services: []
+      responses:
+        '200':
+          description: All relationship group types, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipGroupTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createRelationshipGroupType
+      tags: [Account]
+      summary: Add a relationship group type
+      x-permission: account:admin
+      x-inventory: [R237]
+      x-services: [CreateRelationshipGroupType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipGroupTypeCreate' }
+      responses:
+        '201':
+          description: The created group type (`can_be_deleted` true, no types).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipGroupType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/relationship-group-types/{relationship_group_type_id}:
+    parameters:
+      - name: relationship_group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateRelationshipGroupType
+      tags: [Account]
+      summary: Rename a relationship group type
+      x-permission: account:admin
+      x-inventory: [R238]
+      x-services: [UpdateRelationshipGroupType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipGroupTypeUpdate' }
+      responses:
+        '200':
+          description: The updated group type with its types.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipGroupType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteRelationshipGroupType
+      tags: [Account]
+      summary: Delete a relationship group type
+      description: |
+        Also deletes its relationship types and every relationship using them
+        (foreign key cascade). A group with `can_be_deleted: false` is a 409.
+      x-permission: account:admin
+      x-inventory: [R239]
+      x-services: [DestroyRelationshipGroupType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /account/relationship-group-types/{relationship_group_type_id}/relationship-types:
+    parameters:
+      - name: relationship_group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createRelationshipType
+      tags: [Account]
+      summary: Add a relationship type to a group
+      x-permission: account:admin
+      x-inventory: [R240]
+      x-services: [CreateRelationshipType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipTypeCreate' }
+      responses:
+        '201':
+          description: The created relationship type (`can_be_deleted` true).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/relationship-group-types/{relationship_group_type_id}/relationship-types/{relationship_type_id}:
+    parameters:
+      - name: relationship_group_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: relationship_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateRelationshipType
+      tags: [Account]
+      summary: Rename a relationship type
+      x-permission: account:admin
+      x-inventory: [R241]
+      x-services: [UpdateRelationshipType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipTypeUpdate' }
+      responses:
+        '200':
+          description: The updated relationship type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteRelationshipType
+      tags: [Account]
+      summary: Delete a relationship type
+      description: |
+        Also deletes every relationship of this type (foreign key cascade). A
+        type with `can_be_deleted: false` is a 409.
+      x-permission: account:admin
+      x-inventory: [R242]
+      x-services: [DestroyRelationshipType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  # ------------------------------------------------------------------ religions
+  /account/religions:
+    get:
+      operationId: listReligions
+      tags: [Account]
+      summary: List the account's religions
+      x-permission: account:member
+      x-inventory: [R319]
+      x-services: []
+      responses:
+        '200':
+          description: All religions ordered by `position`, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReligionList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createReligion
+      tags: [Account]
+      summary: Add a religion
+      description: The new religion goes last.
+      x-permission: account:admin
+      x-inventory: [R320]
+      x-services: [CreateReligion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReligionCreate' }
+      responses:
+        '201':
+          description: The created religion.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Religion' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /account/religions/{religion_id}:
+    parameters:
+      - name: religion_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateReligion
+      tags: [Account]
+      summary: Rename or move a religion
+      description: Changing `position` shifts the siblings in between.
+      x-permission: account:admin
+      x-inventory: [R321, R323]
+      x-services: [UpdateReligion, UpdateReligionPosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReligionUpdate' }
+      responses:
+        '200':
+          description: The updated religion.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Religion' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteReligion
+      tags: [Account]
+      summary: Delete a religion
+      description: The religions after it move up one position; contacts with it get `religion_id` null.
+      x-permission: account:admin
+      x-inventory: [R322]
+      x-services: [DestroyReligion]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ------------------------------------------------------------------ currencies
+  /account/currencies:
+    get:
+      operationId: listAccountCurrencies
+      tags: [Account]
+      summary: List all currencies with their state in the account
+      description: Ordered by `code`. `active=true` gives the currencies offered in money fields (loans).
+      x-permission: account:member
+      x-inventory: [R315]
+      x-services: []
+      parameters:
+        - name: active
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: All currencies, not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountCurrencyList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /account/currencies/enable-all:
+    post:
+      operationId: enableAllAccountCurrencies
+      tags: [Account]
+      summary: Activate every currency in the account
+      x-permission: account:admin
+      x-inventory: [R317]
+      x-services: [EnableAllCurrencies]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /account/currencies/disable-all:
+    post:
+      operationId: disableAllAccountCurrencies
+      tags: [Account]
+      summary: Deactivate every currency in the account
+      x-permission: account:admin
+      x-inventory: [R318]
+      x-services: [DisableAllCurrencies]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /account/currencies/{currency_id}:
+    parameters:
+      - name: currency_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateAccountCurrency
+      tags: [Account]
+      summary: Activate or deactivate one currency
+      description: Sets `active` to the value sent (today's endpoint flipped it).
+      x-permission: account:admin
+      x-inventory: [R316]
+      x-services: [ToggleCurrency]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AccountCurrencyUpdate' }
+      responses:
+        '200':
+          description: The currency with its new state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AccountCurrency' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+components:
+  schemas:
+    # ---------------------------------------------------------------- account
+    Account:
+      type: object
+      required: [id, storage_limit_in_mb, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        storage_limit_in_mb: { type: integer, minimum: 0, description: 0 means unlimited (X011). }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    StorageUsage:
+      type: object
+      description: |
+        Sizes are bytes, summed over the files of all the account's vaults. The
+        client computes percentages (of the limit, and per type of the total).
+      required: [storage_limit_in_mb, total_size, photo, document, avatar]
+      properties:
+        storage_limit_in_mb: { type: integer, minimum: 0, description: 0 means unlimited (X011). }
+        total_size: { type: integer, minimum: 0 }
+        photo: { $ref: '#/components/schemas/StorageTypeUsage' }
+        document: { $ref: '#/components/schemas/StorageTypeUsage' }
+        avatar: { $ref: '#/components/schemas/StorageTypeUsage' }
+    StorageTypeUsage:
+      type: object
+      required: [count, size]
+      properties:
+        count: { type: integer, minimum: 0, description: Number of files of this type. }
+        size: { type: integer, minimum: 0, description: Bytes. }
+    CancelAccountRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: The current password, unless the session confirmed it recently (api-design.md §7.4).
+    EmotionList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Emotion' }
+
+    # ---------------------------------------------------------------- users
+    AccountUser:
+      type: object
+      required: [id, email, first_name, last_name, is_account_administrator, email_verified_at, invitation_accepted_at, is_invitation_pending, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        email: { type: string, format: email }
+        first_name: { type: [string, 'null'], description: Null until an invited user accepts. }
+        last_name: { type: [string, 'null'] }
+        is_account_administrator: { type: boolean }
+        email_verified_at:
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        invitation_accepted_at:
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        is_invitation_pending:
+          type: boolean
+          description: Computed; invited (has an invitation code) and not accepted yet.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    AccountUserList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/AccountUser' }
+    AccountUserInvite:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email, maxLength: 255, description: Must not belong to any user yet (`unique`). }
+        is_account_administrator: { type: boolean, default: false }
+    AccountUserUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        is_account_administrator: { type: boolean }
+    DeleteAccountUserRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          description: The current password, unless the session confirmed it recently (api-design.md §7.4).
+
+    # ---------------------------------------------------------------- genders
+    Gender:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, type]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            type:
+              type: [string, 'null']
+              enum: ['M', 'F', 'O', 'U', 'N', null]
+              description: vCard gender code, used by the DAV export. Seeded and user-created genders have none.
+    GenderList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Gender' }
+    GenderCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    GenderUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- pronouns
+    Pronoun:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+    PronounList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Pronoun' }
+    PronounCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    PronounUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- address types
+    AddressType:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, type]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            type:
+              type: [string, 'null']
+              description: |
+                vCard address type used by the DAV export. Seeded: `home`,
+                `secondary`, `work`, `chalet`, `other`; user-created default `custom`.
+    AddressTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/AddressType' }
+    AddressTypeCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        type: { type: [string, 'null'], maxLength: 255, description: Defaults to `custom`. }
+    AddressTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- pet categories
+    PetCategory:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+    PetCategoryList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/PetCategory' }
+    PetCategoryCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    PetCategoryUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- contact information types
+    ContactInformationType:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, protocol, type, can_be_deleted]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            protocol: { type: [string, 'null'], description: 'Prefix that makes the value clickable, e.g. `mailto:`, `tel:`.' }
+            type:
+              type: [string, 'null']
+              description: |
+                Group: `email`, `phone` (one seeded type each, not deletable),
+                `IMPP` or `X-SOCIAL-PROFILE`.
+            can_be_deleted: { type: boolean }
+    ContactInformationTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactInformationType' }
+    ContactInformationTypeCreate:
+      type: object
+      required: [name, type]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        type: { type: string, minLength: 1, maxLength: 255, description: The settings page offers `IMPP` and `X-SOCIAL-PROFILE`. }
+        protocol: { type: [string, 'null'], maxLength: 255 }
+    ContactInformationTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        type: { type: string, minLength: 1, maxLength: 255 }
+        protocol: { type: [string, 'null'], maxLength: 255 }
+
+    # ---------------------------------------------------------------- call reasons
+    CallReasonType:
+      type: object
+      description: Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key.
+      required: [id, label, label_translation_key, reasons]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        reasons:
+          type: array
+          items: { $ref: '#/components/schemas/CallReason' }
+    CallReason:
+      type: object
+      required: [id, call_reason_type_id, label, label_translation_key]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        call_reason_type_id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+    CallReasonTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/CallReasonType' }
+    CallReasonTypeCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    CallReasonTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    CallReasonCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    CallReasonUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- gift occasions and states
+    GiftOccasion:
+      type: object
+      description: Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key.
+      required: [id, label, label_translation_key, position]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'], description: 1-based order. }
+    GiftOccasionList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/GiftOccasion' }
+    GiftOccasionCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    GiftOccasionUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+    GiftState:
+      type: object
+      description: Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key.
+      required: [id, label, label_translation_key, position]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'], description: 1-based order. }
+    GiftStateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/GiftState' }
+    GiftStateCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    GiftStateUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+
+    # ---------------------------------------------------------------- relationship types
+    RelationshipGroupType:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, type, can_be_deleted, types]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            type:
+              type: [string, 'null']
+              enum: [love, family, null]
+              description: Marks the seeded groups the family summary reads; null for others.
+            can_be_deleted: { type: boolean }
+            types:
+              type: array
+              items: { $ref: '#/components/schemas/RelationshipType' }
+    RelationshipType:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, relationship_group_type_id, name_reverse_relationship, name_reverse_relationship_translation_key, type, can_be_deleted]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            relationship_group_type_id: { $ref: '#/components/schemas/Id' }
+            name_reverse_relationship: { type: [string, 'null'], description: 'The name seen from the other contact (e.g. "child" for "parent").' }
+            name_reverse_relationship_translation_key: { type: [string, 'null'] }
+            type:
+              type: [string, 'null']
+              enum: [family, child, null]
+              description: |
+                As stored: `family` marks the seeded love types (spouse,
+                significant other; the PHP constant `TYPE_LOVE` is `family`),
+                `child` the seeded parent/child type. Null for others.
+            can_be_deleted: { type: boolean }
+    RelationshipGroupTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/RelationshipGroupType' }
+    RelationshipGroupTypeCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    RelationshipGroupTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    RelationshipTypeCreate:
+      type: object
+      required: [name, name_reverse_relationship]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        name_reverse_relationship: { type: string, minLength: 1, maxLength: 255 }
+    RelationshipTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        name_reverse_relationship: { type: string, minLength: 1, maxLength: 255 }
+
+    # ---------------------------------------------------------------- religions
+    Religion:
+      type: object
+      description: Seeded rows have `translation_key`; the client shows `name` when set, else translates the key.
+      required: [id, name, translation_key, position]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        name: { type: [string, 'null'] }
+        translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'], description: 1-based order. }
+    ReligionList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Religion' }
+    ReligionCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    ReligionUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+
+    # ---------------------------------------------------------------- currencies
+    AccountCurrency:
+      description: A currency (`id` is the currency id) and whether the account offers it.
+      allOf:
+        - $ref: '#/components/schemas/Currency'
+        - type: object
+          required: [active]
+          properties:
+            active: { type: boolean }
+    AccountCurrencyList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/AccountCurrency' }
+    AccountCurrencyUpdate:
+      type: object
+      required: [active]
+      properties:
+        active: { type: boolean }

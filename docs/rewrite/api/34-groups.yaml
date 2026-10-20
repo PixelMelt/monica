@@ -1,0 +1,193 @@
+# Vault groups (area F). Contact membership lives in 33-contact-modules-b.yaml.
+paths:
+  /vaults/{vault_id}/groups:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultGroups
+      tags: [Groups]
+      summary: List the vault's groups with their members
+      description: Ordered by `name` (collation-aware). Not paginated.
+      x-permission: vault:view
+      x-inventory: [R126]
+      x-services: []
+      responses:
+        '200':
+          description: The vault's groups.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultGroup
+      tags: [Groups]
+      summary: Create a group
+      description: |
+        The contact page's "+ create a group" choice (R115) is this call
+        followed by `addContactToGroup`; an empty group left by a failed second
+        call is visible and deletable, so no composite call is needed.
+      x-permission: vault:edit
+      x-inventory: [R115]
+      x-services: [CreateGroup]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupCreate' }
+      responses:
+        '201':
+          description: The created group (no members yet).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Group' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/groups/{group_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/GroupId'
+    get:
+      operationId: getVaultGroup
+      tags: [Groups]
+      summary: Get a group with its members bucketed by role
+      description: |
+        Feeds the group page (R127) and the group edit page (R128), which also
+        needs `listGroupTypes`.
+      x-permission: vault:view
+      x-inventory: [R127, R128]
+      x-services: []
+      responses:
+        '200':
+          description: The group.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateVaultGroup
+      tags: [Groups]
+      summary: Rename a group or change its type
+      x-permission: vault:edit
+      x-inventory: [R129]
+      x-services: [UpdateGroup]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GroupUpdate' }
+      responses:
+        '200':
+          description: The updated group.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Group' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultGroup
+      tags: [Groups]
+      summary: Delete a group
+      description: |
+        Soft delete (`deleted_at`), so CardDAV sync can report it. Done
+        synchronously.
+      x-permission: vault:edit
+      x-inventory: [R130]
+      x-services: [DestroyGroup]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  parameters:
+    GroupId:
+      name: group_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+
+  schemas:
+    Group:
+      type: object
+      required: [id, vault_id, name, group_type, members, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        group_type:
+          description: The group's type with its roles; null when it has none.
+          oneOf:
+            - $ref: '#/components/schemas/GroupType'
+            - type: 'null'
+        members:
+          type: array
+          description: Ordered by `first_name` (collation-aware).
+          items: { $ref: '#/components/schemas/GroupMember' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    GroupMember:
+      allOf:
+        - $ref: '#/components/schemas/ContactSummary'
+        - type: object
+          required: [age, group_type_role_id]
+          properties:
+            age:
+              type: [integer, 'null']
+              description: Computed from the contact's birthdate important date; null when unknown.
+            group_type_role_id:
+              type: [integer, 'null']
+              format: int64
+              description: The member's role in the group (`contact_group.group_type_role_id`).
+    GroupDetail:
+      allOf:
+        - $ref: '#/components/schemas/Group'
+        - type: object
+          required: [roles]
+          properties:
+            roles:
+              type: array
+              description: |
+                Computed: members bucketed by role, the type's roles in
+                `position` order (empty buckets included), then one bucket with
+                `role: null` for members without a role of the current type,
+                present only when it has members.
+              items:
+                type: object
+                required: [role, members]
+                properties:
+                  role:
+                    oneOf:
+                      - $ref: '#/components/schemas/GroupTypeRole'
+                      - type: 'null'
+                  members:
+                    type: array
+                    items: { $ref: '#/components/schemas/GroupMember' }
+    GroupList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Group' }
+    GroupCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        group_type_id: { type: [integer, 'null'], format: int64, description: One of the account's group types. }
+    GroupUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        group_type_id: { type: [integer, 'null'], format: int64, description: One of the account's group types. }
