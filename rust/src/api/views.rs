@@ -18,7 +18,7 @@ use crate::error::ApiResult;
 
 /// A contact with what the hover card shows (today `ContactCardHelper`):
 /// age and the groups the contact belongs to.
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct ContactCard {
     #[schema(value_type = uuid::Uuid)]
     pub id: Uuid,
@@ -42,7 +42,7 @@ pub struct ContactCard {
     pub groups: Vec<ContactCardGroup>,
 }
 
-#[derive(Debug, Serialize, ToSchema)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct ContactCardGroup {
     #[schema(value_type = i64)]
     pub id: Id,
