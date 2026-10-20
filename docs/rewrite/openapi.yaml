@@ -5135,7 +5135,9 @@ paths:
 
         one, else the MultiAvatar SVG generated from `first_name + '' '' +
 
-        last_name`, or from the contact id when `first_name` is null (X021).
+        last_name`, or from a random name when `first_name` is null, as
+
+        `AvatarHelper` does (X021).
 
         The URL doesn''t change with the avatar, so it is served with an
 
@@ -7367,7 +7369,7 @@ paths:
 
         vault task pages. When `completed` changes, `completed_at` is set to
 
-        the current time (also when un-completing, as today). Sets the
+        the current time, or cleared when un-completing (Q6). Sets the
 
         contact''s `last_updated_at`.
 
@@ -14160,11 +14162,13 @@ components:
           - type: 'null'
     FamilySummaryModule:
       type: object
-      description: 'Partners (relationship types of type `love` in the account''s `love`
+      description: 'Partners (relationship types whose stored type is `family`,
 
-        group) and children (types of type `child` in the `family` group),
+        `RelationshipType::TYPE_LOVE`, in the account''s `love` group) and
 
-        matched in either direction of the relationship.
+        children (types of type `child` in the `family` group), matched in
+
+        either direction of the relationship.
 
         '
       required:
