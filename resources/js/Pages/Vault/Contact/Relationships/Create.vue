@@ -215,8 +215,6 @@
                   <div v-if="form.choice === 'contact'" class="ps-6">
                     <contact-selector
                       v-model="form.other_contact_id"
-                      :search-url="layoutData.vault.url.search_contacts_only"
-                      :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
                       :display-most-consulted-contacts="false"
                       :add-multiple-contacts="false"
                       :required="true"
@@ -341,6 +339,8 @@ import Dropdown from '@/Shared/Form/Dropdown.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import ContactSelector from '@/Shared/Form/ContactSelector.vue';
 import Avatar from '@/Shared/Avatar.vue';
+import { createContactRelationship } from '@/api/client';
+import { route, visit } from '@/router';
 
 export default {
   components: {
@@ -496,11 +496,34 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      const contactId = this.data.contact.id;
+      const nullable = (value) => (value === '' || value === undefined ? null : value);
+      const id = (value) => (nullable(value) === null ? null : Number(value));
+
+      // ContactRelationshipsController@store: a new contact unless one was chosen
+      const body = {
+        relationship_type_id: id(this.form.relationship_type_id),
+        direction: this.form.base_contact_id === contactId ? 'forward' : 'reverse',
+      };
+      if (this.form.choice !== 'contact') {
+        body.new_contact = {
+          first_name: nullable(this.form.first_name),
+          last_name: nullable(this.form.last_name),
+          middle_name: nullable(this.form.middle_name),
+          nickname: nullable(this.form.nickname),
+          maiden_name: nullable(this.form.maiden_name),
+          gender_id: id(this.form.gender_id),
+          pronoun_id: id(this.form.pronoun_id),
+          listed: this.form.create_contact_entry,
+        };
+      } else {
+        body.other_contact_id = this.form.other_contact_id[0]?.id;
+      }
+
+      createContactRelationship({ vault_id: this.$route.params.vault, contact_id: contactId }, body)
+        .then(() => {
           localStorage.success = this.$t('The relationship has been added');
-          this.$inertia.visit(response.data.data);
+          visit(route('contact.show', { vault: this.$route.params.vault, contact: contactId }));
         })
         .catch((error) => {
           this.form.errors = error.response.data;

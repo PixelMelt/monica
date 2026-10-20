@@ -1,6 +1,14 @@
 <script setup>
 import { ref, watch, reactive, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import { flash } from '@/methods';
+import {
+  createContactInformation,
+  deleteContactInformation,
+  listContactInformationTypes,
+  updateContactInformation,
+} from '@/api/client';
+import * as dto from '@/adapters/modules-b';
 import { trans } from 'laravel-vue-i18n';
 import ComboBox from '@/Shared/Form/ComboBox.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
@@ -15,6 +23,9 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
+const ids = () => ({ vault_id: currentRoute.params.vault, contact_id: currentRoute.params.contact });
+
 const loadingState = ref('');
 const adding = ref(false);
 const localData = ref(props.data.contact_information);
@@ -22,6 +33,11 @@ const editingId = ref(0);
 const deleting = ref(null);
 const kinds = ref(null);
 const protocol = ref(null);
+const types = ref({});
+
+listContactInformationTypes().then((list) => {
+  types.value = dto.contactInformationTypes(list.data, props.data);
+});
 
 const newDataRef = useTemplateRef('newData');
 const renameRef = useTemplateRef('rename');
@@ -35,15 +51,15 @@ const form = reactive({
 });
 
 watch(
-  () => form.contact_information_type_id,
-  (newValue) => {
-    for (const optgroup in props.data.contact_information_types) {
-      let types = props.data.contact_information_types[optgroup].options;
-      let id = types.findIndex((x) => x.id === newValue);
+  [() => form.contact_information_type_id, types],
+  ([newValue]) => {
+    for (const optgroup in types.value) {
+      let options = types.value[optgroup].options;
+      let id = options.findIndex((x) => x.id === newValue);
       if (id === -1) {
         continue;
       }
-      let type = types[id];
+      let type = options[id];
       kinds.value = props.data.contact_information_kinds[type.type] ?? null;
       let p = props.data.protocols[type.name_translation_key] ?? null;
       protocol.value = p !== null ? p.url : null;
@@ -58,7 +74,7 @@ watch(
 const showCreateModal = () => {
   form.errors = [];
   adding.value = true;
-  form.contact_information_type_id = props.data.contact_information_types.email.options[0].id;
+  form.contact_information_type_id = types.value.email?.options[0]?.id ?? 0;
   form.contact_information_kind = null;
   form.contact_information_kind_custom = null;
   form.data = '';
@@ -81,21 +97,28 @@ const preSubmit = () => {
   }
 };
 
+/** The fields of `ContactInformationCreate`/`Update` (an empty kind is none). */
+const fields = () => ({
+  type_id: form.contact_information_type_id,
+  kind: form.contact_information_kind === '' ? null : form.contact_information_kind,
+  data: form.data,
+});
+
 const submit = () => {
   loadingState.value = 'loading';
 
   preSubmit();
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
-      const type = response.data.data.contact_information_type.type;
+  createContactInformation(ids(), fields())
+    .then((created) => {
+      const info = dto.contactInformationItem(created, props.data);
+      const type = info.contact_information_type.type;
       if (localData.value.length === 0) {
         localData.value = {};
       }
       if (localData.value[type] === undefined) {
         localData.value[type] = [];
       }
-      localData.value[type].unshift(response.data.data);
+      localData.value[type].unshift(info);
       loadingState.value = '';
       adding.value = false;
       flash(trans('The contact information has been created'), 'success');
@@ -110,12 +133,12 @@ const update = (info) => {
   loadingState.value = 'loading';
 
   preSubmit();
-  axios
-    .put(info.url.update, form)
-    .then((response) => {
+  updateContactInformation({ ...ids(), contact_information_id: info.id }, fields())
+    .then((updated) => {
       loadingState.value = '';
-      const type = response.data.data.contact_information_type.type;
-      localData.value[type][localData.value[type].findIndex((x) => x.id === info.id)] = response.data.data;
+      const item = dto.contactInformationItem(updated, props.data);
+      const type = item.contact_information_type.type;
+      localData.value[type][localData.value[type].findIndex((x) => x.id === info.id)] = item;
       editingId.value = 0;
       flash(trans('The contact information has been updated'), 'success');
     })
@@ -128,8 +151,7 @@ const update = (info) => {
 const destroy = () => {
   loadingState.value = 'loading';
 
-  axios
-    .delete(deleting.value.url.destroy)
+  deleteContactInformation({ ...ids(), contact_information_id: deleting.value.id })
     .then(() => {
       loadingState.value = '';
       const type = deleting.value.contact_information_type.type;
@@ -181,7 +203,7 @@ const destroy = () => {
           <Dropdown
             ref="newType"
             v-model.number="form.contact_information_type_id"
-            :data="data.contact_information_types"
+            :data="types"
             :required="true"
             :placeholder="$t('Choose a value')"
             :dropdown-class="'block w-full'"
@@ -286,7 +308,7 @@ const destroy = () => {
                 <div class="p-5">
                   <Dropdown
                     v-model.number="form.contact_information_type_id"
-                    :data="data.contact_information_types"
+                    :data="types"
                     :required="true"
                     :placeholder="$t('Choose a value')"
                     :dropdown-class="'block w-full'"

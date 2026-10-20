@@ -75,6 +75,7 @@ import Link from '@/router/Link.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { UsersRound } from 'lucide-vue-next';
+import { deleteContactRelationship } from '@/api/client';
 
 export default {
   components: {
@@ -104,11 +105,18 @@ export default {
   methods: {
     destroy(relationshipType) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .put(relationshipType.url.update)
-          .then((response) => {
+        deleteContactRelationship({
+          vault_id: this.$route.params.vault,
+          contact_id: this.$route.params.contact,
+          relationship_id: relationshipType.id,
+        })
+          .then(() => {
             this.flash(this.$t('The relationship has been deleted'), 'success');
-            this.localRelationships = response.data.data.relationship_group_types;
+            // every relationship between the two contacts is removed (UnsetRelationship)
+            this.localRelationships = this.localRelationships.map((group) => ({
+              ...group,
+              relationship_types: group.relationship_types.filter((r) => r.contact.id !== relationshipType.contact.id),
+            }));
           })
           .catch((error) => {
             this.form.errors = error.response.data;

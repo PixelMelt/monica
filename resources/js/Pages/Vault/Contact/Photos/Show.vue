@@ -113,6 +113,8 @@
 <script>
 import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
+import { deleteContactPhoto } from '@/api/client';
+import { visit } from '@/router';
 
 export default {
   components: {
@@ -134,11 +136,14 @@ export default {
   methods: {
     destroy(photo) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(photo.url.destroy)
-          .then((response) => {
+        deleteContactPhoto({
+          vault_id: this.$route.params.vault,
+          contact_id: this.$route.params.contact,
+          photo_id: photo.id,
+        })
+          .then(() => {
             localStorage.success = this.$t('The photo has been deleted');
-            this.$inertia.visit(response.data.data);
+            visit(photo.url.index);
           })
           .catch((error) => {
             this.form.errors = error.response.data;
