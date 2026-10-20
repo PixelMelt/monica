@@ -33,8 +33,6 @@
 
     <main class="relative sm:mt-20">
       <div class="mx-auto max-w-3xl px-2 py-2 sm:px-6 sm:py-6 lg:px-8">
-        <help-preference :data="data.help" />
-
         <locale :data="data.locale" />
 
         <name-order :data="data.name_order" />
@@ -63,7 +61,6 @@ import DistanceFormat from '@/Pages/Settings/Preferences/Partials/DistanceFormat
 import Timezone from '@/Pages/Settings/Preferences/Partials/Timezone.vue';
 import Maps from '@/Pages/Settings/Preferences/Partials/Maps.vue';
 import Locale from '@/Pages/Settings/Preferences/Partials/Locale.vue';
-import HelpPreference from '@/Pages/Settings/Preferences/Partials/HelpPreference.vue';
 
 export default {
   components: {
@@ -76,7 +73,6 @@ export default {
     DistanceFormat,
     Maps,
     Locale,
-    HelpPreference,
   },
 
   props: {

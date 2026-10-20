@@ -824,6 +824,44 @@ export interface paths {
     patch: operations['updateAccountUser'];
     trace?: never;
   };
+  '/admin/accounts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** The accounts of this install */
+    get: operations['listAdminAccounts'];
+    put?: never;
+    /**
+     * Create an account and its first user
+     * @description The first user administers the new account; they are not an instance administrator.
+     */
+    post: operations['createAdminAccount'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/accounts/{account_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete an account with its users, vaults and files */
+    delete: operations['deleteAdminAccount'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/auth/confirm-password': {
     parameters: {
       query?: never;
@@ -3529,6 +3567,46 @@ export interface components {
       inactive_addresses: components['schemas']['ContactAddress'][];
       /** @description Every address of the vault, for the "choose an existing address" option. */
       vault_addresses: components['schemas']['Address'][];
+    };
+    AdminAccount: {
+      /**
+       * Format: int64
+       * @description Contacts that aren't deleted, in all the account's vaults.
+       */
+      contact_count: number;
+      /** Format: date-time */
+      created_at?: string | null;
+      /**
+       * Format: int64
+       * @description Bytes of the files (photos, documents, avatars) of the account's vaults.
+       */
+      file_size: number;
+      /** Format: uuid */
+      id: string;
+      /** @description By creation date. */
+      users: components['schemas']['AdminAccountUser'][];
+      /** Format: int64 */
+      vault_count: number;
+    };
+    AdminAccountCreate: {
+      first_name?: string | null;
+      last_name?: string | null;
+      /** @description The first user's password; they can change it in their profile. */
+      password?: string | null;
+      password_confirmation?: string | null;
+      username?: string | null;
+    };
+    AdminAccountList: {
+      data: components['schemas']['AdminAccount'][];
+    };
+    AdminAccountUser: {
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      is_account_administrator: boolean;
+      is_instance_administrator: boolean;
+      last_name?: string | null;
+      username: string;
     };
     /** @description The image itself comes from getContactAvatar. */
     AvatarModule: {
@@ -6745,7 +6823,6 @@ export interface components {
       default_map_site: string;
       /** @description `km` or `mi`. */
       distance_format: string;
-      help_shown: boolean;
       locale: string;
       /** @description How contact names are built, e.g. `%first_name% %last_name%`. */
       name_order: string;
@@ -6760,7 +6837,6 @@ export interface components {
       default_map_site?: string | null;
       /** @description `km` or `mi`. */
       distance_format?: string | null;
-      help_shown?: boolean | null;
       locale?: string | null;
       name_order?: string | null;
       number_format?: string | null;
@@ -10679,6 +10755,123 @@ export interface operations {
         content?: never;
       };
       /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  listAdminAccounts: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Oldest first. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAccountList'];
+        };
+      };
+      /** @description Not an instance administrator. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  createAdminAccount: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminAccountCreate'];
+      };
+    };
+    responses: {
+      /** @description The new account. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AdminAccount'];
+        };
+      };
+      /** @description Not an instance administrator. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  deleteAdminAccount: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        account_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PasswordConfirmation'];
+      };
+    };
+    responses: {
+      /** @description Deleted. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not an instance administrator, or `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description The caller's own account. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong password. */
       422: {
         headers: {
           [name: string]: unknown;

@@ -39,7 +39,7 @@
             <span class="me-1"> 🥸 </span>
             {{ $t('All users in this account') }}
           </h3>
-          <pretty-link :href="data.url.users.create" :text="$t('Invite a new user')" :icon="'plus'" />
+          <pretty-link :href="data.url.users.create" :text="$t('Add a user')" :icon="'plus'" />
         </div>
 
         <!-- list of users -->
@@ -113,11 +113,7 @@
                     class="ms-3 block cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
                     {{ $t('Administrator') }}
                     <span class="ms-4 font-normal text-gray-500">
-                      {{
-                        $t(
-                          'Can do everything, including adding or removing other users, managing billing and closing the account.',
-                        )
-                      }}
+                      {{ $t('Can do everything, including adding or removing other users.') }}
                     </span>
                   </label>
                 </div>

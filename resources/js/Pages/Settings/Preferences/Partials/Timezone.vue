@@ -7,8 +7,6 @@
         <span class="me-2">
           {{ $t('Timezone') }}
         </span>
-
-        <help :url="helpLinks.settings_preferences_timezone" :top="'5px'" />
       </h3>
       <pretty-button v-if="!editMode" :text="$t('Edit')" @click="enableEditMode" />
     </div>
@@ -512,7 +510,6 @@
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
-import Help from '@/Shared/Help.vue';
 import { updateMyPreferences } from '@/api/client';
 import * as dto from '@/adapters/settings';
 
@@ -521,7 +518,6 @@ export default {
     PrettyButton,
     PrettyLink,
     Errors,
-    Help,
   },
 
   props: {

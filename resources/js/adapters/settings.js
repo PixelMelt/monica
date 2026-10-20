@@ -29,7 +29,9 @@ export function diffForHumans(value) {
 /** `SettingsIndexViewHelper::data`. */
 export const settingsIndex = (user) => ({
   is_account_administrator: user.is_account_administrator,
+  is_instance_administrator: user.is_instance_administrator,
   url: {
+    admin: { accounts: route('admin.accounts.index') },
     preferences: { index: route('settings.preferences.index') },
     notifications: { index: route('settings.notifications.index') },
     users: { index: route('settings.user.index') },
@@ -64,7 +66,6 @@ export const apiToken = (t) => ({
 
 /** `UserPreferencesIndexViewHelper::data`. */
 export const preferences = (prefs) => ({
-  help: help(prefs),
   name_order: nameOrder(prefs),
   date_format: dateFormat(prefs),
   timezone: timezone(prefs),
@@ -77,9 +78,6 @@ export const preferences = (prefs) => ({
     back: route('settings.index'),
   },
 });
-
-/** `UserPreferencesIndexViewHelper::dtoHelp`. */
-export const help = (prefs) => ({ help_shown: prefs.help_shown });
 
 /** `UserPreferencesIndexViewHelper::dtoNameOrder`. */
 export const nameOrder = (prefs) => ({

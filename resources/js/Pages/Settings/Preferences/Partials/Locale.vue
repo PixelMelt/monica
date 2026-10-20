@@ -8,7 +8,6 @@ import * as dto from '@/adapters/settings';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
-import Help from '@/Shared/Help.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
 
 const props = defineProps({
@@ -54,8 +53,6 @@ const submit = () => {
         <span class="me-2">
           {{ $t('Language of the application') }}
         </span>
-
-        <Help :url="helpLinks.settings_preferences_language" :top="'5px'" />
       </h3>
       <PrettyButton v-if="!editMode" :text="$t('Edit')" @click="editMode = true" />
     </div>

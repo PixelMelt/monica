@@ -83,6 +83,23 @@ defineProps({
             </ul>
           </div>
         </div>
+
+        <!-- instance administration -->
+        <div v-if="data.is_instance_administrator">
+          <h2 class="mb-6 text-center text-lg">
+            {{ $t('Instance administration') }}
+          </h2>
+          <div class="mb-6 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-900">
+            <ul>
+              <li class="flex justify-start">
+                <span class="me-2">🏛️</span>
+                <Link :href="data.url.admin.accounts" class="text-blue-500 hover:underline">
+                  {{ $t('Manage the accounts of this Monica') }}
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </main>
   </Layout>

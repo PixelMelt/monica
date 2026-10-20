@@ -40,8 +40,6 @@
             class="section-head border-b border-gray-200 bg-blue-50 p-3 dark:border-gray-700 dark:bg-blue-900 sm:p-5">
             <h1 class="mb-1 flex justify-center text-2xl font-medium">
               <span>{{ $t('Edit a vault') }}</span>
-
-              <help :url="helpLinks.vault_create" :top="'9px'" :class="'ms-2'" />
             </h1>
             <p class="text-center text-sm">
               {{ $t('Vaults contain all your contacts data.') }}
@@ -89,7 +87,6 @@ import Layout from '@/Layouts/Layout.vue';
 import PrimaryButton from '@/Shared/Form/PrimaryButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
-import Help from '@/Shared/Help.vue';
 import { updateVault } from '@/api/client';
 import { route, visit } from '@/router';
 
@@ -100,7 +97,6 @@ export default {
     PrimaryButton,
     TextInput,
     TextArea,
-    Help,
   },
 
   props: {
