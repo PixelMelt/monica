@@ -1,6 +1,8 @@
 use crate::db::id::Id;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "relationship_types")]
 pub struct Model {
@@ -13,8 +15,8 @@ pub struct Model {
     pub name_reverse_relationship_translation_key: Option<String>,
     pub r#type: Option<String>,
     pub can_be_deleted: bool,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -43,4 +45,4 @@ impl Related<super::relationships::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

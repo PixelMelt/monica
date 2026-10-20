@@ -1,6 +1,8 @@
 use crate::db::id::Id;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "failed_jobs")]
 pub struct Model {
@@ -16,7 +18,7 @@ pub struct Model {
     pub payload: String,
     #[sea_orm(column_type = "Text")]
     pub exception: String,
-    pub failed_at: DateTime,
+    pub failed_at: Timestamp,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

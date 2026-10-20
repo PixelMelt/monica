@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "mood_tracking_events")]
 pub struct Model {
@@ -9,12 +11,12 @@ pub struct Model {
     pub id: Id,
     pub contact_id: Uuid,
     pub mood_tracking_parameter_id: Id,
-    pub rated_at: DateTime,
+    pub rated_at: Timestamp,
     #[sea_orm(column_type = "Text", nullable)]
     pub note: Option<String>,
     pub number_of_hours_slept: Option<i32>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -49,4 +51,4 @@ impl Related<super::mood_tracking_parameters::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

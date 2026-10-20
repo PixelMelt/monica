@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "loans")]
 pub struct Model {
@@ -14,11 +16,11 @@ pub struct Model {
     pub description: Option<String>,
     pub amount_lent: Option<i32>,
     pub currency_id: Option<Id>,
-    pub loaned_at: Option<DateTime>,
+    pub loaned_at: Option<Timestamp>,
     pub settled: bool,
-    pub settled_at: Option<DateTime>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub settled_at: Option<Timestamp>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -69,4 +71,4 @@ impl Related<super::vaults::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

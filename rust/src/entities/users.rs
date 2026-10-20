@@ -1,6 +1,8 @@
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "users")]
 pub struct Model {
@@ -12,7 +14,7 @@ pub struct Model {
     pub password: Option<String>,
     #[sea_orm(unique)]
     pub email: String,
-    pub email_verified_at: Option<DateTime>,
+    pub email_verified_at: Option<Timestamp>,
     pub name_order: String,
     pub date_format: String,
     pub timezone: Option<String>,
@@ -22,16 +24,16 @@ pub struct Model {
     pub is_account_administrator: bool,
     pub help_shown: bool,
     pub invitation_code: Option<String>,
-    pub invitation_accepted_at: Option<DateTime>,
+    pub invitation_accepted_at: Option<Timestamp>,
     pub locale: String,
     pub remember_token: Option<String>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
     #[sea_orm(column_type = "Text", nullable)]
     pub two_factor_secret: Option<String>,
     #[sea_orm(column_type = "Text", nullable)]
     pub two_factor_recovery_codes: Option<String>,
-    pub two_factor_confirmed_at: Option<DateTime>,
+    pub two_factor_confirmed_at: Option<Timestamp>,
     pub contact_sort_order: String,
     pub is_instance_administrator: bool,
 }
@@ -118,4 +120,4 @@ impl Related<super::user_vault::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

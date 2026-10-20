@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "logs")]
 pub struct Model {
@@ -21,12 +23,12 @@ pub struct Model {
     pub formatted: Option<String>,
     pub loggable_type: String,
     pub loggable_id: Uuid,
-    pub logged_at: DateTime,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub logged_at: Timestamp,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();
