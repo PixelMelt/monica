@@ -1,5 +1,5 @@
 <script setup>
-// Replaces the Uploadcare widget (P004): a click on the slot opens the
+// The upload widget (P004, local storage): a click on the slot opens the
 // browser's file picker; each chosen file is sent as multipart `file` with
 // `upload(formData)` (a call of the API client), then `success` is emitted
 // with the API's `File`, or `error` with the ApiError.
