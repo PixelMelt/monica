@@ -99,8 +99,8 @@ paths:
       summary: Delete a journal
       description: |
         Its posts (with sections, tags, contacts and metrics), slices of life and
-        journal metrics go with it by cascade. As today, the `files` rows of the
-        posts' photos and of slice covers are not deleted.
+        journal metrics go with it by cascade. The `files` rows of the posts'
+        photos and of slice covers are deleted too, with their bytes (Q7).
       x-permission: vault:edit
       x-inventory: [R139]
       x-services: [DestroyJournal]
@@ -647,8 +647,8 @@ paths:
       tags: [Journals]
       summary: Delete a slice of life
       description: |
-        Its posts stay in the journal with `slice_of_life_id` set to null. As
-        today, the cover image's `files` row is not deleted.
+        Its posts stay in the journal with `slice_of_life_id` set to null. The
+        cover image's `files` row is deleted, with its bytes (Q7).
       x-permission: vault:edit
       x-inventory: [R162]
       x-services: [DestroySliceOfLife]
@@ -673,8 +673,8 @@ paths:
       summary: Upload a slice of life's cover image
       description: |
         Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a
-        `files` row of type `photo` and sets `file_cover_image_id`. As today, a
-        previous cover's file is kept.
+        `files` row of type `photo` and sets `file_cover_image_id`. A previous
+        cover's `files` row is deleted, with its bytes (Q7).
       x-permission: vault:edit
       x-inventory: [R160]
       x-services: [UploadFile, SetSliceOfLifeCoverImage]
