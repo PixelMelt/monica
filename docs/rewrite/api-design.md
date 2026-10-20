@@ -326,9 +326,11 @@ Not part of the OpenAPI spec. `/dav` keeps today's surface (V038): principal
 `/dav/principals/{email}`, address books per vault, calendars per vault,
 `PROPFIND`, `REPORT` (addressbook-multiget, addressbook-query,
 calendar-multiget, sync-collection), `GET`/`PUT`/`DELETE` of `.vcf`/`.ics`,
-VCF/ICS export, sync tokens. Authentication is HTTP Basic with the user's
-email and either their password or a personal access token, as
-`AuthenticateWithTokenOnBasicAuth` allows today. Address book subscriptions
+VCF/ICS export, sync tokens. Authentication is what
+`EnsureDavRequestsAreStateful` and `AuthenticateWithTokenOnBasicAuth` allow
+today: a bearer personal access token, HTTP Basic with the user's email and a
+personal access token as the password (the token needs both `read` and
+`write`), or the browser session. The account password is not accepted. Address book subscriptions
 (the DAV client, I003) are managed through the API under
 `/vaults/{vault_id}/address-book-subscriptions` (today only the console
 command K003 creates them).

@@ -8285,9 +8285,9 @@ paths:
       summary: Delete a journal
       description: 'Its posts (with sections, tags, contacts and metrics), slices of life and
 
-        journal metrics go with it by cascade. As today, the `files` rows of the
+        journal metrics go with it by cascade. The `files` rows of the posts''
 
-        posts'' photos and of slice covers are not deleted.
+        photos and of slice covers are deleted too, with their bytes (Q7).
 
         '
       x-permission: vault:edit
@@ -9124,9 +9124,9 @@ paths:
       tags:
       - Journals
       summary: Delete a slice of life
-      description: 'Its posts stay in the journal with `slice_of_life_id` set to null. As
+      description: 'Its posts stay in the journal with `slice_of_life_id` set to null. The
 
-        today, the cover image''s `files` row is not deleted.
+        cover image''s `files` row is deleted, with its bytes (Q7).
 
         '
       x-permission: vault:edit
@@ -9160,9 +9160,9 @@ paths:
       summary: Upload a slice of life's cover image
       description: 'Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a
 
-        `files` row of type `photo` and sets `file_cover_image_id`. As today, a
+        `files` row of type `photo` and sets `file_cover_image_id`. A previous
 
-        previous cover''s file is kept.
+        cover''s `files` row is deleted, with its bytes (Q7).
 
         '
       x-permission: vault:edit
