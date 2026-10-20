@@ -134,7 +134,12 @@ impl Session {
 
     /// Whether the password was confirmed in the last three hours.
     pub fn password_recently_confirmed(&self) -> bool {
-        self.lock().payload.password_confirmed_at.is_some_and(|t| Utc::now().timestamp() - t < PASSWORD_TIMEOUT_SECONDS)
+        self.password_confirmed_within(PASSWORD_TIMEOUT_SECONDS)
+    }
+
+    /// Whether the password was confirmed in the last `seconds`.
+    pub fn password_confirmed_within(&self, seconds: i64) -> bool {
+        self.lock().payload.password_confirmed_at.is_some_and(|t| Utc::now().timestamp() - t < seconds)
     }
 }
 

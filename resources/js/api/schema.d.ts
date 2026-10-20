@@ -11,17 +11,11 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get the current user's account */
+    /** The caller's account */
     get: operations['getAccount'];
     put?: never;
     post?: never;
-    /**
-     * Cancel the account
-     * @description Needs a password confirmation (api-design.md §7.4). Queues the deletion
-     *     of the account with all its users, vaults, contacts and files (J018);
-     *     the client then goes to the login page.
-     *
-     */
+    /** Delete the account and everything in it */
     delete: operations['cancelAccount'];
     options?: never;
     head?: never;
@@ -35,10 +29,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's address types
-     * @description Ordered by id; the client sorts by the displayed name (X017).
-     */
+    /** List the account's address types */
     get: operations['listAddressTypes'];
     put?: never;
     /** Add an address type */
@@ -53,18 +44,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        address_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete an address type
-     * @description Addresses of this type get `address_type_id` null.
-     */
+    /** Delete an address type */
     delete: operations['deleteAddressType'];
     options?: never;
     head?: never;
@@ -79,12 +65,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List call reason types with their reasons
-     * @description Types ordered by id (the client sorts by the displayed label, X017);
-     *     each type's `reasons` ordered by id.
-     *
-     */
+    /** List call reason types with their reasons */
     get: operations['listCallReasonTypes'];
     put?: never;
     /** Add a call reason type */
@@ -99,18 +80,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        call_reason_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a call reason type and its reasons
-     * @description Also deletes every call logged with one of its reasons (foreign key cascade).
-     */
+    /** Delete a call reason type and its reasons */
     delete: operations['deleteCallReasonType'];
     options?: never;
     head?: never;
@@ -122,9 +98,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        call_reason_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -141,19 +115,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        call_reason_type_id: components['schemas']['Id'];
-        call_reason_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a call reason
-     * @description Also deletes every call logged with this reason (foreign key cascade).
-     */
+    /** Delete a call reason */
     delete: operations['deleteCallReason'];
     options?: never;
     head?: never;
@@ -168,12 +136,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's contact information types
-     * @description Ordered by id. The settings page groups them by `type` and sorts each
-     *     group by the displayed name (X017); group labels are static in the client.
-     *
-     */
+    /** List the account's contact information types */
     get: operations['listContactInformationTypes'];
     put?: never;
     /** Add a contact information type */
@@ -188,20 +151,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        contact_information_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a contact information type
-     * @description Also deletes the contact information of this type (foreign key
-     *     cascade). A type with `can_be_deleted: false` (email, phone) is a 409.
-     *
-     */
+    /** Delete a contact information type */
     delete: operations['deleteContactInformationType'];
     options?: never;
     head?: never;
@@ -216,10 +172,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List all currencies with their state in the account
-     * @description Ordered by `code`. `active=true` gives the currencies offered in money fields (loans).
-     */
+    /** List all currencies with their state in the account */
     get: operations['listAccountCurrencies'];
     put?: never;
     post?: never;
@@ -267,9 +220,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        currency_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -278,10 +229,7 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Activate or deactivate one currency
-     * @description Sets `active` to the value sent (today's endpoint flipped it).
-     */
+    /** Activate or deactivate one currency */
     patch: operations['updateAccountCurrency'];
     trace?: never;
   };
@@ -292,10 +240,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's emotions
-     * @description Seeded per account at signup; there is no management UI. Ordered by id.
-     */
+    /** List the account's emotions */
     get: operations['listEmotions'];
     put?: never;
     post?: never;
@@ -312,10 +257,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's genders
-     * @description Ordered by id; the client sorts by the displayed name (X017).
-     */
+    /** List the account's genders */
     get: operations['listGenders'];
     put?: never;
     /** Add a gender */
@@ -330,18 +272,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        gender_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a gender
-     * @description Contacts with this gender get `gender_id` null.
-     */
+    /** Delete a gender */
     delete: operations['deleteGender'];
     options?: never;
     head?: never;
@@ -359,10 +296,7 @@ export interface paths {
     /** List the account's gift occasions */
     get: operations['listGiftOccasions'];
     put?: never;
-    /**
-     * Add a gift occasion
-     * @description The new occasion goes last.
-     */
+    /** Add a gift occasion */
     post: operations['createGiftOccasion'];
     delete?: never;
     options?: never;
@@ -374,25 +308,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        gift_occasion_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a gift occasion
-     * @description The occasions after it move up one position.
-     */
+    /** Delete a gift occasion */
     delete: operations['deleteGiftOccasion'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a gift occasion
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a gift occasion */
     patch: operations['updateGiftOccasion'];
     trace?: never;
   };
@@ -406,10 +332,7 @@ export interface paths {
     /** List the account's gift states */
     get: operations['listGiftStates'];
     put?: never;
-    /**
-     * Add a gift state
-     * @description The new state goes last.
-     */
+    /** Add a gift state */
     post: operations['createGiftState'];
     delete?: never;
     options?: never;
@@ -421,25 +344,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        gift_state_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a gift state
-     * @description The states after it move up one position.
-     */
+    /** Delete a gift state */
     delete: operations['deleteGiftState'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a gift state
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a gift state */
     patch: operations['updateGiftState'];
     trace?: never;
   };
@@ -450,18 +365,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List group types with their roles
-     * @description Ordered by `position`, roles too. Also feeds the group type and role
-     *     pickers on groups and on a contact's groups module.
-     *
-     */
+    /** List group types with their roles */
     get: operations['listGroupTypes'];
     put?: never;
-    /**
-     * Create a group type
-     * @description Appended after the last one, with no roles.
-     */
+    /** Create a group type */
     post: operations['createGroupType'];
     delete?: never;
     options?: never;
@@ -473,28 +380,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        group_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a group type
-     * @description Deletes its roles and moves the group types after it up by one.
-     *     Groups of this type get `group_type_id = null`; members with one of
-     *     its roles get `group_type_role_id = null`.
-     *
-     */
+    /** Delete a group type */
     delete: operations['deleteGroupType'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a group type
-     * @description Moving shifts the other group types.
-     */
+    /** Rename or move a group type */
     patch: operations['updateGroupType'];
     trace?: never;
   };
@@ -502,17 +398,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        group_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Add a role to a group type
-     * @description Appended after the last role.
-     */
+    /** Add a role to a group type */
     post: operations['createGroupTypeRole'];
     delete?: never;
     options?: never;
@@ -524,28 +415,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        group_type_id: components['schemas']['Id'];
-        group_type_role_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a group type role
-     * @description Moves the roles after it up by one. Group members with this role get
-     *     `group_type_role_id = null`.
-     *
-     */
+    /** Delete a group type role */
     delete: operations['deleteGroupTypeRole'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a group type role
-     * @description Moving shifts the group type's other roles.
-     */
+    /** Rename or move a group type role */
     patch: operations['updateGroupTypeRole'];
     trace?: never;
   };
@@ -556,13 +436,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's module definitions
-     * @description Ordered by `id`; the settings page sorts by display name client-side.
-     *     Modules are seeded with the account and can't be created, edited or
-     *     deleted.
-     *
-     */
+    /** List the account's module definitions */
     get: operations['listAccountModules'];
     put?: never;
     post?: never;
@@ -579,10 +453,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's pet categories
-     * @description Ordered by id; the client sorts by the displayed name (X017).
-     */
+    /** List the account's pet categories */
     get: operations['listPetCategories'];
     put?: never;
     /** Add a pet category */
@@ -597,18 +468,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        pet_category_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a pet category
-     * @description Also deletes the pets in this category (foreign key cascade).
-     */
+    /** Delete a pet category */
     delete: operations['deletePetCategory'];
     options?: never;
     head?: never;
@@ -623,18 +489,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List post templates with their sections
-     * @description Ordered by `position`, sections too. Also feeds the template picker
-     *     when writing a journal post.
-     *
-     */
+    /** List post templates with their sections */
     get: operations['listPostTemplates'];
     put?: never;
-    /**
-     * Create a post template
-     * @description Appended after the last one, with `can_be_deleted: true` and no sections.
-     */
+    /** Create a post template */
     post: operations['createPostTemplate'];
     delete?: never;
     options?: never;
@@ -646,28 +504,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        post_template_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a post template
-     * @description Deletes its sections; existing posts keep their own sections. The
-     *     others keep their positions. 409 when `can_be_deleted` is false
-     *     (today only the UI prevents it).
-     *
-     */
+    /** Delete a post template */
     delete: operations['deletePostTemplate'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a post template
-     * @description Moving shifts the other post templates.
-     */
+    /** Rename or move a post template */
     patch: operations['updatePostTemplate'];
     trace?: never;
   };
@@ -675,17 +522,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        post_template_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Add a section to a post template
-     * @description Appended after the last section, with `can_be_deleted: true`.
-     */
+    /** Add a section to a post template */
     post: operations['createPostTemplateSection'];
     delete?: never;
     options?: never;
@@ -697,28 +539,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        post_template_id: components['schemas']['Id'];
-        post_template_section_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a post template section
-     * @description The other sections keep their positions. 409 when `can_be_deleted` is
-     *     false (today not checked).
-     *
-     */
+    /** Delete a post template section */
     delete: operations['deletePostTemplateSection'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a post template section
-     * @description Moving shifts the template's other sections.
-     */
+    /** Rename or move a post template section */
     patch: operations['updatePostTemplateSection'];
     trace?: never;
   };
@@ -729,10 +560,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's pronouns
-     * @description Ordered by id; the client sorts by the displayed name (X017).
-     */
+    /** List the account's pronouns */
     get: operations['listPronouns'];
     put?: never;
     /** Add a pronoun */
@@ -747,18 +575,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        pronoun_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a pronoun
-     * @description Contacts with this pronoun get `pronoun_id` null.
-     */
+    /** Delete a pronoun */
     delete: operations['deletePronoun'];
     options?: never;
     head?: never;
@@ -773,12 +596,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List relationship group types with their relationship types
-     * @description Group types ordered by id (the client sorts by the displayed name,
-     *     X017); each group's `types` ordered by id.
-     *
-     */
+    /** List relationship group types with their relationship types */
     get: operations['listRelationshipGroupTypes'];
     put?: never;
     /** Add a relationship group type */
@@ -793,20 +611,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        relationship_group_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a relationship group type
-     * @description Also deletes its relationship types and every relationship using them
-     *     (foreign key cascade). A group with `can_be_deleted: false` is a 409.
-     *
-     */
+    /** Delete a relationship group type */
     delete: operations['deleteRelationshipGroupType'];
     options?: never;
     head?: never;
@@ -818,9 +629,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        relationship_group_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -837,21 +646,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        relationship_group_type_id: components['schemas']['Id'];
-        relationship_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a relationship type
-     * @description Also deletes every relationship of this type (foreign key cascade). A
-     *     type with `can_be_deleted: false` is a 409.
-     *
-     */
+    /** Delete a relationship type */
     delete: operations['deleteRelationshipType'];
     options?: never;
     head?: never;
@@ -869,10 +670,7 @@ export interface paths {
     /** List the account's religions */
     get: operations['listReligions'];
     put?: never;
-    /**
-     * Add a religion
-     * @description The new religion goes last.
-     */
+    /** Add a religion */
     post: operations['createReligion'];
     delete?: never;
     options?: never;
@@ -884,25 +682,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        religion_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a religion
-     * @description The religions after it move up one position; contacts with it get `religion_id` null.
-     */
+    /** Delete a religion */
     delete: operations['deleteReligion'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a religion
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a religion */
     patch: operations['updateReligion'];
     trace?: never;
   };
@@ -913,7 +703,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Storage used by the account's files, per file type */
+    /** Storage used by the account */
     get: operations['getAccountStorage'];
     put?: never;
     post?: never;
@@ -930,22 +720,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the account's contact templates
-     * @description Ordered by `id`. The settings page sorts by display name client-side,
-     *     as names can be translation keys. Also used to pick a template when
-     *     creating a contact, on a contact without a template and in vault
-     *     settings.
-     *
-     */
+    /** List the account's contact templates */
     get: operations['listTemplates'];
     put?: never;
-    /**
-     * Create a contact template
-     * @description Also creates the template's fixed contact information page
-     *     (`type: contact_information`, position 1, `can_be_deleted: false`).
-     *
-     */
+    /** Create a contact template */
     post: operations['createTemplate'];
     delete?: never;
     options?: never;
@@ -957,28 +735,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        template_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a template with its pages
-     * @description `pages` holds every page ordered by `position`, including the contact
-     *     information page; the settings page shows that one apart and doesn't
-     *     let it be renamed, moved or deleted.
-     *
-     */
+    /** Get a template with its pages */
     get: operations['getTemplate'];
     put?: never;
     post?: never;
-    /**
-     * Delete a template
-     * @description Deletes its pages too. Contacts using it get `template_id = null` and
-     *     vaults using it as default get `default_template_id = null`. 409 when
-     *     `can_be_deleted` is false (today only the UI prevents it).
-     *
-     */
+    /** Delete a template */
     delete: operations['deleteTemplate'];
     options?: never;
     head?: never;
@@ -990,19 +754,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        template_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Add a page to a template
-     * @description Appended after the last page, with `type: null`, `can_be_deleted: true`
-     *     and `slug` derived from `name`.
-     *
-     */
+    /** Add a page to a template */
     post: operations['createTemplatePage'];
     delete?: never;
     options?: never;
@@ -1014,41 +771,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a template page with its modules
-     * @description `modules` are the modules on the page, ordered by their position on
-     *     it. `available_modules` are the account's modules that may go on this
-     *     page: those with `reserved_to_contact_information` true for the
-     *     contact information page, false for any other page.
-     *
-     */
+    /** Get a template page with its modules */
     get: operations['getTemplatePage'];
     put?: never;
     post?: never;
-    /**
-     * Delete a template page
-     * @description Removes the page's module assignments; the modules and the contacts'
-     *     data stay. The other pages keep their positions. 409 when
-     *     `can_be_deleted` is false (the contact information page; today only
-     *     the UI prevents it, and deleting it breaks the contact page).
-     *
-     */
+    /** Delete a template page */
     delete: operations['deleteTemplatePage'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a template page
-     * @description Renaming also regenerates `slug`. Moving shifts the template's other
-     *     pages. Positions count every page of the template; the contact
-     *     information page sits at 1, so the settings page sends 2 or more.
-     *
-     */
+    /** Rename or move a template page */
     patch: operations['updateTemplatePage'];
     trace?: never;
   };
@@ -1056,35 +790,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
-        module_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Put a module on a template page
-     * @description Appends the account module after the page's last module. If it is
-     *     already on the page, nothing changes.
-     *
-     */
+    /** Put a module on a template page */
     put: operations['addTemplatePageModule'];
     post?: never;
-    /**
-     * Take a module off a template page
-     * @description The module and the contacts' data stay; the page's other modules keep
-     *     their positions. 404 if the module isn't on the page.
-     *
-     */
+    /** Take a module off a template page */
     delete: operations['removeTemplatePageModule'];
     options?: never;
     head?: never;
-    /**
-     * Move a module on a template page
-     * @description Shifts the page's other modules. 404 if the module isn't on the page.
-     */
+    /** Move a module on a template page */
     patch: operations['updateTemplatePageModule'];
     trace?: never;
   };
@@ -1095,21 +812,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the users of the account
-     * @description Includes invited users who haven't accepted yet. Ordered by
-     *     `created_at`. The client marks the current user by comparing ids with
-     *     GET /me/bootstrap.
-     *
-     */
+    /** The account's users, invited ones included */
     get: operations['listAccountUsers'];
     put?: never;
-    /**
-     * Invite a user to the account
-     * @description Creates the user with an invitation code and queues the invitation
-     *     email (E002), which links to the SPA's accept-invitation page.
-     *
-     */
+    /** Invite someone to the account */
     post: operations['inviteAccountUser'];
     delete?: never;
     options?: never;
@@ -1121,29 +827,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        user_id: components['schemas']['Uuid'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /** Get a user of the account */
+    /** A user of the account */
     get: operations['getAccountUser'];
     put?: never;
     post?: never;
-    /**
-     * Delete a user of the account
-     * @description Needs a password confirmation (api-design.md §7.4). Also deletes every
-     *     vault the user manages that has no other manager. Deleting yourself is
-     *     a 409.
-     *
-     */
+    /** Delete a user of the account */
     delete: operations['deleteAccountUser'];
     options?: never;
     head?: never;
-    /**
-     * Give or remove the administrator privilege
-     * @description Removing your own privilege is a 409.
-     */
+    /** Make a user an administrator, or not */
     patch: operations['updateAccountUser'];
     trace?: never;
   };
@@ -1156,14 +851,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Confirm the password for sensitive actions
-     * @description Records the confirmation time in the cookie session; sensitive actions
-     *     pass for 3 hours after it (api-design.md §7.4). Wrong password: 422 on
-     *     `password`. A user without a password always passes. No verified
-     *     email needed.
-     *
-     */
+    /** Confirm the password for sensitive actions (3 hours) */
     post: operations['confirmPassword'];
     delete?: never;
     options?: never;
@@ -1178,12 +866,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Whether the session confirmed the password recently
-     * @description Used by the SPA's `ConfirmsPassword` component before a sensitive
-     *     action. No verified email needed.
-     *
-     */
+    /** Whether the password was confirmed in the last 3 hours */
     get: operations['getPasswordConfirmationStatus'];
     put?: never;
     post?: never;
@@ -1200,13 +883,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Prime the XSRF-TOKEN cookie
-     * @description Sets the `XSRF-TOKEN` cookie (and a guest session) so the first
-     *     unsafe request, usually the login, can send `X-XSRF-TOKEN`
-     *     (api-design.md §7.2). Replaces `/sanctum/csrf-cookie`.
-     *
-     */
+    /** Prime the XSRF-TOKEN cookie */
     get: operations['getCsrfCookie'];
     put?: never;
     post?: never;
@@ -1225,13 +902,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Send the verification email again
-     * @description Sends E005 unless the email is already verified. As today, when the
-     *     mailer is SMTP without credentials the user is marked verified instead
-     *     of being sent an email. No verified email needed. 6 per minute.
-     *
-     */
+    /** Email the verification link again */
     post: operations['sendEmailVerification'];
     delete?: never;
     options?: never;
@@ -1248,15 +919,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Verify the email address from the emailed link
-     * @description The link opens the SPA at `/email/verify/{id}/{hash}?expires=&signature=`,
-     *     which posts those values. The server checks the signature and expiry,
-     *     that `id` is the logged-in user and `hash` is the SHA-1 of their email,
-     *     then sets `email_verified_at` (no change if already set). Bad link: 403.
-     *     No verified email needed. 6 per minute.
-     *
-     */
+    /** Verify the email address from the emailed link */
     post: operations['verifyEmail'];
     delete?: never;
     options?: never;
@@ -1273,13 +936,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Email a password reset link
-     * @description Sends E006, whose link opens the SPA at `/reset-password/{token}?email=`.
-     *     As today, an unknown email is a 422 on `email`, and so is a new request
-     *     for the same user within 60 seconds.
-     *
-     */
+    /** Email a password reset link */
     post: operations['requestPasswordReset'];
     delete?: never;
     options?: never;
@@ -1296,14 +953,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Log in with email and password
-     * @description Without confirmed 2FA, starts the session (new session id) and returns
-     *     the user. With confirmed 2FA, the session only holds a pending login
-     *     (user id, `remember`) until POST /auth/two-factor-challenge. Wrong
-     *     credentials: 422 on `email`. 5 attempts per minute per email and IP.
-     *
-     */
+    /** Log in with email and password */
     post: operations['logIn'];
     delete?: never;
     options?: never;
@@ -1320,13 +970,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Log out
-     * @description Ends the cookie session and rotates the CSRF token. Bearer clients
-     *     revoke their token with DELETE /me/tokens/{token_id} instead. No
-     *     verified email needed.
-     *
-     */
+    /** End the browser session */
     post: operations['logOut'];
     delete?: never;
     options?: never;
@@ -1343,14 +987,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Sign up, creating a new account
-     * @description Creates an account with this user as its administrator (locale = the
-     *     request locale, timezone `UTC`), queues the account setup (J014),
-     *     sends the verification email (E005) and starts a session.
-     *     `403 signup_disabled` when signup is off (X007).
-     *
-     */
+    /** Create an account and its first user */
     post: operations['registerUser'];
     delete?: never;
     options?: never;
@@ -1367,13 +1004,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Set a new password with a reset token
-     * @description Tokens expire after 60 minutes; a bad or expired token is a 422 on
-     *     `email`. Deletes the token and ends the user's existing sessions.
-     *     Doesn't log in.
-     *
-     */
+    /** Set a new password with the emailed token */
     post: operations['resetPassword'];
     delete?: never;
     options?: never;
@@ -1390,14 +1021,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Finish a 2FA login with a TOTP or recovery code
-     * @description Send `code` or `recovery_code`. A used recovery code is replaced by a
-     *     new one. Uses the `remember` given at login. Wrong code: 422. No
-     *     pending login in the session: 401.
-     *     5 attempts per minute per pending login.
-     *
-     */
+    /** Finish a login with a 2FA or recovery code */
     post: operations['completeTwoFactorChallenge'];
     delete?: never;
     options?: never;
@@ -1412,12 +1036,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Public information about this instance
-     * @description Feeds the login and register pages (V001, V008) and the footer. The
-     *     login wallpaper (D008) and help links (D009) are SPA assets.
-     *
-     */
+    /** Public information about this instance */
     get: operations['getInstance'];
     put?: never;
     post?: never;
@@ -1431,17 +1050,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        invitation_code: components['parameters']['InvitationCode'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Check an invitation before showing the accept form
-     * @description 404 when no user has this code or it was already accepted (today the
-     *     page redirects to `/`).
-     *
-     */
+    /** A pending invitation */
     get: operations['getInvitation'];
     put?: never;
     post?: never;
@@ -1455,21 +1067,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        invitation_code: components['parameters']['InvitationCode'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Accept an invitation and log in
-     * @description Sets the invited user's names and password, `invitation_accepted_at`,
-     *     `email_verified_at`, timezone `UTC` and `is_account_administrator =
-     *     false` (as today), creates a verified, active email notification
-     *     channel for their email at 09:00, then starts a session.
-     *
-     */
+    /** Accept an invitation and log in */
     post: operations['acceptInvitation'];
     delete?: never;
     options?: never;
@@ -1484,34 +1087,15 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * The logged-in user
-     * @description Also replaces `GET /api/user` (R329) and the user part of the profile
-     *     page (V029). No verified email needed.
-     *
-     */
+    /** The logged-in user */
     get: operations['getMe'];
     put?: never;
     post?: never;
-    /**
-     * Delete my user
-     * @description Only when the server flag `ENABLE_ACCOUNT_DELETION` is on. It defaults
-     *     to off, and then this answers 404, as today where the route isn't
-     *     registered (`Instance.features.account_deletion`). Deletes the user and
-     *     the vaults they are the only manager of (DestroyUser), then ends the
-     *     session. 409 when they are the account's last administrator.
-     *     Sensitive action. No verified email needed.
-     *
-     */
+    /** Delete your own user (when enabled) */
     delete: operations['deleteMe'];
     options?: never;
     head?: never;
-    /**
-     * Update name and email
-     * @description Changing `email` clears `email_verified_at` and sends the verification
-     *     email (E005). No verified email needed.
-     *
-     */
+    /** Change name or email */
     patch: operations['updateMe'];
     trace?: never;
   };
@@ -1522,14 +1106,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Everything the layout needs, in one call
-     * @description Aggregate (api-design.md §12) replacing `VaultIndexViewHelper::layoutData`
-     *     and the shared Inertia props: the user with preferences, their vaults
-     *     with permission and tab visibility, and the instance info (footer
-     *     version). No verified email needed.
-     *
-     */
+    /** Everything the layout needs (aggregate) */
     get: operations['getBootstrap'];
     put?: never;
     post?: never;
@@ -1546,20 +1123,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * My reminder notification channels
-     * @description Email channels (Telegram is removed), ordered by `id`.
-     */
+    /** The user's notification channels */
     get: operations['listNotificationChannels'];
     put?: never;
-    /**
-     * Add an email address to be notified at
-     * @description Creates an inactive, unverified channel with a new `verification_token`
-     *     and queues the verification email (J015, E004), whose link opens the
-     *     SPA at `/settings/notifications/{id}/verify/{token}`. An address already
-     *     used by any channel is a 422 on `content`.
-     *
-     */
+    /** Add an email channel */
     post: operations['createNotificationChannel'];
     delete?: never;
     options?: never;
@@ -1571,31 +1138,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * One notification channel
-     * @description The header of the channel's log page (R228).
-     */
+    /** A notification channel */
     get: operations['getNotificationChannel'];
     put?: never;
     post?: never;
-    /**
-     * Delete a channel
-     * @description Also deletes its scheduled reminders and its log.
-     */
+    /** Delete a channel */
     delete: operations['deleteNotificationChannel'];
     options?: never;
     head?: never;
-    /**
-     * Activate or deactivate a channel
-     * @description Activating resets `fails` to 0 and schedules the user's contact
-     *     reminders on the channel; deactivating deletes its scheduled reminders.
-     *
-     */
+    /** Turn a channel on or off */
     patch: operations['updateNotificationChannel'];
     trace?: never;
   };
@@ -1606,10 +1160,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Notifications sent on a channel, newest first
-     * @description Rows of `user_notification_sent`, ordered by `sent_at` descending.
-     */
+    /** What was sent through a channel */
     get: operations['listNotificationChannelLogs'];
     put?: never;
     post?: never;
@@ -1628,12 +1179,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Send a test email to the channel
-     * @description Sends E003 to `content` and adds a log entry (`subject_line` "Test
-     *     email for Monica" in the user's locale).
-     *
-     */
+    /** Send a test email */
     post: operations['sendNotificationChannelTest'];
     delete?: never;
     options?: never;
@@ -1650,14 +1196,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Verify a channel's email address from the emailed link
-     * @description Called by the SPA page the verification link opens, which then shows
-     *     the channels list (R224). Sets `verified_at` and schedules the user's
-     *     contact reminders on the channel. `token` must equal the channel's
-     *     `verification_token` (422 otherwise).
-     *
-     */
+    /** Verify a channel with the token from its email */
     post: operations['verifyNotificationChannel'];
     delete?: never;
     options?: never;
@@ -1673,13 +1212,7 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /**
-     * Change my password
-     * @description Wrong `current_password`: 422 on it. Deletes pending reset tokens and
-     *     ends the user's other sessions (today through `AuthenticateSession`);
-     *     the current session stays. No verified email needed.
-     *
-     */
+    /** Change the password */
     put: operations['updateMyPassword'];
     post?: never;
     delete?: never;
@@ -1695,26 +1228,14 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * My display preferences
-     * @description Feeds the preferences page (R212). Its option lists are the enums of
-     *     `UserPreferences`, the locales come from getInstance and the timezones
-     *     from listReferenceTimezones; the formatted examples (name, dates,
-     *     numbers) are built by the client.
-     *
-     */
+    /** Display and format preferences */
     get: operations['getMyPreferences'];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /**
-     * Change one or more preferences
-     * @description One field per former form (R213–R220) plus the contacts list sort
-     *     (R038). `help_shown` is set, not flipped.
-     *
-     */
+    /** Change display and format preferences */
     patch: operations['updateMyPreferences'];
     trace?: never;
   };
@@ -1725,13 +1246,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * My browser sessions
-     * @description Rows of `sessions` for this user, most recently active first, for the
-     *     profile page (V029). Session ids are never returned. No verified email
-     *     needed.
-     *
-     */
+    /** The user's browser sessions, most recent first */
     get: operations['listMySessions'];
     put?: never;
     post?: never;
@@ -1750,13 +1265,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Log out every other browser session
-     * @description Deletes this user's `sessions` rows except the current one (X026).
-     *     Sensitive action; wrong password: 422 on `password`. No verified email
-     *     needed.
-     *
-     */
+    /** Log out every other browser session */
     post: operations['logOutOtherSessions'];
     delete?: never;
     options?: never;
@@ -1771,18 +1280,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * My personal access tokens
-     * @description Ordered by `created_at`. The token values are never returned again.
-     */
+    /** The user's API tokens */
     get: operations['listMyTokens'];
     put?: never;
-    /**
-     * Create a personal access token
-     * @description Returns the plain-text token once; only its SHA-256 is stored (X027).
-     *     Cookie session only: a bearer token gets 403 `forbidden`.
-     *
-     */
+    /** Create an API token */
     post: operations['createMyToken'];
     delete?: never;
     options?: never;
@@ -1794,9 +1295,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        token_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -1806,10 +1305,7 @@ export interface paths {
     delete: operations['deleteMyToken'];
     options?: never;
     head?: never;
-    /**
-     * Change a token's abilities
-     * @description Cookie session only, so a token can't widen its own abilities.
-     */
+    /** Change a token's abilities */
     patch: operations['updateMyToken'];
     trace?: never;
   };
@@ -1822,20 +1318,9 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Start enabling 2FA
-     * @description Generates a TOTP secret and 8 recovery codes, replacing an unconfirmed
-     *     secret. 2FA is active only after confirmTwoFactor. 409 when 2FA is
-     *     already confirmed. Sensitive action. No verified email needed.
-     *
-     */
+    /** Start enabling 2FA */
     post: operations['enableTwoFactor'];
-    /**
-     * Disable 2FA
-     * @description Clears the secret, recovery codes and confirmation. Sensitive action.
-     *     No verified email needed.
-     *
-     */
+    /** Turn 2FA off */
     delete: operations['disableTwoFactor'];
     options?: never;
     head?: never;
@@ -1851,13 +1336,7 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /**
-     * Confirm 2FA with a code from the app
-     * @description Sets `two_factor_confirmed_at`; from then on login asks for a code.
-     *     Wrong code or no pending secret: 422 on `code`. No verified email
-     *     needed.
-     *
-     */
+    /** Confirm 2FA with a first code */
     post: operations['confirmTwoFactor'];
     delete?: never;
     options?: never;
@@ -1872,20 +1351,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Show the recovery codes
-     * @description Empty list when 2FA has no secret. Sensitive action; as a GET has no
-     *     body, it needs the session confirmation (bearer clients regenerate
-     *     instead). No verified email needed.
-     *
-     */
+    /** The current recovery codes */
     get: operations['getTwoFactorRecoveryCodes'];
     put?: never;
-    /**
-     * Replace the recovery codes with 8 new ones
-     * @description 409 when 2FA has no secret. Sensitive action. No verified email needed.
-     *
-     */
+    /** Replace the recovery codes */
     post: operations['regenerateTwoFactorRecoveryCodes'];
     delete?: never;
     options?: never;
@@ -1900,10 +1369,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Countries, ordered by name
-     * @description ISO 3166-1 countries from the `rinvex/countries` data set.
-     */
+    /** Countries, ordered by name */
     get: operations['listReferenceCountries'];
     put?: never;
     post?: never;
@@ -1920,12 +1386,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * All currencies, ordered by code
-     * @description The full currency list (D003). The loan form's pick-list is the
-     *     account's enabled currencies, `listAccountCurrencies?active=true`.
-     *
-     */
+    /** All currencies, ordered by code */
     get: operations['listReferenceCurrencies'];
     put?: never;
     post?: never;
@@ -1942,10 +1403,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * ISO 639-1 languages, ordered by name
-     * @description From the `matriphe/iso-639` data set; `name` falls back to English when there is no translation.
-     */
+    /** ISO 639-1 languages, ordered by name */
     get: operations['listReferenceLanguages'];
     put?: never;
     post?: never;
@@ -1962,12 +1420,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Timezones the user can pick, ordered by id
-     * @description `GMT`, `UTC` and the IANA zone ids, for the preferences page (R212),
-     *     which groups them by the part before the first `/`.
-     *
-     */
+    /** Timezones the user can pick, ordered by id */
     get: operations['listReferenceTimezones'];
     put?: never;
     post?: never;
@@ -1984,24 +1437,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * List the current user's vaults, by name
-     * @description Vaults of the user's account the user is a member of, sorted by name
-     *     (locale collation). Feeds the vault index page: each card shows up to 5
-     *     random contacts and the number of others.
-     *
-     */
+    /** The caller's vaults */
     get: operations['listVaults'];
     put?: never;
-    /**
-     * Create a vault
-     * @description Creates a `personal` vault with the account's first template as
-     *     default template, makes the user its manager with their own contact in
-     *     it, and seeds the default important date types (birthdate, deceased
-     *     date), mood tracking parameters, life event categories and types, and
-     *     quick fact templates.
-     *
-     */
+    /** Create a vault */
     post: operations['createVault'];
     delete?: never;
     options?: never;
@@ -2013,32 +1452,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a vault
-     * @description Also feeds the edit vault page (R016).
-     */
+    /** A vault */
     get: operations['getVault'];
     put?: never;
     post?: never;
-    /**
-     * Delete a vault and everything in it
-     * @description Deletes the vault's files from storage too (E009).
-     */
+    /** Delete a vault */
     delete: operations['deleteVault'];
     options?: never;
     head?: never;
-    /**
-     * Edit a vault, its default template, tab visibility or dashboard tab
-     * @description `default_activity_tab` (the dashboard tab, shared by all members) can be
-     *     changed by any member; every other field needs vault:manage.
-     *     `default_template_id` must be a template of the account.
-     *
-     */
+    /** Change a vault */
     patch: operations['updateVault'];
     trace?: never;
   };
@@ -2046,26 +1471,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the vault's CardDAV address book subscriptions
-     * @description Remote address books synchronized into this vault (I003).
-     */
+    /** List the vault's CardDAV address book subscriptions */
     get: operations['listVaultAddressBookSubscriptions'];
     put?: never;
-    /**
-     * Subscribe the vault to a remote CardDAV address book
-     * @description Replaces the `monica:newaddressbooksubscription` command. The server
-     *     discovers the address book at `base_uri` with the credentials (DNS SRV
-     *     and well-known lookup, capabilities), stores the subscription for the
-     *     current user, then queues a forced first sync (J009). Discovery
-     *     failure is a 422 on `base_uri`.
-     *
-     */
+    /** Subscribe the vault to a remote CardDAV address book */
     post: operations['createVaultAddressBookSubscription'];
     delete?: never;
     options?: never;
@@ -2077,27 +1489,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** Get an address book subscription */
     get: operations['getVaultAddressBookSubscription'];
     put?: never;
     post?: never;
-    /**
-     * Delete a subscription
-     * @description Contacts already imported stay in the vault.
-     */
+    /** Delete a subscription */
     delete: operations['deleteVaultAddressBookSubscription'];
     options?: never;
     head?: never;
-    /**
-     * Change a subscription's credentials, direction, frequency or state
-     * @description An inactive subscription is skipped by the hourly sync (J002).
-     */
+    /** Change a subscription's credentials, direction, frequency or state */
     patch: operations['updateVaultAddressBookSubscription'];
     trace?: never;
   };
@@ -2105,21 +1508,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Queue a synchronization now
-     * @description Queues SynchronizeAddressBooks (J009) on the high queue, as the
-     *     `monica:updateaddressbooksubscription` command does. `force` runs a
-     *     full sync instead of sync-collection.
-     *
-     */
+    /** Queue a synchronization now */
     post: operations['syncVaultAddressBookSubscription'];
     delete?: never;
     options?: never;
@@ -2131,19 +1525,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        year: number;
-        month: number;
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Month grid of the vault calendar (aggregate)
-     * @description Aggregate read (api-design.md §12). The calendar page opens on the
-     *     current month (R020); the client computes previous/next months.
-     *
-     */
+    /** Month grid of the vault calendar (aggregate) */
     get: operations['getVaultCalendarMonth'];
     put?: never;
     post?: never;
@@ -2157,18 +1542,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        year: number;
-        month: number;
-        day: number;
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * One day of the vault calendar
-     * @description The same data as that day's cell of the month grid; `is_in_month` is true.
-     */
+    /** One day of the vault calendar */
     get: operations['getVaultCalendarDay'];
     put?: never;
     post?: never;
@@ -2182,26 +1559,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the vault's companies with their contacts, by name
-     * @description Feeds the companies page and the company picker of the contact's job
-     *     information form (R091), which marks the contact's `company_id`.
-     *
-     */
+    /** List the vault's companies with their contacts, by name */
     get: operations['listVaultCompanies'];
     put?: never;
-    /**
-     * Create a company
-     * @description The job information form calls this before setting the contact's job
-     *     when the user types a new company name (R092 chained CreateCompany with
-     *     `type` = `company`).
-     *
-     */
+    /** Create a company */
     post: operations['createVaultCompany'];
     delete?: never;
     options?: never;
@@ -2213,18 +1577,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's important date types */
     get: operations['listVaultContactImportantDateTypes'];
     put?: never;
-    /**
-     * Create an important date type
-     * @description Created types have no `internal_type` and can be deleted.
-     */
+    /** Create an important date type */
     post: operations['createVaultContactImportantDateType'];
     delete?: never;
     options?: never;
@@ -2236,21 +1595,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_important_date_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete an important date type
-     * @description 409 when `can_be_deleted` is false (birthdate, deceased date). Dates of
-     *     this type keep existing with no type.
-     *
-     */
+    /** Delete an important date type */
     delete: operations['deleteVaultContactImportantDateType'];
     options?: never;
     head?: never;
@@ -2262,28 +1613,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a vault's contacts
-     * @description Feeds the contact list (R036, `listed=true`), the list filtered by a
-     *     label (R037; the SPA sends `sort=created_at&per_page=10` to keep
-     *     today's order) and the contact pickers (R210; `q`, `sort=first_name`,
-     *     `per_page=5`). Absent filters don't filter: unlisted (archived)
-     *     contacts are included unless `listed` is given.
-     *
-     */
+    /** List a vault's contacts */
     get: operations['listContacts'];
     put?: never;
-    /**
-     * Create a contact
-     * @description Without `template_id` the vault's `default_template_id` is used. Sets
-     *     `last_updated_at` and writes a `contact_created` feed item.
-     *
-     */
+    /** Create a contact */
     post: operations['createContact'];
     delete?: never;
     options?: never;
@@ -2295,17 +1631,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * The current user's 5 most viewed contacts in the vault
-     * @description Ordered by `contact_vault_user.number_of_views` descending (X014).
-     *     Shown by the contact pickers before the user types.
-     *
-     */
+    /** The current user's 5 most viewed contacts in the vault */
     get: operations['listMostConsultedContacts'];
     put?: never;
     post?: never;
@@ -2319,38 +1648,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a contact
-     * @description Supplies the contact for the edit names page (R042, with
-     *     listGenders/listPronouns), the move page (R053, with the user's vaults)
-     *     and the template picker (R055, with listTemplates). Doesn't count a view.
-     *
-     */
+    /** Get a contact */
     get: operations['getContact'];
     put?: never;
     post?: never;
-    /**
-     * Delete a contact
-     * @description Deletes the contact's files (and their bytes, E009), then soft-deletes
-     *     the contact. 409 when `can_be_deleted` is false (a user's own contact).
-     *
-     */
+    /** Delete a contact */
     delete: operations['deleteContact'];
     options?: never;
     head?: never;
-    /**
-     * Update a contact's names, flags or template
-     * @description Each field group runs today's service with its side effects (see
-     *     `ContactUpdate`). Replaces the toggles R048, R051, R052 and the
-     *     template change R056 with explicit values.
-     *
-     */
+    /** Update a contact's names, flags or template */
     patch: operations['updateContact'];
     trace?: never;
   };
@@ -2358,24 +1667,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List a contact's addresses */
     get: operations['listContactAddresses'];
     put?: never;
-    /**
-     * Add a new or existing vault address to a contact
-     * @description With `address_id`, links an existing address of the vault; otherwise
-     *     creates the vault address from the body and links it. Composite because
-     *     an address must not exist without a contact (deleting the last link
-     *     deletes the address) and addresses have no vault-level endpoint. No
-     *     geocoding. Writes an `address_created` feed item and sets `last_updated_at`.
-     *
-     */
+    /** Add a new or existing vault address to a contact */
     post: operations['createContactAddress'];
     delete?: never;
     options?: never;
@@ -2387,32 +1685,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description An address linked to the contact. */
-        address_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Remove an address from a contact
-     * @description Unlinks the address; deletes it when no other contact is linked to it.
-     *     Writes an `address_destroyed` feed item and sets `last_updated_at`.
-     *
-     */
+    /** Remove an address from a contact */
     delete: operations['deleteContactAddress'];
     options?: never;
     head?: never;
-    /**
-     * Edit an address and the contact's link to it
-     * @description Address fields change the shared vault address, so every contact linked
-     *     to it sees the change; `is_past_address` changes only this contact's link.
-     *
-     */
+    /** Edit an address and the contact's link to it */
     patch: operations['updateContactAddress'];
     trace?: never;
   };
@@ -2420,38 +1703,15 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * The contact's avatar image
-     * @description The uploaded avatar's 300×300 `thumbnail` variant when the contact has
-     *     one, else the MultiAvatar SVG generated from `first_name + ' ' +
-     *     last_name`, or from the contact id when `first_name` is null (X021).
-     *     The URL doesn't change with the avatar, so it is served with an
-     *     `ETag` and `Cache-Control: private, no-cache`.
-     *
-     */
+    /** The contact's avatar image */
     get: operations['getContactAvatar'];
-    /**
-     * Upload a photo as the contact's avatar
-     * @description Stores the file (type `avatar`) and sets it as the avatar in one call
-     *     (api-design.md §10). The previous avatar file is deleted. Sets
-     *     `last_updated_at` and writes a `changed_avatar` feed item. JPEG, PNG,
-     *     GIF or WebP only.
-     *
-     */
+    /** Upload a photo as the contact's avatar */
     put: operations['setContactAvatar'];
     post?: never;
-    /**
-     * Remove the uploaded avatar
-     * @description Deletes the avatar file; the contact falls back to the generated
-     *     avatar. Sets `last_updated_at` and writes a `changed_avatar` feed item.
-     *
-     */
+    /** Remove the uploaded avatar */
     delete: operations['deleteContactAvatar'];
     options?: never;
     head?: never;
@@ -2462,19 +1722,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List a contact's calls, latest first */
     get: operations['listContactCalls'];
     put?: never;
-    /**
-     * Log a call with a contact
-     * @description Sets the contact's `last_updated_at`.
-     */
+    /** Log a call with a contact */
     post: operations['createContactCall'];
     delete?: never;
     options?: never;
@@ -2486,27 +1740,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        call_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a call
-     * @description Sets the contact's `last_updated_at`.
-     */
+    /** Delete a call */
     delete: operations['deleteContactCall'];
     options?: never;
     head?: never;
-    /**
-     * Edit a call
-     * @description Sets the contact's `last_updated_at`.
-     */
+    /** Edit a call */
     patch: operations['updateContactCall'];
     trace?: never;
   };
@@ -2514,22 +1758,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's emails, phones and profiles
-     * @description The types for the form come from `listContactInformationTypes`.
-     */
+    /** List a contact's emails, phones and profiles */
     get: operations['listContactInformation'];
     put?: never;
-    /**
-     * Add an email, phone or profile to a contact
-     * @description Writes a `contact_information_created` feed item and sets `last_updated_at`.
-     */
+    /** Add an email, phone or profile to a contact */
     post: operations['createContactInformation'];
     delete?: never;
     options?: never;
@@ -2541,27 +1776,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        contact_information_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete an email, phone or profile
-     * @description Writes a `contact_information_destroyed` feed item and sets `last_updated_at`.
-     */
+    /** Delete an email, phone or profile */
     delete: operations['deleteContactInformation'];
     options?: never;
     head?: never;
-    /**
-     * Edit an email, phone or profile
-     * @description Writes a `contact_information_updated` feed item and sets `last_updated_at`.
-     */
+    /** Edit an email, phone or profile */
     patch: operations['updateContactInformation'];
     trace?: never;
   };
@@ -2569,26 +1794,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's documents, newest first
-     * @description The bytes are served by `GET /vaults/{vault_id}/files/{file_id}/content`.
-     */
+    /** List a contact's documents, newest first */
     get: operations['listContactDocuments'];
     put?: never;
-    /**
-     * Upload a document for a contact
-     * @description Multipart upload (api-design.md §10). Stores the file as type
-     *     `document`, attached to the contact. Rejected with 422
-     *     `storage_limit_exceeded` when the account is at its storage limit
-     *     (X011).
-     *
-     */
+    /** Upload a document for a contact */
     post: operations['uploadContactDocument'];
     delete?: never;
     options?: never;
@@ -2600,21 +1812,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A `files` id of type `document` attached to the contact. */
-        document_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a document
-     * @description Deletes the `files` row and the stored bytes; sets the contact's `last_updated_at`.
-     */
+    /** Delete a document */
     delete: operations['deleteContactDocument'];
     options?: never;
     head?: never;
@@ -2625,18 +1829,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * A contact's activity feed, newest first
-     * @description Feed items written by the services (X012), ordered by `created_at`
-     *     descending, 15 per page ("load previous entries" asks for the next page).
-     *
-     */
+    /** A contact's activity feed, newest first */
     get: operations['listContactFeedItems'];
     put?: never;
     post?: never;
@@ -2650,19 +1846,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List a contact's goals */
     get: operations['listContactGoals'];
     put?: never;
-    /**
-     * Add a goal to a contact
-     * @description New goals are active. Writes a `goal_created` feed item and sets `last_updated_at`.
-     */
+    /** Add a goal to a contact */
     post: operations['createContactGoal'];
     delete?: never;
     options?: never;
@@ -2674,31 +1864,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a goal with its streaks of the last year
-     * @description Feeds the goal page (R069) and its streak calendar.
-     */
+    /** Get a goal with its streaks of the last year */
     get: operations['getContactGoal'];
     put?: never;
     post?: never;
-    /**
-     * Delete a goal and its streaks
-     * @description Writes a `goal_destroyed` feed item and sets `last_updated_at`.
-     */
+    /** Delete a goal and its streaks */
     delete: operations['deleteContactGoal'];
     options?: never;
     head?: never;
-    /**
-     * Rename a goal
-     * @description Writes a `goal_updated` feed item and sets `last_updated_at`.
-     */
+    /** Rename a goal */
     patch: operations['updateContactGoal'];
     trace?: never;
   };
@@ -2706,32 +1883,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
-        /** @description The day (`happened_at`); a goal has at most one streak per day. */
-        date: components['schemas']['Date'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Mark a day as done for a goal
-     * @description Idempotent; replaces the R072 toggle together with
-     *     `deleteContactGoalStreak`. Sets `last_updated_at`. Returns the goal so
-     *     the module can redraw its streak stats.
-     *
-     */
+    /** Mark a day as done for a goal */
     put: operations['setContactGoalStreak'];
     post?: never;
-    /**
-     * Unmark a day for a goal
-     * @description Idempotent. Sets `last_updated_at`. Returns 200 with the goal rather
-     *     than 204, so the module can redraw its streak stats in one call as R072
-     *     does today.
-     *
-     */
+    /** Unmark a day for a goal */
     delete: operations['deleteContactGoalStreak'];
     options?: never;
     head?: never;
@@ -2742,23 +1901,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the groups a contact belongs to */
     get: operations['listContactGroups'];
     put?: never;
-    /**
-     * Add a contact to a group, with an optional role
-     * @description To add the contact to a new group, call `createVaultGroup` first
-     *     (R115). If the contact is already a member, its role is replaced.
-     *     Touches the group, sets the contact's `last_updated_at` and writes an
-     *     `added_to_group` feed item.
-     *
-     */
+    /** Add a contact to a group, with an optional role */
     post: operations['addContactToGroup'];
     delete?: never;
     options?: never;
@@ -2770,23 +1919,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        group_id: components['parameters']['GroupId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Remove a contact from a group
-     * @description Done synchronously (today a queued job). Touches the group, sets the
-     *     contact's `last_updated_at` and writes a `removed_from_group` feed
-     *     item.
-     *
-     */
+    /** Remove a contact from a group */
     delete: operations['removeContactFromGroup'];
     options?: never;
     head?: never;
@@ -2797,29 +1936,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's important dates
-     * @description Feeds the important dates page (R061) and module, ordered by id. The
-     *     page's type dropdown comes from `listVaultContactImportantDateTypes`.
-     *
-     */
+    /** List a contact's important dates */
     get: operations['listContactImportantDates'];
     put?: never;
-    /**
-     * Add an important date to a contact
-     * @description Also sets the contact's `last_updated_at` and writes an
-     *     `important_date_created` feed item (X012, X013). The form's "Create a
-     *     reminder" option is a second call, `createContactReminder`, with the
-     *     same label and date parts, `type` `recurring_year` or `one_time` and
-     *     `frequency_number` 1.
-     *
-     */
+    /** Add an important date to a contact */
     post: operations['createContactImportantDate'];
     delete?: never;
     options?: never;
@@ -2831,29 +1954,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        important_date_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete an important date
-     * @description Soft-deletes the row (kept for CalDAV sync) and writes an
-     *     `important_date_destroyed` feed item. Reminders created alongside are kept.
-     *
-     */
+    /** Delete an important date */
     delete: operations['deleteContactImportantDate'];
     options?: never;
     head?: never;
-    /**
-     * Edit an important date
-     * @description Writes an `important_date_updated` feed item and sets `last_updated_at`.
-     */
+    /** Edit an important date */
     patch: operations['updateContactImportantDate'];
     trace?: never;
   };
@@ -2861,26 +1972,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Set a contact's company and job position
-     * @description A new company typed in the form is `createVaultCompany` first, then this
-     *     call with its id. Writes a `job_information_updated` feed item and sets
-     *     `last_updated_at`.
-     *
-     */
+    /** Set a contact's company and job position */
     put: operations['setContactJobInformation'];
     post?: never;
-    /**
-     * Clear a contact's company and job position
-     * @description The company stays in the vault. Writes a `job_information_updated` feed item.
-     */
+    /** Clear a contact's company and job position */
     delete: operations['deleteContactJobInformation'];
     options?: never;
     head?: never;
@@ -2891,16 +1990,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the labels assigned to a contact
-     * @description The vault's labels (for the picker) come from `listVaultLabels`.
-     */
+    /** List the labels assigned to a contact */
     get: operations['listContactLabels'];
     put?: never;
     post?: never;
@@ -2914,29 +2007,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A label of the vault. */
-        label_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Assign a vault label to a contact
-     * @description Idempotent. Writes a `label_assigned` feed item and sets
-     *     `last_updated_at`. R074 (type a new name in the module) becomes
-     *     `createVaultLabel` with `bg_color` `bg-neutral-200` and `text_color`
-     *     `text-neutral-800`, then this call.
-     *
-     */
+    /** Assign a vault label to a contact */
     put: operations['assignContactLabel'];
     post?: never;
-    /**
-     * Remove a label from a contact
-     * @description The label stays in the vault. Writes a `label_removed` feed item and sets `last_updated_at`.
-     */
+    /** Remove a label from a contact */
     delete: operations['unassignContactLabel'];
     options?: never;
     head?: never;
@@ -2947,22 +2025,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the loans a contact is a loaner or loanee in */
     get: operations['listContactLoans'];
     put?: never;
-    /**
-     * Record a loan
-     * @description The loan belongs to the vault and links every loaner to every loanee
-     *     (`contact_loan`). The contact of the path must be one of them. Sets
-     *     `last_updated_at`.
-     *
-     */
+    /** Record a loan */
     post: operations['createContactLoan'];
     delete?: never;
     options?: never;
@@ -2974,31 +2043,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A loan the contact is a loaner or loanee in. */
-        loan_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a loan
-     * @description Deletes it for every contact involved. Sets `last_updated_at`.
-     */
+    /** Delete a loan */
     delete: operations['deleteContactLoan'];
     options?: never;
     head?: never;
-    /**
-     * Edit a loan, or mark it settled or unsettled
-     * @description Sending `loaner_ids`/`loanee_ids` replaces the links. Changing `settled`
-     *     replaces the R089 toggle and sets `settled_at` to now. Sets
-     *     `last_updated_at`.
-     *
-     */
+    /** Edit a loan, or mark it settled or unsettled */
     patch: operations['updateContactLoan'];
     trace?: never;
   };
@@ -3006,21 +2061,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Record a mood rating for a contact
-     * @description Used by the vault dashboard for the user's own contact. Sets the
-     *     contact's `last_updated_at` and writes a `mood_tracking_event_added`
-     *     feed item.
-     *
-     */
+    /** Record a mood rating for a contact */
     post: operations['createContactMoodTrackingEvent'];
     delete?: never;
     options?: never;
@@ -3032,21 +2078,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Move a contact to another vault of the account
-     * @description Needs edit rights in both vaults (403 otherwise). The contact's
-     *     company moves along when it has no other contact; otherwise it is
-     *     copied into the target vault. Sets `last_updated_at`.
-     *
-     */
+    /** Move a contact to another vault of the account */
     post: operations['moveContact'];
     delete?: never;
     options?: never;
@@ -3058,26 +2095,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's notes, newest first
-     * @description Feeds the notes page (R065, 10 per page) and the notes module of the
-     *     contact page, which shows the first 3 (`per_page=3`).
-     *
-     */
+    /** List a contact's notes, newest first */
     get: operations['listContactNotes'];
     put?: never;
-    /**
-     * Add a note to a contact
-     * @description Also sets the contact's `last_updated_at` and writes a
-     *     `note_created` feed item (X012, X013).
-     *
-     */
+    /** Add a note to a contact */
     post: operations['createContactNote'];
     delete?: never;
     options?: never;
@@ -3089,11 +2113,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        note_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -3111,20 +2131,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Everything the contact page shows (aggregate, api-design.md §12)
-     * @description Has no side effect; the SPA calls `recordContactView` when it opens the
-     *     page. When the contact has no template, `header_modules`,
-     *     `template_pages` and `modules` are empty and the SPA shows the
-     *     template picker (R055).
-     *
-     */
+    /** Everything the contact page shows (aggregate, api-design.md §12) */
     get: operations['getContactPage'];
     put?: never;
     post?: never;
@@ -3138,19 +2148,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List a contact's pets */
     get: operations['listContactPets'];
     put?: never;
-    /**
-     * Add a pet to a contact
-     * @description Sets the contact's `last_updated_at` and writes a `pet_created` feed item.
-     */
+    /** Add a pet to a contact */
     post: operations['createContactPet'];
     delete?: never;
     options?: never;
@@ -3162,27 +2166,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        pet_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a pet
-     * @description Sets the contact's `last_updated_at` and writes a `pet_destroyed` feed item.
-     */
+    /** Delete a pet */
     delete: operations['deleteContactPet'];
     options?: never;
     head?: never;
-    /**
-     * Edit a pet
-     * @description Sets the contact's `last_updated_at` and writes a `pet_updated` feed item.
-     */
+    /** Edit a pet */
     patch: operations['updateContactPet'];
     trace?: never;
   };
@@ -3190,29 +2184,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's photos, newest first
-     * @description Feeds the photos page (R103, 30 per page); the contact's name there
-     *     comes from `getContact`. Images are served by
-     *     `GET /vaults/{vault_id}/files/{file_id}/content?variant=thumbnail`.
-     *
-     */
+    /** List a contact's photos, newest first */
     get: operations['listContactPhotos'];
     put?: never;
-    /**
-     * Upload a photo for a contact
-     * @description Multipart upload (api-design.md §10). JPEG, PNG, GIF or WebP only
-     *     (422 otherwise). Stores the file as type `photo`, attached to the
-     *     contact. Rejected with 422 `storage_limit_exceeded` when the account
-     *     is at its storage limit (X011).
-     *
-     */
+    /** Upload a photo for a contact */
     post: operations['uploadContactPhoto'];
     delete?: never;
     options?: never;
@@ -3224,25 +2202,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A `files` id of type `photo` attached to the contact. */
-        photo_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get one photo
-     * @description Feeds the photo page (R104); the contact's name there comes from `getContact`.
-     */
+    /** Get one photo */
     get: operations['getContactPhoto'];
     put?: never;
     post?: never;
-    /**
-     * Delete a photo
-     * @description Deletes the `files` row, the stored bytes and cached thumbnails; sets the contact's `last_updated_at`.
-     */
+    /** Delete a photo */
     delete: operations['deleteContactPhoto'];
     options?: never;
     head?: never;
@@ -3253,16 +2220,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's quick facts
-     * @description The quick facts block loads one template's facts at a time (R046).
-     */
+    /** List a contact's quick facts */
     get: operations['listContactQuickFacts'];
     put?: never;
     /** Add a quick fact */
@@ -3277,11 +2238,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        quick_fact_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -3299,28 +2256,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's relationships, in both directions
-     * @description Relationships whose other contact is deleted are left out.
-     */
+    /** List a contact's relationships, in both directions */
     get: operations['listContactRelationships'];
     put?: never;
-    /**
-     * Set a relationship with an existing or a new contact
-     * @description Composite: with `new_contact`, the other contact is created (with a
-     *     `contact_created` feed item) in the same transaction as the
-     *     relationship, because a contact created with `listed: false` and no
-     *     relationship would be an invisible orphan. If the two contacts already
-     *     have a relationship in the same direction, its type is replaced.
-     *     Sets the contact's `last_updated_at`.
-     *
-     */
+    /** Set a relationship with an existing or a new contact */
     post: operations['createContactRelationship'];
     delete?: never;
     options?: never;
@@ -3332,24 +2274,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        relationship_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Remove a relationship
-     * @description Today `PUT …/relationships/{id}` (R097). Removes every relationship
-     *     between the two contacts in both directions, then deletes either
-     *     contact if it is unlisted (`listed: false`). Sets the contact's
-     *     `last_updated_at`.
-     *
-     */
+    /** Remove a relationship */
     delete: operations['deleteContactRelationship'];
     options?: never;
     head?: never;
@@ -3360,17 +2291,11 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Set or clear a contact's religion
-     * @description Writes a `religion_updated` feed item and sets `last_updated_at`.
-     */
+    /** Set or clear a contact's religion */
     put: operations['setContactReligion'];
     post?: never;
     delete?: never;
@@ -3383,21 +2308,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List a contact's reminders */
     get: operations['listContactReminders'];
     put?: never;
-    /**
-     * Add a reminder to a contact
-     * @description Schedules the reminder on the notification channels of every user of
-     *     the vault (`contact_reminder_scheduled`) and sets `last_updated_at`.
-     *
-     */
+    /** Add a reminder to a contact */
     post: operations['createContactReminder'];
     delete?: never;
     options?: never;
@@ -3409,27 +2326,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        reminder_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a reminder
-     * @description Its scheduled notifications go with it.
-     */
+    /** Delete a reminder */
     delete: operations['deleteContactReminder'];
     options?: never;
     head?: never;
-    /**
-     * Edit a reminder
-     * @description Drops the reminder's scheduled notifications and schedules it again for every user of the vault.
-     */
+    /** Edit a reminder */
     patch: operations['updateContactReminder'];
     trace?: never;
   };
@@ -3437,24 +2344,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List a contact's open or completed tasks
-     * @description Open tasks are ordered by `id` descending; completed tasks
-     *     (`completed=true`, R107) by `completed_at` descending. Not paginated.
-     *
-     */
+    /** List a contact's open or completed tasks */
     get: operations['listContactTasks'];
     put?: never;
-    /**
-     * Add a task to a contact
-     * @description Sets the contact's `last_updated_at`.
-     */
+    /** Add a task to a contact */
     post: operations['createContactTask'];
     delete?: never;
     options?: never;
@@ -3466,31 +2362,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        task_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a task
-     * @description Soft delete (`deleted_at`, for CalDAV sync); sets the contact's `last_updated_at`.
-     */
+    /** Delete a task */
     delete: operations['deleteContactTask'];
     options?: never;
     head?: never;
-    /**
-     * Edit a task or mark it (un)completed
-     * @description Replaces the edit (R109) and toggle (R110) routes, also used by the
-     *     vault task pages. When `completed` changes, `completed_at` is set to
-     *     the current time (also when un-completing, as today). Sets the
-     *     contact's `last_updated_at`.
-     *
-     */
+    /** Edit a task or mark it (un)completed */
     patch: operations['updateContactTask'];
     trace?: never;
   };
@@ -3498,29 +2380,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the timeline events a contact takes part in
-     * @description Feeds the life events module of the contact page and, for the user's
-     *     own contact, of the vault dashboard. 15 per page.
-     *
-     */
+    /** List the timeline events a contact takes part in */
     get: operations['listContactTimelineEvents'];
     put?: never;
-    /**
-     * Start a timeline event with its first life event
-     * @description Composite: a timeline event never exists without a life event (deleting
-     *     the last life event deletes it), so both are created in one
-     *     transaction. `started_at` is the life event's `happened_at`. The
-     *     contact in the path is always a participant; every participant's
-     *     `last_updated_at` is set.
-     *
-     */
+    /** Start a timeline event with its first life event */
     post: operations['createContactTimelineEvent'];
     delete?: never;
     options?: never;
@@ -3532,21 +2398,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a timeline event and its life events
-     * @description Deletes it for every participant.
-     */
+    /** Delete a timeline event and its life events */
     delete: operations['deleteContactTimelineEvent'];
     options?: never;
     head?: never;
@@ -3558,23 +2416,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Add a life event to a timeline event
-     * @description The contact in the path is always a participant. Participants are also
-     *     added to the timeline event's participants; every participant's
-     *     `last_updated_at` is set.
-     *
-     */
+    /** Add a life event to a timeline event */
     post: operations['createContactLifeEvent'];
     delete?: never;
     options?: never;
@@ -3586,34 +2433,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
-        life_event_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a life event
-     * @description Deleting the timeline event's last life event also deletes the timeline event.
-     */
+    /** Delete a life event */
     delete: operations['deleteContactLifeEvent'];
     options?: never;
     head?: never;
-    /**
-     * Edit, collapse or expand a life event
-     * @description Replaces the edit (R122) and toggle (R123) routes. `participant_ids`,
-     *     when sent, replaces the life event's participants (the contact in the
-     *     path is always kept); participants are added to, never removed from,
-     *     the timeline event. Every participant's `last_updated_at` is set
-     *     when anything other than `collapsed` changes.
-     *
-     */
+    /** Edit, collapse or expand a life event */
     patch: operations['updateContactLifeEvent'];
     trace?: never;
   };
@@ -3621,18 +2451,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Download the contact as a vCard
-     * @description Also refreshes the cached `contacts.vcard` (without touching
-     *     `updated_at`), as `ExportVCard` does today.
-     *
-     */
+    /** Download the contact as a vCard */
     get: operations['getContactVCard'];
     put?: never;
     post?: never;
@@ -3646,22 +2468,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Count one view of a contact by the current user
-     * @description Increments `contact_vault_user.number_of_views`, which orders
-     *     `listMostConsultedContacts`. Today R041 does this on every page load;
-     *     the SPA calls it when it opens the contact page. Not counted for a
-     *     contact without a template, as today.
-     *
-     */
+    /** Count one view of a contact by the current user */
     post: operations['recordContactView'];
     delete?: never;
     options?: never;
@@ -3673,18 +2485,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Everything the vault dashboard shows (aggregate)
-     * @description Aggregate read (api-design.md §12). The activity tab's feed is paged
-     *     separately with listVaultFeed. Life events, life metrics and mood
-     *     tracking are those of the user's own contact in the vault.
-     *
-     */
+    /** Everything the vault dashboard shows (aggregate) */
     get: operations['getVaultDashboard'];
     put?: never;
     post?: never;
@@ -3698,15 +2502,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Feed of every contact of the vault, newest first
-     * @description The dashboard's activity tab, 15 per page.
-     */
+    /** Feed of every contact of the vault, newest first */
     get: operations['listVaultFeed'];
     put?: never;
     post?: never;
@@ -3720,18 +2519,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the vault's files, newest first
-     * @description Feeds the files page and its photos/documents/avatars tabs. `counts`
-     *     is the number of files of each type in the vault, whatever the filter.
-     *     Uploads go to the owning resource (api-design.md §10).
-     *
-     */
+    /** List the vault's files, newest first */
     get: operations['listVaultFiles'];
     put?: never;
     post?: never;
@@ -3745,21 +2536,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        file_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a file
-     * @description Deletes the stored bytes and cached variants (E009). When the file
-     *     belongs to a contact, sets the contact's `last_updated_at` (X013).
-     *
-     */
+    /** Delete a file */
     delete: operations['deleteVaultFile'];
     options?: never;
     head?: never;
@@ -3770,20 +2553,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        file_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Download a file's bytes
-     * @description Serves the stored file (api-design.md §10). `thumbnail` is a 300×300
-     *     centre crop of an image, generated on first request and cached on
-     *     disk. Range requests are supported for `original`; `If-None-Match`
-     *     with the current ETag gives 304.
-     *
-     */
+    /** Download a file's bytes */
     get: operations['getVaultFileContent'];
     put?: never;
     post?: never;
@@ -3797,24 +2570,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the vault's groups with their members
-     * @description Ordered by `name` (collation-aware). Not paginated.
-     */
+    /** List the vault's groups with their members */
     get: operations['listVaultGroups'];
     put?: never;
-    /**
-     * Create a group
-     * @description The contact page's "+ create a group" choice (R115) is this call
-     *     followed by `addContactToGroup`; an empty group left by a failed second
-     *     call is visible and deletable, so no composite call is needed.
-     *
-     */
+    /** Create a group */
     post: operations['createVaultGroup'];
     delete?: never;
     options?: never;
@@ -3826,27 +2588,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        group_id: components['parameters']['GroupId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a group with its members bucketed by role
-     * @description Feeds the group page (R127) and the group edit page (R128), which also
-     *     needs `listGroupTypes`.
-     *
-     */
+    /** Get a group with its members bucketed by role */
     get: operations['getVaultGroup'];
     put?: never;
     post?: never;
-    /**
-     * Delete a group
-     * @description Soft delete (`deleted_at`), so CardDAV sync can report it. Done
-     *     synchronously.
-     *
-     */
+    /** Delete a group */
     delete: operations['deleteVaultGroup'];
     options?: never;
     head?: never;
@@ -3858,15 +2607,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the vault's journals, by name
-     * @description Not paginated. Sorted by `name` with the request locale's collation.
-     */
+    /** List the vault's journals, by name */
     get: operations['listJournals'];
     put?: never;
     /** Create a journal */
@@ -3881,29 +2625,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a journal
-     * @description Feeds the journal edit page (R137) and the journal header of the
-     *     "choose a post template" page (R140, templates from `listPostTemplates`),
-     *     the photos, slices and metrics pages.
-     *
-     */
+    /** Get a journal */
     get: operations['getJournal'];
     put?: never;
     post?: never;
-    /**
-     * Delete a journal
-     * @description Its posts (with sections, tags, contacts and metrics), slices of life and
-     *     journal metrics go with it by cascade. The `files` rows of the posts'
-     *     photos and of slice covers are deleted too, with their bytes (Q7).
-     *
-     */
+    /** Delete a journal */
     delete: operations['deleteJournal'];
     options?: never;
     head?: never;
@@ -3915,16 +2644,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the journal's metrics, by label
-     * @description Not paginated. Sorted by `label` with the request locale's collation.
-     */
+    /** List the journal's metrics, by label */
     get: operations['listJournalMetrics'];
     put?: never;
     /** Create a journal metric */
@@ -3939,20 +2662,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        journal_metric_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a journal metric
-     * @description Its values on every post (`post_metrics`) are deleted by cascade.
-     */
+    /** Delete a journal metric */
     delete: operations['deleteJournalMetric'];
     options?: never;
     head?: never;
@@ -3963,20 +2679,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Journal page aggregate for one year
-     * @description Everything the journal page shows (api-design.md §12): the journal, the
-     *     posts of `year` grouped by month, the years that have posts, the tags
-     *     used in the journal and its slices of life. The month heat-map colour is
-     *     derived by the client from `months[].post_count`.
-     *
-     */
+    /** Journal page aggregate for one year */
     get: operations['getJournalOverview'];
     put?: never;
     post?: never;
@@ -3990,19 +2696,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List every photo of the journal's posts
-     * @description Not paginated, as the page shows them all today. Ordered by the post's
-     *     `written_at` descending, then by file id. The journal header comes from
-     *     `getJournal`.
-     *
-     */
+    /** List every photo of the journal's posts */
     get: operations['listJournalPhotos'];
     put?: never;
     post?: never;
@@ -4016,23 +2713,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Create a post from a post template
-     * @description Replaces today's `GET posts/template/{template}`. Creates an unpublished
-     *     draft with one empty section per template section (same `position`;
-     *     `label` copied from the template section, translated in the request
-     *     locale when it only has a translation key). The client then opens the
-     *     edit page.
-     *
-     */
+    /** Create a post from a post template */
     post: operations['createJournalPost'];
     delete?: never;
     options?: never;
@@ -4044,37 +2730,18 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a post with everything its show and edit pages need
-     * @description Has no side effect; the show page also calls `recordJournalPostView`.
-     *     The edit page additionally uses `listJournalSlices` and `listVaultTags`.
-     *
-     */
+    /** Get a post with everything its show and edit pages need */
     get: operations['getJournalPost'];
     put?: never;
     post?: never;
-    /**
-     * Delete a post
-     * @description Also deletes the post's photo files (bytes included, api-design.md §10).
-     */
+    /** Delete a post */
     delete: operations['deleteJournalPost'];
     options?: never;
     head?: never;
-    /**
-     * Edit a post's title, date or section contents
-     * @description The edit page autosaves through this call. Mentioned contacts are
-     *     changed with `addJournalPostContact` / `removeJournalPostContact`, tags,
-     *     slice and metrics with their own endpoints. The response carries the
-     *     recomputed `word_count` and `time_to_read_in_minute`.
-     *
-     */
+    /** Edit a post's title, date or section contents */
     patch: operations['updateJournalPost'];
     trace?: never;
   };
@@ -4082,30 +2749,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        contact_id: components['parameters']['ContactId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Mention a contact in a post
-     * @description Idempotent. When the contact wasn't mentioned yet, writes an
-     *     `added_to_post` feed item on the contact and sets its `last_updated_at`
-     *     (X012, X013). The contact must be in the vault.
-     *
-     */
+    /** Mention a contact in a post */
     put: operations['addJournalPostContact'];
     post?: never;
-    /**
-     * Stop mentioning a contact in a post
-     * @description Writes a `removed_from_post` feed item on the contact and sets its
-     *     `last_updated_at`. 404 when the contact isn't mentioned in the post.
-     *
-     */
+    /** Stop mentioning a contact in a post */
     delete: operations['removeJournalPostContact'];
     options?: never;
     head?: never;
@@ -4116,11 +2767,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -4137,12 +2784,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        post_metric_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -4159,21 +2801,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Upload a photo to a post
-     * @description Multipart upload (api-design.md §10). Stores a `files` row of type
-     *     `photo` attached to the post. JPEG, PNG, GIF or WebP only.
-     *
-     */
+    /** Upload a photo to a post */
     post: operations['uploadJournalPostPhoto'];
     delete?: never;
     options?: never;
@@ -4185,22 +2818,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        /** @description Id of the photo's `files` row. */
-        file_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a post photo
-     * @description Deletes the file and its bytes. 404 unless the file is a photo of this post.
-     */
+    /** Delete a post photo */
     delete: operations['deleteJournalPostPhoto'];
     options?: never;
     head?: never;
@@ -4211,24 +2835,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Put the post in a slice of life
-     * @description Replaces any previous slice. The slice must belong to the journal.
-     */
+    /** Put the post in a slice of life */
     put: operations['setJournalPostSlice'];
     post?: never;
-    /**
-     * Take the post out of its slice of life
-     * @description Sets `slice_of_life_id` to null; no-op when it already is.
-     */
+    /** Take the post out of its slice of life */
     delete: operations['clearJournalPostSlice'];
     options?: never;
     head?: never;
@@ -4239,23 +2853,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Create a vault tag and assign it to the post
-     * @description Always creates a new tag in the vault (as today; the page only offers
-     *     this when no existing tag matches the search). Composite because a vault
-     *     editor may create tags here, while the vault settings tag endpoint needs
-     *     `vault:manage`.
-     *
-     */
+    /** Create a vault tag and assign it to the post */
     post: operations['createJournalPostTag'];
     delete?: never;
     options?: never;
@@ -4267,25 +2870,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        tag_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Assign an existing vault tag to the post
-     * @description Idempotent. The tag must belong to the vault.
-     */
+    /** Assign an existing vault tag to the post */
     put: operations['assignJournalPostTag'];
     post?: never;
-    /**
-     * Remove a tag from the post
-     * @description The tag itself stays in the vault.
-     */
+    /** Remove a tag from the post */
     delete: operations['removeJournalPostTag'];
     options?: never;
     head?: never;
@@ -4296,21 +2888,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Count one read of a post
-     * @description Increments `view_count`. Today R142 does this on every show-page load;
-     *     the SPA calls it when it opens the show page (not the edit page).
-     *
-     */
+    /** Count one read of a post */
     post: operations['recordJournalPostView'];
     delete?: never;
     options?: never;
@@ -4322,18 +2905,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List the journal's slices of life, by name
-     * @description Not paginated. Sorted by `name` with the request locale's collation.
-     *     Also the slice picker of the post edit page.
-     *
-     */
+    /** List the journal's slices of life, by name */
     get: operations['listJournalSlices'];
     put?: never;
     /** Create a slice of life */
@@ -4348,27 +2923,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Get a slice of life with its posts and the contacts they mention
-     * @description Feeds the slice page (R157) and its edit form (R158).
-     */
+    /** Get a slice of life with its posts and the contacts they mention */
     get: operations['getJournalSlice'];
     put?: never;
     post?: never;
-    /**
-     * Delete a slice of life
-     * @description Its posts stay in the journal with `slice_of_life_id` set to null. The
-     *     cover image's `files` row is deleted, with its bytes (Q7).
-     *
-     */
+    /** Delete a slice of life */
     delete: operations['deleteJournalSlice'];
     options?: never;
     head?: never;
@@ -4380,28 +2942,14 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
-    /**
-     * Upload a slice of life's cover image
-     * @description Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a
-     *     `files` row of type `photo` and sets `file_cover_image_id`. A previous
-     *     cover's `files` row is deleted, with its bytes (Q7).
-     *
-     */
+    /** Upload a slice of life's cover image */
     put: operations['setJournalSliceCover'];
     post?: never;
-    /**
-     * Remove a slice of life's cover image
-     * @description Deletes the cover file (and its bytes) and clears `file_cover_image_id`.
-     */
+    /** Remove a slice of life's cover image */
     delete: operations['deleteJournalSliceCover'];
     options?: never;
     head?: never;
@@ -4412,20 +2960,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's labels, by name */
     get: operations['listVaultLabels'];
     put?: never;
-    /**
-     * Create a label
-     * @description Editors can create labels (the contact page creates one before
-     *     assigning it, R074). `slug` is derived from `name`.
-     *
-     */
+    /** Create a label */
     post: operations['createVaultLabel'];
     delete?: never;
     options?: never;
@@ -4437,26 +2978,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        label_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a label
-     * @description Removes it from every contact.
-     */
+    /** Delete a label */
     delete: operations['deleteVaultLabel'];
     options?: never;
     head?: never;
-    /**
-     * Edit a label
-     * @description Recomputes `slug` when `name` changes.
-     */
+    /** Edit a label */
     patch: operations['updateVaultLabel'];
     trace?: never;
   };
@@ -4464,18 +2996,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's life event categories with their types */
     get: operations['listVaultLifeEventCategories'];
     put?: never;
-    /**
-     * Create a life event category
-     * @description Placed after the last one; `can_be_deleted` is true.
-     */
+    /** Create a life event category */
     post: operations['createVaultLifeEventCategory'];
     delete?: never;
     options?: never;
@@ -4487,28 +3014,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a life event category
-     * @description 409 when `can_be_deleted` is false. Deletes its types and the life
-     *     events that used them.
-     *
-     */
+    /** Delete a life event category */
     delete: operations['deleteVaultLifeEventCategory'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a life event category
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a life event category */
     patch: operations['updateVaultLifeEventCategory'];
     trace?: never;
   };
@@ -4516,18 +3032,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Add a life event type to a category
-     * @description Placed after the category's last type; `can_be_deleted` is true.
-     */
+    /** Add a life event type to a category */
     post: operations['createVaultLifeEventType'];
     delete?: never;
     options?: never;
@@ -4539,27 +3049,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
-        life_event_type_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a life event type
-     * @description 409 when `can_be_deleted` is false. Deletes the life events of this type.
-     */
+    /** Delete a life event type */
     delete: operations['deleteVaultLifeEventType'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a life event type within its category
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a life event type within its category */
     patch: operations['updateVaultLifeEventType'];
     trace?: never;
   };
@@ -4567,15 +3067,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * The vault's life metrics with the user's counts
-     * @description Same objects as the dashboard's `life_metrics`, for any year.
-     */
+    /** The vault's life metrics with the user's counts */
     get: operations['listVaultLifeMetrics'];
     put?: never;
     /** Track a new life metric */
@@ -4590,10 +3085,7 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        life_metric_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
@@ -4611,18 +3103,12 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        life_metric_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
-    /**
-     * Record one event of a life metric now
-     * @description Adds a `contact_life_metric` row for the user's own contact in the vault.
-     */
+    /** Record one event of a life metric now */
     post: operations['incrementVaultLifeMetric'];
     delete?: never;
     options?: never;
@@ -4634,15 +3120,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * List account users who could be added to the vault
-     * @description Users of the account with a verified email who are not members yet.
-     */
+    /** Account users who could be added */
     get: operations['listVaultMemberCandidates'];
     put?: never;
     post?: never;
@@ -4656,22 +3137,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /** List the users who have access to the vault */
+    /** The vault's members */
     get: operations['listVaultMembers'];
     put?: never;
-    /**
-     * Give an account user access to the vault
-     * @description Creates the user's own contact in the vault (with the vault's default
-     *     template) and schedules the vault's contact reminders for the user
-     *     (one-time reminders only if never triggered). Adding yourself or an
-     *     existing member is a 409.
-     *
-     */
+    /** Give an account user access to the vault */
     post: operations['addVaultMember'];
     delete?: never;
     options?: never;
@@ -4683,31 +3155,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        user_id: components['schemas']['Uuid'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Remove a user's access to the vault
-     * @description Deletes the user's own contact in the vault (which removes the
-     *     `user_vault` row) and the user's scheduled reminders for this vault's
-     *     contacts. Removing yourself is a 409.
-     *
-     */
+    /** Remove a member */
     delete: operations['removeVaultMember'];
     options?: never;
     head?: never;
-    /**
-     * Change a member's permission
-     * @description Also needs the author to be account administrator (ChangeVaultAccess).
-     *     Changing your own permission is a 409.
-     *
-     */
+    /** Change a member's permission */
     patch: operations['updateVaultMember'];
     trace?: never;
   };
@@ -4715,18 +3173,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's mood tracking parameters, by position */
     get: operations['listVaultMoodTrackingParameters'];
     put?: never;
-    /**
-     * Create a mood tracking parameter
-     * @description Placed after the last one.
-     */
+    /** Create a mood tracking parameter */
     post: operations['createVaultMoodTrackingParameter'];
     delete?: never;
     options?: never;
@@ -4738,26 +3191,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        mood_tracking_parameter_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a mood tracking parameter
-     * @description Deletes the mood tracking events that used it.
-     */
+    /** Delete a mood tracking parameter */
     delete: operations['deleteVaultMoodTrackingParameter'];
     options?: never;
     head?: never;
-    /**
-     * Edit or move a mood tracking parameter
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Edit or move a mood tracking parameter */
     patch: operations['updateVaultMoodTrackingParameter'];
     trace?: never;
   };
@@ -4765,18 +3209,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's quick fact templates, by position */
     get: operations['listVaultQuickFactTemplates'];
     put?: never;
-    /**
-     * Create a quick fact template
-     * @description Placed after the last one.
-     */
+    /** Create a quick fact template */
     post: operations['createVaultQuickFactTemplate'];
     delete?: never;
     options?: never;
@@ -4788,26 +3227,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        quick_fact_template_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a quick fact template
-     * @description Deletes the contacts' quick facts of this template.
-     */
+    /** Delete a quick fact template */
     delete: operations['deleteVaultQuickFactTemplate'];
     options?: never;
     head?: never;
-    /**
-     * Rename or move a quick fact template
-     * @description Changing `position` shifts the siblings in between.
-     */
+    /** Rename or move a quick fact template */
     patch: operations['updateVaultQuickFactTemplate'];
     trace?: never;
   };
@@ -4815,19 +3245,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Reminders scheduled in the next 12 months, by month
-     * @description Untriggered `contact_reminder_scheduled` rows of the vault members'
-     *     notification channels for the vault's contacts, scheduled up to 365
-     *     days from now, grouped into 12 months starting with the current one.
-     *     A reminder sent to several channels appears once per month.
-     *
-     */
+    /** Reminders scheduled in the next 12 months, by month */
     get: operations['listVaultReminders'];
     put?: never;
     post?: never;
@@ -4841,18 +3262,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Cities and countries of the vault's addresses
-     * @description Distinct non-null `city` and `country` values, compared
-     *     case-insensitively, with the number of contacts living there. The
-     *     client upper-cases the first letter as today.
-     *
-     */
+    /** Cities and countries of the vault's addresses */
     get: operations['getVaultAddressReport'];
     put?: never;
     post?: never;
@@ -4866,17 +3279,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Addresses in one city, with their contacts
-     * @description Addresses whose `city` matches case-insensitively. The Wikipedia panel
-     *     of today's page is not part of this response (open question Q1).
-     *
-     */
+    /** Addresses in one city, with their contacts */
     get: operations['getVaultCityAddressReport'];
     put?: never;
     post?: never;
@@ -4890,17 +3296,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Addresses in one country, with their contacts
-     * @description Addresses whose `country` matches case-insensitively. The Wikipedia
-     *     panel of today's page is not part of this response (open question Q1).
-     *
-     */
+    /** Addresses in one country, with their contacts */
     get: operations['getVaultCountryAddressReport'];
     put?: never;
     post?: never;
@@ -4914,18 +3313,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Important dates of the next 12 months, by month
-     * @description Every important date of the vault's contacts whose `month` falls in
-     *     each of the 12 months starting with the current one (dates recur
-     *     yearly), ordered by month then day.
-     *
-     */
+    /** Important dates of the next 12 months, by month */
     get: operations['getVaultImportantDateReport'];
     put?: never;
     post?: never;
@@ -4939,15 +3330,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * The user's mood for every day of a year
-     * @description Mood tracking events of the user's own contact in the vault.
-     */
+    /** The user's mood for every day of a year */
     get: operations['getVaultMoodTrackingReport'];
     put?: never;
     post?: never;
@@ -4961,18 +3347,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Search the vault's contacts, notes and groups
-     * @description LIKE match (X019) on contact first/last/middle name, nickname and
-     *     maiden name; note title and body; group name. Without `q` every list is
-     *     empty. The page only searches from 3 characters.
-     *
-     */
+    /** Search the vault's contacts, notes and groups */
     get: operations['searchVault'];
     put?: never;
     post?: never;
@@ -4986,20 +3364,13 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
     /** List the vault's journal post tags, by name */
     get: operations['listVaultTags'];
     put?: never;
-    /**
-     * Create a tag
-     * @description Editors can create tags (the post editor creates one before assigning
-     *     it, R148). `slug` is derived from `name`.
-     *
-     */
+    /** Create a tag */
     post: operations['createVaultTag'];
     delete?: never;
     options?: never;
@@ -5011,26 +3382,17 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-        tag_id: components['schemas']['Id'];
-      };
+      path?: never;
       cookie?: never;
     };
     get?: never;
     put?: never;
     post?: never;
-    /**
-     * Delete a tag
-     * @description Removes it from every post.
-     */
+    /** Delete a tag */
     delete: operations['deleteVaultTag'];
     options?: never;
     head?: never;
-    /**
-     * Rename a tag
-     * @description Recomputes `slug`.
-     */
+    /** Rename a tag */
     patch: operations['updateVaultTag'];
     trace?: never;
   };
@@ -5038,18 +3400,10 @@ export interface paths {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        vault_id: components['parameters']['VaultId'];
-      };
+      path?: never;
       cookie?: never;
     };
-    /**
-     * Uncompleted tasks of the vault, grouped by contact
-     * @description Contacts with at least one uncompleted task, sorted by last name
-     *     (locale collation); each contact's tasks by `due_at` ascending.
-     *     Completing a task is updateContactTask.
-     *
-     */
+    /** Uncompleted tasks of the vault, grouped by contact */
     get: operations['listVaultTasks'];
     put?: never;
     post?: never;
@@ -5063,1252 +3417,894 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** Format: int64 */
-    Id: number;
-    /** Format: uuid */
-    Uuid: string;
-    /**
-     * Format: date-time
-     * @description RFC 3339, UTC, `Z` suffix.
-     */
-    Timestamp: string;
-    /** Format: date */
-    Date: string;
-    Problem: {
-      /** @default about:blank */
-      type: string;
-      status: number;
-      /** @enum {string} */
-      code:
-        | 'bad_request'
-        | 'unauthenticated'
-        | 'csrf_token_mismatch'
-        | 'email_not_verified'
-        | 'forbidden'
-        | 'token_ability_missing'
-        | 'password_confirmation_required'
-        | 'signup_disabled'
-        | 'not_found'
-        | 'conflict'
-        | 'payload_too_large'
-        | 'validation_failed'
-        | 'storage_limit_exceeded'
-        | 'vault_user_limit_reached'
-        | 'rate_limited'
-        | 'internal_error';
-      /** @description Human-readable */
-      title: string;
-      detail?: string;
-      errors?: components['schemas']['FieldError'][];
-    };
-    FieldError: {
-      /** @description JSON path into the request body. */
-      field: string;
-      /** @description Rule that failed: required, max, min, uuid, exists, enum, format, unique, … */
-      code: string;
-      message: string;
-      params?: {
-        [key: string]: unknown;
-      };
-    };
-    PaginationMeta: {
-      page: number;
-      per_page: number;
-      total: number;
-      last_page: number;
-    };
-    /** @description A date where any part may be unknown. */
-    PartialDate: {
-      day: number | null;
-      month: number | null;
-      year: number | null;
-    };
-    /** @description Enough to show a contact anywhere: the client builds the display name
-     *     from the user's `name_order` and fetches the avatar from
-     *     GET /vaults/{vault_id}/contacts/{contact_id}/avatar.
-     *      */
-    ContactSummary: {
-      id: components['schemas']['Uuid'];
-      vault_id: components['schemas']['Uuid'];
-      first_name: string | null;
-      middle_name: string | null;
-      last_name: string | null;
-      nickname: string | null;
-      maiden_name: string | null;
-      prefix: string | null;
-      suffix: string | null;
-      /** Format: int64 */
-      avatar_file_id: number | null;
-      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
-      listed: boolean;
-    };
-    /** @description A user as other users see them. `contact` is the user's own contact in
-     *     the vault of the response, when there is one (today
-     *     `UserHelper::getInformationAboutContact`).
-     *      */
-    UserSummary: {
-      id: components['schemas']['Uuid'];
-      first_name: string | null;
-      last_name: string | null;
-      contact: components['schemas']['ContactSummary'] | null;
-    };
-    File: {
-      id: components['schemas']['Id'];
-      uuid: components['schemas']['Uuid'];
-      name: string;
-      mime_type: string;
-      /** @description Bytes. */
-      size: number;
-      /** @enum {string} */
-      type: 'photo' | 'document' | 'avatar';
-      created_at: components['schemas']['Timestamp'];
-    };
-    FileUpload: {
-      /** @description The file. Its part's filename becomes `name`. */
-      file: string;
-    };
-    /** @description Seeded rows keep a translation key; user-created rows have a name. The
-     *     client shows `name` when set, else translates `name_translation_key`.
-     *      */
-    TranslatableName: {
-      name: string | null;
-      name_translation_key: string | null;
-    };
-    Emotion: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /** @enum {string} */
-      type: 'positive' | 'neutral' | 'negative';
-    };
-    /**
-     * @description A supported locale (`localizer.supported_locales`).
-     * @enum {string}
-     */
-    LocaleCode:
-      | 'en'
-      | 'ar'
-      | 'bn'
-      | 'ca'
-      | 'da'
-      | 'de'
-      | 'es'
-      | 'el'
-      | 'fr'
-      | 'he'
-      | 'hi'
-      | 'it'
-      | 'ja'
-      | 'ml'
-      | 'nl'
-      | 'nn'
-      | 'pa'
-      | 'pl'
-      | 'pt'
-      | 'pt_BR'
-      | 'ro'
-      | 'ru'
-      | 'sv'
-      | 'te'
-      | 'tr'
-      | 'ur'
-      | 'vi'
-      | 'zh_CN'
-      | 'zh_TW';
-    Locale: {
-      id: components['schemas']['LocaleCode'];
-      /** @description The language's own name (`auth.lang` in that locale), e.g. `Français`. */
-      name: string;
-      /** @enum {string} */
-      dir: 'ltr' | 'rtl';
-    };
-    Instance: {
-      /** @description False when `APP_DISABLE_SIGNUP` is set and at least one account
-       *     exists; the first user can always sign up (X007).
-       *      */
-      signup_enabled: boolean;
-      /** @description The login page warns that the instance and its data will be deleted (`APP_SHOW_DELETION_NOTICE`, X008). */
-      show_deletion_notice: boolean;
-      /** @description The locale of this request: the user's `locale` when logged in,
-       *     else negotiated from `Accept-Language` (X009).
-       *      */
-      locale: components['schemas']['LocaleCode'];
-      default_locale: components['schemas']['LocaleCode'];
-      /** @description Supported locales, sorted by `name` (collation-aware). */
-      locales: components['schemas']['Locale'][];
-      version: string;
-      /** @description Full commit hash of the build; the footer shows the first 7 characters and links to the repository. */
-      commit: string | null;
-      features: {
-        /** @description DELETE /me is enabled (server flag, off by default, V032). */
-        account_deletion: boolean;
-      };
-    };
-    Invitation: {
-      invitation_code: components['schemas']['Uuid'];
-      /**
-       * Format: email
-       * @description The invited address; the user logs in with it after accepting.
-       */
-      email: string;
-    };
-    InvitationAccept: {
-      first_name: string;
-      last_name: string;
-      password: components['schemas']['NewPassword'];
-      /** @description Must equal `password`. */
-      password_confirmation: string;
-    };
-    /** @description X006: in production at least 8 characters with letters, upper and
-     *     lower case, numbers and symbols; otherwise at least 4.
-     *      */
-    NewPassword: string;
-    Registration: {
-      first_name: string;
-      last_name: string;
-      /**
-       * Format: email
-       * @description Unique across users.
-       */
-      email: string;
-      password: components['schemas']['NewPassword'];
-      /** @description Must equal `password`. */
-      password_confirmation: string;
-      /**
-       * @description Accepts the terms of service and privacy policy.
-       * @constant
-       */
-      terms: true;
-    };
-    LoginCredentials: {
-      email: string;
-      password: string;
-      /**
-       * @description Keep the session for 5 years instead of the session lifetime.
-       * @default false
-       */
-      remember: boolean;
-    };
-    LoginResult: {
-      /** @description True when the user has confirmed 2FA; the login is pending until the challenge. */
-      two_factor: boolean;
-      /** @description The logged-in user; null while `two_factor` is true. */
-      user: components['schemas']['CurrentUser'] | null;
-    };
-    TwoFactorChallenge: {
-      /** @description TOTP code. */
-      code?: string;
-      recovery_code?: string;
-    };
-    EmailVerification: {
-      id: components['schemas']['Uuid'];
-      /** @description SHA-1 of the email the link was sent to. */
-      hash: string;
-      /** @description Unix time the link expires (60 minutes after sending). */
-      expires: number;
-      signature: string;
-    };
-    PasswordResetLinkRequest: {
-      /** Format: email */
-      email: string;
-    };
-    PasswordReset: {
-      token: string;
-      /** Format: email */
-      email: string;
-      password: components['schemas']['NewPassword'];
-      /** @description Must equal `password`. */
-      password_confirmation: string;
-    };
-    PasswordConfirmation: {
-      /** @description The current password. */
-      password: string;
-    };
-    PasswordConfirmationStatus: {
-      confirmed: boolean;
-    };
-    CurrentUser: {
-      id: components['schemas']['Uuid'];
-      account_id: components['schemas']['Uuid'];
-      first_name: string | null;
-      last_name: string | null;
-      /** Format: email */
-      email: string;
-      /** @description Null until the email is verified; most endpoints answer 403 `email_not_verified` until then. */
-      email_verified_at: components['schemas']['Timestamp'] | null;
-      is_account_administrator: boolean;
-      /** @description X010. */
-      is_instance_administrator: boolean;
-      /** @description Computed. True when a 2FA secret exists and `two_factor_confirmed_at` is set. */
-      two_factor_enabled: boolean;
-      preferences: components['schemas']['UserPreferences'];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    CurrentUserUpdate: {
-      first_name?: string;
-      last_name?: string;
-      /**
-       * Format: email
-       * @description Unique across users.
-       */
-      email?: string;
-    };
-    PasswordUpdate: {
-      current_password: string;
-      password: components['schemas']['NewPassword'];
-      /** @description Must equal `password`. */
-      password_confirmation: string;
-    };
-    UserPreferences: {
-      /** @description How contact names are built: text with `%field%` variables
-       *     (`first_name`, `last_name`, `middle_name`, `nickname`,
-       *     `maiden_name`). The client applies it as `NameHelper` does (X015).
-       *      */
-      name_order: string;
-      /**
-       * @description Default order of the contacts list (R038); `asc`/`desc` sort on the first variable of `name_order`.
-       * @enum {string}
-       */
-      contact_sort_order: 'last_updated' | 'asc' | 'desc';
-      /**
-       * @description Moment-style pattern the client formats dates with.
-       * @enum {string}
-       */
-      date_format: 'MMM DD, YYYY' | 'DD MMM YYYY' | 'YYYY/MM/DD' | 'DD/MM/YYYY';
-      /** @description IANA zone id (see listReferenceTimezones); null means UTC. */
-      timezone: string | null;
-      /**
-       * @description `locale` uses the locale's convention.
-       * @enum {string}
-       */
-      number_format: 'locale' | '1,234.56' | '1 234,56' | '1.234,56' | '1234.56';
-      /** @enum {string} */
-      distance_format: 'km' | 'mi';
-      /** @enum {string} */
-      default_map_site: 'google_maps' | 'open_street_maps';
-      locale: components['schemas']['LocaleCode'];
-      /** @description Show help links next to features. */
-      help_shown: boolean;
-    };
-    UserPreferencesUpdate: {
-      /** @description Must contain at least one variable and an even number of `%`. */
-      name_order?: string;
-      /** @enum {string} */
-      contact_sort_order?: 'last_updated' | 'asc' | 'desc';
-      /** @enum {string} */
-      date_format?: 'MMM DD, YYYY' | 'DD MMM YYYY' | 'YYYY/MM/DD' | 'DD/MM/YYYY';
-      /** @description A zone id from listReferenceTimezones. */
-      timezone?: string;
-      /** @enum {string} */
-      number_format?: 'locale' | '1,234.56' | '1 234,56' | '1.234,56' | '1234.56';
-      /** @enum {string} */
-      distance_format?: 'km' | 'mi';
-      /** @enum {string} */
-      default_map_site?: 'google_maps' | 'open_street_maps';
-      locale?: components['schemas']['LocaleCode'];
-      help_shown?: boolean;
-    };
-    Bootstrap: {
-      user: components['schemas']['CurrentUser'];
-      /** @description The user's vaults in their account, sorted by name (collation-aware). */
-      vaults: components['schemas']['BootstrapVault'][];
-      instance: components['schemas']['Instance'];
-    };
-    /** @description What the layout shows for the current vault (today `layoutData.vault`). */
-    BootstrapVault: {
-      id: components['schemas']['Uuid'];
-      name: string;
-      /**
-       * @description The user's permission in the vault (100 manage, 200 edit, 300 view).
-       * @enum {integer}
-       */
-      permission: 100 | 200 | 300;
-      show_group_tab: boolean;
-      show_tasks_tab: boolean;
-      show_files_tab: boolean;
-      show_journal_tab: boolean;
-      show_companies_tab: boolean;
-      show_reports_tab: boolean;
-      show_calendar_tab: boolean;
-    };
-    TwoFactorSetup: {
-      /** @description Base32 TOTP secret for manual entry. */
-      secret: string;
-      /** @description `otpauth://totp/...` URL encoded in the QR code. */
-      otpauth_url: string;
-      /** @description SVG markup of the QR code. */
-      qr_code_svg: string;
-      recovery_codes: string[];
-    };
-    TwoFactorConfirm: {
-      code: string;
-    };
-    TwoFactorRecoveryCodes: {
-      recovery_codes: string[];
-    };
-    Session: {
-      ip_address: string | null;
-      user_agent: string | null;
-      /** @description Computed from `user_agent`. */
-      is_desktop: boolean;
-      /** @description Computed from `user_agent`; null when unknown. */
-      platform: string | null;
-      /** @description Computed from `user_agent`; null when unknown. */
-      browser: string | null;
-      /** @description This request's session. */
-      is_current_device: boolean;
-      last_activity: components['schemas']['Timestamp'];
-    };
-    SessionList: {
-      data: components['schemas']['Session'][];
-    };
-    PersonalAccessToken: {
-      id: components['schemas']['Id'];
-      name: string;
-      /** @description `read` allows GET and HEAD; anything else needs `write`. */
-      abilities: ('read' | 'write')[];
-      last_used_at: components['schemas']['Timestamp'] | null;
-      expires_at: components['schemas']['Timestamp'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    PersonalAccessTokenList: {
-      data: components['schemas']['PersonalAccessToken'][];
-    };
-    PersonalAccessTokenCreate: {
-      name: string;
-      /** @default [
-       *       "read"
-       *     ] */
-      abilities: ('read' | 'write')[];
-    };
-    PersonalAccessTokenCreated: {
-      token: components['schemas']['PersonalAccessToken'];
-      /** @description Shown only in this response. Send it as `Authorization: Bearer <plain_text_token>`. */
-      plain_text_token: string;
-    };
-    PersonalAccessTokenUpdate: {
-      abilities: ('read' | 'write')[];
-    };
-    NotificationChannel: {
-      id: components['schemas']['Id'];
-      /** @enum {string} */
-      type: 'email';
-      label: string | null;
-      /** @description The email address. */
-      content: string;
-      /** @description Local time (user's timezone) reminders are sent at, `HH:MM`. */
-      preferred_time: string | null;
-      active: boolean;
-      /** @description Consecutive send failures; at 10 (`max_notification_failures`) the channel is deactivated. */
-      fails: number;
-      /** @description Null until the address is verified; the UI offers activate and test only once verified. */
-      verified_at: components['schemas']['Timestamp'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    NotificationChannelList: {
-      data: components['schemas']['NotificationChannel'][];
-    };
-    NotificationChannelCreate: {
-      label: string;
-      /** Format: email */
-      content: string;
-      preferred_time: string;
-    };
-    NotificationChannelUpdate: {
-      active: boolean;
-    };
-    NotificationChannelVerification: {
-      token: components['schemas']['Uuid'];
-    };
-    NotificationLog: {
-      id: components['schemas']['Id'];
-      sent_at: components['schemas']['Timestamp'];
-      subject_line: string;
-      /** @description Why sending failed; null when it succeeded. */
-      error: string | null;
-    };
-    NotificationLogList: {
-      data: components['schemas']['NotificationLog'][];
-      meta: components['schemas']['PaginationMeta'];
-    };
-    Currency: {
-      id: components['schemas']['Id'];
-      /** @description ISO 4217 code as seeded in `currencies` (includes some retired codes). */
-      code: string;
-      /** @description Name in the request locale (`lang/*\/currencies.php`). */
-      name: string;
-    };
-    CurrencyList: {
-      data: components['schemas']['Currency'][];
-    };
-    Country: {
-      /** @description ISO 3166-1 alpha-2. */
-      code: string;
-      /** @description Common name in the request locale. */
-      name: string;
-    };
-    CountryList: {
-      data: components['schemas']['Country'][];
-    };
-    Language: {
-      /** @description ISO 639-1. */
-      code: string;
-      /** @description Name in the request locale. */
-      name: string;
-      native_name: string;
-    };
-    LanguageList: {
-      data: components['schemas']['Language'][];
-    };
-    Timezone: {
-      id: string;
-      /** @description Computed. Current offset from UTC in minutes (the page shows it as `GMT/UTC - 03:00`). */
-      utc_offset: number;
-    };
-    TimezoneList: {
-      data: components['schemas']['Timezone'][];
-    };
     Account: {
-      id: components['schemas']['Uuid'];
-      /** @description 0 means unlimited (X011). */
+      /** Format: date-time */
+      created_at: string;
+      /** Format: uuid */
+      id: string;
+      /**
+       * Format: int32
+       * @description 0 means unlimited (X011).
+       */
       storage_limit_in_mb: number;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    /** @description Sizes are bytes, summed over the files of all the account's vaults. The
-     *     client computes percentages (of the limit, and per type of the total).
-     *      */
-    StorageUsage: {
-      /** @description 0 means unlimited (X011). */
-      storage_limit_in_mb: number;
-      total_size: number;
-      photo: components['schemas']['StorageTypeUsage'];
-      document: components['schemas']['StorageTypeUsage'];
-      avatar: components['schemas']['StorageTypeUsage'];
-    };
-    StorageTypeUsage: {
-      /** @description Number of files of this type. */
-      count: number;
-      /** @description Bytes. */
-      size: number;
-    };
-    CancelAccountRequest: {
-      /** @description The current password, unless the session confirmed it recently (api-design.md §7.4). */
-      password?: string;
-    };
-    EmotionList: {
-      data: components['schemas']['Emotion'][];
-    };
-    AccountUser: {
-      id: components['schemas']['Uuid'];
-      /** Format: email */
-      email: string;
-      /** @description Null until an invited user accepts. */
-      first_name: string | null;
-      last_name: string | null;
-      is_account_administrator: boolean;
-      email_verified_at: components['schemas']['Timestamp'] | null;
-      invitation_accepted_at: components['schemas']['Timestamp'] | null;
-      /** @description Computed; invited (has an invitation code) and not accepted yet. */
-      is_invitation_pending: boolean;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    AccountUserList: {
-      data: components['schemas']['AccountUser'][];
-    };
-    AccountUserInvite: {
-      /**
-       * Format: email
-       * @description Must not belong to any user yet (`unique`).
-       */
-      email: string;
-      /** @default false */
-      is_account_administrator: boolean;
-    };
-    AccountUserUpdate: {
-      is_account_administrator?: boolean;
-    };
-    DeleteAccountUserRequest: {
-      /** @description The current password, unless the session confirmed it recently (api-design.md §7.4). */
-      password?: string;
-    };
-    Gender: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /**
-       * @description vCard gender code, used by the DAV export. Seeded and user-created genders have none.
-       * @enum {string|null}
-       */
-      type: 'M' | 'F' | 'O' | 'U' | 'N' | null;
-    };
-    GenderList: {
-      data: components['schemas']['Gender'][];
-    };
-    GenderCreate: {
-      name: string;
-    };
-    GenderUpdate: {
-      name?: string;
-    };
-    Pronoun: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-    };
-    PronounList: {
-      data: components['schemas']['Pronoun'][];
-    };
-    PronounCreate: {
-      name: string;
-    };
-    PronounUpdate: {
-      name?: string;
-    };
-    AddressType: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /** @description vCard address type used by the DAV export. Seeded: `home`,
-       *     `secondary`, `work`, `chalet`, `other`; user-created default `custom`.
-       *      */
-      type: string | null;
-    };
-    AddressTypeList: {
-      data: components['schemas']['AddressType'][];
-    };
-    AddressTypeCreate: {
-      name: string;
-      /** @description Defaults to `custom`. */
-      type?: string | null;
-    };
-    AddressTypeUpdate: {
-      name?: string;
-    };
-    PetCategory: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-    };
-    PetCategoryList: {
-      data: components['schemas']['PetCategory'][];
-    };
-    PetCategoryCreate: {
-      name: string;
-    };
-    PetCategoryUpdate: {
-      name?: string;
-    };
-    ContactInformationType: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /** @description Prefix that makes the value clickable, e.g. `mailto:`, `tel:`. */
-      protocol: string | null;
-      /** @description Group: `email`, `phone` (one seeded type each, not deletable),
-       *     `IMPP` or `X-SOCIAL-PROFILE`.
-       *      */
-      type: string | null;
-      can_be_deleted: boolean;
-    };
-    ContactInformationTypeList: {
-      data: components['schemas']['ContactInformationType'][];
-    };
-    ContactInformationTypeCreate: {
-      name: string;
-      /** @description The settings page offers `IMPP` and `X-SOCIAL-PROFILE`. */
-      type: string;
-      protocol?: string | null;
-    };
-    ContactInformationTypeUpdate: {
-      name?: string;
-      type?: string;
-      protocol?: string | null;
-    };
-    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
-    CallReasonType: {
-      id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      reasons: components['schemas']['CallReason'][];
-    };
-    CallReason: {
-      id: components['schemas']['Id'];
-      call_reason_type_id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-    };
-    CallReasonTypeList: {
-      data: components['schemas']['CallReasonType'][];
-    };
-    CallReasonTypeCreate: {
-      label: string;
-    };
-    CallReasonTypeUpdate: {
-      label?: string;
-    };
-    CallReasonCreate: {
-      label: string;
-    };
-    CallReasonUpdate: {
-      label?: string;
-    };
-    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
-    GiftOccasion: {
-      id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      /** @description 1-based order. */
-      position: number | null;
-    };
-    GiftOccasionList: {
-      data: components['schemas']['GiftOccasion'][];
-    };
-    GiftOccasionCreate: {
-      label: string;
-    };
-    GiftOccasionUpdate: {
-      label?: string;
-      position?: number;
-    };
-    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
-    GiftState: {
-      id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      /** @description 1-based order. */
-      position: number | null;
-    };
-    GiftStateList: {
-      data: components['schemas']['GiftState'][];
-    };
-    GiftStateCreate: {
-      label: string;
-    };
-    GiftStateUpdate: {
-      label?: string;
-      position?: number;
-    };
-    RelationshipGroupType: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /**
-       * @description Marks the seeded groups the family summary reads; null for others.
-       * @enum {string|null}
-       */
-      type: 'love' | 'family' | null;
-      can_be_deleted: boolean;
-      types: components['schemas']['RelationshipType'][];
-    };
-    RelationshipType: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      relationship_group_type_id: components['schemas']['Id'];
-      /** @description The name seen from the other contact (e.g. "child" for "parent"). */
-      name_reverse_relationship: string | null;
-      name_reverse_relationship_translation_key: string | null;
-      /**
-       * @description As stored: `family` marks the seeded love types (spouse,
-       *     significant other; the PHP constant `TYPE_LOVE` is `family`),
-       *     `child` the seeded parent/child type. Null for others.
-       *
-       * @enum {string|null}
-       */
-      type: 'family' | 'child' | null;
-      can_be_deleted: boolean;
-    };
-    RelationshipGroupTypeList: {
-      data: components['schemas']['RelationshipGroupType'][];
-    };
-    RelationshipGroupTypeCreate: {
-      name: string;
-    };
-    RelationshipGroupTypeUpdate: {
-      name?: string;
-    };
-    RelationshipTypeCreate: {
-      name: string;
-      name_reverse_relationship: string;
-    };
-    RelationshipTypeUpdate: {
-      name?: string;
-      name_reverse_relationship?: string;
-    };
-    /** @description Seeded rows have `translation_key`; the client shows `name` when set, else translates the key. */
-    Religion: {
-      id: components['schemas']['Id'];
-      name: string | null;
-      translation_key: string | null;
-      /** @description 1-based order. */
-      position: number | null;
-    };
-    ReligionList: {
-      data: components['schemas']['Religion'][];
-    };
-    ReligionCreate: {
-      name: string;
-    };
-    ReligionUpdate: {
-      name?: string;
-      position?: number;
+      /** Format: date-time */
+      updated_at: string;
     };
     /** @description A currency (`id` is the currency id) and whether the account offers it. */
-    AccountCurrency: components['schemas']['Currency'] & {
+    AccountCurrency: {
       active: boolean;
+      /** @description ISO 4217 code as seeded in `currencies` (includes some retired codes). */
+      code: string;
+      /** Format: int64 */
+      id: number;
+      /** @description Name in the request locale (`lang/*\/currencies.php`). */
+      name: string;
     };
     AccountCurrencyList: {
       data: components['schemas']['AccountCurrency'][];
     };
     AccountCurrencyUpdate: {
-      active: boolean;
-    };
-    Template: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /** @description False for the account's seeded default template. */
-      can_be_deleted: boolean;
-    };
-    TemplateDetail: components['schemas']['Template'] & {
-      /** @description Every page of the template, ordered by `position`. */
-      pages: components['schemas']['TemplatePage'][];
-    };
-    TemplateList: {
-      data: components['schemas']['Template'][];
-    };
-    TemplateCreate: {
-      name: string;
-    };
-    TemplateUpdate: {
-      name?: string;
-    };
-    /** @description A tab of the contact page. */
-    TemplatePage: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      template_id: components['schemas']['Id'];
-      /** @description Derived from the name; identifies the tab in contact page URLs. */
-      slug: string;
-      /**
-       * @description `contact_information` for the fixed page every template has
-       *     (the contact header: avatar, names, labels, …); null for the
-       *     other pages.
-       *
-       * @enum {string|null}
-       */
-      type: 'contact_information' | null;
-      position: number | null;
-      /** @description False for the contact information page. */
-      can_be_deleted: boolean;
-    };
-    TemplatePageDetail: components['schemas']['TemplatePage'] & {
-      /** @description The modules on the page, ordered by `position`. */
-      modules: components['schemas']['TemplatePageModule'][];
-      /** @description The account's modules that fit this page (see getTemplatePage),
-       *     ordered by `id`; the page sorts them by display name.
-       *      */
-      available_modules: components['schemas']['TemplatePageAvailableModule'][];
-    };
-    /** @description An account module as placed on a template page. */
-    TemplatePageModule: components['schemas']['AccountModule'] & {
-      /** @description Position on the page (1-based). */
-      position: number | null;
-    };
-    TemplatePageAvailableModule: components['schemas']['AccountModule'] & {
-      /** @description Computed. True when the module is already on this page. */
-      already_used: boolean;
-    };
-    TemplatePageCreate: {
-      name: string;
-    };
-    TemplatePageUpdate: {
-      name?: string;
-      position?: number;
-    };
-    TemplatePageModuleUpdate: {
-      position: number;
+      active?: boolean | null;
     };
     /** @description One of the account's module definitions (`modules` table). `type`
-     *     decides what the module block on a contact page shows.
-     *      */
-    AccountModule: components['schemas']['TranslatableName'] & {
-      id: components['schemas']['Id'];
-      /** @enum {string|null} */
-      type:
-        | 'avatar'
-        | 'contact_names'
-        | 'family_summary'
-        | 'important_dates'
-        | 'gender_pronoun'
-        | 'labels'
-        | 'company'
-        | 'religions'
-        | 'feed'
-        | 'addresses'
-        | 'contact_information'
-        | 'relationships'
-        | 'pets'
-        | 'groups'
-        | 'life_events'
-        | 'goals'
-        | 'documents'
-        | 'photos'
-        | 'notes'
-        | 'reminders'
-        | 'loans'
-        | 'tasks'
-        | 'calls'
-        | 'posts'
-        | null;
+     *     decides what the module block on a contact page shows. */
+    AccountModule: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /**
+       * Format: int64
+       * @description Stored page size; set only on the seeded notes module and not read by any page today.
+       */
+      pagination?: number | null;
       /** @description True if the module can only go on the contact information page; false if it can only go on the other pages. */
       reserved_to_contact_information: boolean;
-      can_be_deleted: boolean;
-      /** @description Stored page size; set only on the seeded notes module and not read by any page today. */
-      pagination: number | null;
+      type?: string | null;
     };
     AccountModuleList: {
       data: components['schemas']['AccountModule'][];
     };
-    /** @description Seeded rows keep `label_translation_key`; user-created rows have a
-     *     `label`. The client shows `label` when set, else translates the key.
-     *      */
-    PostTemplate: {
-      id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number;
-      /** @description False for the seeded "Regular post" template. */
-      can_be_deleted: boolean;
-      /** @description Ordered by `position`. */
-      sections: components['schemas']['PostTemplateSection'][];
+    AccountUser: {
+      /** Format: date-time */
+      created_at: string;
+      email: string;
+      /** Format: date-time */
+      email_verified_at?: string | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      invitation_accepted_at?: string | null;
+      is_account_administrator: boolean;
+      /** @description Invited and not accepted yet. */
+      is_invitation_pending: boolean;
+      last_name?: string | null;
+      /** Format: date-time */
+      updated_at: string;
     };
-    /** @description A section a new post starts with. `label` / `label_translation_key` as on `PostTemplate`. */
-    PostTemplateSection: {
-      id: components['schemas']['Id'];
-      post_template_id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number;
-      can_be_deleted: boolean;
+    AccountUserInvite: {
+      email?: string | null;
+      is_account_administrator?: boolean;
     };
-    PostTemplateList: {
-      data: components['schemas']['PostTemplate'][];
+    AccountUserList: {
+      data: components['schemas']['AccountUser'][];
     };
-    PostTemplateCreate: {
-      label: string;
+    AccountUserUpdate: {
+      is_account_administrator?: boolean | null;
     };
-    PostTemplateUpdate: {
-      label?: string;
-      position?: number;
+    /** @description A vault address, shared by the contacts linked to it. The client builds
+     *     the "view on map" link from the user's `default_map_site`. */
+    Address: {
+      address_type?: components['schemas']['AddressType'] | null;
+      city?: string | null;
+      /** @description Free text */
+      country?: string | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: double */
+      latitude?: number | null;
+      line_1?: string | null;
+      line_2?: string | null;
+      /** Format: double */
+      longitude?: number | null;
+      postal_code?: string | null;
+      province?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
     };
-    PostTemplateSectionCreate: {
-      label: string;
-    };
-    PostTemplateSectionUpdate: {
-      label?: string;
-      position?: number;
-    };
-    /** @description `label` / `label_translation_key`: the client shows `label` when set,
-     *     else translates the key.
-     *      */
-    GroupType: {
-      id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number;
-      /** @description Ordered by `position`. */
-      roles: components['schemas']['GroupTypeRole'][];
-    };
-    GroupTypeRole: {
-      id: components['schemas']['Id'];
-      group_type_id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number | null;
-    };
-    GroupTypeList: {
-      data: components['schemas']['GroupType'][];
-    };
-    GroupTypeCreate: {
-      label: string;
-    };
-    GroupTypeUpdate: {
-      label?: string;
-      position?: number;
-    };
-    GroupTypeRoleCreate: {
-      label: string;
-    };
-    GroupTypeRoleUpdate: {
-      label?: string;
-      position?: number;
-    };
-    Note: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      title: string | null;
-      /** @description Markdown */
-      body: string;
-      /** @description Emotions come from `listEmotions`. */
-      emotion: components['schemas']['Emotion'] | null;
-      /** @description Null when the author was deleted. */
-      author: components['schemas']['UserSummary'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    NoteList: {
-      data: components['schemas']['Note'][];
-      meta: components['schemas']['PaginationMeta'];
-    };
-    NoteCreate: {
-      title?: string | null;
-      body: string;
+    /** @description A row of `addressbook_subscriptions`. The password is never returned. */
+    AddressBookSubscription: {
+      active: boolean;
+      /** @description What the remote server supports, found at discovery. */
+      capabilities: components['schemas']['AddressBookSubscriptionCapabilities'];
+      /** Format: date-time */
+      created_at: string;
       /**
        * Format: int64
-       * @description Must be one of the account's emotions.
+       * @description Minutes between automatic syncs.
+       */
+      frequency: number;
+      /** Format: uuid */
+      id: string;
+      /** Format: date-time */
+      last_synchronized_at?: string | null;
+      /**
+       * Format: int64
+       * @description Bit mask; 1 push local changes, 2 get remote changes, 3 both.
+       */
+      sync_way: number;
+      /** Format: date-time */
+      updated_at: string;
+      /** @description The discovered address book URL. */
+      uri: string;
+      /**
+       * Format: uuid
+       * @description The user the sync acts as (the creator).
+       */
+      user_id: string;
+      username: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    /** @description What the remote server supports, found at discovery. */
+    AddressBookSubscriptionCapabilities: {
+      addressData?: components['schemas']['AddressBookSubscriptionCapabilitiesAddressData'] | null;
+      addressbookMultiget?: boolean | null;
+      addressbookQuery?: boolean | null;
+      syncCollection?: boolean | null;
+    };
+    AddressBookSubscriptionCapabilitiesAddressData: {
+      'content-type'?: string | null;
+      version?: string | null;
+    };
+    AddressBookSubscriptionCreate: {
+      /** @description The server or address book URL to discover from. */
+      base_uri?: string | null;
+      /** @description Stored encrypted. */
+      password?: string | null;
+      /** Format: int64 */
+      sync_way?: number | null;
+      username?: string | null;
+    };
+    AddressBookSubscriptionList: {
+      data: components['schemas']['AddressBookSubscription'][];
+    };
+    AddressBookSubscriptionUpdate: {
+      active?: boolean | null;
+      /** Format: int64 */
+      frequency?: number | null;
+      password?: string | null;
+      /** Format: int64 */
+      sync_way?: number | null;
+      username?: string | null;
+    };
+    AddressPlaceReport: {
+      addresses: components['schemas']['AddressPlaceReportAddresse'][];
+      /** @description The requested city or country. */
+      name: string;
+      /** @description `WikipediaHelper::getInformation` of the place, asked by the server
+       *     in the request's language; empty fields when Wikipedia can't be
+       *     reached (Q1). */
+      wikipedia: components['schemas']['WikipediaInfo'];
+    };
+    AddressPlaceReportAddresse: {
+      address_type?: components['schemas']['AddressType'] | null;
+      city?: string | null;
+      contacts: components['schemas']['ContactCard'][];
+      /** @description Free text */
+      country?: string | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: double */
+      latitude?: number | null;
+      line_1?: string | null;
+      line_2?: string | null;
+      /** Format: double */
+      longitude?: number | null;
+      postal_code?: string | null;
+      province?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    AddressReport: {
+      cities: components['schemas']['AddressReportCity'][];
+      countries: components['schemas']['AddressReportCountry'][];
+    };
+    AddressReportCity: {
+      /** @description The stored spelling of the first address found. */
+      city: string;
+      /**
+       * Format: int64
+       * @description Computed; contacts with an address in this city.
+       */
+      contacts_count: number;
+    };
+    AddressReportCountry: {
+      /**
+       * Format: int64
+       * @description Computed; contacts with an address in this country.
+       */
+      contacts_count: number;
+      /** @description The stored spelling of the first address found. */
+      country: string;
+    };
+    AddressType: {
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** @description vCard address type used by the DAV export. Seeded: `home`,
+       *     `secondary`, `work`, `chalet`, `other`; user-created default `custom`. */
+      type?: string | null;
+    };
+    AddressTypeCreate: {
+      name?: string | null;
+      /** @description Defaults to `custom`. */
+      type?: string | null;
+    };
+    AddressTypeList: {
+      data: components['schemas']['AddressType'][];
+    };
+    AddressTypeUpdate: {
+      name?: string | null;
+    };
+    /** @description Addresses block of the contact page (`ModuleContactAddressesViewHelper`).
+     *     Address types come from `listAddressTypes`. */
+    AddressesModule: {
+      /** @description Links with `is_past_address` false. */
+      active_addresses: components['schemas']['ContactAddress'][];
+      /** @description Links with `is_past_address` true. */
+      inactive_addresses: components['schemas']['ContactAddress'][];
+      /** @description Every address of the vault, for the "choose an existing address" option. */
+      vault_addresses: components['schemas']['Address'][];
+    };
+    /** @description The image itself comes from getContactAvatar. */
+    AvatarModule: {
+      /**
+       * Format: int64
+       * @description Null when the generated avatar is shown.
+       */
+      avatar_file_id?: number | null;
+    };
+    Bootstrap: {
+      instance: components['schemas']['Instance'];
+      user: components['schemas']['CurrentUser'];
+      vaults: components['schemas']['BootstrapVault'][];
+    };
+    /** @description What the layout shows for a vault (today `layoutData.vault`). */
+    BootstrapVault: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      /**
+       * Format: int32
+       * @description The user's permission in the vault (100 manage, 200 edit, 300 view).
+       */
+      permission: number;
+      show_calendar_tab: boolean;
+      show_companies_tab: boolean;
+      show_files_tab: boolean;
+      show_group_tab: boolean;
+      show_journal_tab: boolean;
+      show_reports_tab: boolean;
+      show_tasks_tab: boolean;
+    };
+    CalendarDay: {
+      /** Format: date */
+      date: string;
+      /** @description Important dates of the vault's contacts on this day and month (any
+       *     year), at most one per contact. */
+      important_dates: components['schemas']['CalendarImportantDate'][];
+      /** @description False for the days of the previous/next month that fill the first/last week. */
+      is_in_month: boolean;
+      /** @description Computed in the user's timezone. */
+      is_today: boolean;
+      /** @description Mood events of the user's own contact rated on this day. */
+      mood_tracking_events: components['schemas']['MoodTrackingEvent'][];
+      /** @description Posts of the vault's journals written on this day. */
+      posts: components['schemas']['PostSummary'][];
+    };
+    CalendarImportantDate: {
+      /**
+       * Format: int64
+       * @description Computed (`ImportantDateHelper::getAge`): whole years since a full
+       *     date, or the current year minus `year` for a year-only date; null
+       *     for a day-and-month date.
+       */
+      age?: number | null;
+      contact: components['schemas']['ContactCard'];
+      /** Format: uuid */
+      contact_id: string;
+      contact_important_date_type?: components['schemas']['ContactImportantDateType'] | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      day?: number | null;
+      /** Format: int64 */
+      id: number;
+      label: string;
+      /** Format: int64 */
+      month?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    CalendarMonth: {
+      /** Format: int64 */
+      month: number;
+      /** @description Weeks from the Monday on or before the 1st to the Sunday on or
+       *     after the last day; each week has 7 days. */
+      weeks: components['schemas']['CalendarDay'][][];
+      /** Format: int64 */
+      year: number;
+    };
+    Call: {
+      answered: boolean;
+      /**
+       * Format: uuid
+       * @description Null when the author was deleted.
+       */
+      author_id?: string | null;
+      author_name: string;
+      call_reason?: components['schemas']['CallReason'] | null;
+      /** Format: date */
+      called_at: string;
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      description?: string | null;
+      /**
+       * Format: int64
+       * @description As entered; today's UI doesn't set it.
+       */
+      duration?: number | null;
+      emotion?: components['schemas']['Emotion'] | null;
+      /** Format: int64 */
+      id: number;
+      type: string;
+      /** Format: date-time */
+      updated_at: string;
+      who_initiated: string;
+    };
+    CallCreate: {
+      answered?: boolean | null;
+      /**
+       * Format: int64
+       * @description One of the account's call reasons.
+       */
+      call_reason_id?: number | null;
+      /** Format: date */
+      called_at?: string | null;
+      description?: string | null;
+      /** Format: int64 */
+      duration?: number | null;
+      /**
+       * Format: int64
+       * @description One of the account's emotions.
        */
       emotion_id?: number | null;
+      type?: string | null;
+      who_initiated?: string | null;
     };
-    NoteUpdate: {
-      title?: string | null;
-      body?: string;
+    CallList: {
+      data: components['schemas']['Call'][];
+    };
+    CallReason: {
+      /** Format: int64 */
+      call_reason_type_id: number;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+    };
+    CallReasonCreate: {
+      label?: string | null;
+    };
+    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
+    CallReasonType: {
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      reasons: components['schemas']['CallReason'][];
+    };
+    CallReasonTypeCreate: {
+      label?: string | null;
+    };
+    CallReasonTypeList: {
+      data: components['schemas']['CallReasonType'][];
+    };
+    CallReasonTypeUpdate: {
+      label?: string | null;
+    };
+    CallReasonUpdate: {
+      label?: string | null;
+    };
+    CallUpdate: {
+      answered?: boolean | null;
+      /** Format: int64 */
+      call_reason_id?: number | null;
+      /** Format: date */
+      called_at?: string | null;
+      description?: string | null;
+      /** Format: int64 */
+      duration?: number | null;
       /** Format: int64 */
       emotion_id?: number | null;
+      type?: string | null;
+      who_initiated?: string | null;
     };
-    /** @description Notes block of the contact page (`ModuleNotesViewHelper`). The emotions
-     *     of the note form come from `listEmotions`.
-     *      */
-    NotesModule: {
-      /** @description The 3 newest notes, as `listContactNotes?per_page=3`. */
-      notes: components['schemas']['Note'][];
-      /** @description Computed number of notes of the contact. */
-      total: number;
+    /** @description Module `calls`. All calls, latest first. The reason pick-list comes
+     *     from `listCallReasonTypes`, the emotions from `listEmotions`. */
+    CallsModule: {
+      calls: components['schemas']['Call'][];
+    };
+    Company: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      name: string;
+      type?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    CompanyCreate: {
+      name?: string | null;
+      type?: string | null;
+    };
+    CompanyList: {
+      data: components['schemas']['CompanyListDataItem'][];
+    };
+    CompanyListDataItem: {
+      /** @description Contacts whose `company_id` is this company. */
+      contacts: components['schemas']['ContactSummary'][];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      name: string;
+      type?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    /** @description Job information block of the contact page (`ModuleCompanyViewHelper`).
+     *     The company picker uses `listVaultCompanies`. */
+    CompanyModule: {
+      company?: components['schemas']['Company'] | null;
+      job_position?: string | null;
     };
     /** @description The full read model; `ContactSummary` is the embedded form. Archived
-     *     contacts have `listed: false` (R051).
-     *      */
-    Contact: components['schemas']['ContactSummary'] & {
+     *     contacts have `listed: false` (R051). */
+    Contact: {
       /** Format: int64 */
-      gender_id: number | null;
+      avatar_file_id?: number | null;
+      /** @description False for the contacts that represent vault users. */
+      can_be_deleted: boolean;
       /** Format: int64 */
-      pronoun_id: number | null;
+      company_id?: number | null;
+      /** Format: date-time */
+      created_at: string;
+      first_name?: string | null;
+      /** Format: int64 */
+      gender_id?: number | null;
+      /** Format: uuid */
+      id: string;
+      /** @description Computed: favorite of the current user (`contact_vault_user.is_favorite`). */
+      is_favorite: boolean;
+      job_position?: string | null;
+      last_name?: string | null;
+      /** Format: date-time */
+      last_updated_at?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
+      /** Format: int64 */
+      pronoun_id?: number | null;
+      /** Format: int64 */
+      religion_id?: number | null;
+      /** @description Whether the quick facts block is expanded. */
+      show_quick_facts: boolean;
+      suffix?: string | null;
       /**
        * Format: int64
        * @description Null until a template is chosen (R055).
        */
-      template_id: number | null;
+      template_id?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    /** @description An address as linked to one contact. */
+    ContactAddress: {
+      address_type?: components['schemas']['AddressType'] | null;
+      city?: string | null;
+      /** @description Free text */
+      country?: string | null;
+      /** Format: date-time */
+      created_at: string;
       /** Format: int64 */
-      company_id: number | null;
+      id: number;
+      /** @description From the `contact_address` link. */
+      is_past_address: boolean;
+      /** Format: double */
+      latitude?: number | null;
+      line_1?: string | null;
+      line_2?: string | null;
+      /** Format: double */
+      longitude?: number | null;
+      postal_code?: string | null;
+      province?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    /** @description Either `address_id` (link an existing vault address, 409 if already
+     *     linked to this contact) or the address fields (create one), not both. */
+    ContactAddressCreate: {
+      /**
+       * Format: int64
+       * @description An address of the vault.
+       */
+      address_id?: number | null;
+      /**
+       * Format: int64
+       * @description One of the account's address types.
+       */
+      address_type_id?: number | null;
+      city?: string | null;
+      country?: string | null;
+      is_past_address?: boolean | null;
+      /** Format: double */
+      latitude?: number | null;
+      line_1?: string | null;
+      line_2?: string | null;
+      /** Format: double */
+      longitude?: number | null;
+      postal_code?: string | null;
+      province?: string | null;
+    };
+    ContactAddressList: {
+      data: components['schemas']['ContactAddress'][];
+    };
+    ContactAddressUpdate: {
       /** Format: int64 */
-      religion_id: number | null;
-      job_position: string | null;
-      /** @description False for the contacts that represent vault users. */
-      can_be_deleted: boolean;
-      /** @description Whether the quick facts block is expanded. */
-      show_quick_facts: boolean;
-      /** @description Computed: favorite of the current user (`contact_vault_user.is_favorite`). */
-      is_favorite: boolean;
-      last_updated_at: components['schemas']['Timestamp'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
+      address_type_id?: number | null;
+      city?: string | null;
+      country?: string | null;
+      is_past_address?: boolean | null;
+      /** Format: double */
+      latitude?: number | null;
+      line_1?: string | null;
+      line_2?: string | null;
+      /** Format: double */
+      longitude?: number | null;
+      postal_code?: string | null;
+      province?: string | null;
     };
     /** @description A contact with what the hover card shows (today `ContactCardHelper`):
-     *     age and the groups the contact belongs to.
-     *      */
-    ContactCard: components['schemas']['ContactSummary'] & {
-      /** @description Computed: whole years since the contact's birthdate important
+     *     age and the groups the contact belongs to. */
+    ContactCard: {
+      /**
+       * Format: int64
+       * @description Computed: whole years since the contact's birthdate important
        *     date; null when there is none or it has no year.
-       *      */
-      age: number | null;
+       */
+      age?: number | null;
+      /** Format: int64 */
+      avatar_file_id?: number | null;
+      first_name?: string | null;
       /** @description The contact's groups, by name. */
-      groups: {
-        id: components['schemas']['Id'];
-        name: string;
-      }[];
+      groups: components['schemas']['ContactCardGroup'][];
+      /** Format: uuid */
+      id: string;
+      last_name?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
+      suffix?: string | null;
+      /** Format: uuid */
+      vault_id: string;
     };
-    ContactList: {
-      data: components['schemas']['ContactSummary'][];
-      meta: components['schemas']['PaginationMeta'];
-    };
-    MostConsultedContactList: {
-      data: components['schemas']['ContactSummary'][];
+    ContactCardGroup: {
+      /** Format: int64 */
+      id: number;
+      name: string;
     };
     ContactCreate: {
       first_name?: string | null;
-      last_name?: string | null;
-      middle_name?: string | null;
-      nickname?: string | null;
-      maiden_name?: string | null;
-      prefix?: string | null;
-      suffix?: string | null;
       /**
        * Format: int64
        * @description One of the account's genders.
        */
       gender_id?: number | null;
+      last_name?: string | null;
+      listed?: boolean | null;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
       /**
        * Format: int64
        * @description One of the account's pronouns.
        */
       pronoun_id?: number | null;
+      suffix?: string | null;
       /**
        * Format: int64
        * @description One of the account's templates; default: the vault's `default_template_id`.
        */
       template_id?: number | null;
-      /** @default true */
-      listed: boolean;
     };
-    /** @description Field groups and what they trigger:
-     *     names, `gender_id`, `pronoun_id` → UpdateContact (`last_updated_at`,
-     *     feed `information_updated`); `listed` → archive/unarchive
-     *     (`last_updated_at`, feed `archived`/`unarchived`); `is_favorite` → for
-     *     the current user (`last_updated_at`, feed `favorited`/`unfavorited`);
-     *     `show_quick_facts`; `template_id` (`last_updated_at`). A boolean equal
-     *     to the stored value changes nothing.
-     *      */
-    ContactUpdate: {
-      first_name?: string;
-      last_name?: string | null;
-      middle_name?: string | null;
-      nickname?: string | null;
-      maiden_name?: string | null;
-      prefix?: string | null;
-      suffix?: string | null;
+    ContactDocumentList: {
+      /** @description Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited). */
+      can_upload_file: boolean;
+      data: components['schemas']['File'][];
+    };
+    ContactGroupAdd: {
       /**
        * Format: int64
-       * @description One of the account's genders.
+       * @description A group in the vault.
        */
-      gender_id?: number | null;
+      group_id?: number | null;
       /**
        * Format: int64
-       * @description One of the account's pronouns.
+       * @description A role of one of the account's group types (the UI offers the group type's roles).
        */
-      pronoun_id?: number | null;
-      /** @description False archives the contact. */
-      listed?: boolean;
-      is_favorite?: boolean;
-      show_quick_facts?: boolean;
+      group_type_role_id?: number | null;
+    };
+    ContactImportantDate: {
       /**
        * Format: int64
-       * @description One of the account's templates.
+       * @description Computed (`ImportantDateHelper::getAge`): whole years since a full
+       *     date, or the current year minus `year` for a year-only date; null
+       *     for a day-and-month date.
        */
-      template_id?: number;
+      age?: number | null;
+      /** Format: uuid */
+      contact_id: string;
+      contact_important_date_type?: components['schemas']['ContactImportantDateType'] | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      day?: number | null;
+      /** Format: int64 */
+      id: number;
+      label: string;
+      /** Format: int64 */
+      month?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    /** @description The date parts must form a full date (day, month and year, an existing
+     *     day), a day and month, or a year alone. The form's "I only know an age"
+     *     sends `year` = current year − age. */
+    ContactImportantDateCreate: {
+      /**
+       * Format: int64
+       * @description One of the vault's date types.
+       */
+      contact_important_date_type_id?: number | null;
+      /** Format: int64 */
+      day?: number | null;
+      label?: string | null;
+      /** Format: int64 */
+      month?: number | null;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    ContactImportantDateList: {
+      data: components['schemas']['ContactImportantDate'][];
+    };
+    ContactImportantDateType: {
+      can_be_deleted: boolean;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** @description Set on the two seeded types; drives ages and the deceased state. */
+      internal_type?: string | null;
+      /** @description Stored text (the seeded ones were translated when the vault was created). */
+      label: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    ContactImportantDateTypeCreate: {
+      label?: string | null;
+    };
+    ContactImportantDateTypeList: {
+      data: components['schemas']['ContactImportantDateType'][];
+    };
+    ContactImportantDateTypeUpdate: {
+      label?: string | null;
+    };
+    /** @description `day`, `month` and `year` are replaced together: send all three or none. */
+    ContactImportantDateUpdate: {
+      /** Format: int64 */
+      contact_important_date_type_id?: number | null;
+      /** Format: int64 */
+      day?: number | null;
+      label?: string | null;
+      /** Format: int64 */
+      month?: number | null;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    ContactInformation: {
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      data: string;
+      /** Format: int64 */
+      id: number;
+      /** @description A kind from ContactInformationModule `kinds` (`work`, `cell`, …), or a custom text shown as stored. */
+      kind?: string | null;
+      /** @description The account's type (column `type_id`). The client links `data` with
+       *     the type's `protocol` (`mailto:`, `tel:`), else with the matching
+       *     `social_protocols` prefix of ContactInformationModule. */
+      type: components['schemas']['ContactInformationType'];
+      /** Format: date-time */
+      updated_at: string;
+    };
+    ContactInformationCreate: {
+      data?: string | null;
+      kind?: string | null;
+      /**
+       * Format: int64
+       * @description One of the account's contact information types.
+       */
+      type_id?: number | null;
+    };
+    ContactInformationList: {
+      data: components['schemas']['ContactInformation'][];
+    };
+    /** @description Contact information block of the contact page
+     *     (`ModuleContactInformationViewHelper`). The types for the form come from
+     *     `listContactInformationTypes`; `groups`, `kinds` and
+     *     `social_protocols` are the static tables of `config/app.php`. */
+    ContactInformationModule: {
+      /** @description The contact's items grouped by their type's `type` (`email`, `phone`, `IMPP`, `X-SOCIAL-PROFILE`). */
+      contact_information: Record<string, never>;
+      /** @description The groups in display order, with their headings. */
+      groups: components['schemas']['ContactInformationModuleGroup'][];
+      /** @description The suggested kinds per group type (`email`, `phone`). */
+      kinds: Record<string, never>;
+      /** @description Link prefixes of the social profile types, matched on the type's `name_translation_key`. */
+      social_protocols: components['schemas']['ContactInformationModuleSocialProtocol'][];
+    };
+    ContactInformationModuleGroup: {
+      name_translation_key: string;
+      type: string;
+    };
+    ContactInformationModuleSocialProtocol: {
+      name_translation_key: string;
+      type: string;
+      /** @description Prefix put before `data`; empty when there is none (Mastodon). */
+      url: string;
+    };
+    ContactInformationType: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** @description Prefix that makes the value clickable, e.g. `mailto:`, `tel:`. */
+      protocol?: string | null;
+      /** @description Group: `email`, `phone` (one seeded type each, not deletable),
+       *     `IMPP` or `X-SOCIAL-PROFILE`. */
+      type?: string | null;
+    };
+    ContactInformationTypeCreate: {
+      name?: string | null;
+      protocol?: string | null;
+      /** @description The settings page offers `IMPP` and `X-SOCIAL-PROFILE`. */
+      type?: string | null;
+    };
+    ContactInformationTypeList: {
+      data: components['schemas']['ContactInformationType'][];
+    };
+    ContactInformationTypeUpdate: {
+      name?: string | null;
+      protocol?: string | null;
+      type?: string | null;
+    };
+    ContactInformationUpdate: {
+      data?: string | null;
+      kind?: string | null;
+      /** Format: int64 */
+      type_id?: number | null;
+    };
+    ContactLabelList: {
+      data: components['schemas']['Label'][];
+    };
+    ContactList: {
+      data: components['schemas']['ContactSummary'][];
+      meta: components['schemas']['PaginationMeta'];
     };
     ContactMove: {
-      other_vault_id: components['schemas']['Uuid'];
+      /** Format: uuid */
+      other_vault_id?: string | null;
     };
-    QuickFact: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      vault_quick_facts_template_id: components['schemas']['Id'];
-      content: string;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    QuickFactList: {
-      data: components['schemas']['QuickFact'][];
-    };
-    QuickFactCreate: {
-      /**
-       * Format: int64
-       * @description One of the vault's quick fact templates.
-       */
-      vault_quick_facts_template_id: number;
-      content: string;
-    };
-    QuickFactUpdate: {
-      content?: string;
-    };
-    /** @description One entry of a contact's feed (also used by the vault feed). Exactly
-     *     one object field is present for the actions that have one, and it is
-     *     null when that object was deleted since (then `description` says what
-     *     it was): `label` for label_*, `address` for address_*,
-     *     `contact_information` for contact_information_*, `pet` for pet_*,
-     *     `note` for note_*, `goal` for goal_*, `mood_tracking_event` for
-     *     mood_tracking_event_*. Other actions carry no object.
-     *      */
-    FeedItem: {
-      id: components['schemas']['Id'];
-      /** @enum {string} */
-      action:
-        | 'contact_created'
-        | 'information_updated'
-        | 'contact_information_created'
-        | 'contact_information_updated'
-        | 'contact_information_destroyed'
-        | 'job_information_updated'
-        | 'religion_updated'
-        | 'note_created'
-        | 'note_updated'
-        | 'note_destroyed'
-        | 'pet_created'
-        | 'pet_updated'
-        | 'pet_destroyed'
-        | 'goal_created'
-        | 'goal_updated'
-        | 'goal_destroyed'
-        | 'important_date_created'
-        | 'important_date_updated'
-        | 'important_date_destroyed'
-        | 'label_assigned'
-        | 'label_removed'
-        | 'address_created'
-        | 'address_updated'
-        | 'address_destroyed'
-        | 'loan_created'
-        | 'loan_updated'
-        | 'added_to_group'
-        | 'removed_from_group'
-        | 'added_to_post'
-        | 'removed_from_post'
-        | 'archived'
-        | 'unarchived'
-        | 'favorited'
-        | 'unfavorited'
-        | 'changed_avatar'
-        | 'mood_tracking_event_added'
-        | 'mood_tracking_event_updated'
-        | 'mood_tracking_event_deleted';
-      /** @description Null when the author was deleted. */
-      author: components['schemas']['UserSummary'] | null;
-      contact: components['schemas']['ContactCard'];
-      /** @description Text stored with the item (e.g. the label name or a note excerpt). */
-      description: string | null;
-      label?: components['schemas']['Label'] | null;
-      address?: components['schemas']['Address'] | null;
-      contact_information?: components['schemas']['ContactInformation'] | null;
-      pet?: components['schemas']['Pet'] | null;
-      note?: components['schemas']['Note'] | null;
-      goal?: components['schemas']['Goal'] | null;
-      mood_tracking_event?: components['schemas']['MoodTrackingEvent'] | null;
-      created_at: components['schemas']['Timestamp'];
-    };
-    FeedItemList: {
-      data: components['schemas']['FeedItem'][];
-      meta: components['schemas']['PaginationMeta'];
+    /** @description The name block, with the current user's favorite star. */
+    ContactNamesModule: {
+      /** Format: int64 */
+      avatar_file_id?: number | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      /** @description For the current user. */
+      is_favorite: boolean;
+      last_name?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
+      suffix?: string | null;
+      /** Format: uuid */
+      vault_id: string;
     };
     /** @description Data of the contact page (Vault/Contact/Show), api-design.md §12. */
     ContactPage: {
-      contact: components['schemas']['Contact'];
-      /** @description Computed: this is the current user's own contact in the vault (the page hides archive and delete for it). */
-      is_current_user_contact: boolean;
+      /**
+       * Format: int64
+       * @description The page whose modules are in `modules`; null when there is none.
+       */
+      active_template_page_id?: number | null;
       /** @description Computed: the account is below its storage limit (X011). */
       can_upload_file: boolean;
+      contact: components['schemas']['Contact'];
+      /** @description Groups the contact is part of, by name. */
+      groups: components['schemas']['ContactPageGroup'][];
       /** @description Modules of the template's `contact_information` page, in position
        *     order (left column: avatar, contact_names, family_summary,
-       *     gender_pronoun, important_dates, labels, company, religions).
-       *      */
+       *     gender_pronoun, important_dates, labels, company, religions). */
       header_modules: components['schemas']['ContactPageModule'][];
-      /** @description Groups the contact is part of, by name. */
-      groups: {
-        id: components['schemas']['Id'];
-        name: string;
-      }[];
+      /** @description Computed: this is the current user's own contact in the vault (the page hides archive and delete for it). */
+      is_current_user_contact: boolean;
+      /** @description Modules of the active page, in position order. Modules without a known type are left out. */
+      modules: components['schemas']['ContactPageModule'][];
       /** @description The vault's quick fact templates, in position order (the block is hidden when empty). */
       quick_fact_templates: components['schemas']['QuickFactTemplate'][];
       /** @description The contact's quick facts for the first template. */
       quick_facts: components['schemas']['QuickFact'][];
       /** @description The template's pages (tabs) other than `contact_information`, in position order. */
       template_pages: components['schemas']['TemplatePage'][];
-      /**
-       * Format: int64
-       * @description The page whose modules are in `modules`; null when there is none.
-       */
-      active_template_page_id: number | null;
-      /** @description Modules of the active page, in position order. Modules without a known type are left out. */
-      modules: components['schemas']['ContactPageModule'][];
     };
-    ContactPageModuleBase: components['schemas']['TranslatableName'] & {
-      /** @description The module id. */
-      id: components['schemas']['Id'];
+    ContactPageGroup: {
+      /** Format: int64 */
+      id: number;
+      name: string;
     };
     /** @description One module block of the contact page; `data` depends on `type`. */
     ContactPageModule:
@@ -6336,2052 +4332,2873 @@ export interface components {
       | components['schemas']['ContactPageModulePosts']
       | components['schemas']['ContactPageModuleReligions']
       | components['schemas']['ContactPageModuleLifeEvents'];
-    ContactPageModuleNotes: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'notes';
-      data: components['schemas']['NotesModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'notes';
-    };
-    ContactPageModuleContactNames: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'contact_names';
-      data: components['schemas']['ContactNamesModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'contact_names';
-    };
-    ContactPageModuleAvatar: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'avatar';
-      data: components['schemas']['AvatarModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'avatar';
-    };
-    ContactPageModuleFamilySummary: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'family_summary';
-      data: components['schemas']['FamilySummaryModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'family_summary';
-    };
-    ContactPageModuleCompany: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'company';
-      data: components['schemas']['CompanyModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'company';
-    };
-    ContactPageModuleFeed: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'feed';
-      data: components['schemas']['FeedModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'feed';
-    };
-    ContactPageModuleGenderPronoun: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'gender_pronoun';
-      data: components['schemas']['GenderPronounModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'gender_pronoun';
-    };
-    ContactPageModuleImportantDates: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'important_dates';
-      data: components['schemas']['ImportantDatesModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'important_dates';
-    };
-    ContactPageModuleLabels: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'labels';
-      data: components['schemas']['LabelsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'labels';
-    };
-    ContactPageModuleReminders: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'reminders';
-      data: components['schemas']['RemindersModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'reminders';
-    };
-    ContactPageModuleLoans: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'loans';
-      data: components['schemas']['LoansModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'loans';
-    };
-    ContactPageModuleRelationships: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'relationships';
-      data: components['schemas']['RelationshipsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'relationships';
-    };
-    ContactPageModuleTasks: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'tasks';
-      data: components['schemas']['TasksModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'tasks';
-    };
-    ContactPageModuleCalls: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'calls';
-      data: components['schemas']['CallsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'calls';
-    };
-    ContactPageModulePets: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'pets';
-      data: components['schemas']['PetsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'pets';
-    };
-    ContactPageModuleGoals: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'goals';
-      data: components['schemas']['GoalsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'goals';
-    };
-    ContactPageModuleAddresses: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'addresses';
+    ContactPageModuleAddresses: {
       data: components['schemas']['AddressesModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'addresses';
-    };
-    ContactPageModuleGroups: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'groups';
-      data: components['schemas']['GroupsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'groups';
-    };
-    ContactPageModuleContactInformation: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'contact_information';
-      data: components['schemas']['ContactInformationModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'contact_information';
-    };
-    ContactPageModuleDocuments: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'documents';
-      data: components['schemas']['DocumentsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'documents';
-    };
-    ContactPageModulePhotos: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'photos';
-      data: components['schemas']['PhotosModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'photos';
-    };
-    ContactPageModulePosts: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'posts';
-      data: components['schemas']['PostsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'posts';
-    };
-    ContactPageModuleReligions: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'religions';
-      data: components['schemas']['ReligionsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'religions';
-    };
-    ContactPageModuleLifeEvents: components['schemas']['ContactPageModuleBase'] & {
-      /** @constant */
-      type: 'life_events';
-      data: components['schemas']['LifeEventsModule'];
-    } & {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'life_events';
-    };
-    /** @description The name block, with the current user's favorite star. */
-    ContactNamesModule: components['schemas']['ContactSummary'] & {
-      /** @description For the current user. */
-      is_favorite: boolean;
-    };
-    /** @description The image itself comes from getContactAvatar. */
-    AvatarModule: {
       /**
        * Format: int64
-       * @description Null when the generated avatar is shown.
+       * @description The module id.
        */
-      avatar_file_id: number | null;
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
     };
-    GenderPronounModule: {
-      gender: components['schemas']['Gender'] | null;
-      pronoun: components['schemas']['Pronoun'] | null;
+    ContactPageModuleAvatar: {
+      data: components['schemas']['AvatarModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
     };
-    /** @description Partners (relationship types of type `love` in the account's `love`
-     *     group) and children (types of type `child` in the `family` group),
-     *     matched in either direction of the relationship.
-     *      */
-    FamilySummaryModule: {
-      love_relationships: components['schemas']['FamilySummaryMember'][];
-      family_relationships: components['schemas']['FamilySummaryMember'][];
+    ContactPageModuleCalls: {
+      data: components['schemas']['CallsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
     };
-    FamilySummaryMember: {
-      relationship_id: components['schemas']['Id'];
-      relationship_type_id: components['schemas']['Id'];
-      /** @description The other contact; the client links to it only when `listed`. */
-      contact: components['schemas']['ContactCard'];
+    ContactPageModuleCompany: {
+      data: components['schemas']['CompanyModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
     };
-    /** @description The first page of listContactFeedItems; further pages come from that endpoint. */
-    FeedModule: {
-      feed_items: components['schemas']['FeedItem'][];
+    ContactPageModuleContactInformation: {
+      data: components['schemas']['ContactInformationModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleContactNames: {
+      data: components['schemas']['ContactNamesModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleDocuments: {
+      data: components['schemas']['DocumentsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleFamilySummary: {
+      data: components['schemas']['FamilySummaryModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleFeed: {
+      data: components['schemas']['FeedModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleGenderPronoun: {
+      data: components['schemas']['GenderPronounModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleGoals: {
+      data: components['schemas']['GoalsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleGroups: {
+      data: components['schemas']['GroupsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleImportantDates: {
+      data: components['schemas']['ImportantDatesModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleLabels: {
+      data: components['schemas']['LabelsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleLifeEvents: {
+      data: components['schemas']['LifeEventsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleLoans: {
+      data: components['schemas']['LoansModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleNotes: {
+      data: components['schemas']['NotesModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModulePets: {
+      data: components['schemas']['PetsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModulePhotos: {
+      data: components['schemas']['PhotosModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModulePosts: {
+      data: components['schemas']['PostsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleRelationships: {
+      data: components['schemas']['RelationshipsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleReligions: {
+      data: components['schemas']['ReligionsModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleReminders: {
+      data: components['schemas']['RemindersModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPageModuleTasks: {
+      data: components['schemas']['TasksModule'];
+      /**
+       * Format: int64
+       * @description The module id.
+       */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    ContactPhotoList: {
+      /** @description Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited). */
+      can_upload_file: boolean;
+      data: components['schemas']['File'][];
       meta: components['schemas']['PaginationMeta'];
     };
-    PostsModule: {
-      /** @description Every post the contact is part of, newest `created_at` first. */
-      posts: components['schemas']['PostSummary'][];
-    };
-    ContactImportantDate: components['schemas']['PartialDate'] & {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      label: string;
-      /** @description The vault's date type (birthdate, deceased date, …), if any. */
-      contact_important_date_type: components['schemas']['ContactImportantDateType'] | null;
-      /** @description Computed (`ImportantDateHelper::getAge`): whole years since a full
-       *     date, or the current year minus `year` for a year-only date; null
-       *     for a day-and-month date.
-       *      */
-      age: number | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    ContactImportantDateList: {
-      data: components['schemas']['ContactImportantDate'][];
-    };
-    /** @description The date parts must form a full date (day, month and year, an existing
-     *     day), a day and month, or a year alone. The form's "I only know an age"
-     *     sends `year` = current year − age.
-     *      */
-    ContactImportantDateCreate: {
-      label: string;
-      /**
-       * Format: int64
-       * @description One of the vault's date types.
-       */
-      contact_important_date_type_id?: number | null;
-      day: number | null;
-      month: number | null;
-      year: number | null;
-    };
-    /** @description `day`, `month` and `year` are replaced together: send all three or none. */
-    ContactImportantDateUpdate: {
-      label?: string;
-      /** Format: int64 */
-      contact_important_date_type_id?: number | null;
-      day?: number | null;
-      month?: number | null;
-      year?: number | null;
-    };
-    /** @description Important dates block of the contact page (`ModuleImportantDatesViewHelper`). */
-    ImportantDatesModule: {
-      important_dates: components['schemas']['ContactImportantDate'][];
-    };
-    Goal: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      name: string;
-      /** @description True on creation; no operation changes it today. */
-      active: boolean;
-      /** @description Computed (`GoalHelper::getStreakData`): the longest run of
-       *     consecutive days with a streak; 0 when the goal has no streaks (Q6).
-       *      */
-      max_streak: number;
-      /** @description Computed (`GoalHelper::getStreakData`): when the latest streak is
-       *     today (UTC), the number of days of the run ending on it (Q6);
-       *     otherwise 0.
-       *      */
-      current_streak: number;
-      /** @description Computed. Today (UTC) and the 6 days before it, oldest first. */
-      last_7_days: {
-        date: components['schemas']['Date'];
-        has_streak: boolean;
-      }[];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    /** @description A goal with the data of its streak calendar. */
-    GoalDetail: components['schemas']['Goal'] & {
-      /** @description Computed: the first day of the month, one year ago. The calendar starts here. */
-      streaks_from: components['schemas']['Date'];
-      /** @description Computed: today (UTC). The calendar ends here. */
-      streaks_to: components['schemas']['Date'];
-      /** @description Streaks from `streaks_from` to `streaks_to`, by `happened_at`. Their count is the page's "total streaks". */
-      streaks: components['schemas']['Streak'][];
-    };
-    /** @description A day on which the goal was done. */
-    Streak: {
-      id: components['schemas']['Id'];
-      goal_id: components['schemas']['Id'];
-      /** @description Stored as a datetime at midnight. */
-      happened_at: components['schemas']['Date'];
-      created_at: components['schemas']['Timestamp'];
-    };
-    GoalList: {
-      data: components['schemas']['Goal'][];
-    };
-    GoalCreate: {
-      name: string;
-    };
-    GoalUpdate: {
-      name?: string;
-    };
-    /** @description Goals block of the contact page (`ModuleGoalsViewHelper`). */
-    GoalsModule: {
-      /** @description The active goals, as `listContactGoals?active=true`. */
-      goals: components['schemas']['Goal'][];
-      inactive_goals_count: number;
-    };
-    ContactLabelList: {
-      data: components['schemas']['Label'][];
-    };
-    /** @description Labels block of the contact page (`ModuleLabelViewHelper`). The picker
-     *     loads the vault's labels with `listVaultLabels` when it opens; a label
-     *     is "taken" when it is in `labels`.
-     *      */
-    LabelsModule: {
-      labels: components['schemas']['Label'][];
-    };
-    ContactReminder: components['schemas']['PartialDate'] & {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      label: string;
-      type: components['schemas']['ContactReminderType'];
-      /** @description Stored; the web UI offers 1–10 ("every n days/months/years"). */
-      frequency_number: number | null;
-      last_triggered_at: components['schemas']['Timestamp'] | null;
-      number_times_triggered: number;
-      /**
-       * Format: date
-       * @description Computed as `ScheduleContactReminderForUser` does: the reminder's
-       *     date if it is after today (UTC), else its day and month this year
-       *     if that is after today, else next year.
-       *
-       */
-      next_occurrence: string | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    /** @enum {string} */
-    ContactReminderType: 'one_time' | 'recurring_day' | 'recurring_month' | 'recurring_year';
-    ContactReminderList: {
-      data: components['schemas']['ContactReminder'][];
-    };
-    /** @description A full date must exist (no 31 February). The web UI sends `frequency_number` 1 for `one_time`. */
-    ContactReminderCreate: {
-      label: string;
-      day: number;
-      month: number;
-      year: number | null;
-      type: components['schemas']['ContactReminderType'];
-      frequency_number?: number | null;
-    };
-    ContactReminderUpdate: {
-      label?: string;
-      day?: number;
-      month?: number;
-      year?: number | null;
-      type?: components['schemas']['ContactReminderType'];
-      frequency_number?: number | null;
-    };
-    /** @description Reminders block of the contact page (`ModuleRemindersViewHelper`). */
-    RemindersModule: {
-      /** @description As `listContactReminders`. */
-      reminders: components['schemas']['ContactReminder'][];
-    };
-    /** @description A vault address, shared by the contacts linked to it. The client builds
-     *     the "view on map" link from the user's `default_map_site`.
-     *      */
-    Address: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      /** @description One of the account's address types. */
-      address_type: components['schemas']['AddressType'] | null;
-      line_1: string | null;
-      line_2: string | null;
-      city: string | null;
-      province: string | null;
-      postal_code: string | null;
-      /** @description Free text */
-      country: string | null;
-      latitude: number | null;
-      longitude: number | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    /** @description An address as linked to one contact. */
-    ContactAddress: components['schemas']['Address'] & {
-      /** @description From the `contact_address` link. */
-      is_past_address: boolean;
-    };
-    ContactAddressList: {
-      data: components['schemas']['ContactAddress'][];
-    };
-    /** @description Either `address_id` (link an existing vault address, 409 if already
-     *     linked to this contact) or the address fields (create one), not both.
-     *      */
-    ContactAddressCreate: {
-      /**
-       * Format: int64
-       * @description An address of the vault.
-       */
-      address_id?: number;
-      /** @default false */
-      is_past_address: boolean;
-      /**
-       * Format: int64
-       * @description One of the account's address types.
-       */
-      address_type_id?: number | null;
-      line_1?: string | null;
-      line_2?: string | null;
-      city?: string | null;
-      province?: string | null;
-      postal_code?: string | null;
-      country?: string | null;
-      latitude?: number | null;
-      longitude?: number | null;
-    };
-    ContactAddressUpdate: {
-      is_past_address?: boolean;
-      /** Format: int64 */
-      address_type_id?: number | null;
-      line_1?: string | null;
-      line_2?: string | null;
-      city?: string | null;
-      province?: string | null;
-      postal_code?: string | null;
-      country?: string | null;
-      latitude?: number | null;
-      longitude?: number | null;
-    };
-    /** @description Addresses block of the contact page (`ModuleContactAddressesViewHelper`).
-     *     Address types come from `listAddressTypes`.
-     *      */
-    AddressesModule: {
-      /** @description Links with `is_past_address` false. */
-      active_addresses: components['schemas']['ContactAddress'][];
-      /** @description Links with `is_past_address` true. */
-      inactive_addresses: components['schemas']['ContactAddress'][];
-      /** @description Every address of the vault, for the "choose an existing address" option. */
-      vault_addresses: components['schemas']['Address'][];
-    };
-    ContactInformation: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      /** @description The account's type (column `type_id`). The client links `data` with
-       *     the type's `protocol` (`mailto:`, `tel:`), else with the matching
-       *     `social_protocols` prefix of ContactInformationModule.
-       *      */
-      type: components['schemas']['ContactInformationType'];
-      data: string;
-      /** @description A kind from ContactInformationModule `kinds` (`work`, `cell`, …), or a custom text shown as stored. */
-      kind: string | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    ContactInformationList: {
-      data: components['schemas']['ContactInformation'][];
-    };
-    ContactInformationCreate: {
-      /**
-       * Format: int64
-       * @description One of the account's contact information types.
-       */
-      type_id: number;
-      kind?: string | null;
-      data: string;
-    };
-    ContactInformationUpdate: {
-      /** Format: int64 */
-      type_id?: number;
-      kind?: string | null;
-      data?: string;
-    };
-    /** @description Contact information block of the contact page
-     *     (`ModuleContactInformationViewHelper`). The types for the form come from
-     *     `listContactInformationTypes`; `groups`, `kinds` and
-     *     `social_protocols` are the static tables of `config/app.php`.
-     *      */
-    ContactInformationModule: {
-      /** @description The contact's items grouped by their type's `type` (`email`, `phone`, `IMPP`, `X-SOCIAL-PROFILE`). */
-      contact_information: {
-        [key: string]: components['schemas']['ContactInformation'][];
-      };
-      /** @description The groups in display order, with their headings. */
-      groups: {
-        type: string;
-        name_translation_key: string;
-      }[];
-      /** @description The suggested kinds per group type (`email`, `phone`). */
-      kinds: {
-        [key: string]: {
-          id: string;
-          name_translation_key: string;
-        }[];
-      };
-      /** @description Link prefixes of the social profile types, matched on the type's `name_translation_key`. */
-      social_protocols: {
-        name_translation_key: string;
-        /** @description Prefix put before `data`; empty when there is none (Mastodon). */
-        url: string;
-        type: string;
-      }[];
-    };
-    /** @description A vault loan; every loaner lent to every loanee. */
-    Loan: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      /**
-       * @description The values the web UI writes (`Loan::TYPE_DEBT`/`TYPE_LOAN` are unused). `amount_lent` is set only for `monetary`.
-       * @enum {string}
-       */
-      type: 'object' | 'monetary';
-      name: string;
-      description: string | null;
-      /** @description In the minor unit of `currency`. */
-      amount_lent: number | null;
-      currency: components['schemas']['Currency'] | null;
-      /**
-       * Format: date
-       * @description Stored as a datetime at midnight.
-       */
-      loaned_at: string | null;
-      settled: boolean;
-      /** @description Set to now each time `settled` changes. */
-      settled_at: components['schemas']['Timestamp'] | null;
-      /** @description With what the contact hover card shows (`ContactCardHelper`). */
-      loaners: components['schemas']['ContactCard'][];
-      /** @description With what the contact hover card shows (`ContactCardHelper`). */
-      loanees: components['schemas']['ContactCard'][];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    LoanList: {
-      data: components['schemas']['Loan'][];
-    };
-    LoanCreate: {
-      /** @enum {string} */
-      type: 'object' | 'monetary';
-      name: string;
-      description?: string | null;
-      /** @description In the minor unit of the currency. */
-      amount_lent?: number | null;
-      /** Format: int64 */
-      currency_id?: number | null;
-      /** Format: date */
-      loaned_at?: string | null;
-      /** @description Contacts of the vault. */
-      loaner_ids: components['schemas']['Uuid'][];
-      /** @description Contacts of the vault. */
-      loanee_ids: components['schemas']['Uuid'][];
-    };
-    LoanUpdate: {
-      /** @enum {string} */
-      type?: 'object' | 'monetary';
-      name?: string;
-      description?: string | null;
-      amount_lent?: number | null;
-      /** Format: int64 */
-      currency_id?: number | null;
-      /** Format: date */
-      loaned_at?: string | null;
-      loaner_ids?: components['schemas']['Uuid'][];
-      loanee_ids?: components['schemas']['Uuid'][];
-      settled?: boolean;
-    };
-    /** @description Loans block of the contact page (`ModuleLoanViewHelper`). Currencies come from the reference endpoints. */
-    LoansModule: {
-      /** @description The unsettled loans, as `listContactLoans?settled=false`. */
-      loans: components['schemas']['Loan'][];
-    };
-    /** @description The contact's `company_id` and `job_position` columns. */
-    JobInformation: {
-      company: components['schemas']['Company'] | null;
-      job_position: string | null;
-    };
-    JobInformationUpdate: {
-      /**
-       * Format: int64
-       * @description A company of the vault.
-       */
-      company_id: number | null;
-      job_position: string | null;
-    };
-    /** @description Job information block of the contact page (`ModuleCompanyViewHelper`).
-     *     The company picker uses `listVaultCompanies`.
-     *      */
-    CompanyModule: components['schemas']['JobInformation'];
     /** @description The contact's `religion_id` column. */
     ContactReligion: {
-      religion: components['schemas']['Religion'] | null;
+      religion?: components['schemas']['Religion'] | null;
     };
     ContactReligionUpdate: {
       /**
        * Format: int64
        * @description One of the account's religions; null clears it.
        */
-      religion_id: number | null;
+      religion_id?: number | null;
     };
-    /** @description Religion block of the contact page (`ModuleReligionViewHelper`). The
-     *     dropdown uses `listReligions`.
-     *      */
-    ReligionsModule: components['schemas']['ContactReligion'];
-    /** @description A `relationships` row involving the contact in the path, on either
-     *     side. `contact_id` has the role `relationship_type.name` and
-     *     `related_contact_id` the role `relationship_type.name_reverse_relationship`,
-     *     so the label shown next to `other_contact` is
-     *     `name_reverse_relationship` when `contact_id` is the path contact, else
-     *     `name`.
-     *      */
-    Relationship: {
-      id: components['schemas']['Id'];
-      relationship_type_id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      related_contact_id: components['schemas']['Uuid'];
-      relationship_type: components['schemas']['RelationshipType'];
-      /** @description The side that isn't the path contact. Unlisted contacts
-       *     (`listed: false`) have no contact page.
-       *      */
-      other_contact: components['schemas']['ContactSummary'] & {
-        /** @description Computed from the contact's birthdate important date; null when unknown. */
-        age: number | null;
-      };
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    RelationshipList: {
-      data: components['schemas']['Relationship'][];
-    };
-    /** @description Exactly one of `other_contact_id` and `new_contact`. */
-    RelationshipCreate: {
+    ContactReminder: {
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      day?: number | null;
       /**
        * Format: int64
-       * @description One of the account's relationship types.
+       * @description Stored; the web UI offers 1–10 ("every n days/months/years").
        */
-      relationship_type_id: number;
+      frequency_number?: number | null;
+      /** Format: int64 */
+      id: number;
+      label: string;
+      /** Format: date-time */
+      last_triggered_at?: string | null;
+      /** Format: int64 */
+      month?: number | null;
       /**
-       * @description `forward`: the path contact becomes `contact_id` (role
-       *     `relationship_type.name`) and the other contact
-       *     `related_contact_id`. `reverse` swaps them.
-       *
-       * @default forward
-       * @enum {string}
+       * Format: date
+       * @description Computed as `ScheduleContactReminderForUser` does: the reminder's
+       *     date if it is after today (UTC), else its day and month this year
+       *     if that is after today, else next year.
        */
-      direction: 'forward' | 'reverse';
-      other_contact_id?: components['schemas']['Uuid'];
-      new_contact?: components['schemas']['RelationshipNewContact'];
-    } & (unknown | unknown);
-    /** @description A contact created for the relationship (`CreateContact`, no template). All names may be null ("I don't know the name"). */
-    RelationshipNewContact: {
+      next_occurrence?: string | null;
+      /** Format: int64 */
+      number_times_triggered: number;
+      type: components['schemas']['String'];
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    /** @description A full date must exist (no 31 February). The web UI sends `frequency_number` 1 for `one_time`. */
+    ContactReminderCreate: {
+      /** Format: int64 */
+      day?: number | null;
+      /** Format: int64 */
+      frequency_number?: number | null;
+      label?: string | null;
+      /** Format: int64 */
+      month?: number | null;
+      type?: components['schemas']['String'] | null;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    ContactReminderList: {
+      data: components['schemas']['ContactReminder'][];
+    };
+    ContactReminderUpdate: {
+      /** Format: int64 */
+      day?: number | null;
+      /** Format: int64 */
+      frequency_number?: number | null;
+      label?: string | null;
+      /** Format: int64 */
+      month?: number | null;
+      type?: components['schemas']['String'] | null;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    /** @description Enough to show a contact anywhere; the client builds the display name
+     *     from the user's `name_order` and fetches the avatar separately. */
+    ContactSummary: {
+      /** Format: int64 */
+      avatar_file_id?: number | null;
       first_name?: string | null;
+      /** Format: uuid */
+      id: string;
       last_name?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
       middle_name?: string | null;
       nickname?: string | null;
-      maiden_name?: string | null;
+      prefix?: string | null;
+      suffix?: string | null;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    ContactTask: {
+      /**
+       * Format: uuid
+       * @description Null when the author was deleted.
+       */
+      author_id?: string | null;
+      author_name: string;
+      completed: boolean;
+      /** Format: date-time */
+      completed_at?: string | null;
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** @description Markdown */
+      description?: string | null;
+      /** Format: date */
+      due_at?: string | null;
+      /** Format: int64 */
+      id: number;
+      /** @description Computed - `due_at` (midnight UTC) is in the past, so a task due today is late; false without `due_at`. */
+      is_late: boolean;
+      label: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    ContactTaskCreate: {
+      description?: string | null;
+      /** Format: date */
+      due_at?: string | null;
+      label?: string | null;
+    };
+    ContactTaskList: {
+      data: components['schemas']['ContactTask'][];
+    };
+    ContactTaskUpdate: {
+      completed?: boolean | null;
+      description?: string | null;
+      /** Format: date */
+      due_at?: string | null;
+      label?: string | null;
+    };
+    /** @description Field groups and what they trigger:
+     *     names, `gender_id`, `pronoun_id` → UpdateContact (`last_updated_at`,
+     *     feed `information_updated`); `listed` → archive/unarchive
+     *     (`last_updated_at`, feed `archived`/`unarchived`); `is_favorite` → for
+     *     the current user (`last_updated_at`, feed `favorited`/`unfavorited`);
+     *     `show_quick_facts`; `template_id` (`last_updated_at`). A boolean equal
+     *     to the stored value changes nothing. */
+    ContactUpdate: {
+      first_name?: string | null;
       /**
        * Format: int64
        * @description One of the account's genders.
        */
       gender_id?: number | null;
+      is_favorite?: boolean | null;
+      last_name?: string | null;
+      /** @description False archives the contact. */
+      listed?: boolean | null;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
       /**
        * Format: int64
        * @description One of the account's pronouns.
        */
       pronoun_id?: number | null;
-      /** @description "Create a contact entry for this person": false hides the contact from lists. */
-      listed: boolean;
-    };
-    Pet: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      name: string | null;
-      pet_category: components['schemas']['PetCategory'];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    PetList: {
-      data: components['schemas']['Pet'][];
-    };
-    PetCreate: {
+      show_quick_facts?: boolean | null;
+      suffix?: string | null;
       /**
        * Format: int64
-       * @description One of the account's pet categories.
+       * @description One of the account's templates.
        */
-      pet_category_id: number;
-      name?: string | null;
+      template_id?: number | null;
     };
-    PetUpdate: {
+    Country: {
+      /** @description ISO 3166-1 alpha-2. */
+      code: string;
+      /** @description Common name in the request locale. */
+      name: string;
+    };
+    CountryList: {
+      data: components['schemas']['Country'][];
+    };
+    Currency: {
+      /** @description ISO 4217 code as seeded in `currencies` (includes some retired codes). */
+      code: string;
       /** Format: int64 */
-      pet_category_id?: number;
-      name?: string | null;
+      id: number;
+      /** @description Name in the request locale (`lang/*\/currencies.php`). */
+      name: string;
     };
-    ContactDocumentList: {
-      data: components['schemas']['File'][];
-      /** @description Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited). */
+    CurrencyList: {
+      data: components['schemas']['Currency'][];
+    };
+    /** @description The logged-in user. */
+    CurrentUser: {
+      /** Format: uuid */
+      account_id: string;
+      /** Format: date-time */
+      created_at: string;
+      email: string;
+      /** Format: date-time */
+      email_verified_at?: string | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      is_account_administrator: boolean;
+      is_instance_administrator: boolean;
+      last_name?: string | null;
+      preferences: components['schemas']['UserPreferences'];
+      /** @description A secret exists and is confirmed. */
+      two_factor_enabled: boolean;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    CurrentUserUpdate: {
+      email?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
+    };
+    /** @enum {string} */
+    Dir: 'ltr' | 'rtl';
+    /** @description Module `documents`. All documents, newest first. */
+    DocumentsModule: {
+      /** @description Computed (X011), as in `ContactDocumentList`. */
       can_upload_file: boolean;
+      documents: components['schemas']['File'][];
     };
-    ContactPhotoList: {
-      data: components['schemas']['File'][];
+    EmailVerification: {
+      /** Format: int64 */
+      expires?: number | null;
+      hash?: string | null;
+      id?: string | null;
+      signature?: string | null;
+    };
+    Emotion: {
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      type: string;
+    };
+    EmotionList: {
+      data: components['schemas']['Emotion'][];
+    };
+    FamilySummaryMember: {
+      /** @description The other contact; the client links to it only when `listed`. */
+      contact: components['schemas']['ContactCard'];
+      /** Format: int64 */
+      relationship_id: number;
+      /** Format: int64 */
+      relationship_type_id: number;
+    };
+    /** @description Partners (relationship types of type `love` in the account's `love`
+     *     group) and children (types of type `child` in the `family` group),
+     *     matched in either direction of the relationship. */
+    FamilySummaryModule: {
+      family_relationships: components['schemas']['FamilySummaryMember'][];
+      love_relationships: components['schemas']['FamilySummaryMember'][];
+    };
+    Features: {
+      /** @description `DELETE /me` is enabled (server flag, off by default, V032). */
+      account_deletion: boolean;
+    };
+    /** @description One entry of a contact's feed (also used by the vault feed). Exactly
+     *     one object field is present for the actions that have one, and it is
+     *     null when that object was deleted since (then `description` says what
+     *     it was): `label` for label_*, `address` for address_*,
+     *     `contact_information` for contact_information_*, `pet` for pet_*,
+     *     `note` for note_*, `goal` for goal_*, `mood_tracking_event` for
+     *     mood_tracking_event_*. Other actions carry no object. */
+    FeedItem: {
+      action: string;
+      address?: components['schemas']['Address'] | null;
+      author?: components['schemas']['UserSummary'] | null;
+      contact: components['schemas']['ContactCard'];
+      contact_information?: components['schemas']['ContactInformation'] | null;
+      /** Format: date-time */
+      created_at: string;
+      /** @description Text stored with the item (e.g. the label name or a note excerpt). */
+      description?: string | null;
+      goal?: components['schemas']['Goal'] | null;
+      /** Format: int64 */
+      id: number;
+      label?: components['schemas']['Label'] | null;
+      mood_tracking_event?: components['schemas']['MoodTrackingEvent'] | null;
+      note?: components['schemas']['Note'] | null;
+      pet?: components['schemas']['Pet'] | null;
+    };
+    FeedItemList: {
+      data: components['schemas']['FeedItem'][];
       meta: components['schemas']['PaginationMeta'];
-      /** @description Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited). */
-      can_upload_file: boolean;
     };
-    ContactTask: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
+    /** @description The first page of listContactFeedItems; further pages come from that endpoint. */
+    FeedModule: {
+      feed_items: components['schemas']['FeedItem'][];
+      meta: components['schemas']['PaginationMeta'];
+    };
+    File: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      mime_type: string;
+      name: string;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size: number;
+      type: string;
       /**
        * Format: uuid
-       * @description Null when the author was deleted.
+       * @description The storage key.
        */
-      author_id: string | null;
-      author_name: string;
-      label: string;
-      /** @description Markdown */
-      description: string | null;
-      completed: boolean;
-      completed_at: components['schemas']['Timestamp'] | null;
-      due_at: components['schemas']['Date'] | null;
-      /** @description Computed - `due_at` (midnight UTC) is in the past, so a task due today is late; false without `due_at`. */
-      is_late: boolean;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
+      uuid: string;
     };
-    ContactTaskList: {
-      data: components['schemas']['ContactTask'][];
+    FileUpload: {
+      /** @description The file. Its part's filename becomes `name`. */
+      file?: string | null;
     };
-    ContactTaskCreate: {
-      label: string;
-      description?: string | null;
-      due_at?: components['schemas']['Date'] | null;
-    };
-    ContactTaskUpdate: {
-      label?: string;
-      description?: string | null;
-      due_at?: components['schemas']['Date'] | null;
-      completed?: boolean;
-    };
-    Call: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
-      /**
-       * Format: uuid
-       * @description Null when the author was deleted.
-       */
-      author_id: string | null;
-      author_name: string;
-      called_at: components['schemas']['Date'];
-      /** @description As entered; today's UI doesn't set it. */
-      duration: number | null;
-      /** @enum {string} */
-      type: 'audio' | 'video';
-      description: string | null;
-      answered: boolean;
-      /** @enum {string} */
-      who_initiated: 'me' | 'contact';
-      call_reason: components['schemas']['CallReason'] | null;
-      emotion: components['schemas']['Emotion'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    CallList: {
-      data: components['schemas']['Call'][];
-    };
-    CallCreate: {
-      called_at: components['schemas']['Date'];
-      duration?: number | null;
-      /** @enum {string} */
-      type: 'audio' | 'video';
-      description?: string | null;
-      /** @default true */
-      answered: boolean;
-      /** @enum {string} */
-      who_initiated: 'me' | 'contact';
-      /**
-       * Format: int64
-       * @description One of the account's call reasons.
-       */
-      call_reason_id?: number | null;
-      /**
-       * Format: int64
-       * @description One of the account's emotions.
-       */
-      emotion_id?: number | null;
-    };
-    CallUpdate: {
-      called_at?: components['schemas']['Date'];
-      duration?: number | null;
-      /** @enum {string} */
-      type?: 'audio' | 'video';
-      description?: string | null;
-      answered?: boolean;
-      /** @enum {string} */
-      who_initiated?: 'me' | 'contact';
+    Gender: {
       /** Format: int64 */
-      call_reason_id?: number | null;
-      /** Format: int64 */
-      emotion_id?: number | null;
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** @description vCard gender code, used by the DAV export. Seeded and user-created genders have none. */
+      type?: string | null;
     };
-    ContactGroupAdd: {
+    GenderCreate: {
+      name?: string | null;
+    };
+    GenderList: {
+      data: components['schemas']['Gender'][];
+    };
+    GenderPronounModule: {
+      gender?: components['schemas']['Gender'] | null;
+      pronoun?: components['schemas']['Pronoun'] | null;
+    };
+    GenderUpdate: {
+      name?: string | null;
+    };
+    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
+    GiftOccasion: {
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
       /**
        * Format: int64
-       * @description A group in the vault.
+       * @description 1-based order.
        */
-      group_id: number;
+      position?: number | null;
+    };
+    GiftOccasionCreate: {
+      label?: string | null;
+    };
+    GiftOccasionList: {
+      data: components['schemas']['GiftOccasion'][];
+    };
+    GiftOccasionUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    /** @description Seeded rows have `label_translation_key`; the client shows `label` when set, else translates the key. */
+    GiftState: {
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
       /**
        * Format: int64
-       * @description A role of one of the account's group types (the UI offers the group type's roles).
+       * @description 1-based order.
+       */
+      position?: number | null;
+    };
+    GiftStateCreate: {
+      label?: string | null;
+    };
+    GiftStateList: {
+      data: components['schemas']['GiftState'][];
+    };
+    GiftStateUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    Goal: {
+      /** @description True on creation; no operation changes it today. */
+      active: boolean;
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /**
+       * Format: int64
+       * @description Computed (`GoalHelper::getStreakData`): when the latest streak is
+       *     today (UTC), the number of day-to-day steps in the run ending on it
+       *     (a run of n days gives n − 1, as today); otherwise 0.
+       */
+      current_streak: number;
+      /** Format: int64 */
+      id: number;
+      /** @description Computed. Today (UTC) and the 6 days before it, oldest first. */
+      last_7_days: components['schemas']['GoalLast7Day'][];
+      /**
+       * Format: int64
+       * @description Computed (`GoalHelper::getStreakData`): the longest run of
+       *     consecutive days with a streak. 1 when the goal has no streaks, as today.
+       */
+      max_streak: number;
+      name: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    GoalCreate: {
+      name?: string | null;
+    };
+    /** @description A goal with the data of its streak calendar. */
+    GoalDetail: {
+      /** @description True on creation; no operation changes it today. */
+      active: boolean;
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /**
+       * Format: int64
+       * @description Computed (`GoalHelper::getStreakData`): when the latest streak is
+       *     today (UTC), the number of day-to-day steps in the run ending on it
+       *     (a run of n days gives n − 1, as today); otherwise 0.
+       */
+      current_streak: number;
+      /** Format: int64 */
+      id: number;
+      /** @description Computed. Today (UTC) and the 6 days before it, oldest first. */
+      last_7_days: components['schemas']['GoalDetailLast7Day'][];
+      /**
+       * Format: int64
+       * @description Computed (`GoalHelper::getStreakData`): the longest run of
+       *     consecutive days with a streak. 1 when the goal has no streaks, as today.
+       */
+      max_streak: number;
+      name: string;
+      /** @description Streaks from `streaks_from` to `streaks_to`, by `happened_at`. Their count is the page's "total streaks". */
+      streaks: components['schemas']['Streak'][];
+      /**
+       * Format: date
+       * @description Computed: the first day of the month, one year ago. The calendar starts here.
+       */
+      streaks_from: string;
+      /**
+       * Format: date
+       * @description Computed: today (UTC). The calendar ends here.
+       */
+      streaks_to: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    GoalDetailLast7Day: {
+      /** Format: date */
+      date: string;
+      has_streak: boolean;
+    };
+    GoalLast7Day: {
+      /** Format: date */
+      date: string;
+      has_streak: boolean;
+    };
+    GoalList: {
+      data: components['schemas']['Goal'][];
+    };
+    GoalUpdate: {
+      name?: string | null;
+    };
+    /** @description Goals block of the contact page (`ModuleGoalsViewHelper`). */
+    GoalsModule: {
+      /** @description The active goals, as `listContactGoals?active=true`. */
+      goals: components['schemas']['Goal'][];
+      /** Format: int64 */
+      inactive_goals_count: number;
+    };
+    Group: {
+      /** Format: date-time */
+      created_at: string;
+      group_type?: components['schemas']['GroupType'] | null;
+      /** Format: int64 */
+      id: number;
+      /** @description Ordered by `first_name` (collation-aware). */
+      members: components['schemas']['GroupMember'][];
+      name: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    GroupCreate: {
+      /**
+       * Format: int64
+       * @description One of the account's group types.
+       */
+      group_type_id?: number | null;
+      name?: string | null;
+    };
+    GroupDetail: {
+      /** Format: date-time */
+      created_at: string;
+      group_type?: components['schemas']['GroupType'] | null;
+      /** Format: int64 */
+      id: number;
+      /** @description Ordered by `first_name` (collation-aware). */
+      members: components['schemas']['GroupMember'][];
+      name: string;
+      /** @description Computed: members bucketed by role, the type's roles in
+       *     `position` order (empty buckets included), then one bucket with
+       *     `role: null` for members without a role of the current type,
+       *     present only when it has members. */
+      roles: components['schemas']['GroupDetailRole'][];
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    GroupDetailRole: {
+      members: components['schemas']['GroupMember'][];
+      role?: components['schemas']['GroupTypeRole'] | null;
+    };
+    GroupList: {
+      data: components['schemas']['Group'][];
+    };
+    GroupMember: {
+      /**
+       * Format: int64
+       * @description Computed from the contact's birthdate important date; null when unknown.
+       */
+      age?: number | null;
+      /** Format: int64 */
+      avatar_file_id?: number | null;
+      first_name?: string | null;
+      /**
+       * Format: int64
+       * @description The member's role in the group (`contact_group.group_type_role_id`).
        */
       group_type_role_id?: number | null;
+      /** Format: uuid */
+      id: string;
+      last_name?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
+      suffix?: string | null;
+      /** Format: uuid */
+      vault_id: string;
     };
-    TimelineEvent: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      label: string | null;
-      started_at: components['schemas']['Date'];
-      collapsed: boolean;
-      /** @description Computed - earliest `happened_at` of its life events (the start of the range the UI shows). */
-      first_happened_at: components['schemas']['Date'] | null;
-      /** @description Computed - latest `happened_at` of its life events. */
-      last_happened_at: components['schemas']['Date'] | null;
-      /** @description In creation order. */
-      life_events: components['schemas']['LifeEvent'][];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    TimelineEventList: {
-      data: components['schemas']['TimelineEvent'][];
-      meta: components['schemas']['PaginationMeta'];
-    };
-    TimelineEventCreate: {
+    /** @description `label` / `label_translation_key`: the client shows `label` when set,
+     *     else translates the key. */
+    GroupType: {
+      /** Format: int64 */
+      id: number;
       label?: string | null;
-      life_event: components['schemas']['LifeEventCreate'];
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position: number;
+      /** @description Ordered by `position`. */
+      roles: components['schemas']['GroupTypeRole'][];
     };
-    TimelineEventUpdate: {
-      collapsed: boolean;
+    GroupTypeCreate: {
+      label?: string | null;
+    };
+    GroupTypeList: {
+      data: components['schemas']['GroupType'][];
+    };
+    GroupTypeRole: {
+      /** Format: int64 */
+      group_type_id: number;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    GroupTypeRoleCreate: {
+      label?: string | null;
+    };
+    GroupTypeRoleUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    GroupTypeUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    GroupUpdate: {
+      /**
+       * Format: int64
+       * @description One of the account's group types.
+       */
+      group_type_id?: number | null;
+      name?: string | null;
+    };
+    /** @description Module `groups`. Group types and their roles come from `listGroupTypes`. */
+    GroupsModule: {
+      /** @description Computed - the vault's other groups (the contact isn't a member), ordered by `name`. */
+      available_groups: components['schemas']['GroupsModuleAvailableGroup'][];
+      /** @description The contact's groups, ordered by `name`. */
+      groups: components['schemas']['Group'][];
+    };
+    GroupsModuleAvailableGroup: {
+      /** Format: int64 */
+      group_type_id?: number | null;
+      /** Format: int64 */
+      id: number;
+      name: string;
+    };
+    ImportantDateReport: {
+      months: components['schemas']['ImportantDateReportMonth'][];
+    };
+    ImportantDateReportMonth: {
+      important_dates: components['schemas']['ImportantDateReportMonthImportantDate'][];
+      /** Format: int64 */
+      month: number;
+      /** Format: int64 */
+      year: number;
+    };
+    ImportantDateReportMonthImportantDate: {
+      /**
+       * Format: int64
+       * @description Computed (`ImportantDateHelper::getAge`): whole years since a full
+       *     date, or the current year minus `year` for a year-only date; null
+       *     for a day-and-month date.
+       */
+      age?: number | null;
+      contact: components['schemas']['ContactCard'];
+      /** Format: uuid */
+      contact_id: string;
+      contact_important_date_type?: components['schemas']['ContactImportantDateType'] | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      day?: number | null;
+      /** Format: int64 */
+      id: number;
+      label: string;
+      /** Format: int64 */
+      month?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      year?: number | null;
+    };
+    /** @description Important dates block of the contact page (`ModuleImportantDatesViewHelper`). */
+    ImportantDatesModule: {
+      important_dates: components['schemas']['ContactImportantDate'][];
+    };
+    Instance: {
+      /** @description Commit hash of the build, when known. */
+      commit?: string | null;
+      default_locale: string;
+      features: components['schemas']['Features'];
+      /** @description The locale of this request (X009). */
+      locale: string;
+      /** @description Supported locales, by name. */
+      locales: components['schemas']['Locale'][];
+      /** @description `APP_SHOW_DELETION_NOTICE` (X008). */
+      show_deletion_notice: boolean;
+      /** @description False when `APP_DISABLE_SIGNUP` is set and at least one account
+       *     exists; the first user can always sign up (X007). */
+      signup_enabled: boolean;
+      version: string;
+    };
+    Invitation: {
+      email: string;
+      /** Format: uuid */
+      invitation_code: string;
+    };
+    InvitationAccept: {
+      first_name?: string | null;
+      last_name?: string | null;
+      password?: string | null;
+      password_confirmation?: string | null;
+    };
+    /** @description The contact's `company_id` and `job_position` columns. */
+    JobInformation: {
+      company?: components['schemas']['Company'] | null;
+      job_position?: string | null;
+    };
+    JobInformationUpdate: {
+      /**
+       * Format: int64
+       * @description A company of the vault.
+       */
+      company_id?: number | null;
+      job_position?: string | null;
+    };
+    Journal: {
+      /** Format: date-time */
+      created_at: string;
+      description?: string | null;
+      /** Format: int64 */
+      id: number;
+      /**
+       * Format: date
+       * @description Computed. `written_at` of the journal's latest post; null when it has none.
+       */
+      last_post_written_at?: string | null;
+      name: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    JournalCreate: {
+      description?: string | null;
+      name?: string | null;
+    };
+    JournalList: {
+      data: components['schemas']['Journal'][];
+    };
+    JournalMetric: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      journal_id: number;
+      label: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    JournalMetricCreate: {
+      label?: string | null;
+    };
+    JournalMetricList: {
+      data: components['schemas']['JournalMetric'][];
+    };
+    /** @description The journal page for one year (api-design.md §12). */
+    JournalOverview: {
+      journal: components['schemas']['Journal'];
+      /** @description Always 12 entries, December first. */
+      months: components['schemas']['JournalOverviewMonth'][];
+      /** @description All slices of life of the journal, by id. */
+      slices: components['schemas']['SliceOfLife'][];
+      /** @description Tags assigned to at least one post of the journal, by name. */
+      tags: components['schemas']['JournalOverviewTag'][];
+      /**
+       * Format: int64
+       * @description The year shown.
+       */
+      year: number;
+      /** @description Every year with at least one post in the journal, descending. */
+      years: components['schemas']['JournalOverviewYear'][];
+    };
+    JournalOverviewMonth: {
+      /** Format: int64 */
+      month: number;
+      /** Format: int64 */
+      post_count: number;
+      /** @description Posts written that month, `written_at` descending. */
+      posts: components['schemas']['PostSummary'][];
+    };
+    JournalOverviewTag: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /**
+       * Format: int64
+       * @description Computed. Number of posts with this tag in the whole vault, as today.
+       */
+      post_count: number;
+      /**
+       * Format: int64
+       * @description Computed; posts with this tag. Present in the vault tag endpoints' responses.
+       */
+      posts_count?: number | null;
+      slug: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    JournalOverviewYear: {
+      /** Format: int64 */
+      post_count: number;
+      /** Format: int64 */
+      year: number;
+    };
+    JournalPhoto: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      mime_type: string;
+      name: string;
+      /**
+       * Format: int64
+       * @description The post the photo belongs to.
+       */
+      post_id: number;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size: number;
+      type: string;
+      /** Format: uuid */
+      uuid: string;
+    };
+    JournalPhotoList: {
+      data: components['schemas']['JournalPhoto'][];
+    };
+    JournalUpdate: {
+      description?: string | null;
+      name?: string | null;
+    };
+    Label: {
+      /** @description Tailwind background class, e.g. `bg-neutral-200`. */
+      bg_color: string;
+      /**
+       * Format: int64
+       * @description Computed; contacts with this label. Present in the vault label endpoints' responses.
+       */
+      contacts_count?: number | null;
+      /** Format: date-time */
+      created_at: string;
+      description?: string | null;
+      /** Format: int64 */
+      id: number;
+      name: string;
+      slug: string;
+      /** @description Tailwind text class, e.g. `text-neutral-800`. */
+      text_color: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    LabelCreate: {
+      /** @description Defaults to `bg-neutral-200`. */
+      bg_color?: string | null;
+      description?: string | null;
+      name?: string | null;
+      /** @description Defaults to `text-neutral-800`. */
+      text_color?: string | null;
+    };
+    LabelList: {
+      data: components['schemas']['Label'][];
+    };
+    LabelUpdate: {
+      bg_color?: string | null;
+      description?: string | null;
+      name?: string | null;
+      text_color?: string | null;
+    };
+    /** @description Labels block of the contact page (`ModuleLabelViewHelper`). The picker
+     *     loads the vault's labels with `listVaultLabels` when it opens; a label
+     *     is "taken" when it is in `labels`. */
+    LabelsModule: {
+      labels: components['schemas']['Label'][];
+    };
+    Language: {
+      /** @description ISO 639-1. */
+      code: string;
+      /** @description Name in the request locale. */
+      name: string;
+      native_name: string;
+    };
+    LanguageList: {
+      data: components['schemas']['Language'][];
     };
     LifeEvent: {
-      id: components['schemas']['Id'];
-      timeline_event_id: components['schemas']['Id'];
-      life_event_type: components['schemas']['LifeEventType'];
-      /** @description The category of `life_event_type`. */
-      life_event_category: {
-        id: components['schemas']['Id'];
-        label: string | null;
-        label_translation_key: string | null;
-      };
+      collapsed: boolean;
+      /**
+       * Format: int64
+       * @description In the minor unit of `currency_id`.
+       */
+      costs?: number | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      currency_id?: number | null;
+      description?: string | null;
+      /** Format: int64 */
+      distance?: number | null;
+      /** @description The web form writes `km` or `miles`. */
+      distance_unit?: string | null;
+      /** Format: int64 */
+      duration_in_minutes?: number | null;
       /**
        * Format: int64
        * @description Not set by any service today.
        */
-      emotion_id: number | null;
-      happened_at: components['schemas']['Date'];
-      collapsed: boolean;
-      summary: string | null;
-      description: string | null;
-      /** @description In the minor unit of `currency_id`. */
-      costs: number | null;
+      emotion_id?: number | null;
+      from_place?: string | null;
+      /** Format: date */
+      happened_at: string;
       /** Format: int64 */
-      currency_id: number | null;
+      id: number;
+      /** @description The category of `life_event_type`. */
+      life_event_category: components['schemas']['LifeEventLifeEventCategory'];
+      life_event_type: components['schemas']['LifeEventType'];
       /** Format: uuid */
-      paid_by_contact_id: string | null;
-      duration_in_minutes: number | null;
-      distance: number | null;
-      /**
-       * @description The web form writes `km` or `miles`.
-       * @enum {string|null}
-       */
-      distance_unit: 'km' | 'mi' | 'miles' | null;
-      from_place: string | null;
-      to_place: string | null;
-      place: string | null;
+      paid_by_contact_id?: string | null;
       /** @description With what the contact hover card shows (`ContactCardHelper`, age and groups). */
       participants: components['schemas']['ContactCard'][];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
+      place?: string | null;
+      summary?: string | null;
+      /** Format: int64 */
+      timeline_event_id: number;
+      to_place?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    /** @description Seeded rows have `label_translation_key`; the client shows `label` when
+     *     set, else translates the key. */
+    LifeEventCategory: {
+      can_be_deleted: boolean;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** @description Ordered by `position`. */
+      life_event_types: components['schemas']['LifeEventType'][];
+      /** Format: int64 */
+      position?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    LifeEventCategoryCreate: {
+      label?: string | null;
+    };
+    LifeEventCategoryList: {
+      data: components['schemas']['LifeEventCategory'][];
+    };
+    LifeEventCategoryUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
     };
     LifeEventCreate: {
-      /**
-       * Format: int64
-       * @description A type of one of the vault's life event categories.
-       */
-      life_event_type_id: number;
-      happened_at: components['schemas']['Date'];
-      summary?: string | null;
-      description?: string | null;
+      /** Format: int64 */
       costs?: number | null;
       /**
        * Format: int64
        * @description One of the account's currencies.
        */
       currency_id?: number | null;
+      description?: string | null;
+      /** Format: int64 */
+      distance?: number | null;
+      /** @description The web form writes `km` or `miles`. */
+      distance_unit?: string | null;
+      /** Format: int64 */
+      duration_in_minutes?: number | null;
+      from_place?: string | null;
+      /** Format: date */
+      happened_at?: string | null;
+      /**
+       * Format: int64
+       * @description A type of one of the vault's life event categories.
+       */
+      life_event_type_id?: number | null;
       /**
        * Format: uuid
        * @description A contact in the vault.
        */
       paid_by_contact_id?: string | null;
-      duration_in_minutes?: number | null;
-      distance?: number | null;
-      /**
-       * @description The web form writes `km` or `miles`.
-       * @enum {string|null}
-       */
-      distance_unit?: 'km' | 'mi' | 'miles' | null;
-      from_place?: string | null;
-      to_place?: string | null;
+      /** @description Contacts in the vault; the contact in the path is added if missing. */
+      participant_ids?: string[] | null;
       place?: string | null;
-      /**
-       * @description Contacts in the vault; the contact in the path is added if missing.
-       * @default []
-       */
-      participant_ids: components['schemas']['Uuid'][];
+      summary?: string | null;
+      to_place?: string | null;
+    };
+    /** @description The category of `life_event_type`. */
+    LifeEventLifeEventCategory: {
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+    };
+    LifeEventType: {
+      can_be_deleted: boolean;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      life_event_category_id: number;
+      /** Format: int64 */
+      position?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    LifeEventTypeCreate: {
+      label?: string | null;
+    };
+    LifeEventTypeUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
     };
     LifeEventUpdate: {
+      collapsed?: boolean | null;
       /** Format: int64 */
-      life_event_type_id?: number;
-      happened_at?: components['schemas']['Date'];
-      summary?: string | null;
-      description?: string | null;
       costs?: number | null;
       /** Format: int64 */
       currency_id?: number | null;
+      description?: string | null;
+      /** Format: int64 */
+      distance?: number | null;
+      /** @description The web form writes `km` or `miles`. */
+      distance_unit?: string | null;
+      /** Format: int64 */
+      duration_in_minutes?: number | null;
+      from_place?: string | null;
+      /** Format: date */
+      happened_at?: string | null;
+      /** Format: int64 */
+      life_event_type_id?: number | null;
       /** Format: uuid */
       paid_by_contact_id?: string | null;
-      duration_in_minutes?: number | null;
-      distance?: number | null;
-      /**
-       * @description The web form writes `km` or `miles`.
-       * @enum {string|null}
-       */
-      distance_unit?: 'km' | 'mi' | 'miles' | null;
-      from_place?: string | null;
-      to_place?: string | null;
+      participant_ids?: string[] | null;
       place?: string | null;
-      participant_ids?: components['schemas']['Uuid'][];
-      collapsed?: boolean;
+      summary?: string | null;
+      to_place?: string | null;
+    };
+    /** @description Module `life_events`: the first page of `listContactTimelineEvents`.
+     *     Categories and types for the form come from
+     *     `listVaultLifeEventCategories`; the form's default date is today in
+     *     the user's timezone, computed by the client. */
+    LifeEventsModule: {
+      meta: components['schemas']['PaginationMeta'];
+      timeline_events: components['schemas']['TimelineEvent'][];
+    };
+    /** @description A vault life metric with the counts of the current user's own contact
+     *     (`contact_life_metric` rows; an event's time is the row's `created_at`). */
+    LifeMetric: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      label: string;
+      /**
+       * Format: int64
+       * @description Computed; the largest `months[].events` (graph scale).
+       */
+      max_number_of_events: number;
+      /** @description Computed; events per month of `year`. */
+      months: components['schemas']['LifeMetricMonth'][];
+      /** @description Computed; events in the current week, month and year. */
+      stats: components['schemas']['LifeMetricStats'];
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+      /**
+       * Format: int64
+       * @description Year that `months` covers.
+       */
+      year: number;
+      /** @description Computed; years with at least one event, descending. */
+      years: number[];
+    };
+    LifeMetricCreate: {
+      label?: string | null;
+    };
+    LifeMetricList: {
+      data: components['schemas']['LifeMetric'][];
+    };
+    LifeMetricMonth: {
+      /** Format: int64 */
+      events: number;
+      /** Format: int64 */
+      month: number;
+    };
+    /** @description Computed; events in the current week, month and year. */
+    LifeMetricStats: {
+      /** Format: int64 */
+      monthly_events: number;
+      /** Format: int64 */
+      weekly_events: number;
+      /** Format: int64 */
+      yearly_events: number;
+    };
+    LifeMetricUpdate: {
+      label?: string | null;
+    };
+    /** @description A vault loan; every loaner lent to every loanee. */
+    Loan: {
+      /**
+       * Format: int64
+       * @description In the minor unit of `currency`.
+       */
+      amount_lent?: number | null;
+      /** Format: date-time */
+      created_at: string;
+      currency?: components['schemas']['Currency'] | null;
+      description?: string | null;
+      /** Format: int64 */
+      id: number;
+      /**
+       * Format: date
+       * @description Stored as a datetime at midnight.
+       */
+      loaned_at?: string | null;
+      /** @description With what the contact hover card shows (`ContactCardHelper`). */
+      loanees: components['schemas']['ContactCard'][];
+      /** @description With what the contact hover card shows (`ContactCardHelper`). */
+      loaners: components['schemas']['ContactCard'][];
+      name: string;
+      settled: boolean;
+      /**
+       * Format: date-time
+       * @description Set to now each time `settled` changes.
+       */
+      settled_at?: string | null;
+      /** @description The values the web UI writes (`Loan::TYPE_DEBT`/`TYPE_LOAN` are unused). `amount_lent` is set only for `monetary`. */
+      type: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    LoanCreate: {
+      /**
+       * Format: int64
+       * @description In the minor unit of the currency.
+       */
+      amount_lent?: number | null;
+      /** Format: int64 */
+      currency_id?: number | null;
+      description?: string | null;
+      /** Format: date */
+      loaned_at?: string | null;
+      /** @description Contacts of the vault. */
+      loanee_ids?: string[] | null;
+      /** @description Contacts of the vault. */
+      loaner_ids?: string[] | null;
+      name?: string | null;
+      type?: string | null;
+    };
+    LoanList: {
+      data: components['schemas']['Loan'][];
+    };
+    LoanUpdate: {
+      /** Format: int64 */
+      amount_lent?: number | null;
+      /** Format: int64 */
+      currency_id?: number | null;
+      description?: string | null;
+      /** Format: date */
+      loaned_at?: string | null;
+      loanee_ids?: string[] | null;
+      loaner_ids?: string[] | null;
+      name?: string | null;
+      settled?: boolean | null;
+      type?: string | null;
+    };
+    /** @description Loans block of the contact page (`ModuleLoanViewHelper`). Currencies come from the reference endpoints. */
+    LoansModule: {
+      /** @description The unsettled loans, as `listContactLoans?settled=false`. */
+      loans: components['schemas']['Loan'][];
+    };
+    Locale: {
+      dir: components['schemas']['Dir'];
+      /** @description A supported locale (`localizer.supported_locales`). */
+      id: string;
+      /** @description The language's own name (`auth.lang` in that locale). */
+      name: string;
+    };
+    LoginCredentials: {
+      email?: string | null;
+      password?: string | null;
+      remember?: boolean;
+    };
+    LoginResult: {
+      /** @description True when the password was right and a 2FA code is now needed. */
+      two_factor: boolean;
+      user?: components['schemas']['CurrentUser'] | null;
     };
     MoodTrackingEvent: {
-      id: components['schemas']['Id'];
-      contact_id: components['schemas']['Uuid'];
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
       mood_tracking_parameter: components['schemas']['MoodTrackingParameter'];
-      rated_at: components['schemas']['Date'];
-      note: string | null;
-      number_of_hours_slept: number | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
+      note?: string | null;
+      /** Format: int64 */
+      number_of_hours_slept?: number | null;
+      /** Format: date */
+      rated_at: string;
+      /** Format: date-time */
+      updated_at: string;
     };
     MoodTrackingEventCreate: {
       /**
        * Format: int64
        * @description One of the vault's mood tracking parameters.
        */
-      mood_tracking_parameter_id: number;
-      rated_at: components['schemas']['Date'];
+      mood_tracking_parameter_id?: number | null;
       note?: string | null;
+      /** Format: int64 */
       number_of_hours_slept?: number | null;
+      /** Format: date */
+      rated_at?: string | null;
     };
-    /** @description Module `relationships`. Every relationship group type of the account,
-     *     in order, with the contact's relationships whose type is in it (the
-     *     UI hides empty groups). "Add a relationship" opens the R095 page.
-     *      */
-    RelationshipsModule: {
-      relationship_group_types: {
-        relationship_group_type: components['schemas']['RelationshipGroupType'];
-        relationships: components['schemas']['Relationship'][];
-      }[];
-      number_of_defined_relations: number;
+    /** @description Seeded rows have `label_translation_key`; the client shows `label` when
+     *     set, else translates the key. */
+    MoodTrackingParameter: {
+      /** Format: date-time */
+      created_at: string;
+      /** @description Despite the name, a Tailwind background class, e.g. `bg-lime-500`. */
+      hex_color: string;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    MoodTrackingParameterCreate: {
+      hex_color?: string | null;
+      label?: string | null;
+    };
+    MoodTrackingParameterList: {
+      data: components['schemas']['MoodTrackingParameter'][];
+    };
+    MoodTrackingParameterUpdate: {
+      hex_color?: string | null;
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    MoodTrackingReport: {
+      months: components['schemas']['MoodTrackingReportMonth'][];
+      /** Format: int64 */
+      year: number;
+    };
+    MoodTrackingReportMonth: {
+      /** @description Every day of the month. */
+      days: components['schemas']['MoodTrackingReportMonthDay'][];
+      /** Format: int64 */
+      month: number;
+    };
+    MoodTrackingReportMonthDay: {
+      /** Format: int64 */
+      day: number;
+      mood_tracking_event?: components['schemas']['MoodTrackingReportMonthDayMoodTrackingEvent'] | null;
+    };
+    MoodTrackingReportMonthDayMoodTrackingEvent: {
+      /** @description The parameter's Tailwind class. */
+      hex_color: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      mood_tracking_parameter_id: number;
+    };
+    MostConsultedContactList: {
+      data: components['schemas']['ContactSummary'][];
+    };
+    Note: {
+      author?: components['schemas']['UserSummary'] | null;
+      /** @description Markdown */
+      body: string;
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      emotion?: components['schemas']['Emotion'] | null;
+      /** Format: int64 */
+      id: number;
+      title?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    NoteCreate: {
+      body?: string | null;
+      /**
+       * Format: int64
+       * @description Must be one of the account's emotions.
+       */
+      emotion_id?: number | null;
+      title?: string | null;
+    };
+    NoteList: {
+      data: components['schemas']['Note'][];
+      meta: components['schemas']['PaginationMeta'];
+    };
+    NoteUpdate: {
+      body?: string | null;
+      /** Format: int64 */
+      emotion_id?: number | null;
+      title?: string | null;
+    };
+    /** @description Notes block of the contact page (`ModuleNotesViewHelper`). The emotions
+     *     of the note form come from `listEmotions`. */
+    NotesModule: {
+      /** @description The 3 newest notes, as `listContactNotes?per_page=3`. */
+      notes: components['schemas']['Note'][];
+      /**
+       * Format: int64
+       * @description Computed number of notes of the contact.
+       */
+      total: number;
+    };
+    NotificationChannel: {
+      active: boolean;
+      content: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int32 */
+      fails: number;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      /** @description `HH:MM`, in the user's timezone. */
+      preferred_time?: string | null;
+      /** @description `email`. */
+      type: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: date-time */
+      verified_at?: string | null;
+    };
+    NotificationChannelCreate: {
+      content?: string | null;
+      label?: string | null;
+      /** @description `HH:MM`. */
+      preferred_time?: string | null;
+    };
+    NotificationChannelList: {
+      data: components['schemas']['NotificationChannel'][];
+    };
+    NotificationChannelUpdate: {
+      active?: boolean | null;
+    };
+    NotificationChannelVerification: {
+      /** Format: uuid */
+      token?: string | null;
+    };
+    NotificationLog: {
+      /** @description Why sending failed; null when it succeeded. */
+      error?: string | null;
+      /** Format: int64 */
+      id: number;
+      /** Format: date-time */
+      sent_at: string;
+      subject_line: string;
+    };
+    NotificationLogList: {
+      data: components['schemas']['NotificationLog'][];
+      meta: components['schemas']['PaginationMeta'];
+    };
+    PaginationMeta: {
+      /** Format: int64 */
+      last_page: number;
+      /** Format: int64 */
+      page: number;
+      /** Format: int64 */
+      per_page: number;
+      /** Format: int64 */
+      total: number;
+    };
+    PasswordConfirmation: {
+      password?: string | null;
+    };
+    PasswordConfirmationStatus: {
+      confirmed: boolean;
+    };
+    PasswordReset: {
+      email?: string | null;
+      password?: string | null;
+      password_confirmation?: string | null;
+      token?: string | null;
+    };
+    PasswordResetLinkRequest: {
+      email?: string | null;
+    };
+    PasswordUpdate: {
+      current_password?: string | null;
+      password?: string | null;
+      password_confirmation?: string | null;
+    };
+    PersonalAccessToken: {
+      abilities: string[];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: date-time */
+      expires_at?: string | null;
+      /** Format: int64 */
+      id: number;
+      /** Format: date-time */
+      last_used_at?: string | null;
+      name: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    PersonalAccessTokenCreate: {
+      /** @description `read` and/or `write`; default `read` (Jetstream's default permissions). */
+      abilities?: string[] | null;
+      name?: string | null;
+    };
+    PersonalAccessTokenCreated: {
+      /** @description Shown once. */
+      plain_text_token: string;
+      token: components['schemas']['PersonalAccessToken'];
+    };
+    PersonalAccessTokenList: {
+      data: components['schemas']['PersonalAccessToken'][];
+    };
+    PersonalAccessTokenUpdate: {
+      abilities?: string[] | null;
+    };
+    Pet: {
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      pet_category: components['schemas']['PetCategory'];
+      /** Format: date-time */
+      updated_at: string;
+    };
+    PetCategory: {
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+    };
+    PetCategoryCreate: {
+      name?: string | null;
+    };
+    PetCategoryList: {
+      data: components['schemas']['PetCategory'][];
+    };
+    PetCategoryUpdate: {
+      name?: string | null;
+    };
+    PetCreate: {
+      name?: string | null;
+      /**
+       * Format: int64
+       * @description One of the account's pet categories.
+       */
+      pet_category_id?: number | null;
+    };
+    PetList: {
+      data: components['schemas']['Pet'][];
+    };
+    PetUpdate: {
+      name?: string | null;
+      /** Format: int64 */
+      pet_category_id?: number | null;
     };
     /** @description Module `pets`. The category pick-list comes from `listPetCategories`. */
     PetsModule: {
       pets: components['schemas']['Pet'][];
     };
-    /** @description Module `documents`. All documents, newest first. */
-    DocumentsModule: {
-      documents: components['schemas']['File'][];
-      /** @description Computed (X011), as in `ContactDocumentList`. */
-      can_upload_file: boolean;
-    };
     /** @description Module `photos`. The 6 newest photos; "View all" opens the photos page (`listContactPhotos`). */
     PhotosModule: {
-      photos: components['schemas']['File'][];
       /** @description Computed (X011), as in `ContactPhotoList`. */
       can_upload_file: boolean;
-    };
-    /** @description Module `tasks`. Open tasks, newest first; completed ones are loaded on
-     *     demand with `listContactTasks?completed=true`.
-     *      */
-    TasksModule: {
-      tasks: components['schemas']['ContactTask'][];
-      completed_tasks_count: number;
-    };
-    /** @description Module `calls`. All calls, latest first. The reason pick-list comes
-     *     from `listCallReasonTypes`, the emotions from `listEmotions`.
-     *      */
-    CallsModule: {
-      calls: components['schemas']['Call'][];
-    };
-    /** @description Module `groups`. Group types and their roles come from `listGroupTypes`. */
-    GroupsModule: {
-      /** @description The contact's groups, ordered by `name`. */
-      groups: components['schemas']['Group'][];
-      /** @description Computed - the vault's other groups (the contact isn't a member), ordered by `name`. */
-      available_groups: {
-        id: components['schemas']['Id'];
-        name: string;
-        /** Format: int64 */
-        group_type_id: number | null;
-      }[];
-    };
-    /** @description Module `life_events`: the first page of `listContactTimelineEvents`.
-     *     Categories and types for the form come from
-     *     `listVaultLifeEventCategories`; the form's default date is today in
-     *     the user's timezone, computed by the client.
-     *      */
-    LifeEventsModule: {
-      timeline_events: components['schemas']['TimelineEvent'][];
-      meta: components['schemas']['PaginationMeta'];
-    };
-    Group: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      name: string;
-      /** @description The group's type with its roles; null when it has none. */
-      group_type: components['schemas']['GroupType'] | null;
-      /** @description Ordered by `first_name` (collation-aware). */
-      members: components['schemas']['GroupMember'][];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    GroupMember: components['schemas']['ContactSummary'] & {
-      /** @description Computed from the contact's birthdate important date; null when unknown. */
-      age: number | null;
-      /**
-       * Format: int64
-       * @description The member's role in the group (`contact_group.group_type_role_id`).
-       */
-      group_type_role_id: number | null;
-    };
-    GroupDetail: components['schemas']['Group'] & {
-      /** @description Computed: members bucketed by role, the type's roles in
-       *     `position` order (empty buckets included), then one bucket with
-       *     `role: null` for members without a role of the current type,
-       *     present only when it has members.
-       *      */
-      roles: {
-        role: components['schemas']['GroupTypeRole'] | null;
-        members: components['schemas']['GroupMember'][];
-      }[];
-    };
-    GroupList: {
-      data: components['schemas']['Group'][];
-    };
-    GroupCreate: {
-      name: string;
-      /**
-       * Format: int64
-       * @description One of the account's group types.
-       */
-      group_type_id?: number | null;
-    };
-    GroupUpdate: {
-      name?: string;
-      /**
-       * Format: int64
-       * @description One of the account's group types.
-       */
-      group_type_id?: number | null;
-    };
-    /**
-     * @description `user_vault.permission`: 100 manager, 200 editor, 300 viewer (lower is more).
-     * @enum {integer}
-     */
-    VaultPermission: 100 | 200 | 300;
-    Vault: {
-      id: components['schemas']['Uuid'];
-      account_id: components['schemas']['Uuid'];
-      /**
-       * @description Always `personal` today.
-       * @enum {string}
-       */
-      type: 'personal' | 'family' | 'community';
-      name: string;
-      description: string | null;
-      /**
-       * Format: int64
-       * @description Template given to new contacts; templates come from area B2's template list.
-       */
-      default_template_id: number | null;
-      /**
-       * @description Tab the dashboard opens on.
-       * @enum {string}
-       */
-      default_activity_tab: 'activity' | 'life_events' | 'life_metrics';
-      show_group_tab: boolean;
-      show_tasks_tab: boolean;
-      show_files_tab: boolean;
-      show_journal_tab: boolean;
-      show_companies_tab: boolean;
-      show_reports_tab: boolean;
-      show_calendar_tab: boolean;
-      /** @description The current user's permission (`user_vault.permission`). */
-      permission: components['schemas']['VaultPermission'];
-      /** @description The current user's own contact in this vault (`user_vault.contact_id`);
-       *     mood tracking, life events and life metrics are recorded on it.
-       *      */
-      user_contact_id: components['schemas']['Uuid'];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    VaultListItem: components['schemas']['Vault'] & {
-      /** @description Computed; all contacts of the vault, unlisted ones included. */
-      contacts_count: number;
-      /** @description Computed; up to 5 random contacts of the vault. */
-      contacts_sample: components['schemas']['ContactSummary'][];
-    };
-    VaultList: {
-      data: components['schemas']['VaultListItem'][];
-    };
-    VaultCreate: {
-      name: string;
-      description?: string | null;
-    };
-    VaultUpdate: {
-      name?: string;
-      description?: string | null;
-      /**
-       * Format: int64
-       * @description Must be a template of the account.
-       */
-      default_template_id?: number;
-      /** @enum {string} */
-      default_activity_tab?: 'activity' | 'life_events' | 'life_metrics';
-      show_group_tab?: boolean;
-      show_tasks_tab?: boolean;
-      show_files_tab?: boolean;
-      show_journal_tab?: boolean;
-      show_companies_tab?: boolean;
-      show_reports_tab?: boolean;
-      show_calendar_tab?: boolean;
-    };
-    VaultMember: {
-      /** @description `user.contact` is the user's own contact in this vault. */
-      user: components['schemas']['UserSummary'];
-      permission: components['schemas']['VaultPermission'];
-    };
-    VaultMemberList: {
-      data: components['schemas']['VaultMember'][];
-    };
-    VaultMemberCandidateList: {
-      data: components['schemas']['UserSummary'][];
-    };
-    VaultMemberCreate: {
-      user_id: components['schemas']['Uuid'];
-      permission: components['schemas']['VaultPermission'];
-    };
-    VaultMemberUpdate: {
-      permission: components['schemas']['VaultPermission'];
-    };
-    Label: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      name: string;
-      slug: string;
-      description: string | null;
-      /** @description Tailwind background class, e.g. `bg-neutral-200`. */
-      bg_color: string;
-      /** @description Tailwind text class, e.g. `text-neutral-800`. */
-      text_color: string;
-      /** @description Computed; contacts with this label. Present in the vault label endpoints' responses. */
-      contacts_count?: number;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    LabelList: {
-      data: components['schemas']['Label'][];
-    };
-    LabelCreate: {
-      name: string;
-      description?: string | null;
-      /** @description Defaults to `bg-neutral-200`. */
-      bg_color?: string | null;
-      /** @description Defaults to `text-neutral-800`. */
-      text_color?: string | null;
-    };
-    LabelUpdate: {
-      name?: string;
-      description?: string | null;
-      bg_color?: string;
-      text_color?: string;
-    };
-    Tag: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      name: string;
-      slug: string;
-      /** @description Computed; posts with this tag. Present in the vault tag endpoints' responses. */
-      posts_count?: number;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    TagList: {
-      data: components['schemas']['Tag'][];
-    };
-    TagCreate: {
-      name: string;
-    };
-    TagUpdate: {
-      name: string;
-    };
-    ContactImportantDateType: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      /** @description Stored text (the seeded ones were translated when the vault was created). */
-      label: string;
-      /**
-       * @description Set on the two seeded types; drives ages and the deceased state.
-       * @enum {string|null}
-       */
-      internal_type: 'birthdate' | 'deceased_date' | null;
-      can_be_deleted: boolean;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    ContactImportantDateTypeList: {
-      data: components['schemas']['ContactImportantDateType'][];
-    };
-    ContactImportantDateTypeCreate: {
-      label: string;
-    };
-    ContactImportantDateTypeUpdate: {
-      label: string;
-    };
-    /** @description Seeded rows have `label_translation_key`; the client shows `label` when
-     *     set, else translates the key.
-     *      */
-    MoodTrackingParameter: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      label: string | null;
-      label_translation_key: string | null;
-      /** @description Despite the name, a Tailwind background class, e.g. `bg-lime-500`. */
-      hex_color: string;
-      position: number | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    MoodTrackingParameterList: {
-      data: components['schemas']['MoodTrackingParameter'][];
-    };
-    MoodTrackingParameterCreate: {
-      label: string;
-      hex_color: string;
-    };
-    MoodTrackingParameterUpdate: {
-      label?: string;
-      hex_color?: string;
-      position?: number;
-    };
-    /** @description Seeded rows have `label_translation_key`; the client shows `label` when
-     *     set, else translates the key.
-     *      */
-    LifeEventCategory: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number | null;
-      can_be_deleted: boolean;
-      /** @description Ordered by `position`. */
-      life_event_types: components['schemas']['LifeEventType'][];
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    LifeEventCategoryList: {
-      data: components['schemas']['LifeEventCategory'][];
-    };
-    LifeEventCategoryCreate: {
-      label: string;
-    };
-    LifeEventCategoryUpdate: {
-      label?: string;
-      position?: number;
-    };
-    LifeEventType: {
-      id: components['schemas']['Id'];
-      life_event_category_id: components['schemas']['Id'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number | null;
-      can_be_deleted: boolean;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    LifeEventTypeCreate: {
-      label: string;
-    };
-    LifeEventTypeUpdate: {
-      label?: string;
-      position?: number;
-    };
-    /** @description A row of `vault_quick_facts_templates`. Seeded rows have
-     *     `label_translation_key`; the client shows `label` when set, else
-     *     translates the key.
-     *      */
-    QuickFactTemplate: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      label: string | null;
-      label_translation_key: string | null;
-      position: number;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    QuickFactTemplateList: {
-      data: components['schemas']['QuickFactTemplate'][];
-    };
-    QuickFactTemplateCreate: {
-      label: string;
-    };
-    QuickFactTemplateUpdate: {
-      label?: string;
-      position?: number;
-    };
-    VaultDashboard: {
-      /** @enum {string} */
-      default_activity_tab: 'activity' | 'life_events' | 'life_metrics';
-      /** @description The current user's own contact in the vault (`Vault.user_contact_id`):
-       *     the mood form and the life events module act on it, and the life
-       *     events form shows it as the first participant.
-       *      */
-      user_contact: components['schemas']['ContactSummary'];
-      /** @description Contacts the current user marked favorite in this vault. */
-      favorites: components['schemas']['ContactSummary'][];
-      /** @description The 5 contacts with the latest `last_updated_at`. */
-      last_updated_contacts: components['schemas']['ContactSummary'][];
-      /** @description Untriggered reminders of the vault's contacts scheduled up to 30 days
-       *     from now (past untriggered ones included), by `scheduled_at`, one
-       *     per reminder.
-       *      */
-      upcoming_reminders: components['schemas']['UpcomingReminder'][];
-      /** @description Uncompleted tasks of the vault's contacts due within 30 days
-       *     (overdue included) or without a due date, by `due_at` (no date
-       *     first). Completing one is updateContactTask.
-       *      */
-      due_tasks: components['schemas']['VaultTask'][];
-      /** @description For the mood form, by `position`. The form posts createContactMoodTrackingEvent on `Vault.user_contact_id`. */
-      mood_tracking_parameters: components['schemas']['MoodTrackingParameter'][];
-      /** @description Today in the user's timezone (default date of the mood form). */
-      current_date: components['schemas']['Date'];
-      /** @description The life events module of the user's own contact in the vault. */
-      life_events: components['schemas']['LifeEventsModule'];
-      /** @description The current year's life metrics, as listVaultLifeMetrics. */
-      life_metrics: components['schemas']['LifeMetric'][];
-    };
-    /** @description One scheduled occurrence of a contact reminder. */
-    UpcomingReminder: {
-      contact_reminder_id: components['schemas']['Id'];
-      label: string;
-      scheduled_at: components['schemas']['Timestamp'];
-      contact: components['schemas']['ContactSummary'];
-    };
-    VaultReminderList: {
-      data: {
-        year: number;
-        month: number;
-        /** @description By `scheduled_at`. */
-        reminders: components['schemas']['UpcomingReminder'][];
-      }[];
-    };
-    /** @description A contact task shown outside the contact page, with its contact. */
-    VaultTask: components['schemas']['ContactTask'] & {
-      contact: components['schemas']['ContactSummary'];
-    };
-    VaultTaskList: {
-      data: {
-        contact: components['schemas']['ContactSummary'];
-        tasks: components['schemas']['VaultTask'][];
-      }[];
-    };
-    CalendarMonth: {
-      year: number;
-      month: number;
-      /** @description Weeks from the Monday on or before the 1st to the Sunday on or
-       *     after the last day; each week has 7 days.
-       *      */
-      weeks: components['schemas']['CalendarDay'][][];
-    };
-    CalendarDay: {
-      date: components['schemas']['Date'];
-      /** @description Computed in the user's timezone. */
-      is_today: boolean;
-      /** @description False for the days of the previous/next month that fill the first/last week. */
-      is_in_month: boolean;
-      /** @description Important dates of the vault's contacts on this day and month (any
-       *     year), at most one per contact.
-       *      */
-      important_dates: components['schemas']['CalendarImportantDate'][];
-      /** @description Mood events of the user's own contact rated on this day. */
-      mood_tracking_events: components['schemas']['MoodTrackingEvent'][];
-      /** @description Posts of the vault's journals written on this day. */
-      posts: components['schemas']['PostSummary'][];
-    };
-    CalendarImportantDate: components['schemas']['ContactImportantDate'] & {
-      contact: components['schemas']['ContactCard'];
-    };
-    AddressReport: {
-      cities: {
-        /** @description The stored spelling of the first address found. */
-        city: string;
-        /** @description Computed; contacts with an address in this city. */
-        contacts_count: number;
-      }[];
-      countries: {
-        /** @description The stored spelling of the first address found. */
-        country: string;
-        /** @description Computed; contacts with an address in this country. */
-        contacts_count: number;
-      }[];
-    };
-    AddressPlaceReport: {
-      /** @description The requested city or country. */
-      name: string;
-      /** @description `WikipediaHelper::getInformation` of the place, asked by the server
-       *     in the request's language when the report is requested; every
-       *     field is null when Wikipedia can't be reached or `WIKIPEDIA_URL`
-       *     is empty (Q1).
-       *      */
-      wikipedia: {
-        url: string | null;
-        description: string | null;
-        thumbnail: string | null;
-      };
-      addresses: (components['schemas']['Address'] & {
-        contacts: components['schemas']['ContactCard'][];
-      })[];
-    };
-    MoodTrackingReport: {
-      year: number;
-      months: {
-        month: number;
-        /** @description Every day of the month. */
-        days: {
-          day: number;
-          /** @description The latest event rated that day, if any. */
-          mood_tracking_event: {
-            id: components['schemas']['Id'];
-            mood_tracking_parameter_id: components['schemas']['Id'];
-            /** @description The parameter's Tailwind class. */
-            hex_color: string;
-          } | null;
-        }[];
-      }[];
-    };
-    ImportantDateReport: {
-      months: {
-        year: number;
-        month: number;
-        important_dates: (components['schemas']['ContactImportantDate'] & {
-          contact: components['schemas']['ContactCard'];
-        })[];
-      }[];
-    };
-    /** @description A vault life metric with the counts of the current user's own contact
-     *     (`contact_life_metric` rows; an event's time is the row's `created_at`).
-     *      */
-    LifeMetric: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      label: string;
-      /** @description Computed; events in the current week, month and year. */
-      stats: {
-        weekly_events: number;
-        monthly_events: number;
-        yearly_events: number;
-      };
-      /** @description Computed; years with at least one event, descending. */
-      years: number[];
-      /** @description Year that `months` covers. */
-      year: number;
-      /** @description Computed; events per month of `year`. */
-      months: {
-        month: number;
-        events: number;
-      }[];
-      /** @description Computed; the largest `months[].events` (graph scale). */
-      max_number_of_events: number;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    LifeMetricList: {
-      data: components['schemas']['LifeMetric'][];
-    };
-    LifeMetricCreate: {
-      label: string;
-    };
-    LifeMetricUpdate: {
-      label: string;
-    };
-    VaultFile: components['schemas']['File'] & {
-      /** @description The contact the file belongs to (photo, document or avatar), else null. */
-      contact: components['schemas']['ContactSummary'] | null;
-    };
-    VaultFileList: {
-      data: components['schemas']['VaultFile'][];
-      meta: components['schemas']['PaginationMeta'];
-      /** @description Computed; files in the vault by type, ignoring `type`. */
-      counts: {
-        all: number;
-        photo: number;
-        document: number;
-        avatar: number;
-      };
-    };
-    Company: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      name: string;
-      /** @enum {string|null} */
-      type: 'company' | 'organization' | 'association' | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    CompanyList: {
-      data: (components['schemas']['Company'] & {
-        /** @description Contacts whose `company_id` is this company. */
-        contacts: components['schemas']['ContactSummary'][];
-      })[];
-    };
-    CompanyCreate: {
-      name: string;
-      /** @enum {string|null} */
-      type?: 'company' | 'organization' | 'association' | null;
-    };
-    SearchResults: {
-      contacts: components['schemas']['ContactSummary'][];
-      notes: (components['schemas']['Note'] & {
-        contact: components['schemas']['ContactSummary'];
-      })[];
-      groups: {
-        id: components['schemas']['Id'];
-        name: string;
-      }[];
-    };
-    /** @description A row of `addressbook_subscriptions`. The password is never returned. */
-    AddressBookSubscription: {
-      id: components['schemas']['Uuid'];
-      /** @description The user the sync acts as (the creator). */
-      user_id: components['schemas']['Uuid'];
-      vault_id: components['schemas']['Uuid'];
-      /** @description The discovered address book URL. */
-      uri: string;
-      username: string;
-      active: boolean;
-      /**
-       * @description Bit mask; 1 push local changes, 2 get remote changes, 3 both.
-       * @enum {integer}
-       */
-      sync_way: 1 | 2 | 3;
-      /** @description What the remote server supports, found at discovery. */
-      capabilities: {
-        addressbookMultiget?: boolean;
-        addressbookQuery?: boolean;
-        syncCollection?: boolean;
-        addressData?: {
-          'content-type'?: string;
-          version?: string;
-        };
-      };
-      /** @description Minutes between automatic syncs. */
-      frequency: number;
-      last_synchronized_at: components['schemas']['Timestamp'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    AddressBookSubscriptionList: {
-      data: components['schemas']['AddressBookSubscription'][];
-    };
-    AddressBookSubscriptionCreate: {
-      /**
-       * Format: uri
-       * @description The server or address book URL to discover from.
-       */
-      base_uri: string;
-      username: string;
-      /** @description Stored encrypted. */
-      password: string;
-      /**
-       * @default 3
-       * @enum {integer}
-       */
-      sync_way: 1 | 2 | 3;
-    };
-    AddressBookSubscriptionUpdate: {
-      username?: string;
-      password?: string;
-      active?: boolean;
-      /** @enum {integer} */
-      sync_way?: 1 | 2 | 3;
-      frequency?: number;
-    };
-    Journal: {
-      id: components['schemas']['Id'];
-      vault_id: components['schemas']['Uuid'];
-      name: string;
-      description: string | null;
-      /** @description Computed. `written_at` of the journal's latest post; null when it has none. */
-      last_post_written_at: components['schemas']['Date'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    JournalList: {
-      data: components['schemas']['Journal'][];
-    };
-    /** @description The journal page for one year (api-design.md §12). */
-    JournalOverview: {
-      journal: components['schemas']['Journal'];
-      /** @description The year shown. */
-      year: number;
-      /** @description Always 12 entries, December first. */
-      months: {
-        month: number;
-        post_count: number;
-        /** @description Posts written that month, `written_at` descending. */
-        posts: components['schemas']['PostSummary'][];
-      }[];
-      /** @description Every year with at least one post in the journal, descending. */
-      years: {
-        year: number;
-        post_count: number;
-      }[];
-      /** @description Tags assigned to at least one post of the journal, by name. */
-      tags: (components['schemas']['Tag'] & {
-        /** @description Computed. Number of posts with this tag in the whole vault, as today. */
-        post_count: number;
-      })[];
-      /** @description All slices of life of the journal, by id. */
-      slices: components['schemas']['SliceOfLife'][];
-    };
-    /** @description A post in a list: the journal page, a slice of life page, the contact
-     *     page's posts module and the calendar.
-     *      */
-    PostSummary: {
-      id: components['schemas']['Id'];
-      journal: {
-        id: components['schemas']['Id'];
-        name: string;
-      };
-      /** Format: int64 */
-      slice_of_life_id: number | null;
-      /** @description Null when untitled (the client shows its "Undefined" label). */
-      title: string | null;
-      published: boolean;
-      written_at: components['schemas']['Date'];
-      /** @description Computed. The first section (by position) with content, cut to 200
-       *     characters with `...` appended when cut (as `Str::limit`); null
-       *     when no section has content. Markdown, unrendered.
-       *      */
-      excerpt: string | null;
-      /** @description Computed. The post's first photo (lowest id), or null. */
-      first_photo: components['schemas']['File'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
+      photos: components['schemas']['File'][];
     };
     /** @description A post with everything its show and edit pages display. */
     Post: {
-      id: components['schemas']['Id'];
       /** @description Computed: the account is under its storage limit (X011); the edit page hides the photo upload otherwise. */
       can_upload_file: boolean;
-      journal: {
-        id: components['schemas']['Id'];
-        name: string;
-      };
-      slice_of_life: components['schemas']['SliceOfLife'] | null;
-      /** @description Null when untitled (the client shows its "Undefined" label). */
-      title: string | null;
-      published: boolean;
-      /** @description The column is a datetime; the API uses its date. */
-      written_at: components['schemas']['Date'];
-      view_count: number;
-      /** @description Computed. Words in all section contents. */
-      word_count: number;
-      /** @description Computed. `max(1, round(word_count / 200))`. */
-      time_to_read_in_minute: number;
-      /** @description All sections, by `position`. The show page hides those whose `content` is null. */
-      sections: components['schemas']['PostSection'][];
-      /** @description The post's tags, by name. */
-      tags: components['schemas']['Tag'][];
       /** @description Contacts mentioned in the post, with what the show page's hover card shows (`ContactCardHelper`). */
       contacts: components['schemas']['ContactCard'][];
-      /** @description The post's photos, by id. */
-      photos: components['schemas']['File'][];
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      journal: components['schemas']['PostJournal'];
       /** @description One entry per metric of the journal (by id), with this post's values. */
-      metrics: {
-        journal_metric: components['schemas']['JournalMetric'];
-        /** @description Computed. Sum of the values in `post_metrics`. */
-        total: number;
-        post_metrics: components['schemas']['PostMetric'][];
-      }[];
+      metrics: components['schemas']['PostMetricItem'][];
       /** @description Computed, per requesting user: the mood tracking events of the
        *     user's own contact in this vault rated on `written_at`'s date. Null
-       *     when the user has no contact in the vault.
-       *      */
-      mood_tracking_events: components['schemas']['MoodTrackingEvent'][] | null;
-      /** @description Computed. The latest post of the journal written on an earlier day, or null. */
-      previous_post: components['schemas']['PostNeighbour'] | null;
-      /** @description Computed. The earliest post of the journal written on a later day, or null. */
-      next_post: components['schemas']['PostNeighbour'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    /** @description The previous or next post, for the show page's navigation. */
-    PostNeighbour: {
-      id: components['schemas']['Id'];
-      title: string | null;
-      written_at: components['schemas']['Date'];
-    };
-    PostSection: {
-      id: components['schemas']['Id'];
-      post_id: components['schemas']['Id'];
-      position: number;
-      /** @description Copied from the post template section when the post was created. */
-      label: string;
-      /** @description Markdown */
-      content: string | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    PostMetric: {
-      id: components['schemas']['Id'];
-      post_id: components['schemas']['Id'];
-      journal_metric_id: components['schemas']['Id'];
-      value: number;
-      label: string | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    JournalMetric: {
-      id: components['schemas']['Id'];
-      journal_id: components['schemas']['Id'];
-      label: string;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    JournalMetricList: {
-      data: components['schemas']['JournalMetric'][];
-    };
-    SliceOfLife: {
-      id: components['schemas']['Id'];
-      journal_id: components['schemas']['Id'];
-      name: string;
-      description: string | null;
+       *     when the user has no contact in the vault. */
+      mood_tracking_events?: components['schemas']['MoodTrackingEvent'][] | null;
+      next_post?: components['schemas']['PostNeighbour'] | null;
+      /** @description The post's photos, by id. */
+      photos: components['schemas']['File'][];
+      previous_post?: components['schemas']['PostNeighbour'] | null;
+      published: boolean;
+      /** @description All sections, by `position`. The show page hides those whose `content` is null. */
+      sections: components['schemas']['PostSection'][];
+      slice_of_life?: components['schemas']['SliceOfLife'] | null;
+      /** @description The post's tags, by name. */
+      tags: components['schemas']['Tag'][];
       /**
        * Format: int64
-       * @description Cover image, served by GET /vaults/{vault_id}/files/{file_id}/content.
+       * @description Computed. `max(1, round(word_count / 200))`.
        */
-      file_cover_image_id: number | null;
-      /** @description Computed. Earliest `written_at` of the slice's posts (today's `date_range` start). */
-      oldest_post_written_at: components['schemas']['Date'] | null;
-      /** @description Computed. Latest `written_at` of the slice's posts (today's `date_range` end). */
-      newest_post_written_at: components['schemas']['Date'] | null;
-      created_at: components['schemas']['Timestamp'];
-      updated_at: components['schemas']['Timestamp'];
-    };
-    SliceOfLifeDetail: components['schemas']['SliceOfLife'] & {
-      /** @description Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise. */
-      can_upload_file: boolean;
-      journal: {
-        id: components['schemas']['Id'];
-        name: string;
-      };
-      /** @description The slice's posts, `written_at` descending. */
-      posts: components['schemas']['PostSummary'][];
-      /** @description Computed. Distinct contacts mentioned in those posts, with what the hover card shows (`ContactCardHelper`). */
-      contacts: components['schemas']['ContactCard'][];
-    };
-    SliceOfLifeList: {
-      data: components['schemas']['SliceOfLife'][];
-    };
-    JournalPhoto: components['schemas']['File'] & {
-      /** @description The post the photo belongs to. */
-      post_id: components['schemas']['Id'];
-    };
-    JournalPhotoList: {
-      data: components['schemas']['JournalPhoto'][];
-    };
-    JournalCreate: {
-      name: string;
-      description?: string | null;
-    };
-    JournalUpdate: {
-      name?: string;
-      description?: string | null;
+      time_to_read_in_minute: number;
+      /** @description Null when untitled (the client shows its "Undefined" label). */
+      title?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      view_count: number;
+      /**
+       * Format: int64
+       * @description Computed. Words in all section contents.
+       */
+      word_count: number;
+      /**
+       * Format: date
+       * @description The column is a datetime; the API uses its date.
+       */
+      written_at: string;
     };
     PostCreate: {
       /**
        * Format: int64
        * @description One of the account's post templates (`listPostTemplates`); otherwise 422.
        */
-      post_template_id: number;
-      /** @default null */
-      title: string | null;
-      /** @description Defaults to today (UTC). */
-      written_at?: components['schemas']['Date'];
-      /** @default false */
-      published: boolean;
-    };
-    PostUpdate: {
+      post_template_id?: number | null;
+      published?: boolean | null;
       title?: string | null;
-      written_at?: components['schemas']['Date'];
-      /** @description Section contents to change; sections not listed are unchanged. Each
-       *     `id` must be a section of this post (422 otherwise).
-       *      */
-      sections?: {
-        id: components['schemas']['Id'];
-        /** @description Markdown. */
-        content: string | null;
-      }[];
+      /**
+       * Format: date
+       * @description Defaults to today (UTC).
+       */
+      written_at?: string | null;
     };
-    PostTagCreate: {
+    PostJournal: {
+      /** Format: int64 */
+      id: number;
       name: string;
     };
-    PostSliceSet: {
-      /**
-       * Format: int64
-       * @description A slice of life of the same journal; otherwise 422.
-       */
-      slice_of_life_id: number;
+    PostMetric: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      journal_metric_id: number;
+      label?: string | null;
+      /** Format: int64 */
+      post_id: number;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      value: number;
     };
     PostMetricCreate: {
       /**
        * Format: int64
        * @description A metric of the post's journal; otherwise 422.
        */
-      journal_metric_id: number;
-      value: number;
+      journal_metric_id?: number | null;
       label?: string | null;
+      /** Format: int64 */
+      value?: number | null;
     };
-    SliceOfLifeCreate: {
+    PostMetricItem: {
+      journal_metric: components['schemas']['JournalMetric'];
+      post_metrics: components['schemas']['PostMetric'][];
+      /**
+       * Format: int64
+       * @description Computed. Sum of the values in `post_metrics`.
+       */
+      total: number;
+    };
+    /** @description The previous or next post, for the show page's navigation. */
+    PostNeighbour: {
+      /** Format: int64 */
+      id: number;
+      title?: string | null;
+      /** Format: date */
+      written_at: string;
+    };
+    PostSection: {
+      /** @description Markdown */
+      content?: string | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** @description Copied from the post template section when the post was created. */
+      label: string;
+      /** Format: int64 */
+      position: number;
+      /** Format: int64 */
+      post_id: number;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    PostSliceSet: {
+      /**
+       * Format: int64
+       * @description A slice of life of the same journal; otherwise 422.
+       */
+      slice_of_life_id?: number | null;
+    };
+    /** @description A post in a list: the journal page, a slice of life page, the contact
+     *     page's posts module and the calendar. */
+    PostSummary: {
+      /** Format: date-time */
+      created_at: string;
+      /** @description Computed. The first section (by position) with content, cut to 200
+       *     characters with `...` appended when cut (as `Str::limit`); null
+       *     when no section has content. Markdown, unrendered. */
+      excerpt?: string | null;
+      first_photo?: components['schemas']['File'] | null;
+      /** Format: int64 */
+      id: number;
+      journal: components['schemas']['PostSummaryJournal'];
+      published: boolean;
+      /** Format: int64 */
+      slice_of_life_id?: number | null;
+      /** @description Null when untitled (the client shows its "Undefined" label). */
+      title?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: date */
+      written_at: string;
+    };
+    PostSummaryJournal: {
+      /** Format: int64 */
+      id: number;
       name: string;
     };
-    SliceOfLifeUpdate: {
-      name?: string;
+    PostTagCreate: {
+      name?: string | null;
+    };
+    /** @description Seeded rows keep `label_translation_key`; user-created rows have a
+     *     `label`. The client shows `label` when set, else translates the key. */
+    PostTemplate: {
+      /** @description False for the seeded "Regular post" template. */
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position: number;
+      /** @description Ordered by `position`. */
+      sections: components['schemas']['PostTemplateSection'][];
+    };
+    PostTemplateCreate: {
+      label?: string | null;
+    };
+    PostTemplateList: {
+      data: components['schemas']['PostTemplate'][];
+    };
+    /** @description A section a new post starts with. `label` / `label_translation_key` as on `PostTemplate`. */
+    PostTemplateSection: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position: number;
+      /** Format: int64 */
+      post_template_id: number;
+    };
+    PostTemplateSectionCreate: {
+      label?: string | null;
+    };
+    PostTemplateSectionUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    PostTemplateUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    PostUpdate: {
+      /** @description Section contents to change; sections not listed are unchanged. Each
+       *     `id` must be a section of this post (422 otherwise). */
+      sections?: components['schemas']['PostUpdateSection'][] | null;
+      title?: string | null;
+      /** Format: date */
+      written_at?: string | null;
+    };
+    PostUpdateSection: {
+      /** @description Markdown. */
+      content?: string | null;
+      /** Format: int64 */
+      id?: number | null;
+    };
+    PostsModule: {
+      /** @description Every post the contact is part of, newest `created_at` first. */
+      posts: components['schemas']['PostSummary'][];
+    };
+    Pronoun: {
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+    };
+    PronounCreate: {
+      name?: string | null;
+    };
+    PronounList: {
+      data: components['schemas']['Pronoun'][];
+    };
+    PronounUpdate: {
+      name?: string | null;
+    };
+    QuickFact: {
+      /** Format: uuid */
+      contact_id: string;
+      content: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: int64 */
+      vault_quick_facts_template_id: number;
+    };
+    QuickFactCreate: {
+      content?: string | null;
+      /**
+       * Format: int64
+       * @description One of the vault's quick fact templates.
+       */
+      vault_quick_facts_template_id?: number | null;
+    };
+    QuickFactList: {
+      data: components['schemas']['QuickFact'][];
+    };
+    /** @description A row of `vault_quick_facts_templates`. Seeded rows have
+     *     `label_translation_key`; the client shows `label` when set, else
+     *     translates the key. */
+    QuickFactTemplate: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      label_translation_key?: string | null;
+      /** Format: int64 */
+      position: number;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    QuickFactTemplateCreate: {
+      label?: string | null;
+    };
+    QuickFactTemplateList: {
+      data: components['schemas']['QuickFactTemplate'][];
+    };
+    QuickFactTemplateUpdate: {
+      label?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    QuickFactUpdate: {
+      content?: string | null;
+    };
+    Registration: {
+      email?: string | null;
+      first_name?: string | null;
+      last_name?: string | null;
+      password?: string | null;
+      password_confirmation?: string | null;
+      /** @description The terms of service and privacy policy are accepted. */
+      terms?: boolean | null;
+    };
+    /** @description A `relationships` row involving the contact in the path, on either
+     *     side. `contact_id` has the role `relationship_type.name` and
+     *     `related_contact_id` the role `relationship_type.name_reverse_relationship`,
+     *     so the label shown next to `other_contact` is
+     *     `name_reverse_relationship` when `contact_id` is the path contact, else
+     *     `name`. */
+    Relationship: {
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      /** @description The side that isn't the path contact. Unlisted contacts
+       *     (`listed: false`) have no contact page. */
+      other_contact: components['schemas']['RelationshipOtherContact'];
+      /** Format: uuid */
+      related_contact_id: string;
+      relationship_type: components['schemas']['RelationshipType'];
+      /** Format: int64 */
+      relationship_type_id: number;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    /** @description Exactly one of `other_contact_id` and `new_contact`. */
+    RelationshipCreate: {
+      /** @description `forward`: the path contact becomes `contact_id` (role
+       *     `relationship_type.name`) and the other contact
+       *     `related_contact_id`. `reverse` swaps them. */
+      direction?: string | null;
+      new_contact?: components['schemas']['RelationshipNewContact'] | null;
+      /** Format: uuid */
+      other_contact_id?: string | null;
+      /**
+       * Format: int64
+       * @description One of the account's relationship types.
+       */
+      relationship_type_id?: number | null;
+    };
+    RelationshipGroupType: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** @description Marks the seeded groups the family summary reads; null for others. */
+      type?: string | null;
+      types: components['schemas']['RelationshipType'][];
+    };
+    RelationshipGroupTypeCreate: {
+      name?: string | null;
+    };
+    RelationshipGroupTypeList: {
+      data: components['schemas']['RelationshipGroupType'][];
+    };
+    RelationshipGroupTypeUpdate: {
+      name?: string | null;
+    };
+    RelationshipList: {
+      data: components['schemas']['Relationship'][];
+    };
+    /** @description A contact created for the relationship (`CreateContact`, no template). All names may be null ("I don't know the name"). */
+    RelationshipNewContact: {
+      first_name?: string | null;
+      /**
+       * Format: int64
+       * @description One of the account's genders.
+       */
+      gender_id?: number | null;
+      last_name?: string | null;
+      /** @description "Create a contact entry for this person": false hides the contact from lists. */
+      listed?: boolean | null;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      /**
+       * Format: int64
+       * @description One of the account's pronouns.
+       */
+      pronoun_id?: number | null;
+    };
+    /** @description The side that isn't the path contact. Unlisted contacts
+     *     (`listed: false`) have no contact page. */
+    RelationshipOtherContact: {
+      /**
+       * Format: int64
+       * @description Computed from the contact's birthdate important date; null when unknown.
+       */
+      age?: number | null;
+      /** Format: int64 */
+      avatar_file_id?: number | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      last_name?: string | null;
+      /** @description False for contacts hidden from lists (e.g. created via a relationship). */
+      listed: boolean;
+      maiden_name?: string | null;
+      middle_name?: string | null;
+      nickname?: string | null;
+      prefix?: string | null;
+      suffix?: string | null;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    RelationshipType: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      /** @description The name seen from the other contact (e.g. "child" for "parent"). */
+      name_reverse_relationship?: string | null;
+      name_reverse_relationship_translation_key?: string | null;
+      name_translation_key?: string | null;
+      /** Format: int64 */
+      relationship_group_type_id: number;
+      /** @description As stored: `family` marks the seeded love types (spouse,
+       *     significant other; the PHP constant `TYPE_LOVE` is `family`),
+       *     `child` the seeded parent/child type. Null for others. */
+      type?: string | null;
+    };
+    RelationshipTypeCreate: {
+      name?: string | null;
+      name_reverse_relationship?: string | null;
+    };
+    RelationshipTypeUpdate: {
+      name?: string | null;
+      name_reverse_relationship?: string | null;
+    };
+    /** @description Module `relationships`. Every relationship group type of the account,
+     *     in order, with the contact's relationships whose type is in it (the
+     *     UI hides empty groups). "Add a relationship" opens the R095 page. */
+    RelationshipsModule: {
+      /** Format: int64 */
+      number_of_defined_relations: number;
+      relationship_group_types: components['schemas']['RelationshipsModuleRelationshipGroupType'][];
+    };
+    RelationshipsModuleRelationshipGroupType: {
+      relationship_group_type: components['schemas']['RelationshipGroupType'];
+      relationships: components['schemas']['Relationship'][];
+    };
+    /** @description Seeded rows have `translation_key`; the client shows `name` when set, else translates the key. */
+    Religion: {
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      /**
+       * Format: int64
+       * @description 1-based order.
+       */
+      position?: number | null;
+      translation_key?: string | null;
+    };
+    ReligionCreate: {
+      name?: string | null;
+    };
+    ReligionList: {
+      data: components['schemas']['Religion'][];
+    };
+    ReligionUpdate: {
+      name?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    /** @description Religion block of the contact page (`ModuleReligionViewHelper`). The
+     *     dropdown uses `listReligions`. */
+    ReligionsModule: {
+      religion?: components['schemas']['Religion'] | null;
+    };
+    /** @description Reminders block of the contact page (`ModuleRemindersViewHelper`). */
+    RemindersModule: {
+      /** @description As `listContactReminders`. */
+      reminders: components['schemas']['ContactReminder'][];
+    };
+    SearchResults: {
+      contacts: components['schemas']['ContactSummary'][];
+      groups: components['schemas']['SearchResultsGroup'][];
+      notes: components['schemas']['SearchResultsNote'][];
+    };
+    SearchResultsGroup: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+    };
+    SearchResultsNote: {
+      author?: components['schemas']['UserSummary'] | null;
+      /** @description Markdown */
+      body: string;
+      contact: components['schemas']['ContactSummary'];
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      emotion?: components['schemas']['Emotion'] | null;
+      /** Format: int64 */
+      id: number;
+      title?: string | null;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    /** @description A browser session of the user (Jetstream's "Browser Sessions"). */
+    SessionInfo: {
+      /** @description Computed from `user_agent`; null when unknown. */
+      browser?: string | null;
+      ip_address?: string | null;
+      /** @description This request's session. */
+      is_current_device: boolean;
+      /** @description Computed from `user_agent`. */
+      is_desktop: boolean;
+      /** Format: date-time */
+      last_activity: string;
+      /** @description Computed from `user_agent`; null when unknown. */
+      platform?: string | null;
+      user_agent?: string | null;
+    };
+    SessionList: {
+      data: components['schemas']['SessionInfo'][];
+    };
+    SliceOfLife: {
+      /** Format: date-time */
+      created_at: string;
       description?: string | null;
+      /**
+       * Format: int64
+       * @description Cover image, served by GET /vaults/{vault_id}/files/{file_id}/content.
+       */
+      file_cover_image_id?: number | null;
+      /** Format: int64 */
+      id: number;
+      /** Format: int64 */
+      journal_id: number;
+      name: string;
+      /**
+       * Format: date
+       * @description Computed. Latest `written_at` of the slice's posts (today's `date_range` end).
+       */
+      newest_post_written_at?: string | null;
+      /**
+       * Format: date
+       * @description Computed. Earliest `written_at` of the slice's posts (today's `date_range` start).
+       */
+      oldest_post_written_at?: string | null;
+      /** Format: date-time */
+      updated_at: string;
     };
-    JournalMetricCreate: {
+    SliceOfLifeCreate: {
+      name?: string | null;
+    };
+    SliceOfLifeDetail: {
+      /** @description Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise. */
+      can_upload_file: boolean;
+      /** @description Computed. Distinct contacts mentioned in those posts, with what the hover card shows (`ContactCardHelper`). */
+      contacts: components['schemas']['ContactCard'][];
+      /** Format: date-time */
+      created_at: string;
+      description?: string | null;
+      /**
+       * Format: int64
+       * @description Cover image, served by GET /vaults/{vault_id}/files/{file_id}/content.
+       */
+      file_cover_image_id?: number | null;
+      /** Format: int64 */
+      id: number;
+      journal: components['schemas']['SliceOfLifeDetailJournal'];
+      /** Format: int64 */
+      journal_id: number;
+      name: string;
+      /**
+       * Format: date
+       * @description Computed. Latest `written_at` of the slice's posts (today's `date_range` end).
+       */
+      newest_post_written_at?: string | null;
+      /**
+       * Format: date
+       * @description Computed. Earliest `written_at` of the slice's posts (today's `date_range` start).
+       */
+      oldest_post_written_at?: string | null;
+      /** @description The slice's posts, `written_at` descending. */
+      posts: components['schemas']['PostSummary'][];
+      /** Format: date-time */
+      updated_at: string;
+    };
+    SliceOfLifeDetailJournal: {
+      /** Format: int64 */
+      id: number;
+      name: string;
+    };
+    SliceOfLifeList: {
+      data: components['schemas']['SliceOfLife'][];
+    };
+    SliceOfLifeUpdate: {
+      description?: string | null;
+      name?: string | null;
+    };
+    StorageTypeUsage: {
+      /**
+       * Format: int64
+       * @description Number of files of this type.
+       */
+      count: number;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size: number;
+    };
+    /** @description Bytes summed over the files of all the account's vaults. */
+    StorageUsage: {
+      avatar: components['schemas']['StorageTypeUsage'];
+      document: components['schemas']['StorageTypeUsage'];
+      photo: components['schemas']['StorageTypeUsage'];
+      /**
+       * Format: int32
+       * @description 0 means unlimited.
+       */
+      storage_limit_in_mb: number;
+      /** Format: int64 */
+      total_size: number;
+    };
+    /** @description A day on which the goal was done. */
+    Streak: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      goal_id: number;
+      /**
+       * Format: date
+       * @description Stored as a datetime at midnight.
+       */
+      happened_at: string;
+      /** Format: int64 */
+      id: number;
+    };
+    String: string;
+    SyncVaultAddressBookSubscriptionBody: {
+      force?: boolean | null;
+    };
+    Tag: {
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      name: string;
+      /**
+       * Format: int64
+       * @description Computed; posts with this tag. Present in the vault tag endpoints' responses.
+       */
+      posts_count?: number | null;
+      slug: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    TagCreate: {
+      name?: string | null;
+    };
+    TagList: {
+      data: components['schemas']['Tag'][];
+    };
+    TagUpdate: {
+      name?: string | null;
+    };
+    /** @description Module `tasks`. Open tasks, newest first; completed ones are loaded on
+     *     demand with `listContactTasks?completed=true`. */
+    TasksModule: {
+      /** Format: int64 */
+      completed_tasks_count: number;
+      tasks: components['schemas']['ContactTask'][];
+    };
+    Template: {
+      /** @description False for the account's seeded default template. */
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+    };
+    TemplateCreate: {
+      name?: string | null;
+    };
+    TemplateDetail: {
+      /** @description False for the account's seeded default template. */
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** @description Every page of the template, ordered by `position`. */
+      pages: components['schemas']['TemplatePage'][];
+    };
+    TemplateList: {
+      data: components['schemas']['Template'][];
+    };
+    /** @description A tab of the contact page. */
+    TemplatePage: {
+      /** @description False for the contact information page. */
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+      /** @description Derived from the name; identifies the tab in contact page URLs. */
+      slug: string;
+      /** Format: int64 */
+      template_id: number;
+      /** @description `contact_information` for the fixed page every template has
+       *     (the contact header: avatar, names, labels, …); null for the
+       *     other pages. */
+      type?: string | null;
+    };
+    TemplatePageAvailableModule: {
+      /** @description Computed. True when the module is already on this page. */
+      already_used: boolean;
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /**
+       * Format: int64
+       * @description Stored page size; set only on the seeded notes module and not read by any page today.
+       */
+      pagination?: number | null;
+      /** @description True if the module can only go on the contact information page; false if it can only go on the other pages. */
+      reserved_to_contact_information: boolean;
+      type?: string | null;
+    };
+    TemplatePageCreate: {
+      name?: string | null;
+    };
+    TemplatePageDetail: {
+      /** @description The account's modules that fit this page (see getTemplatePage),
+       *     ordered by `id`; the page sorts them by display name. */
+      available_modules: components['schemas']['TemplatePageAvailableModule'][];
+      /** @description False for the contact information page. */
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      /** @description The modules on the page, ordered by `position`. */
+      modules: components['schemas']['TemplatePageModule'][];
+      name?: string | null;
+      name_translation_key?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+      /** @description Derived from the name; identifies the tab in contact page URLs. */
+      slug: string;
+      /** Format: int64 */
+      template_id: number;
+      /** @description `contact_information` for the fixed page every template has
+       *     (the contact header: avatar, names, labels, …); null for the
+       *     other pages. */
+      type?: string | null;
+    };
+    /** @description An account module as placed on a template page. */
+    TemplatePageModule: {
+      can_be_deleted: boolean;
+      /** Format: int64 */
+      id: number;
+      name?: string | null;
+      name_translation_key?: string | null;
+      /**
+       * Format: int64
+       * @description Stored page size; set only on the seeded notes module and not read by any page today.
+       */
+      pagination?: number | null;
+      /**
+       * Format: int64
+       * @description Position on the page (1-based).
+       */
+      position?: number | null;
+      /** @description True if the module can only go on the contact information page; false if it can only go on the other pages. */
+      reserved_to_contact_information: boolean;
+      type?: string | null;
+    };
+    TemplatePageModuleUpdate: {
+      /** Format: int64 */
+      position?: number | null;
+    };
+    TemplatePageUpdate: {
+      name?: string | null;
+      /** Format: int64 */
+      position?: number | null;
+    };
+    TemplateUpdate: {
+      name?: string | null;
+    };
+    TimelineEvent: {
+      collapsed: boolean;
+      /** Format: date-time */
+      created_at: string;
+      /**
+       * Format: date
+       * @description Computed - earliest `happened_at` of its life events (the start of the range the UI shows).
+       */
+      first_happened_at?: string | null;
+      /** Format: int64 */
+      id: number;
+      label?: string | null;
+      /**
+       * Format: date
+       * @description Computed - latest `happened_at` of its life events.
+       */
+      last_happened_at?: string | null;
+      /** @description In creation order. */
+      life_events: components['schemas']['LifeEvent'][];
+      /** Format: date */
+      started_at: string;
+      /** Format: date-time */
+      updated_at: string;
+      /** Format: uuid */
+      vault_id: string;
+    };
+    TimelineEventCreate: {
+      label?: string | null;
+      life_event?: components['schemas']['LifeEventCreate'] | null;
+    };
+    TimelineEventList: {
+      data: components['schemas']['TimelineEvent'][];
+      meta: components['schemas']['PaginationMeta'];
+    };
+    TimelineEventUpdate: {
+      collapsed?: boolean | null;
+    };
+    Timezone: {
+      id: string;
+      /**
+       * Format: int64
+       * @description Computed. Current offset from UTC in minutes (the page shows it as `GMT/UTC - 03:00`).
+       */
+      utc_offset: number;
+    };
+    TimezoneList: {
+      data: components['schemas']['Timezone'][];
+    };
+    TwoFactorChallenge: {
+      code?: string | null;
+      recovery_code?: string | null;
+    };
+    TwoFactorConfirm: {
+      code?: string | null;
+    };
+    TwoFactorRecoveryCodes: {
+      recovery_codes: string[];
+    };
+    TwoFactorSetup: {
+      otpauth_url: string;
+      qr_code_svg: string;
+      recovery_codes: string[];
+      secret: string;
+    };
+    /** @description One scheduled occurrence of a contact reminder. */
+    UpcomingReminder: {
+      contact: components['schemas']['ContactSummary'];
+      /** Format: int64 */
+      contact_reminder_id: number;
       label: string;
+      /** Format: date-time */
+      scheduled_at: string;
+    };
+    /** @description The logged-in user's display and format preferences. */
+    UserPreferences: {
+      /** @description `last_updated`, `asc` or `desc`. */
+      contact_sort_order: string;
+      date_format: string;
+      /** @description `google_maps` or `open_street_maps`. */
+      default_map_site: string;
+      /** @description `km` or `mi`. */
+      distance_format: string;
+      help_shown: boolean;
+      locale: string;
+      /** @description How contact names are built, e.g. `%first_name% %last_name%`. */
+      name_order: string;
+      number_format: string;
+      timezone?: string | null;
+    };
+    UserPreferencesUpdate: {
+      /** @description `last_updated`, `asc` or `desc`. */
+      contact_sort_order?: string | null;
+      date_format?: string | null;
+      /** @description `google_maps` or `open_street_maps`. */
+      default_map_site?: string | null;
+      /** @description `km` or `mi`. */
+      distance_format?: string | null;
+      help_shown?: boolean | null;
+      locale?: string | null;
+      name_order?: string | null;
+      number_format?: string | null;
+      timezone?: string | null;
+    };
+    /** @description A user as other users see them; `contact` is the user's own contact in
+     *     the vault of the response, when there is one. */
+    UserSummary: {
+      contact?: components['schemas']['ContactSummary'] | null;
+      first_name?: string | null;
+      /** Format: uuid */
+      id: string;
+      last_name?: string | null;
+    };
+    /** @description A vault, with the caller's permission and own contact in it. */
+    Vault: {
+      /** Format: uuid */
+      account_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** @description `activity`, `life_events` or `life_metrics`. */
+      default_activity_tab: string;
+      /** Format: int64 */
+      default_template_id?: number | null;
+      description?: string | null;
+      /** Format: uuid */
+      id: string;
+      name: string;
+      /**
+       * Format: int32
+       * @description The caller's permission: 100 manager, 200 editor, 300 viewer.
+       */
+      permission: number;
+      show_calendar_tab: boolean;
+      show_companies_tab: boolean;
+      show_files_tab: boolean;
+      show_group_tab: boolean;
+      show_journal_tab: boolean;
+      show_reports_tab: boolean;
+      show_tasks_tab: boolean;
+      /** @description `personal`, `family` or `community`. */
+      type: string;
+      /** Format: date-time */
+      updated_at: string;
+      /**
+       * Format: uuid
+       * @description The caller's own contact in the vault.
+       */
+      user_contact_id: string;
+    };
+    VaultCreate: {
+      description?: string | null;
+      name?: string | null;
+    };
+    VaultDashboard: {
+      /**
+       * Format: date
+       * @description Today in the user's timezone (default date of the mood form).
+       */
+      current_date: string;
+      default_activity_tab: string;
+      /** @description Uncompleted tasks of the vault's contacts due within 30 days
+       *     (overdue included) or without a due date, by `due_at` (no date
+       *     first). Completing one is updateContactTask. */
+      due_tasks: components['schemas']['VaultTask'][];
+      /** @description Contacts the current user marked favorite in this vault. */
+      favorites: components['schemas']['ContactSummary'][];
+      /** @description The 5 contacts with the latest `last_updated_at`. */
+      last_updated_contacts: components['schemas']['ContactSummary'][];
+      /** @description The life events module of the user's own contact in the vault. */
+      life_events: components['schemas']['LifeEventsModule'];
+      /** @description The current year's life metrics, as listVaultLifeMetrics. */
+      life_metrics: components['schemas']['LifeMetric'][];
+      /** @description For the mood form, by `position`. The form posts createContactMoodTrackingEvent on `Vault.user_contact_id`. */
+      mood_tracking_parameters: components['schemas']['MoodTrackingParameter'][];
+      /** @description Untriggered reminders of the vault's contacts scheduled up to 30 days
+       *     from now (past untriggered ones included), by `scheduled_at`, one
+       *     per reminder. */
+      upcoming_reminders: components['schemas']['UpcomingReminder'][];
+      /** @description The current user's own contact in the vault (`Vault.user_contact_id`):
+       *     the mood form and the life events module act on it, and the life
+       *     events form shows it as the first participant. */
+      user_contact: components['schemas']['ContactSummary'];
+    };
+    VaultFile: {
+      contact?: components['schemas']['ContactSummary'] | null;
+      /** Format: date-time */
+      created_at: string;
+      /** Format: int64 */
+      id: number;
+      mime_type: string;
+      name: string;
+      /**
+       * Format: int64
+       * @description Bytes.
+       */
+      size: number;
+      type: string;
+      /** Format: uuid */
+      uuid: string;
+    };
+    VaultFileList: {
+      /** @description Computed; files in the vault by type, ignoring `type`. */
+      counts: components['schemas']['VaultFileListCounts'];
+      data: components['schemas']['VaultFile'][];
+      meta: components['schemas']['PaginationMeta'];
+    };
+    /** @description Computed; files in the vault by type, ignoring `type`. */
+    VaultFileListCounts: {
+      /** Format: int64 */
+      all: number;
+      /** Format: int64 */
+      avatar: number;
+      /** Format: int64 */
+      document: number;
+      /** Format: int64 */
+      photo: number;
+    };
+    VaultList: {
+      data: components['schemas']['VaultListItem'][];
+    };
+    VaultListItem: components['schemas']['Vault'] & {
+      /**
+       * Format: int64
+       * @description All contacts of the vault, unlisted ones included.
+       */
+      contacts_count: number;
+      /** @description Up to 5 random contacts of the vault. */
+      contacts_sample: components['schemas']['ContactSummary'][];
+    };
+    VaultMember: {
+      /**
+       * Format: int32
+       * @description 100 manager, 200 editor, 300 viewer.
+       */
+      permission: number;
+      user: components['schemas']['UserSummary'];
+    };
+    VaultMemberCandidateList: {
+      data: components['schemas']['UserSummary'][];
+    };
+    VaultMemberCreate: {
+      /** Format: int32 */
+      permission?: number | null;
+      /** Format: uuid */
+      user_id?: string | null;
+    };
+    VaultMemberList: {
+      data: components['schemas']['VaultMember'][];
+    };
+    VaultMemberUpdate: {
+      /** Format: int32 */
+      permission?: number | null;
+    };
+    VaultReminderList: {
+      data: components['schemas']['VaultReminderListDataItem'][];
+    };
+    VaultReminderListDataItem: {
+      /** Format: int64 */
+      month: number;
+      /** @description By `scheduled_at`. */
+      reminders: components['schemas']['UpcomingReminder'][];
+      /** Format: int64 */
+      year: number;
+    };
+    /** @description A contact task shown outside the contact page, with its contact. */
+    VaultTask: {
+      /**
+       * Format: uuid
+       * @description Null when the author was deleted.
+       */
+      author_id?: string | null;
+      author_name: string;
+      completed: boolean;
+      /** Format: date-time */
+      completed_at?: string | null;
+      contact: components['schemas']['ContactSummary'];
+      /** Format: uuid */
+      contact_id: string;
+      /** Format: date-time */
+      created_at: string;
+      /** @description Markdown */
+      description?: string | null;
+      /** Format: date */
+      due_at?: string | null;
+      /** Format: int64 */
+      id: number;
+      /** @description Computed - `due_at` (midnight UTC) is in the past, so a task due today is late; false without `due_at`. */
+      is_late: boolean;
+      label: string;
+      /** Format: date-time */
+      updated_at: string;
+    };
+    VaultTaskList: {
+      data: components['schemas']['VaultTaskListDataItem'][];
+    };
+    VaultTaskListDataItem: {
+      contact: components['schemas']['ContactSummary'];
+      tasks: components['schemas']['VaultTask'][];
+    };
+    VaultUpdate: {
+      default_activity_tab?: string | null;
+      /** Format: int64 */
+      default_template_id?: number | null;
+      description?: string | null;
+      name?: string | null;
+      show_calendar_tab?: boolean | null;
+      show_companies_tab?: boolean | null;
+      show_files_tab?: boolean | null;
+      show_group_tab?: boolean | null;
+      show_journal_tab?: boolean | null;
+      show_reports_tab?: boolean | null;
+      show_tasks_tab?: boolean | null;
+    };
+    /** @description What the report pages show about a place. */
+    WikipediaInfo: {
+      description?: string | null;
+      thumbnail?: string | null;
+      url?: string | null;
     };
   };
-  responses: {
-    /** @description Done; no body. */
-    NoContent: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content?: never;
-    };
-    /** @description Malformed request. */
-    BadRequest: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description No valid session or token (`unauthenticated`). */
-    Unauthenticated: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`,
-     *     `token_ability_missing`, `password_confirmation_required` or
-     *     `signup_disabled`.
-     *      */
-    Forbidden: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description Doesn't exist or isn't visible to the user (`not_found`). */
-    NotFound: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description State or uniqueness conflict (`conflict`). */
-    Conflict: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description Upload above the per-file limit (`payload_too_large`). */
-    PayloadTooLarge: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or
-     *     `vault_user_limit_reached`.
-     *      */
-    ValidationFailed: {
-      headers: {
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-    /** @description Too many requests (`rate_limited`); see `Retry-After`. */
-    RateLimited: {
-      headers: {
-        'Retry-After'?: number;
-        [name: string]: unknown;
-      };
-      content: {
-        'application/problem+json': components['schemas']['Problem'];
-      };
-    };
-  };
-  parameters: {
-    VaultId: components['schemas']['Uuid'];
-    ContactId: components['schemas']['Uuid'];
-    JournalId: components['schemas']['Id'];
-    PostId: components['schemas']['Id'];
-    Page: number;
-    /** @description Page size. The default is set per endpoint; the maximum is 100. */
-    PerPage: number;
-    /** @description Search text (LIKE match on the searchable columns). */
-    Query: string;
-    InvitationCode: components['schemas']['Uuid'];
-    NotificationChannelId: components['schemas']['Id'];
-    /** @description A timeline event in the vault that the contact takes part in. */
-    TimelineEventId: components['schemas']['Id'];
-    GroupId: components['schemas']['Id'];
-  };
+  responses: never;
+  parameters: never;
   requestBodies: never;
   headers: never;
   pathItems: never;
@@ -8406,8 +7223,6 @@ export interface operations {
           'application/json': components['schemas']['Account'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   cancelAccount: {
@@ -8417,22 +7232,33 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/json': components['schemas']['CancelAccountRequest'];
+        'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      /** @description Deletion queued; no body. */
+      /** @description Deleted. */
       202: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Not an administrator, or `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong password. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listAddressTypes: {
@@ -8453,8 +7279,20 @@ export interface operations {
           'application/json': components['schemas']['AddressTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createAddressType: {
@@ -8479,9 +7317,27 @@ export interface operations {
           'application/json': components['schemas']['AddressType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteAddressType: {
@@ -8489,16 +7345,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        address_type_id: components['schemas']['Id'];
+        address_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateAddressType: {
@@ -8506,7 +7386,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        address_type_id: components['schemas']['Id'];
+        address_type_id: number;
       };
       cookie?: never;
     };
@@ -8525,10 +7405,34 @@ export interface operations {
           'application/json': components['schemas']['AddressType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listCallReasonTypes: {
@@ -8549,8 +7453,20 @@ export interface operations {
           'application/json': components['schemas']['CallReasonTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createCallReasonType: {
@@ -8575,9 +7491,27 @@ export interface operations {
           'application/json': components['schemas']['CallReasonType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteCallReasonType: {
@@ -8585,16 +7519,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        call_reason_type_id: components['schemas']['Id'];
+        call_reason_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateCallReasonType: {
@@ -8602,7 +7560,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        call_reason_type_id: components['schemas']['Id'];
+        call_reason_type_id: number;
       };
       cookie?: never;
     };
@@ -8621,10 +7579,34 @@ export interface operations {
           'application/json': components['schemas']['CallReasonType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createCallReason: {
@@ -8632,7 +7614,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        call_reason_type_id: components['schemas']['Id'];
+        call_reason_type_id: number;
       };
       cookie?: never;
     };
@@ -8651,10 +7633,34 @@ export interface operations {
           'application/json': components['schemas']['CallReason'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteCallReason: {
@@ -8662,17 +7668,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        call_reason_type_id: components['schemas']['Id'];
-        call_reason_id: components['schemas']['Id'];
+        call_reason_type_id: number;
+        call_reason_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateCallReason: {
@@ -8680,8 +7710,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        call_reason_type_id: components['schemas']['Id'];
-        call_reason_id: components['schemas']['Id'];
+        call_reason_type_id: number;
+        call_reason_id: number;
       };
       cookie?: never;
     };
@@ -8700,10 +7730,34 @@ export interface operations {
           'application/json': components['schemas']['CallReason'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactInformationTypes: {
@@ -8724,8 +7778,20 @@ export interface operations {
           'application/json': components['schemas']['ContactInformationTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactInformationType: {
@@ -8750,9 +7816,27 @@ export interface operations {
           'application/json': components['schemas']['ContactInformationType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactInformationType: {
@@ -8760,17 +7844,47 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        contact_information_type_id: components['schemas']['Id'];
+        contact_information_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactInformationType: {
@@ -8778,7 +7892,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        contact_information_type_id: components['schemas']['Id'];
+        contact_information_type_id: number;
       };
       cookie?: never;
     };
@@ -8797,10 +7911,34 @@ export interface operations {
           'application/json': components['schemas']['ContactInformationType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listAccountCurrencies: {
@@ -8823,8 +7961,20 @@ export interface operations {
           'application/json': components['schemas']['AccountCurrencyList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   disableAllAccountCurrencies: {
@@ -8836,9 +7986,27 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   enableAllAccountCurrencies: {
@@ -8850,9 +8018,27 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateAccountCurrency: {
@@ -8860,7 +8046,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        currency_id: components['schemas']['Id'];
+        currency_id: number;
       };
       cookie?: never;
     };
@@ -8879,10 +8065,34 @@ export interface operations {
           'application/json': components['schemas']['AccountCurrency'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listEmotions: {
@@ -8903,8 +8113,20 @@ export interface operations {
           'application/json': components['schemas']['EmotionList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listGenders: {
@@ -8925,8 +8147,20 @@ export interface operations {
           'application/json': components['schemas']['GenderList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createGender: {
@@ -8951,9 +8185,27 @@ export interface operations {
           'application/json': components['schemas']['Gender'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteGender: {
@@ -8961,16 +8213,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gender_id: components['schemas']['Id'];
+        gender_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateGender: {
@@ -8978,7 +8254,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gender_id: components['schemas']['Id'];
+        gender_id: number;
       };
       cookie?: never;
     };
@@ -8997,10 +8273,34 @@ export interface operations {
           'application/json': components['schemas']['Gender'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listGiftOccasions: {
@@ -9021,8 +8321,20 @@ export interface operations {
           'application/json': components['schemas']['GiftOccasionList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createGiftOccasion: {
@@ -9047,9 +8359,27 @@ export interface operations {
           'application/json': components['schemas']['GiftOccasion'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteGiftOccasion: {
@@ -9057,16 +8387,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gift_occasion_id: components['schemas']['Id'];
+        gift_occasion_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateGiftOccasion: {
@@ -9074,7 +8428,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gift_occasion_id: components['schemas']['Id'];
+        gift_occasion_id: number;
       };
       cookie?: never;
     };
@@ -9093,10 +8447,34 @@ export interface operations {
           'application/json': components['schemas']['GiftOccasion'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listGiftStates: {
@@ -9117,8 +8495,20 @@ export interface operations {
           'application/json': components['schemas']['GiftStateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createGiftState: {
@@ -9143,9 +8533,27 @@ export interface operations {
           'application/json': components['schemas']['GiftState'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteGiftState: {
@@ -9153,16 +8561,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gift_state_id: components['schemas']['Id'];
+        gift_state_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateGiftState: {
@@ -9170,7 +8602,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        gift_state_id: components['schemas']['Id'];
+        gift_state_id: number;
       };
       cookie?: never;
     };
@@ -9189,10 +8621,34 @@ export interface operations {
           'application/json': components['schemas']['GiftState'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listGroupTypes: {
@@ -9213,8 +8669,20 @@ export interface operations {
           'application/json': components['schemas']['GroupTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createGroupType: {
@@ -9239,9 +8707,27 @@ export interface operations {
           'application/json': components['schemas']['GroupType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteGroupType: {
@@ -9249,16 +8735,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        group_type_id: components['schemas']['Id'];
+        group_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateGroupType: {
@@ -9266,7 +8776,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        group_type_id: components['schemas']['Id'];
+        group_type_id: number;
       };
       cookie?: never;
     };
@@ -9285,10 +8795,34 @@ export interface operations {
           'application/json': components['schemas']['GroupType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createGroupTypeRole: {
@@ -9296,7 +8830,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        group_type_id: components['schemas']['Id'];
+        group_type_id: number;
       };
       cookie?: never;
     };
@@ -9315,10 +8849,34 @@ export interface operations {
           'application/json': components['schemas']['GroupTypeRole'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteGroupTypeRole: {
@@ -9326,17 +8884,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        group_type_id: components['schemas']['Id'];
-        group_type_role_id: components['schemas']['Id'];
+        group_type_id: number;
+        group_type_role_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateGroupTypeRole: {
@@ -9344,8 +8926,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        group_type_id: components['schemas']['Id'];
-        group_type_role_id: components['schemas']['Id'];
+        group_type_id: number;
+        group_type_role_id: number;
       };
       cookie?: never;
     };
@@ -9364,10 +8946,34 @@ export interface operations {
           'application/json': components['schemas']['GroupTypeRole'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listAccountModules: {
@@ -9388,8 +8994,20 @@ export interface operations {
           'application/json': components['schemas']['AccountModuleList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listPetCategories: {
@@ -9410,8 +9028,20 @@ export interface operations {
           'application/json': components['schemas']['PetCategoryList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createPetCategory: {
@@ -9436,9 +9066,27 @@ export interface operations {
           'application/json': components['schemas']['PetCategory'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deletePetCategory: {
@@ -9446,16 +9094,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        pet_category_id: components['schemas']['Id'];
+        pet_category_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updatePetCategory: {
@@ -9463,7 +9135,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        pet_category_id: components['schemas']['Id'];
+        pet_category_id: number;
       };
       cookie?: never;
     };
@@ -9482,10 +9154,34 @@ export interface operations {
           'application/json': components['schemas']['PetCategory'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listPostTemplates: {
@@ -9506,8 +9202,20 @@ export interface operations {
           'application/json': components['schemas']['PostTemplateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createPostTemplate: {
@@ -9532,9 +9240,27 @@ export interface operations {
           'application/json': components['schemas']['PostTemplate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deletePostTemplate: {
@@ -9542,17 +9268,47 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        post_template_id: components['schemas']['Id'];
+        post_template_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updatePostTemplate: {
@@ -9560,7 +9316,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        post_template_id: components['schemas']['Id'];
+        post_template_id: number;
       };
       cookie?: never;
     };
@@ -9579,10 +9335,34 @@ export interface operations {
           'application/json': components['schemas']['PostTemplate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createPostTemplateSection: {
@@ -9590,7 +9370,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        post_template_id: components['schemas']['Id'];
+        post_template_id: number;
       };
       cookie?: never;
     };
@@ -9609,10 +9389,34 @@ export interface operations {
           'application/json': components['schemas']['PostTemplateSection'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deletePostTemplateSection: {
@@ -9620,18 +9424,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        post_template_id: components['schemas']['Id'];
-        post_template_section_id: components['schemas']['Id'];
+        post_template_id: number;
+        post_template_section_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updatePostTemplateSection: {
@@ -9639,8 +9473,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        post_template_id: components['schemas']['Id'];
-        post_template_section_id: components['schemas']['Id'];
+        post_template_id: number;
+        post_template_section_id: number;
       };
       cookie?: never;
     };
@@ -9659,10 +9493,34 @@ export interface operations {
           'application/json': components['schemas']['PostTemplateSection'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listPronouns: {
@@ -9683,8 +9541,20 @@ export interface operations {
           'application/json': components['schemas']['PronounList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createPronoun: {
@@ -9709,9 +9579,27 @@ export interface operations {
           'application/json': components['schemas']['Pronoun'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deletePronoun: {
@@ -9719,16 +9607,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        pronoun_id: components['schemas']['Id'];
+        pronoun_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updatePronoun: {
@@ -9736,7 +9648,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        pronoun_id: components['schemas']['Id'];
+        pronoun_id: number;
       };
       cookie?: never;
     };
@@ -9755,10 +9667,34 @@ export interface operations {
           'application/json': components['schemas']['Pronoun'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listRelationshipGroupTypes: {
@@ -9779,8 +9715,20 @@ export interface operations {
           'application/json': components['schemas']['RelationshipGroupTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createRelationshipGroupType: {
@@ -9805,9 +9753,27 @@ export interface operations {
           'application/json': components['schemas']['RelationshipGroupType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteRelationshipGroupType: {
@@ -9815,17 +9781,47 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        relationship_group_type_id: components['schemas']['Id'];
+        relationship_group_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateRelationshipGroupType: {
@@ -9833,7 +9829,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        relationship_group_type_id: components['schemas']['Id'];
+        relationship_group_type_id: number;
       };
       cookie?: never;
     };
@@ -9852,10 +9848,34 @@ export interface operations {
           'application/json': components['schemas']['RelationshipGroupType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createRelationshipType: {
@@ -9863,7 +9883,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        relationship_group_type_id: components['schemas']['Id'];
+        relationship_group_type_id: number;
       };
       cookie?: never;
     };
@@ -9882,10 +9902,34 @@ export interface operations {
           'application/json': components['schemas']['RelationshipType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteRelationshipType: {
@@ -9893,18 +9937,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        relationship_group_type_id: components['schemas']['Id'];
-        relationship_type_id: components['schemas']['Id'];
+        relationship_group_type_id: number;
+        relationship_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateRelationshipType: {
@@ -9912,8 +9986,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        relationship_group_type_id: components['schemas']['Id'];
-        relationship_type_id: components['schemas']['Id'];
+        relationship_group_type_id: number;
+        relationship_type_id: number;
       };
       cookie?: never;
     };
@@ -9932,10 +10006,34 @@ export interface operations {
           'application/json': components['schemas']['RelationshipType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listReligions: {
@@ -9956,8 +10054,20 @@ export interface operations {
           'application/json': components['schemas']['ReligionList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createReligion: {
@@ -9982,9 +10092,27 @@ export interface operations {
           'application/json': components['schemas']['Religion'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteReligion: {
@@ -9992,16 +10120,40 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        religion_id: components['schemas']['Id'];
+        religion_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateReligion: {
@@ -10009,7 +10161,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        religion_id: components['schemas']['Id'];
+        religion_id: number;
       };
       cookie?: never;
     };
@@ -10028,10 +10180,34 @@ export interface operations {
           'application/json': components['schemas']['Religion'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getAccountStorage: {
@@ -10043,7 +10219,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Usage totals and the account limit. */
+      /** @description The usage. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10052,8 +10228,6 @@ export interface operations {
           'application/json': components['schemas']['StorageUsage'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   listTemplates: {
@@ -10074,8 +10248,20 @@ export interface operations {
           'application/json': components['schemas']['TemplateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createTemplate: {
@@ -10100,9 +10286,27 @@ export interface operations {
           'application/json': components['schemas']['Template'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getTemplate: {
@@ -10110,7 +10314,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
+        template_id: number;
       };
       cookie?: never;
     };
@@ -10125,9 +10329,27 @@ export interface operations {
           'application/json': components['schemas']['TemplateDetail'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteTemplate: {
@@ -10135,17 +10357,47 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
+        template_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateTemplate: {
@@ -10153,7 +10405,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
+        template_id: number;
       };
       cookie?: never;
     };
@@ -10172,10 +10424,34 @@ export interface operations {
           'application/json': components['schemas']['Template'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createTemplatePage: {
@@ -10183,7 +10459,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
+        template_id: number;
       };
       cookie?: never;
     };
@@ -10202,10 +10478,34 @@ export interface operations {
           'application/json': components['schemas']['TemplatePage'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getTemplatePage: {
@@ -10213,8 +10513,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
       };
       cookie?: never;
     };
@@ -10229,9 +10529,27 @@ export interface operations {
           'application/json': components['schemas']['TemplatePageDetail'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteTemplatePage: {
@@ -10239,18 +10557,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateTemplatePage: {
@@ -10258,8 +10606,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
       };
       cookie?: never;
     };
@@ -10278,10 +10626,34 @@ export interface operations {
           'application/json': components['schemas']['TemplatePage'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   addTemplatePageModule: {
@@ -10289,9 +10661,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
-        module_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
+        module_id: number;
       };
       cookie?: never;
     };
@@ -10306,9 +10678,27 @@ export interface operations {
           'application/json': components['schemas']['TemplatePageModule'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   removeTemplatePageModule: {
@@ -10316,18 +10706,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
-        module_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
+        module_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateTemplatePageModule: {
@@ -10335,9 +10749,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        template_id: components['schemas']['Id'];
-        template_page_id: components['schemas']['Id'];
-        module_id: components['schemas']['Id'];
+        template_id: number;
+        template_page_id: number;
+        module_id: number;
       };
       cookie?: never;
     };
@@ -10356,10 +10770,34 @@ export interface operations {
           'application/json': components['schemas']['TemplatePageModule'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listAccountUsers: {
@@ -10371,7 +10809,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description All users of the account, not paginated. */
+      /** @description By creation date. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10380,8 +10818,6 @@ export interface operations {
           'application/json': components['schemas']['AccountUserList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   inviteAccountUser: {
@@ -10406,9 +10842,13 @@ export interface operations {
           'application/json': components['schemas']['AccountUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getAccountUser: {
@@ -10416,7 +10856,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        user_id: components['schemas']['Uuid'];
+        user_id: string;
       };
       cookie?: never;
     };
@@ -10431,9 +10871,13 @@ export interface operations {
           'application/json': components['schemas']['AccountUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteAccountUser: {
@@ -10441,22 +10885,37 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        user_id: components['schemas']['Uuid'];
+        user_id: string;
       };
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/json': components['schemas']['DeleteAccountUserRequest'];
+        'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Deleted. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Yourself. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong password. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateAccountUser: {
@@ -10464,7 +10923,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        user_id: components['schemas']['Uuid'];
+        user_id: string;
       };
       cookie?: never;
     };
@@ -10474,7 +10933,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated user. */
+      /** @description The user. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10483,11 +10942,20 @@ export interface operations {
           'application/json': components['schemas']['AccountUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Removing your own privilege. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   confirmPassword: {
@@ -10503,16 +10971,26 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Confirmed. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong password (on `password`). */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getPasswordConfirmationStatus: {
     parameters: {
       query?: {
-        /** @description Window to check, in seconds. */
+        /** @description Window to check, in seconds (default 10800). */
         seconds?: number;
       };
       header?: never;
@@ -10521,7 +10999,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description The confirmation status. */
+      /** @description The status. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10530,8 +11008,6 @@ export interface operations {
           'application/json': components['schemas']['PasswordConfirmationStatus'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   getCsrfCookie: {
@@ -10543,7 +11019,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   sendEmailVerification: {
@@ -10555,10 +11037,20 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      429: components['responses']['RateLimited'];
+      /** @description Sent (or already verified). */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 6 per minute. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   verifyEmail: {
@@ -10574,11 +11066,27 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description Verified. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad, expired or someone else's link. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 6 per minute. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   requestPasswordReset: {
@@ -10594,10 +11102,20 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description Sent if the email has an account (the answer is the same either way). */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description A link was sent less than 60 seconds ago. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   logIn: {
@@ -10622,9 +11140,27 @@ export interface operations {
           'application/json': components['schemas']['LoginResult'];
         };
       };
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description `csrf_token_mismatch`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong credentials (on `email`). */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 5 attempts per minute per email and IP. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   logOut: {
@@ -10636,9 +11172,20 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not logged in. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   registerUser: {
@@ -10654,7 +11201,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The new user, now logged in. */
+      /** @description The new user, logged in. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -10663,9 +11210,20 @@ export interface operations {
           'application/json': components['schemas']['CurrentUser'];
         };
       };
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description `signup_disabled` or `csrf_token_mismatch`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   resetPassword: {
@@ -10681,10 +11239,20 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description Password changed. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Bad or expired token, or password rules. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   completeTwoFactorChallenge: {
@@ -10709,10 +11277,27 @@ export interface operations {
           'application/json': components['schemas']['CurrentUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
-      429: components['responses']['RateLimited'];
+      /** @description No pending login in the session. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong code. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 5 attempts per minute per pending login. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getInstance: {
@@ -10740,13 +11325,13 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        invitation_code: components['parameters']['InvitationCode'];
+        invitation_code: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description The pending invitation. */
+      /** @description The invitation. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10755,7 +11340,13 @@ export interface operations {
           'application/json': components['schemas']['Invitation'];
         };
       };
-      404: components['responses']['NotFound'];
+      /** @description Unknown or already accepted. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   acceptInvitation: {
@@ -10763,7 +11354,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        invitation_code: components['parameters']['InvitationCode'];
+        invitation_code: string;
       };
       cookie?: never;
     };
@@ -10773,7 +11364,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The user, now logged in. */
+      /** @description The new user, logged in. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10782,9 +11373,20 @@ export interface operations {
           'application/json': components['schemas']['CurrentUser'];
         };
       };
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Unknown or already accepted. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getMe: {
@@ -10805,8 +11407,13 @@ export interface operations {
           'application/json': components['schemas']['CurrentUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description Not logged in. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteMe: {
@@ -10816,18 +11423,40 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
         'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Deleted; the session ends. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Account deletion is off on this server. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description You are the account's last administrator. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateMe: {
@@ -10843,7 +11472,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated user. */
+      /** @description The user. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10852,9 +11481,13 @@ export interface operations {
           'application/json': components['schemas']['CurrentUser'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getBootstrap: {
@@ -10866,7 +11499,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description The layout data. */
+      /** @description The bootstrap data. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10875,8 +11508,6 @@ export interface operations {
           'application/json': components['schemas']['Bootstrap'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   listNotificationChannels: {
@@ -10888,7 +11519,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description The channels. */
+      /** @description The channels, by id. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10897,8 +11528,6 @@ export interface operations {
           'application/json': components['schemas']['NotificationChannelList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   createNotificationChannel: {
@@ -10914,7 +11543,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The created channel. */
+      /** @description The channel. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -10923,9 +11552,13 @@ export interface operations {
           'application/json': components['schemas']['NotificationChannel'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getNotificationChannel: {
@@ -10933,7 +11566,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
@@ -10948,9 +11581,13 @@ export interface operations {
           'application/json': components['schemas']['NotificationChannel'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteNotificationChannel: {
@@ -10958,16 +11595,26 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Deleted. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateNotificationChannel: {
@@ -10975,7 +11622,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
@@ -10985,7 +11632,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated channel. */
+      /** @description The channel. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -10994,27 +11641,32 @@ export interface operations {
           'application/json': components['schemas']['NotificationChannel'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listNotificationChannelLogs: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        /** @description 1-based. */
+        page?: number;
+        /** @description Page size; the default depends on the endpoint, the maximum is 100. */
         per_page?: number;
       };
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description The log entries. */
+      /** @description Newest first. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11023,9 +11675,6 @@ export interface operations {
           'application/json': components['schemas']['NotificationLogList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
     };
   };
   sendNotificationChannelTest: {
@@ -11033,16 +11682,26 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Sent. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   verifyNotificationChannel: {
@@ -11050,7 +11709,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        notification_channel_id: components['parameters']['NotificationChannelId'];
+        notification_channel_id: number;
       };
       cookie?: never;
     };
@@ -11060,7 +11719,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The verified channel. */
+      /** @description The channel. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11069,10 +11728,13 @@ export interface operations {
           'application/json': components['schemas']['NotificationChannel'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Wrong token. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateMyPassword: {
@@ -11088,10 +11750,20 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Changed. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getMyPreferences: {
@@ -11112,8 +11784,6 @@ export interface operations {
           'application/json': components['schemas']['UserPreferences'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   updateMyPreferences: {
@@ -11129,7 +11799,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated preferences. */
+      /** @description The preferences. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11138,9 +11808,13 @@ export interface operations {
           'application/json': components['schemas']['UserPreferences'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listMySessions: {
@@ -11161,8 +11835,6 @@ export interface operations {
           'application/json': components['schemas']['SessionList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   logOutOtherSessions: {
@@ -11172,16 +11844,26 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
         'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Done. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listMyTokens: {
@@ -11202,8 +11884,6 @@ export interface operations {
           'application/json': components['schemas']['PersonalAccessTokenList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   createMyToken: {
@@ -11219,7 +11899,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The token and its plain-text value. */
+      /** @description Created; the plain token is shown once. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -11228,9 +11908,20 @@ export interface operations {
           'application/json': components['schemas']['PersonalAccessTokenCreated'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Bearer tokens can't create tokens. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteMyToken: {
@@ -11238,16 +11929,26 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        token_id: components['schemas']['Id'];
+        token_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Revoked. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateMyToken: {
@@ -11255,7 +11956,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        token_id: components['schemas']['Id'];
+        token_id: number;
       };
       cookie?: never;
     };
@@ -11265,7 +11966,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated token. */
+      /** @description The token. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11274,10 +11975,13 @@ export interface operations {
           'application/json': components['schemas']['PersonalAccessToken'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   enableTwoFactor: {
@@ -11287,13 +11991,13 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
         'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      /** @description What the authenticator app needs. */
+      /** @description The new secret and recovery codes. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11302,10 +12006,20 @@ export interface operations {
           'application/json': components['schemas']['TwoFactorSetup'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description 2FA is already confirmed. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   disableTwoFactor: {
@@ -11315,16 +12029,26 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
         'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description 2FA is off. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   confirmTwoFactor: {
@@ -11340,10 +12064,20 @@ export interface operations {
       };
     };
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description 2FA is on. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Wrong code or no pending secret. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getTwoFactorRecoveryCodes: {
@@ -11355,7 +12089,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description The current recovery codes. */
+      /** @description The codes. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11364,8 +12098,13 @@ export interface operations {
           'application/json': components['schemas']['TwoFactorRecoveryCodes'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description `password_confirmation_required`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   regenerateTwoFactorRecoveryCodes: {
@@ -11375,13 +12114,13 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
         'application/json': components['schemas']['PasswordConfirmation'];
       };
     };
     responses: {
-      /** @description The new recovery codes. */
+      /** @description The new codes. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11390,10 +12129,13 @@ export interface operations {
           'application/json': components['schemas']['TwoFactorRecoveryCodes'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description 2FA has no secret. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listReferenceCountries: {
@@ -11414,8 +12156,20 @@ export interface operations {
           'application/json': components['schemas']['CountryList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listReferenceCurrencies: {
@@ -11436,8 +12190,20 @@ export interface operations {
           'application/json': components['schemas']['CurrencyList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listReferenceLanguages: {
@@ -11458,8 +12224,20 @@ export interface operations {
           'application/json': components['schemas']['LanguageList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listReferenceTimezones: {
@@ -11480,8 +12258,20 @@ export interface operations {
           'application/json': components['schemas']['TimezoneList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaults: {
@@ -11493,7 +12283,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description The user's vaults. */
+      /** @description The vaults, by name. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11502,8 +12292,6 @@ export interface operations {
           'application/json': components['schemas']['VaultList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
     };
   };
   createVault: {
@@ -11519,7 +12307,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The created vault. */
+      /** @description The vault. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -11528,9 +12316,13 @@ export interface operations {
           'application/json': components['schemas']['Vault'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVault: {
@@ -11538,7 +12330,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11553,9 +12345,13 @@ export interface operations {
           'application/json': components['schemas']['Vault'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVault: {
@@ -11563,16 +12359,33 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Deleted. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not a manager. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVault: {
@@ -11580,7 +12393,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11590,7 +12403,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated vault. */
+      /** @description The vault. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -11599,10 +12412,13 @@ export interface operations {
           'application/json': components['schemas']['Vault'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultAddressBookSubscriptions: {
@@ -11610,7 +12426,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11625,9 +12441,27 @@ export interface operations {
           'application/json': components['schemas']['AddressBookSubscriptionList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultAddressBookSubscription: {
@@ -11635,7 +12469,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11654,10 +12488,34 @@ export interface operations {
           'application/json': components['schemas']['AddressBookSubscription'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultAddressBookSubscription: {
@@ -11665,8 +12523,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
+        vault_id: string;
+        subscription_id: string;
       };
       cookie?: never;
     };
@@ -11681,9 +12539,27 @@ export interface operations {
           'application/json': components['schemas']['AddressBookSubscription'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultAddressBookSubscription: {
@@ -11691,17 +12567,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
+        vault_id: string;
+        subscription_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultAddressBookSubscription: {
@@ -11709,8 +12609,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
+        vault_id: string;
+        subscription_id: string;
       };
       cookie?: never;
     };
@@ -11729,10 +12629,34 @@ export interface operations {
           'application/json': components['schemas']['AddressBookSubscription'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   syncVaultAddressBookSubscription: {
@@ -11740,17 +12664,14 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        subscription_id: components['schemas']['Uuid'];
+        vault_id: string;
+        subscription_id: string;
       };
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/json': {
-          /** @default false */
-          force?: boolean;
-        };
+        'application/json': components['schemas']['SyncVaultAddressBookSubscriptionBody'];
       };
     };
     responses: {
@@ -11761,10 +12682,34 @@ export interface operations {
         };
         content?: never;
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultCalendarMonth: {
@@ -11772,7 +12717,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
         year: number;
         month: number;
       };
@@ -11789,10 +12734,34 @@ export interface operations {
           'application/json': components['schemas']['CalendarMonth'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultCalendarDay: {
@@ -11800,7 +12769,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
         year: number;
         month: number;
         day: number;
@@ -11818,10 +12787,34 @@ export interface operations {
           'application/json': components['schemas']['CalendarDay'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultCompanies: {
@@ -11829,7 +12822,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11844,9 +12837,27 @@ export interface operations {
           'application/json': components['schemas']['CompanyList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultCompany: {
@@ -11854,7 +12865,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11873,10 +12884,34 @@ export interface operations {
           'application/json': components['schemas']['Company'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultContactImportantDateTypes: {
@@ -11884,7 +12919,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11899,9 +12934,27 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDateTypeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultContactImportantDateType: {
@@ -11909,7 +12962,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -11928,10 +12981,34 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDateType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultContactImportantDateType: {
@@ -11939,18 +13016,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_important_date_type_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_important_date_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultContactImportantDateType: {
@@ -11958,8 +13065,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_important_date_type_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_important_date_type_id: number;
       };
       cookie?: never;
     };
@@ -11978,34 +13085,57 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDateType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContacts: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
         /** @description Search text (LIKE match on the searchable columns). */
-        q?: components['parameters']['Query'];
+        q?: string;
         /** @description Only contacts with this label. */
-        label_id?: components['schemas']['Id'];
+        label_id?: number;
         /** @description `true` for listed contacts, `false` for archived/unlisted ones. */
         listed?: boolean;
         /** @description `last_updated`: `last_updated_at` newest first. `asc`/`desc`: by the
          *     first name part of the user's `name_order` (e.g. `last_name`).
          *     `first_name`: `first_name` then `last_name`, A to Z. `created_at`:
          *     oldest first. Default: the user's `contact_sort_order`
-         *     (saved with PATCH /me/preferences).
-         *      */
-        sort?: 'last_updated' | 'asc' | 'desc' | 'first_name' | 'created_at';
+         *     (saved with PATCH /me/preferences). */
+        sort?: string;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -12020,10 +13150,34 @@ export interface operations {
           'application/json': components['schemas']['ContactList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContact: {
@@ -12031,7 +13185,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -12050,10 +13204,34 @@ export interface operations {
           'application/json': components['schemas']['Contact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listMostConsultedContacts: {
@@ -12061,7 +13239,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -12076,9 +13254,27 @@ export interface operations {
           'application/json': components['schemas']['MostConsultedContactList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContact: {
@@ -12086,8 +13282,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12102,9 +13298,27 @@ export interface operations {
           'application/json': components['schemas']['Contact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContact: {
@@ -12112,18 +13326,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContact: {
@@ -12131,8 +13375,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12151,10 +13395,34 @@ export interface operations {
           'application/json': components['schemas']['Contact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactAddresses: {
@@ -12164,8 +13432,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12180,9 +13448,27 @@ export interface operations {
           'application/json': components['schemas']['ContactAddressList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactAddress: {
@@ -12190,8 +13476,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12210,11 +13496,41 @@ export interface operations {
           'application/json': components['schemas']['ContactAddress'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactAddress: {
@@ -12222,19 +13538,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description An address linked to the contact. */
-        address_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        address_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactAddress: {
@@ -12242,10 +13581,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description An address linked to the contact. */
-        address_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        address_id: number;
       };
       cookie?: never;
     };
@@ -12264,10 +13602,34 @@ export interface operations {
           'application/json': components['schemas']['ContactAddress'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContactAvatar: {
@@ -12275,8 +13637,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12285,16 +13647,10 @@ export interface operations {
       /** @description The image. */
       200: {
         headers: {
-          ETag?: string;
-          'Cache-Control'?: string;
           [name: string]: unknown;
         };
         content: {
           'image/jpeg': unknown;
-          'image/png': unknown;
-          'image/gif': unknown;
-          'image/webp': unknown;
-          'image/svg+xml': unknown;
         };
       };
       /** @description Not modified (`If-None-Match` matched). */
@@ -12304,9 +13660,27 @@ export interface operations {
         };
         content?: never;
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setContactAvatar: {
@@ -12314,8 +13688,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12334,11 +13708,41 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      413: components['responses']['PayloadTooLarge'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Upload above the per-file limit (`payload_too_large`). */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactAvatar: {
@@ -12346,17 +13750,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactCalls: {
@@ -12364,8 +13792,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12380,9 +13808,27 @@ export interface operations {
           'application/json': components['schemas']['CallList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactCall: {
@@ -12390,8 +13836,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12410,10 +13856,34 @@ export interface operations {
           'application/json': components['schemas']['Call'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactCall: {
@@ -12421,18 +13891,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        call_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        call_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactCall: {
@@ -12440,9 +13934,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        call_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        call_id: number;
       };
       cookie?: never;
     };
@@ -12461,10 +13955,34 @@ export interface operations {
           'application/json': components['schemas']['Call'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactInformation: {
@@ -12472,8 +13990,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12488,9 +14006,27 @@ export interface operations {
           'application/json': components['schemas']['ContactInformationList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactInformation: {
@@ -12498,8 +14034,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12518,10 +14054,34 @@ export interface operations {
           'application/json': components['schemas']['ContactInformation'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactInformation: {
@@ -12529,18 +14089,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        contact_information_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        contact_information_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactInformation: {
@@ -12548,9 +14132,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        contact_information_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        contact_information_id: number;
       };
       cookie?: never;
     };
@@ -12569,10 +14153,34 @@ export interface operations {
           'application/json': components['schemas']['ContactInformation'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactDocuments: {
@@ -12580,8 +14188,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12596,9 +14204,27 @@ export interface operations {
           'application/json': components['schemas']['ContactDocumentList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   uploadContactDocument: {
@@ -12606,8 +14232,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12626,12 +14252,48 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      413: components['responses']['PayloadTooLarge'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Malformed request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Upload above the per-file limit (`payload_too_large`). */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactDocument: {
@@ -12639,31 +14301,54 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A `files` id of type `document` attached to the contact. */
-        document_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        document_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactFeedItems: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12678,9 +14363,27 @@ export interface operations {
           'application/json': components['schemas']['FeedItemList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactGoals: {
@@ -12691,8 +14394,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12707,9 +14410,27 @@ export interface operations {
           'application/json': components['schemas']['GoalList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactGoal: {
@@ -12717,8 +14438,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12737,10 +14458,34 @@ export interface operations {
           'application/json': components['schemas']['Goal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContactGoal: {
@@ -12748,9 +14493,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        goal_id: number;
       };
       cookie?: never;
     };
@@ -12765,9 +14510,27 @@ export interface operations {
           'application/json': components['schemas']['GoalDetail'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactGoal: {
@@ -12775,18 +14538,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        goal_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactGoal: {
@@ -12794,9 +14581,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        goal_id: number;
       };
       cookie?: never;
     };
@@ -12815,10 +14602,34 @@ export interface operations {
           'application/json': components['schemas']['Goal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setContactGoalStreak: {
@@ -12826,11 +14637,10 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
-        /** @description The day (`happened_at`); a goal has at most one streak per day. */
-        date: components['schemas']['Date'];
+        vault_id: string;
+        contact_id: string;
+        goal_id: number;
+        date: string;
       };
       cookie?: never;
     };
@@ -12845,9 +14655,27 @@ export interface operations {
           'application/json': components['schemas']['Goal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactGoalStreak: {
@@ -12855,11 +14683,10 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        goal_id: components['schemas']['Id'];
-        /** @description The day (`happened_at`); a goal has at most one streak per day. */
-        date: components['schemas']['Date'];
+        vault_id: string;
+        contact_id: string;
+        goal_id: number;
+        date: string;
       };
       cookie?: never;
     };
@@ -12874,9 +14701,27 @@ export interface operations {
           'application/json': components['schemas']['Goal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactGroups: {
@@ -12884,8 +14729,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12900,9 +14745,27 @@ export interface operations {
           'application/json': components['schemas']['GroupList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   addContactToGroup: {
@@ -12910,8 +14773,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12930,10 +14793,34 @@ export interface operations {
           'application/json': components['schemas']['Group'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   removeContactFromGroup: {
@@ -12941,18 +14828,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        group_id: components['parameters']['GroupId'];
+        vault_id: string;
+        contact_id: string;
+        group_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactImportantDates: {
@@ -12960,8 +14871,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -12976,9 +14887,27 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactImportantDate: {
@@ -12986,8 +14915,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13006,10 +14935,34 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactImportantDate: {
@@ -13017,18 +14970,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        important_date_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        important_date_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactImportantDate: {
@@ -13036,9 +15013,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        important_date_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        important_date_id: number;
       };
       cookie?: never;
     };
@@ -13057,10 +15034,34 @@ export interface operations {
           'application/json': components['schemas']['ContactImportantDate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setContactJobInformation: {
@@ -13068,8 +15069,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13088,10 +15089,34 @@ export interface operations {
           'application/json': components['schemas']['JobInformation'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactJobInformation: {
@@ -13099,17 +15124,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactLabels: {
@@ -13117,8 +15166,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13133,9 +15182,27 @@ export interface operations {
           'application/json': components['schemas']['ContactLabelList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   assignContactLabel: {
@@ -13143,10 +15210,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A label of the vault. */
-        label_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        label_id: number;
       };
       cookie?: never;
     };
@@ -13161,9 +15227,27 @@ export interface operations {
           'application/json': components['schemas']['Label'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   unassignContactLabel: {
@@ -13171,19 +15255,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A label of the vault. */
-        label_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        label_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactLoans: {
@@ -13193,8 +15300,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13209,9 +15316,27 @@ export interface operations {
           'application/json': components['schemas']['LoanList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactLoan: {
@@ -13219,8 +15344,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13239,10 +15364,34 @@ export interface operations {
           'application/json': components['schemas']['Loan'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactLoan: {
@@ -13250,19 +15399,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A loan the contact is a loaner or loanee in. */
-        loan_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        loan_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactLoan: {
@@ -13270,10 +15442,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A loan the contact is a loaner or loanee in. */
-        loan_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        loan_id: number;
       };
       cookie?: never;
     };
@@ -13292,10 +15463,34 @@ export interface operations {
           'application/json': components['schemas']['Loan'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactMoodTrackingEvent: {
@@ -13303,8 +15498,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13323,10 +15518,34 @@ export interface operations {
           'application/json': components['schemas']['MoodTrackingEvent'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   moveContact: {
@@ -13334,8 +15553,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13354,22 +15573,46 @@ export interface operations {
           'application/json': components['schemas']['Contact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactNotes: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13384,9 +15627,27 @@ export interface operations {
           'application/json': components['schemas']['NoteList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactNote: {
@@ -13394,8 +15655,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13414,10 +15675,34 @@ export interface operations {
           'application/json': components['schemas']['Note'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactNote: {
@@ -13425,18 +15710,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        note_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        note_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactNote: {
@@ -13444,9 +15753,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        note_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        note_id: number;
       };
       cookie?: never;
     };
@@ -13465,10 +15774,34 @@ export interface operations {
           'application/json': components['schemas']['Note'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContactPage: {
@@ -13476,14 +15809,13 @@ export interface operations {
       query?: {
         /** @description Slug of the template page (tab) to show. Default: the first page
          *     by `position` that isn't the `contact_information` page. 404 when
-         *     the contact's template has no page with this slug.
-         *      */
+         *     the contact's template has no page with this slug. */
         template_page?: string;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13498,9 +15830,27 @@ export interface operations {
           'application/json': components['schemas']['ContactPage'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactPets: {
@@ -13508,8 +15858,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13524,9 +15874,27 @@ export interface operations {
           'application/json': components['schemas']['PetList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactPet: {
@@ -13534,8 +15902,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13554,10 +15922,34 @@ export interface operations {
           'application/json': components['schemas']['Pet'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactPet: {
@@ -13565,18 +15957,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        pet_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        pet_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactPet: {
@@ -13584,9 +16000,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        pet_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        pet_id: number;
       };
       cookie?: never;
     };
@@ -13605,22 +16021,46 @@ export interface operations {
           'application/json': components['schemas']['Pet'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactPhotos: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13635,9 +16075,27 @@ export interface operations {
           'application/json': components['schemas']['ContactPhotoList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   uploadContactPhoto: {
@@ -13645,8 +16103,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13665,12 +16123,48 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      400: components['responses']['BadRequest'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      413: components['responses']['PayloadTooLarge'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Malformed request. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Upload above the per-file limit (`payload_too_large`). */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContactPhoto: {
@@ -13678,10 +16172,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A `files` id of type `photo` attached to the contact. */
-        photo_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        photo_id: number;
       };
       cookie?: never;
     };
@@ -13696,9 +16189,27 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactPhoto: {
@@ -13706,31 +16217,54 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A `files` id of type `photo` attached to the contact. */
-        photo_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        photo_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactQuickFacts: {
     parameters: {
       query?: {
         /** @description Only the facts of this quick fact template. */
-        vault_quick_facts_template_id?: components['schemas']['Id'];
+        vault_quick_facts_template_id?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13745,9 +16279,27 @@ export interface operations {
           'application/json': components['schemas']['QuickFactList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactQuickFact: {
@@ -13755,8 +16307,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13775,10 +16327,34 @@ export interface operations {
           'application/json': components['schemas']['QuickFact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactQuickFact: {
@@ -13786,18 +16362,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        quick_fact_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        quick_fact_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactQuickFact: {
@@ -13805,9 +16405,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        quick_fact_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        quick_fact_id: number;
       };
       cookie?: never;
     };
@@ -13826,10 +16426,34 @@ export interface operations {
           'application/json': components['schemas']['QuickFact'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactRelationships: {
@@ -13837,8 +16461,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13853,9 +16477,27 @@ export interface operations {
           'application/json': components['schemas']['RelationshipList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactRelationship: {
@@ -13863,8 +16505,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13883,10 +16525,34 @@ export interface operations {
           'application/json': components['schemas']['Relationship'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactRelationship: {
@@ -13894,18 +16560,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        relationship_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        relationship_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setContactReligion: {
@@ -13913,8 +16603,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13933,10 +16623,34 @@ export interface operations {
           'application/json': components['schemas']['ContactReligion'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactReminders: {
@@ -13944,8 +16658,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13960,9 +16674,27 @@ export interface operations {
           'application/json': components['schemas']['ContactReminderList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactReminder: {
@@ -13970,8 +16702,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -13990,10 +16722,34 @@ export interface operations {
           'application/json': components['schemas']['ContactReminder'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactReminder: {
@@ -14001,18 +16757,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        reminder_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        reminder_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactReminder: {
@@ -14020,9 +16800,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        reminder_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        reminder_id: number;
       };
       cookie?: never;
     };
@@ -14041,10 +16821,34 @@ export interface operations {
           'application/json': components['schemas']['ContactReminder'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactTasks: {
@@ -14054,8 +16858,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -14070,9 +16874,27 @@ export interface operations {
           'application/json': components['schemas']['ContactTaskList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactTask: {
@@ -14080,8 +16902,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -14100,10 +16922,34 @@ export interface operations {
           'application/json': components['schemas']['ContactTask'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactTask: {
@@ -14111,18 +16957,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        task_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        task_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactTask: {
@@ -14130,9 +17000,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        task_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        task_id: number;
       };
       cookie?: never;
     };
@@ -14151,22 +17021,46 @@ export interface operations {
           'application/json': components['schemas']['ContactTask'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listContactTimelineEvents: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -14181,9 +17075,27 @@ export interface operations {
           'application/json': components['schemas']['TimelineEventList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactTimelineEvent: {
@@ -14191,8 +17103,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -14211,10 +17123,34 @@ export interface operations {
           'application/json': components['schemas']['TimelineEvent'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactTimelineEvent: {
@@ -14222,19 +17158,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
+        vault_id: string;
+        contact_id: string;
+        timeline_event_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactTimelineEvent: {
@@ -14242,10 +17201,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
+        vault_id: string;
+        contact_id: string;
+        timeline_event_id: number;
       };
       cookie?: never;
     };
@@ -14264,10 +17222,34 @@ export interface operations {
           'application/json': components['schemas']['TimelineEvent'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createContactLifeEvent: {
@@ -14275,10 +17257,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
+        vault_id: string;
+        contact_id: string;
+        timeline_event_id: number;
       };
       cookie?: never;
     };
@@ -14297,10 +17278,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEvent'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteContactLifeEvent: {
@@ -14308,20 +17313,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
-        life_event_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        timeline_event_id: number;
+        life_event_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateContactLifeEvent: {
@@ -14329,11 +17357,10 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
-        /** @description A timeline event in the vault that the contact takes part in. */
-        timeline_event_id: components['parameters']['TimelineEventId'];
-        life_event_id: components['schemas']['Id'];
+        vault_id: string;
+        contact_id: string;
+        timeline_event_id: number;
+        life_event_id: number;
       };
       cookie?: never;
     };
@@ -14352,10 +17379,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEvent'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getContactVCard: {
@@ -14363,8 +17414,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
@@ -14373,17 +17424,33 @@ export interface operations {
       /** @description The vCard 4.0. */
       200: {
         headers: {
-          /** @description `attachment; filename="<slug of the contact name>.vcf"` */
-          'Content-Disposition'?: string;
           [name: string]: unknown;
         };
         content: {
-          'text/vcard': string;
+          'text/vcard': unknown;
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   recordContactView: {
@@ -14391,17 +17458,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultDashboard: {
@@ -14409,7 +17500,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14424,20 +17515,38 @@ export interface operations {
           'application/json': components['schemas']['VaultDashboard'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultFeed: {
     parameters: {
       query?: {
-        page?: components['parameters']['Page'];
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14452,21 +17561,39 @@ export interface operations {
           'application/json': components['schemas']['FeedItemList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultFiles: {
     parameters: {
       query?: {
-        type?: 'photo' | 'document' | 'avatar';
-        page?: components['parameters']['Page'];
+        type?: string;
+        page?: number;
         per_page?: number;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14481,10 +17608,34 @@ export interface operations {
           'application/json': components['schemas']['VaultFileList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultFile: {
@@ -14492,32 +17643,55 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        file_id: components['schemas']['Id'];
+        vault_id: string;
+        file_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultFileContent: {
     parameters: {
       query?: {
-        variant?: 'original' | 'thumbnail';
+        variant?: string;
       };
       header?: {
-        /** @description Byte range (`original` only). */
-        Range?: string;
-        'If-None-Match'?: string;
+        Range?: string | null;
+        'If-None-Match'?: string | null;
       };
       path: {
-        vault_id: components['parameters']['VaultId'];
-        file_id: components['schemas']['Id'];
+        vault_id: string;
+        file_id: number;
       };
       cookie?: never;
     };
@@ -14526,29 +17700,19 @@ export interface operations {
       /** @description The bytes. `Content-Type` is the file's `mime_type` (JPEG or PNG for thumbnails). */
       200: {
         headers: {
-          'Content-Length'?: number;
-          ETag?: string;
-          /** @description `private, max-age=31536000, immutable` */
-          'Cache-Control'?: string;
-          /** @description `inline` for images, `attachment` (with the file name) for documents. */
-          'Content-Disposition'?: string;
-          'Accept-Ranges'?: 'bytes';
           [name: string]: unknown;
         };
         content: {
-          '*/*': string;
+          '*/*': unknown;
         };
       };
       /** @description The requested byte range of the original. */
       206: {
         headers: {
-          'Content-Range'?: string;
-          'Content-Length'?: number;
-          ETag?: string;
           [name: string]: unknown;
         };
         content: {
-          '*/*': string;
+          '*/*': unknown;
         };
       };
       /** @description Not modified (ETag matched). */
@@ -14558,18 +17722,41 @@ export interface operations {
         };
         content?: never;
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      /** @description Range not satisfiable. */
-      416: {
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
         headers: {
-          'Content-Range'?: string;
           [name: string]: unknown;
         };
         content?: never;
       };
-      422: components['responses']['ValidationFailed'];
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Range not satisfiable. */
+      416: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultGroups: {
@@ -14577,7 +17764,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14592,9 +17779,27 @@ export interface operations {
           'application/json': components['schemas']['GroupList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultGroup: {
@@ -14602,7 +17807,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14621,10 +17826,34 @@ export interface operations {
           'application/json': components['schemas']['Group'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultGroup: {
@@ -14632,8 +17861,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        group_id: components['parameters']['GroupId'];
+        vault_id: string;
+        group_id: number;
       };
       cookie?: never;
     };
@@ -14648,9 +17877,27 @@ export interface operations {
           'application/json': components['schemas']['GroupDetail'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultGroup: {
@@ -14658,17 +17905,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        group_id: components['parameters']['GroupId'];
+        vault_id: string;
+        group_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultGroup: {
@@ -14676,8 +17947,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        group_id: components['parameters']['GroupId'];
+        vault_id: string;
+        group_id: number;
       };
       cookie?: never;
     };
@@ -14696,10 +17967,34 @@ export interface operations {
           'application/json': components['schemas']['Group'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listJournals: {
@@ -14707,7 +18002,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14722,9 +18017,27 @@ export interface operations {
           'application/json': components['schemas']['JournalList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournal: {
@@ -14732,7 +18045,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -14751,10 +18064,34 @@ export interface operations {
           'application/json': components['schemas']['Journal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getJournal: {
@@ -14762,8 +18099,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14778,9 +18115,27 @@ export interface operations {
           'application/json': components['schemas']['Journal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournal: {
@@ -14788,17 +18143,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateJournal: {
@@ -14806,8 +18185,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14826,10 +18205,34 @@ export interface operations {
           'application/json': components['schemas']['Journal'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listJournalMetrics: {
@@ -14837,8 +18240,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14853,9 +18256,27 @@ export interface operations {
           'application/json': components['schemas']['JournalMetricList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournalMetric: {
@@ -14863,8 +18284,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14883,10 +18304,34 @@ export interface operations {
           'application/json': components['schemas']['JournalMetric'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalMetric: {
@@ -14894,18 +18339,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        journal_metric_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        journal_metric_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getJournalOverview: {
@@ -14916,8 +18385,8 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14932,10 +18401,34 @@ export interface operations {
           'application/json': components['schemas']['JournalOverview'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listJournalPhotos: {
@@ -14943,8 +18436,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14959,9 +18452,27 @@ export interface operations {
           'application/json': components['schemas']['JournalPhotoList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournalPost: {
@@ -14969,8 +18480,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -14989,10 +18500,34 @@ export interface operations {
           'application/json': components['schemas']['Post'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getJournalPost: {
@@ -15000,9 +18535,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15017,9 +18552,27 @@ export interface operations {
           'application/json': components['schemas']['Post'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalPost: {
@@ -15027,18 +18580,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateJournalPost: {
@@ -15046,9 +18623,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15067,10 +18644,34 @@ export interface operations {
           'application/json': components['schemas']['Post'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   addJournalPostContact: {
@@ -15078,19 +18679,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   removeJournalPostContact: {
@@ -15098,19 +18723,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        contact_id: components['parameters']['ContactId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        contact_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournalPostMetric: {
@@ -15118,9 +18767,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15139,10 +18788,34 @@ export interface operations {
           'application/json': components['schemas']['PostMetric'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalPostMetric: {
@@ -15150,19 +18823,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        post_metric_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        post_metric_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   uploadJournalPostPhoto: {
@@ -15170,9 +18867,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15191,11 +18888,41 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      413: components['responses']['PayloadTooLarge'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Upload above the per-file limit (`payload_too_large`). */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalPostPhoto: {
@@ -15203,20 +18930,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        /** @description Id of the photo's `files` row. */
-        file_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        file_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setJournalPostSlice: {
@@ -15224,9 +18974,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15245,10 +18995,34 @@ export interface operations {
           'application/json': components['schemas']['SliceOfLife'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   clearJournalPostSlice: {
@@ -15256,18 +19030,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournalPostTag: {
@@ -15275,9 +19073,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
@@ -15296,10 +19094,34 @@ export interface operations {
           'application/json': components['schemas']['Tag'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   assignJournalPostTag: {
@@ -15307,10 +19129,10 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        tag_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        tag_id: number;
       };
       cookie?: never;
     };
@@ -15325,9 +19147,27 @@ export interface operations {
           'application/json': components['schemas']['Tag'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   removeJournalPostTag: {
@@ -15335,19 +19175,43 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
-        tag_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
+        tag_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   recordJournalPostView: {
@@ -15355,18 +19219,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        post_id: components['parameters']['PostId'];
+        vault_id: string;
+        journal_id: number;
+        post_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listJournalSlices: {
@@ -15374,8 +19262,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -15390,9 +19278,27 @@ export interface operations {
           'application/json': components['schemas']['SliceOfLifeList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createJournalSlice: {
@@ -15400,8 +19306,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
+        vault_id: string;
+        journal_id: number;
       };
       cookie?: never;
     };
@@ -15420,10 +19326,34 @@ export interface operations {
           'application/json': components['schemas']['SliceOfLife'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getJournalSlice: {
@@ -15431,10 +19361,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        slice_id: number;
       };
       cookie?: never;
     };
@@ -15449,9 +19378,27 @@ export interface operations {
           'application/json': components['schemas']['SliceOfLifeDetail'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalSlice: {
@@ -15459,19 +19406,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        slice_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateJournalSlice: {
@@ -15479,10 +19449,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        slice_id: number;
       };
       cookie?: never;
     };
@@ -15501,10 +19470,34 @@ export interface operations {
           'application/json': components['schemas']['SliceOfLife'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   setJournalSliceCover: {
@@ -15512,10 +19505,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        slice_id: number;
       };
       cookie?: never;
     };
@@ -15534,11 +19526,41 @@ export interface operations {
           'application/json': components['schemas']['File'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      413: components['responses']['PayloadTooLarge'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Upload above the per-file limit (`payload_too_large`). */
+      413: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteJournalSliceCover: {
@@ -15546,19 +19568,42 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        journal_id: components['parameters']['JournalId'];
-        /** @description A slice of life of the journal; any other id is a 404 (inventory F1). */
-        slice_id: components['schemas']['Id'];
+        vault_id: string;
+        journal_id: number;
+        slice_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultLabels: {
@@ -15566,7 +19611,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15581,9 +19626,27 @@ export interface operations {
           'application/json': components['schemas']['LabelList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultLabel: {
@@ -15591,7 +19654,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15610,10 +19673,34 @@ export interface operations {
           'application/json': components['schemas']['Label'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultLabel: {
@@ -15621,17 +19708,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        label_id: components['schemas']['Id'];
+        vault_id: string;
+        label_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultLabel: {
@@ -15639,8 +19750,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        label_id: components['schemas']['Id'];
+        vault_id: string;
+        label_id: number;
       };
       cookie?: never;
     };
@@ -15659,10 +19770,34 @@ export interface operations {
           'application/json': components['schemas']['Label'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultLifeEventCategories: {
@@ -15670,7 +19805,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15685,9 +19820,27 @@ export interface operations {
           'application/json': components['schemas']['LifeEventCategoryList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultLifeEventCategory: {
@@ -15695,7 +19848,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15714,10 +19867,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEventCategory'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultLifeEventCategory: {
@@ -15725,18 +19902,48 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
+        vault_id: string;
+        life_event_category_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultLifeEventCategory: {
@@ -15744,8 +19951,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
+        vault_id: string;
+        life_event_category_id: number;
       };
       cookie?: never;
     };
@@ -15764,10 +19971,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEventCategory'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultLifeEventType: {
@@ -15775,8 +20006,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
+        vault_id: string;
+        life_event_category_id: number;
       };
       cookie?: never;
     };
@@ -15795,10 +20026,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEventType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultLifeEventType: {
@@ -15806,19 +20061,49 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
-        life_event_type_id: components['schemas']['Id'];
+        vault_id: string;
+        life_event_category_id: number;
+        life_event_type_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description State or uniqueness conflict (`conflict`). */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultLifeEventType: {
@@ -15826,9 +20111,9 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_event_category_id: components['schemas']['Id'];
-        life_event_type_id: components['schemas']['Id'];
+        vault_id: string;
+        life_event_category_id: number;
+        life_event_type_id: number;
       };
       cookie?: never;
     };
@@ -15847,10 +20132,34 @@ export interface operations {
           'application/json': components['schemas']['LifeEventType'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultLifeMetrics: {
@@ -15861,7 +20170,7 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15876,10 +20185,34 @@ export interface operations {
           'application/json': components['schemas']['LifeMetricList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultLifeMetric: {
@@ -15887,7 +20220,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -15906,10 +20239,34 @@ export interface operations {
           'application/json': components['schemas']['LifeMetric'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultLifeMetric: {
@@ -15917,17 +20274,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_metric_id: components['schemas']['Id'];
+        vault_id: string;
+        life_metric_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultLifeMetric: {
@@ -15935,8 +20316,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_metric_id: components['schemas']['Id'];
+        vault_id: string;
+        life_metric_id: number;
       };
       cookie?: never;
     };
@@ -15955,10 +20336,34 @@ export interface operations {
           'application/json': components['schemas']['LifeMetric'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   incrementVaultLifeMetric: {
@@ -15966,8 +20371,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        life_metric_id: components['schemas']['Id'];
+        vault_id: string;
+        life_metric_id: number;
       };
       cookie?: never;
     };
@@ -15982,9 +20387,27 @@ export interface operations {
           'application/json': components['schemas']['LifeMetric'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultMemberCandidates: {
@@ -15992,13 +20415,13 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Candidate users (`contact` is always null). */
+      /** @description Verified users of the account who aren't members. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16007,9 +20430,6 @@ export interface operations {
           'application/json': components['schemas']['VaultMemberCandidateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
     };
   };
   listVaultMembers: {
@@ -16017,13 +20437,13 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Members of the vault. */
+      /** @description The members. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16032,9 +20452,6 @@ export interface operations {
           'application/json': components['schemas']['VaultMemberList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
     };
   };
   addVaultMember: {
@@ -16042,7 +20459,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16061,11 +20478,20 @@ export interface operations {
           'application/json': components['schemas']['VaultMember'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Already a member, or yourself. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   removeVaultMember: {
@@ -16073,18 +20499,27 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        user_id: components['schemas']['Uuid'];
+        vault_id: string;
+        user_id: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
+      /** @description Removed. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Yourself. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultMember: {
@@ -16092,8 +20527,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        user_id: components['schemas']['Uuid'];
+        vault_id: string;
+        user_id: string;
       };
       cookie?: never;
     };
@@ -16103,7 +20538,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description The updated member. */
+      /** @description The member. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -16112,11 +20547,20 @@ export interface operations {
           'application/json': components['schemas']['VaultMember'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      409: components['responses']['Conflict'];
-      422: components['responses']['ValidationFailed'];
+      /** @description Your own permission. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation failed. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultMoodTrackingParameters: {
@@ -16124,7 +20568,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16139,9 +20583,27 @@ export interface operations {
           'application/json': components['schemas']['MoodTrackingParameterList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultMoodTrackingParameter: {
@@ -16149,7 +20611,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16168,10 +20630,34 @@ export interface operations {
           'application/json': components['schemas']['MoodTrackingParameter'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultMoodTrackingParameter: {
@@ -16179,17 +20665,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        mood_tracking_parameter_id: components['schemas']['Id'];
+        vault_id: string;
+        mood_tracking_parameter_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultMoodTrackingParameter: {
@@ -16197,8 +20707,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        mood_tracking_parameter_id: components['schemas']['Id'];
+        vault_id: string;
+        mood_tracking_parameter_id: number;
       };
       cookie?: never;
     };
@@ -16217,10 +20727,34 @@ export interface operations {
           'application/json': components['schemas']['MoodTrackingParameter'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultQuickFactTemplates: {
@@ -16228,7 +20762,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16243,9 +20777,27 @@ export interface operations {
           'application/json': components['schemas']['QuickFactTemplateList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultQuickFactTemplate: {
@@ -16253,7 +20805,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16272,10 +20824,34 @@ export interface operations {
           'application/json': components['schemas']['QuickFactTemplate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultQuickFactTemplate: {
@@ -16283,17 +20859,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        quick_fact_template_id: components['schemas']['Id'];
+        vault_id: string;
+        quick_fact_template_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultQuickFactTemplate: {
@@ -16301,8 +20901,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        quick_fact_template_id: components['schemas']['Id'];
+        vault_id: string;
+        quick_fact_template_id: number;
       };
       cookie?: never;
     };
@@ -16321,10 +20921,34 @@ export interface operations {
           'application/json': components['schemas']['QuickFactTemplate'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultReminders: {
@@ -16332,7 +20956,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16347,9 +20971,27 @@ export interface operations {
           'application/json': components['schemas']['VaultReminderList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultAddressReport: {
@@ -16357,7 +20999,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16372,19 +21014,37 @@ export interface operations {
           'application/json': components['schemas']['AddressReport'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultCityAddressReport: {
     parameters: {
-      query: {
-        city: string;
+      query?: {
+        city?: string;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16399,20 +21059,44 @@ export interface operations {
           'application/json': components['schemas']['AddressPlaceReport'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultCountryAddressReport: {
     parameters: {
-      query: {
-        country: string;
+      query?: {
+        country?: string;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16427,10 +21111,34 @@ export interface operations {
           'application/json': components['schemas']['AddressPlaceReport'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultImportantDateReport: {
@@ -16438,7 +21146,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16453,9 +21161,27 @@ export interface operations {
           'application/json': components['schemas']['ImportantDateReport'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   getVaultMoodTrackingReport: {
@@ -16466,7 +21192,7 @@ export interface operations {
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16481,21 +21207,45 @@ export interface operations {
           'application/json': components['schemas']['MoodTrackingReport'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   searchVault: {
     parameters: {
       query?: {
         /** @description Search text (LIKE match on the searchable columns). */
-        q?: components['parameters']['Query'];
+        q?: string;
       };
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16510,10 +21260,34 @@ export interface operations {
           'application/json': components['schemas']['SearchResults'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultTags: {
@@ -16521,7 +21295,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16536,9 +21310,27 @@ export interface operations {
           'application/json': components['schemas']['TagList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   createVaultTag: {
@@ -16546,7 +21338,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16565,10 +21357,34 @@ export interface operations {
           'application/json': components['schemas']['Tag'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   deleteVaultTag: {
@@ -16576,17 +21392,41 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        tag_id: components['schemas']['Id'];
+        vault_id: string;
+        tag_id: number;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      204: components['responses']['NoContent'];
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description Done; no body. */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   updateVaultTag: {
@@ -16594,8 +21434,8 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
-        tag_id: components['schemas']['Id'];
+        vault_id: string;
+        tag_id: number;
       };
       cookie?: never;
     };
@@ -16614,10 +21454,34 @@ export interface operations {
           'application/json': components['schemas']['Tag'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
-      422: components['responses']['ValidationFailed'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
   listVaultTasks: {
@@ -16625,7 +21489,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        vault_id: components['parameters']['VaultId'];
+        vault_id: string;
       };
       cookie?: never;
     };
@@ -16640,9 +21504,27 @@ export interface operations {
           'application/json': components['schemas']['VaultTaskList'];
         };
       };
-      401: components['responses']['Unauthenticated'];
-      403: components['responses']['Forbidden'];
-      404: components['responses']['NotFound'];
+      /** @description No valid session or token (`unauthenticated`). */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description `forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Doesn't exist or isn't visible to the user (`not_found`). */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
     };
   };
 }

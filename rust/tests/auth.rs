@@ -65,6 +65,8 @@ async fn two_factor_enable_confirm_and_challenge() {
     app.post("/auth/confirm-password", json!({"password": "nope"})).await.assert(422);
     app.post("/auth/confirm-password", json!({"password": factory::PASSWORD})).await.assert(204);
     assert_eq!(app.get("/auth/confirmed-password-status").await.json()["confirmed"], true);
+    // Jetstream's `seconds`: the confirmation is older than an empty window.
+    assert_eq!(app.get("/auth/confirmed-password-status?seconds=0").await.json()["confirmed"], false);
 
     let setup = app.post("/me/two-factor", json!({})).await.assert(200).json();
     let secret = setup["secret"].as_str().unwrap().to_owned();
