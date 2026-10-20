@@ -13,6 +13,7 @@ use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, check};
 use crate::entities::{module_template_page, modules, template_pages, templates};
 use crate::error::{ApiError, ApiResult};
+use crate::text::slug;
 use crate::validate::Validator;
 
 /// `TemplatePage::TYPE_CONTACT`.
@@ -720,11 +721,4 @@ async fn find_page<C: ConnectionTrait>(
         .one(db)
         .await?
         .ok_or_else(ApiError::not_found)
-}
-
-/// `Str::slug($title, '-')` without `Str::ascii` (what it does for a null language).
-fn slug(title: &str) -> String {
-    let title = title.replace('_', "-").replace('@', "-at-").to_lowercase();
-    let title: String = title.chars().filter(|c| *c == '-' || c.is_alphanumeric() || c.is_whitespace()).collect();
-    title.split(|c: char| c == '-' || c.is_whitespace()).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("-")
 }
