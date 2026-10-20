@@ -2,17 +2,26 @@
 //! the API side of `docs/rewrite/api-design.md` §11.
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
-use crate::error::ApiResult;
+use crate::domains::contact::dav::services::ExportVCard;
+use crate::domains::contact::dav_client::jobs::SynchronizeAddressBooks;
+use crate::domains::contact::dav_client::services::CreateAddressBookSubscription;
+use crate::domains::contact::dav_client::{Exception, WAY_BOTH};
+use crate::domains::contact::manage_reminders::format_contact_name;
+use crate::entities::addressbook_subscriptions;
+use crate::error::{ApiError, ApiResult};
 use crate::http::access;
 use crate::http::auth::Auth;
 use crate::http::json::Json;
 use crate::http::state::AppState;
+use crate::validate::{Validator, clean};
+use axum::body::Body;
 use axum::extract::Path;
 use axum::extract::State;
-use axum::http::StatusCode;
+use axum::http::{HeaderValue, StatusCode, header};
 use axum::response::Response;
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
-use utoipa::{IntoParams, ToSchema};
+use utoipa::ToSchema;
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
 
@@ -31,8 +40,30 @@ pub async fn get_contact_v_card(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Response> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("getContactVCard")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
+    let contact = crate::entities::contacts::Entity::live()
+        .filter(crate::entities::contacts::Column::Id.eq(contact_id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let vcard = ExportVCard {
+        account_id: id.user.account_id,
+        author_id: id.user.id,
+        vault_id,
+        contact_id: Some(contact.id),
+        group_id: None,
+    }
+    .execute(&state.db, &state.config)
+    .await?;
+    let name = crate::text::slug(&format_contact_name(&id.user, &contact));
+
+    let mut res = Response::new(Body::from(vcard.serialize()));
+    let h = res.headers_mut();
+    h.insert(header::CONTENT_TYPE, HeaderValue::from_static("text/vcard"));
+    if let Ok(disposition) = HeaderValue::from_str(&format!("attachment; filename=\"{name}.vcf\"")) {
+        h.insert(header::CONTENT_DISPOSITION, disposition);
+    }
+    Ok(res)
 }
 
 /// A row of `addressbook_subscriptions`. The password is never returned.
@@ -87,6 +118,59 @@ pub struct AddressBookSubscriptionUpdate {
     pub frequency: Option<i64>,
 }
 
+impl From<addressbook_subscriptions::Model> for AddressBookSubscription {
+    fn from(s: addressbook_subscriptions::Model) -> Self {
+        let capabilities = serde_json::from_str::<serde_json::Value>(&s.capabilities).unwrap_or_default();
+        let flag = |name: &str| capabilities.get(name).and_then(serde_json::Value::as_bool);
+        let address_data = capabilities.get("addressData").filter(|d| d.is_object()).map(|d| {
+            let text = |name: &str| d.get(name).and_then(serde_json::Value::as_str).map(str::to_owned);
+            AddressBookSubscriptionCapabilitiesAddressData {
+                content_type: text("content-type"),
+                version: text("version"),
+            }
+        });
+        AddressBookSubscription {
+            id: s.id,
+            user_id: s.user_id,
+            vault_id: s.vault_id,
+            uri: s.uri,
+            username: s.username,
+            active: s.active,
+            sync_way: s.sync_way.0,
+            capabilities: AddressBookSubscriptionCapabilities {
+                addressbook_multiget: flag("addressbookMultiget"),
+                addressbook_query: flag("addressbookQuery"),
+                sync_collection: flag("syncCollection"),
+                address_data,
+            },
+            frequency: i64::from(s.frequency),
+            last_synchronized_at: s.last_synchronized_at,
+            created_at: s.created_at.unwrap_or_else(crate::db::now),
+            updated_at: s.updated_at.unwrap_or_else(crate::db::now),
+        }
+    }
+}
+
+/// The subscription `subscription_id` of the vault.
+async fn subscription(
+    state: &AppState,
+    vault_id: Uuid,
+    subscription_id: Uuid,
+) -> ApiResult<addressbook_subscriptions::Model> {
+    addressbook_subscriptions::Entity::find_by_id(subscription_id)
+        .filter(addressbook_subscriptions::Column::VaultId.eq(vault_id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)
+}
+
+/// `sync_way`: 1, 2 or 3.
+fn validate_sync_way(v: &mut Validator, sync_way: Option<i64>) {
+    if sync_way.is_some_and(|w| !(1..=WAY_BOTH).contains(&w)) {
+        v.fail("sync_way", "in", &[]);
+    }
+}
+
 /// What the remote server supports, found at discovery.
 #[derive(Serialize, ToSchema)]
 pub struct AddressBookSubscriptionCapabilities {
@@ -133,8 +217,14 @@ pub async fn list_vault_address_book_subscriptions(
     Auth(id): Auth,
     Path(vault_id): Path<Uuid>,
 ) -> ApiResult<Json<AddressBookSubscriptionList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("listVaultAddressBookSubscriptions")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    let rows = addressbook_subscriptions::Entity::find()
+        .filter(addressbook_subscriptions::Column::VaultId.eq(vault_id))
+        .order_by_asc(addressbook_subscriptions::Column::CreatedAt)
+        .order_by_asc(addressbook_subscriptions::Column::Id)
+        .all(&state.db)
+        .await?;
+    Ok(Json(AddressBookSubscriptionList { data: rows.into_iter().map(Into::into).collect() }))
 }
 
 #[utoipa::path(
@@ -154,8 +244,49 @@ pub async fn create_vault_address_book_subscription(
     Path(vault_id): Path<Uuid>,
     Json(body): Json<AddressBookSubscriptionCreate>,
 ) -> ApiResult<(StatusCode, Json<AddressBookSubscription>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("createVaultAddressBookSubscription")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    let base_uri = clean(body.base_uri);
+    let username = clean(body.username);
+    let password = body.password.filter(|p| !p.is_empty());
+    let mut v = Validator::new();
+    if v.required("base_uri", &base_uri) {
+        v.max_len("base_uri", base_uri.as_deref(), 2096);
+    }
+    if v.required("username", &username) {
+        v.max_len("username", username.as_deref(), 1024);
+    }
+    v.required("password", &password);
+    validate_sync_way(&mut v, body.sync_way);
+    v.finish()?;
+
+    let created = CreateAddressBookSubscription {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        base_uri: base_uri.unwrap_or_default(),
+        username: username.unwrap_or_default(),
+        password: password.unwrap_or_default(),
+    }
+    .execute(&state.db, &state.config)
+    .await;
+    let mut subscription = match created {
+        Ok(subscription) => subscription,
+        Err(Exception::Api(e)) => return Err(e),
+        Err(e) => return Err(ApiError::field("base_uri", "discovery", e.message())),
+    };
+
+    if let Some(sync_way) = body.sync_way.filter(|w| *w != subscription.sync_way.0) {
+        let mut am: addressbook_subscriptions::ActiveModel = subscription.into();
+        am.sync_way = Set(sync_way.into());
+        subscription = am.update(&state.db).await?;
+    }
+
+    SynchronizeAddressBooks { subscription: subscription.clone(), force: true }
+        .handle(&state.db, &state.config)
+        .await?;
+
+    let subscription = self::subscription(&state, vault_id, subscription.id).await?;
+    Ok((StatusCode::CREATED, Json(subscription.into())))
 }
 
 #[utoipa::path(
@@ -173,8 +304,8 @@ pub async fn get_vault_address_book_subscription(
     Auth(id): Auth,
     Path((vault_id, subscription_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<AddressBookSubscription>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("getVaultAddressBookSubscription")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    Ok(Json(subscription(&state, vault_id, subscription_id).await?.into()))
 }
 
 #[utoipa::path(
@@ -194,8 +325,38 @@ pub async fn update_vault_address_book_subscription(
     Path((vault_id, subscription_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<AddressBookSubscriptionUpdate>,
 ) -> ApiResult<Json<AddressBookSubscription>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("updateVaultAddressBookSubscription")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    let current = subscription(&state, vault_id, subscription_id).await?;
+    let username = clean(body.username.clone());
+    let mut v = Validator::new();
+    if body.username.is_some() && v.required("username", &username) {
+        v.max_len("username", username.as_deref(), 1024);
+    }
+    if body.password.as_deref().is_some_and(str::is_empty) {
+        v.fail("password", "required", &[]);
+    }
+    validate_sync_way(&mut v, body.sync_way);
+    v.between("frequency", body.frequency, 1, 32767);
+    v.finish()?;
+
+    let mut am: addressbook_subscriptions::ActiveModel = current.clone().into();
+    if let Some(username) = username {
+        am.username.set_ne(username);
+    }
+    if let Some(password) = body.password {
+        am.password = Set(crate::crypto::encrypt(&state.config.key, &password));
+    }
+    if let Some(active) = body.active {
+        am.active.set_ne(active);
+    }
+    if let Some(sync_way) = body.sync_way {
+        am.sync_way.set_ne(sync_way.into());
+    }
+    if let Some(frequency) = body.frequency {
+        am.frequency.set_ne(i16::try_from(frequency).unwrap_or(i16::MAX));
+    }
+    let updated = if am.is_changed() { am.update(&state.db).await? } else { current };
+    Ok(Json(updated.into()))
 }
 
 #[utoipa::path(
@@ -213,8 +374,10 @@ pub async fn delete_vault_address_book_subscription(
     Auth(id): Auth,
     Path((vault_id, subscription_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("deleteVaultAddressBookSubscription")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    let subscription = subscription(&state, vault_id, subscription_id).await?;
+    addressbook_subscriptions::Entity::delete_by_id(subscription.id).exec(&state.db).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -234,8 +397,12 @@ pub async fn sync_vault_address_book_subscription(
     Path((vault_id, subscription_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<SyncVaultAddressBookSubscriptionBody>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
-    todo!("syncVaultAddressBookSubscription")
+    access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Manage).await?;
+    let subscription = subscription(&state, vault_id, subscription_id).await?;
+    SynchronizeAddressBooks { subscription, force: body.force.unwrap_or(false) }
+        .handle(&state.db, &state.config)
+        .await?;
+    Ok(StatusCode::ACCEPTED)
 }
 
 /// The operations of this module.
