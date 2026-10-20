@@ -251,11 +251,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn due_tasks_run_and_prune_old_failed_jobs() {
+    async fn due_tasks_run_and_clean_up() {
         let db = TestDb::migrated().await;
         let state = AppState::new(db.conn.clone(), crate::config::Config::for_tests("", std::env::temp_dir())).unwrap();
-        let old = Timestamp(crate::db::now().0 - Duration::hours(49));
-        for (uuid, failed_at) in [("old", old), ("new", crate::db::now())] {
+        let now = crate::db::now();
+        let old = Timestamp(now.0 - Duration::hours(49));
+        for (uuid, failed_at) in [("old", old), ("new", now)] {
             failed_jobs::ActiveModel {
                 uuid: Set(uuid.into()),
                 connection: Set("database".into()),
@@ -269,10 +270,81 @@ mod tests {
             .await
             .unwrap();
         }
-        run_due(&state, crate::db::now().0).await.unwrap();
+        // queue:prune-batches: finished 48 h ago, unfinished or cancelled 72 h ago.
+        let hours_ago = |h: i64| i32::try_from(now.0.and_utc().timestamp() - h * 3600).unwrap();
+        for (id, created, finished, cancelled) in [
+            ("finished-old", hours_ago(100), Some(hours_ago(49)), None),
+            ("finished-new", hours_ago(100), Some(hours_ago(1)), None),
+            ("unfinished-old", hours_ago(73), None, None),
+            ("unfinished-new", hours_ago(1), None, None),
+            ("cancelled-old", hours_ago(73), None, Some(hours_ago(73))),
+        ] {
+            job_batches::ActiveModel {
+                id: Set(id.into()),
+                name: Set(String::new()),
+                total_jobs: Set(1),
+                pending_jobs: Set(0),
+                failed_jobs: Set(0),
+                failed_job_ids: Set("[]".into()),
+                options: Set(None),
+                cancelled_at: Set(cancelled),
+                created_at: Set(created),
+                finished_at: Set(finished),
+            }
+            .insert(&db.conn)
+            .await
+            .unwrap();
+        }
+        // model:prune: sessions past the longest (remember me) lifetime.
+        let stale = now.0.and_utc().timestamp() - crate::http::session::REMEMBER_MINUTES * 60 - 60;
+        for (id, last_activity) in [("stale", stale), ("live", now.0.and_utc().timestamp())] {
+            sessions::ActiveModel {
+                id: Set(id.into()),
+                user_id: Set(None),
+                ip_address: Set(None),
+                user_agent: Set(None),
+                payload: Set(String::new()),
+                last_activity: Set(i32::try_from(last_activity).unwrap()),
+            }
+            .insert(&db.conn)
+            .await
+            .unwrap();
+        }
+        // CleanLogs: logs older than 15 days.
+        for (message, created_at) in [("old", Timestamp(now.0 - Duration::days(16))), ("new", now)] {
+            logs::ActiveModel {
+                group_id: Set(crate::db::id::Id(0)),
+                level: Set("200".into()),
+                level_name: Set("INFO".into()),
+                channel: Set("testing".into()),
+                message: Set(Some(message.into())),
+                loggable_type: Set("App\\Models\\AddressBookSubscription".into()),
+                loggable_id: Set(crate::db::uuid::Uuid::new()),
+                logged_at: Set(created_at),
+                created_at: Set(Some(created_at)),
+                updated_at: Set(Some(created_at)),
+                ..Default::default()
+            }
+            .insert(&db.conn)
+            .await
+            .unwrap();
+        }
+
+        run_due(&state, now.0).await.unwrap();
+
         let left: Vec<String> =
             failed_jobs::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|f| f.uuid).collect();
         assert_eq!(left, ["new"]);
+        let mut batches: Vec<String> =
+            job_batches::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|b| b.id).collect();
+        batches.sort();
+        assert_eq!(batches, ["finished-new", "unfinished-new"]);
+        let sessions: Vec<String> =
+            sessions::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|s| s.id).collect();
+        assert_eq!(sessions, ["live"]);
+        let logs: Vec<Option<String>> =
+            logs::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|l| l.message).collect();
+        assert_eq!(logs, [Some("new".to_owned())]);
         assert_eq!(crons::Entity::find().all(&db.conn).await.unwrap().len(), tasks().len());
         db.drop().await;
     }
