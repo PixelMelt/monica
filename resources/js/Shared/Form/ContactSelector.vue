@@ -1,6 +1,10 @@
 <script setup>
 import { computed, nextTick, onMounted, ref, watch, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
+import { listContacts, listMostConsultedContacts } from '@/api/client';
+import { contactName } from '@/lib/format';
+import { route as pageRoute } from '@/router';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import Errors from '@/Shared/Form/Errors.vue';
@@ -28,9 +32,17 @@ const props = defineProps({
   required: Boolean,
   displayMostConsultedContacts: Boolean,
   addMultipleContacts: Boolean,
-  searchUrl: String,
-  mostConsultedContactsUrl: String,
+  /** The vault to search; defaults to the vault of the current page. */
+  vaultId: {
+    type: String,
+    default: null,
+  },
 });
+
+const currentRoute = useRoute();
+const vault = () => props.vaultId ?? currentRoute.params.vault;
+
+const pageUrl = (contact) => pageRoute('contact.show', { vault: contact.vault_id, contact: contact.id });
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -88,8 +100,13 @@ const sendEscKey = () => {
 };
 
 const lookupMostConsultedContacts = () => {
-  axios.get(props.mostConsultedContactsUrl).then((response) => {
-    mostConsultedContacts.value = response.data.data;
+  // VaultMostConsultedViewHelper::data
+  listMostConsultedContacts({ vault_id: vault() }).then((response) => {
+    mostConsultedContacts.value = response.data.map((contact) => ({
+      id: contact.id,
+      name: contactName(contact),
+      url: pageUrl(contact),
+    }));
   });
 };
 
@@ -115,12 +132,17 @@ const search = _.debounce(() => {
   if (form.searchTerm !== '' && form.searchTerm.length >= 3) {
     processingSearch.value = true;
 
-    axios
-      .post(props.searchUrl, form)
+    // VaultContactSearchViewHelper::data
+    listContacts({ vault_id: vault(), q: form.searchTerm, sort: 'first_name', per_page: 5 })
       .then((response) => {
-        searchResults.value = _.filter(response.data.data, (contact) =>
-          _.every(localContacts.value, (e) => contact.id !== e.id),
-        );
+        const contacts = response.data.map((contact) => ({
+          id: contact.id,
+          name: [contact.first_name, contact.last_name, contact.nickname, contact.maiden_name, contact.middle_name]
+            .map((part) => part ?? '')
+            .join(' '),
+          url: pageUrl(contact),
+        }));
+        searchResults.value = _.filter(contacts, (contact) => _.every(localContacts.value, (e) => contact.id !== e.id));
         processingSearch.value = false;
       })
       .catch((error) => {
