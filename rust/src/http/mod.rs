@@ -1,6 +1,7 @@
 //! The HTTP application: `/api/v1`, the redirects and health check outside
 //! it, and the SPA.
 
+pub mod access;
 pub mod auth;
 pub mod json;
 pub mod ratelimit;
