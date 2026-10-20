@@ -14,9 +14,9 @@ updates:
       interval: weekly
     versioning-strategy: lockfile-only
 
-  # Maintain dependencies for Composer
-  - package-ecosystem: composer
-    directory: '/'
+  # Maintain dependencies for Cargo
+  - package-ecosystem: cargo
+    directory: '/rust'
     schedule:
       interval: weekly
     versioning-strategy: lockfile-only

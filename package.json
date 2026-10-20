@@ -57,9 +57,6 @@
     ],
     "**/*.{css,scss,json,yml,md}": [
       "prettier --write --ignore-unknown"
-    ],
-    "**/*.php": [
-      "vendor/bin/pint"
     ]
   },
   "packageManager": "yarn@4.6.0"
