@@ -4,6 +4,7 @@ pub mod auth;
 pub mod instance;
 pub mod me;
 pub mod schemas;
+pub mod vaults;
 
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
@@ -79,6 +80,11 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(me::enable_two_factor, me::disable_two_factor))
         .routes(routes!(me::confirm_two_factor))
         .routes(routes!(me::get_two_factor_recovery_codes, me::regenerate_two_factor_recovery_codes))
+        .routes(routes!(vaults::list_vaults, vaults::create_vault))
+        .routes(routes!(vaults::get_vault, vaults::update_vault, vaults::delete_vault))
+        .routes(routes!(vaults::list_vault_members, vaults::add_vault_member))
+        .routes(routes!(vaults::list_vault_member_candidates))
+        .routes(routes!(vaults::update_vault_member, vaults::remove_vault_member))
 }
 
 /// The OpenAPI document of the API.

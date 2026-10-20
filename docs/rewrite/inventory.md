@@ -1179,6 +1179,12 @@ behaviour, so the port fixes them:
   accept any file id in the vault (`DestroyFile`); loan, timeline and life
   event paths don't check that the contact in the path is involved. The spec
   answers 404 for anything not attached to the parent in the path.
+- **F19.** `RemoveVaultAccess` (R178) soft-deletes the member's contact in the
+  vault and expects the `user_vault` row to go with it, but a soft delete
+  doesn't cascade: the removed user stays a member and keeps access. The port
+  deletes the membership.
+- **F20.** `GrantVaultAccessToUser` (R176) on an existing member inserts a
+  second membership and a second contact (no unique key). The spec answers 409.
 - **F18.** `can_be_deleted` is enforced only by the UI for templates, template
   pages, post templates and sections, and contact information types; deleting
   the contact information page breaks the contact page. The spec answers 409.
