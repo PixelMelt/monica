@@ -7,6 +7,12 @@ use super::*;
 use crate::crypto::random_string;
 use crate::testing::{TestDb, factory};
 
+mod labels;
+mod life_events;
+mod mood_tracking_parameters;
+mod quick_fact_templates;
+mod tags;
+
 /// `UserNotificationChannel::factory()` for `user_id`, to insert.
 fn user_notification_channel(user_id: Uuid) -> user_notification_channels::ActiveModel {
     user_notification_channels::ActiveModel {
@@ -50,9 +56,14 @@ async fn template(db: &TestDb, account_id: Option<Uuid>) -> templates::Model {
         .expect("template")
 }
 
+/// `Vault::factory()->create()`: in a new account.
+async fn any_vault(db: &TestDb) -> vaults::Model {
+    factory::vault(&db.conn, factory::account(&db.conn).await.id).await
+}
+
 /// `Contact::factory()->create()`: in a new vault of a new account.
 async fn any_contact(db: &TestDb) -> contacts::Model {
-    let vault = factory::vault(&db.conn, factory::account(&db.conn).await.id).await;
+    let vault = any_vault(db).await;
     factory::contact(&db.conn, &vault).await
 }
 
