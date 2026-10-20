@@ -104,8 +104,10 @@
                 <li class="me-4 inline cursor-pointer" @click="showEditModal(user)">
                   <span class="text-blue-500 hover:underline">{{ $t('Edit') }}</span>
                 </li>
-                <li class="inline cursor-pointer text-red-500 hover:text-red-900" @click="destroy(user)">
-                  {{ $t('Delete') }}
+                <li class="inline cursor-pointer text-red-500 hover:text-red-900">
+                  <confirms-password @confirmed="destroy(user)">
+                    {{ $t('Delete') }}
+                  </confirms-password>
                 </li>
               </ul>
             </div>
@@ -176,6 +178,10 @@ import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import ConfirmsPassword from '@/Components/Jetstream/ConfirmsPassword.vue';
+import { session } from '@/lib/session';
+import { updateAccountUser, deleteAccountUser } from '@/api/client';
+import * as dto from '@/adapters/settings';
 
 export default {
   components: {
@@ -185,6 +191,7 @@ export default {
     PrettyButton,
     PrettySpan,
     Errors,
+    ConfirmsPassword,
   },
 
   props: {
@@ -223,12 +230,12 @@ export default {
     update(user) {
       this.loadingState = 'loading';
 
-      axios
-        .put(user.url.update, this.form)
-        .then((response) => {
+      // `$request->input('administrator') === 'true'`: the radio buttons hold strings.
+      updateAccountUser({ user_id: user.id }, { is_account_administrator: this.form.administrator === 'true' })
+        .then((updated) => {
           this.editModalshownId = 0;
           this.flash(this.$t('The user has been updated'), 'success');
-          this.localUsers[this.localUsers.findIndex((x) => x.id === user.id)] = response.data.data;
+          this.localUsers[this.localUsers.findIndex((x) => x.id === user.id)] = dto.user(updated, session.user);
           this.loadingState = null;
         })
         .catch((error) => {
@@ -239,7 +246,7 @@ export default {
 
     destroy(user) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios.delete(user.url.destroy).then(() => {
+        deleteAccountUser({ user_id: user.id }, {}).then(() => {
           this.flash(this.$t('The user has been deleted'), 'success');
           var id = this.localUsers.findIndex((x) => x.id === user.id);
           this.localUsers.splice(id, 1);

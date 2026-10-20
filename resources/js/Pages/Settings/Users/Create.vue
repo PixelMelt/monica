@@ -147,6 +147,7 @@ import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { inviteAccountUser } from '@/api/client';
 
 export default {
   components: {
@@ -188,11 +189,11 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      // `$request->input('administrator') === 'true'`: the radio buttons hold strings.
+      inviteAccountUser({}, { email: this.form.email, is_account_administrator: this.form.administrator === 'true' })
+        .then(() => {
           localStorage.success = this.$t('Invitation sent');
-          this.$inertia.visit(response.data.data);
+          this.$router.push(this.route('settings.user.index'));
         })
         .catch((error) => {
           this.loadingState = null;

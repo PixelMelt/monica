@@ -1,20 +1,27 @@
 <script setup>
-import { computed } from 'vue';
-import Link from '@/router/Link.vue';
+import { computed, ref } from 'vue';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { sendEmailVerification, logOut } from '@/api/client';
 import JetButton from '@/Components/Button.vue';
 import JetGuestLayout from '@/Shared/Guest.vue';
 
-const props = defineProps({
-  status: String,
-});
+// `session('status')` after the link was sent again.
+const status = ref(null);
 
 const form = useForm({});
 
-const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
+const verificationLinkSent = computed(() => status.value === 'verification-link-sent');
 
 const submit = () => {
-  form.post(route('verification.send'));
+  form.submit(() => sendEmailVerification(), {
+    onSuccess: () => (status.value = 'verification-link-sent'),
+  });
+};
+
+const logout = async () => {
+  await logOut();
+  visit(route('login'));
 };
 </script>
 
@@ -38,13 +45,12 @@ const submit = () => {
           {{ $t('Resend Verification Email') }}
         </JetButton>
 
-        <Link
-          :href="route('logout')"
-          method="post"
-          as="button"
-          class="text-sm text-gray-600 underline hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+        <button
+          type="button"
+          class="text-sm text-gray-600 underline hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+          @click="logout">
           {{ $t('Log Out') }}
-        </Link>
+        </button>
       </div>
     </form>
   </JetGuestLayout>

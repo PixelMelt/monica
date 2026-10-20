@@ -1,6 +1,8 @@
 <script setup>
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { route, visit, intended } from '@/router';
+import { registerUser } from '@/api/client';
 import { trans } from 'laravel-vue-i18n';
 import JetGuestLayout from '@/Shared/Guest.vue';
 import JetInput from '@/Components/Input.vue';
@@ -9,11 +11,10 @@ import JetValidationErrors from '@/Components/ValidationErrors.vue';
 import JetCheckbox from '@/Components/Checkbox.vue';
 import PrimaryButton from '@/Shared/Form/PrimaryButton.vue';
 import Beta from './Beta.vue';
-import ExternalProviders from './ExternalProviders.vue';
 
 defineProps({
-  providers: Object,
   beta: Boolean,
+  jetstream: Object,
 });
 
 const form = useForm({
@@ -26,9 +27,24 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('register'), {
-    onFinish: () => form.reset('password', 'password_confirmation'),
-  });
+  form.submit(
+    (data) =>
+      registerUser(
+        {},
+        {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+          terms: data.terms,
+        },
+      ),
+    {
+      onSuccess: () => visit(intended()),
+      onFinish: () => form.reset('password', 'password_confirmation'),
+    },
+  );
 };
 
 const terms = () => {
@@ -112,7 +128,7 @@ const policy = () => {
           autocomplete="new-password" />
       </div>
 
-      <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature" class="mb-4 mt-4">
+      <div v-if="jetstream.hasTermsAndPrivacyPolicyFeature" class="mb-4 mt-4">
         <JetLabel for="terms">
           <div class="flex">
             <JetCheckbox id="terms" v-model:checked="form.terms" name="terms" />
@@ -134,7 +150,5 @@ const policy = () => {
         <PrimaryButton :text="$t('Register')" :class="'save'" />
       </div>
     </form>
-
-    <ExternalProviders class="mt-5" :providers="providers" :remember="true" />
   </JetGuestLayout>
 </template>

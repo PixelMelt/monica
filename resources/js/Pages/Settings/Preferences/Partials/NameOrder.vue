@@ -3,6 +3,8 @@ import { nextTick, ref, useTemplateRef } from 'vue';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods';
+import { updateMyPreferences } from '@/api/client';
+import * as dto from '@/adapters/settings';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
@@ -22,7 +24,6 @@ const disableNameOrder = ref(true);
 const form = useForm({
   nameOrder: props.data.name_order,
   choice: '',
-  errors: [],
 });
 
 const enableEditMode = () => {
@@ -51,12 +52,11 @@ const helpDocumentation = () => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  updateMyPreferences({}, { name_order: form.nameOrder })
+    .then((prefs) => {
       flash(trans('Changes saved'), 'success');
       localNameOrder.value = form.nameOrder;
-      localNameExample.value = response.data.data.name_example;
+      localNameExample.value = dto.nameOrder(prefs).name_example;
       form.choice = form.nameOrder;
       editMode.value = false;
       loadingState.value = null;

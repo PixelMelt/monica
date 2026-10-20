@@ -1,21 +1,26 @@
 <script setup>
+import { ref } from 'vue';
+import { trans } from 'laravel-vue-i18n';
 import { useForm } from '@/lib/form';
+import { requestPasswordReset } from '@/api/client';
 import JetButton from '@/Components/Button.vue';
 import JetGuestLayout from '@/Shared/Guest.vue';
 import JetInput from '@/Components/Input.vue';
 import JetLabel from '@/Components/Label.vue';
 import JetValidationErrors from '@/Components/ValidationErrors.vue';
 
-defineProps({
-  status: String,
-});
+// `session('status')`: the answer of the last request (Q8: the same whether
+// or not the email has an account).
+const status = ref(null);
 
 const form = useForm({
   email: '',
 });
 
 const submit = () => {
-  form.post(route('password.email'));
+  form.submit((data) => requestPasswordReset({}, { email: data.email }), {
+    onSuccess: () => (status.value = trans('passwords.sent')),
+  });
 };
 </script>
 

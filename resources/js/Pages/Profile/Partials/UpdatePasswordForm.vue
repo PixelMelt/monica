@@ -1,6 +1,7 @@
 <script setup>
 import { useTemplateRef } from 'vue';
 import { useForm } from '@/lib/form';
+import { updateMyPassword } from '@/api/client';
 import JetActionMessage from '@/Components/Jetstream/ActionMessage.vue';
 import JetButton from '@/Components/Button.vue';
 import JetFormSection from '@/Components/Jetstream/FormSection.vue';
@@ -18,22 +19,31 @@ const form = useForm({
 });
 
 const updatePassword = () => {
-  form.put(route('user-password.update'), {
-    errorBag: 'updatePassword',
-    preserveScroll: true,
-    onSuccess: () => form.reset(),
-    onError: () => {
-      if (form.errors.password) {
-        form.reset('password', 'password_confirmation');
-        passwordInput.value.focus();
-      }
+  form.submit(
+    (data) =>
+      updateMyPassword(
+        {},
+        {
+          current_password: data.current_password,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+        },
+      ),
+    {
+      onSuccess: () => form.reset(),
+      onError: () => {
+        if (form.errors.password) {
+          form.reset('password', 'password_confirmation');
+          passwordInput.value.focus();
+        }
 
-      if (form.errors.current_password) {
-        form.reset('current_password');
-        currentPasswordInput.value.focus();
-      }
+        if (form.errors.current_password) {
+          form.reset('current_password');
+          currentPasswordInput.value.focus();
+        }
+      },
     },
-  });
+  );
 };
 </script>
 

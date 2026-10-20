@@ -1,26 +1,101 @@
 // Page loaders: auth. Each returns the props of its page (see router/index.js).
-import { notPorted } from '@/loaders/common';
+import { trans } from 'laravel-vue-i18n';
+import { session } from '@/lib/session';
+import { markdown } from '@/lib/markdown';
+import { route, intended } from '@/router';
+import { getInvitation, verifyEmail as sendVerification } from '@/api/client';
+import { ApiError } from '@/api/runtime';
+import * as dto from '@/adapters/auth';
 
-export const home = notPorted('auth.home');
+/** The `/` closure of routes/web.php: the only vault if there is one, else the vault list. */
+export function home() {
+  if (session.vaults.length === 1) {
+    return { redirect: intended(route('vault.show', { vault: session.vaults[0].id })) };
+  }
+  return { redirect: intended(route('vault.index')) };
+}
 
-export const login = notPorted('auth.login');
+/** `LoginController::__invoke` (minus OAuth providers and WebAuthn). */
+export function login() {
+  return {
+    isSignupEnabled: session.instance.signup_enabled,
+    canResetPassword: true,
+    status: dto.takeStatus(),
+    wallpaperUrl: dto.wallpaper(),
+    beta: dto.betaShown(),
+    showDeletionNotice: session.instance.show_deletion_notice,
+  };
+}
 
-export const register = notPorted('auth.register');
+/** `RegisterController::__invoke`, behind `EnsureSignupIsEnabled`. */
+export function register() {
+  if (!session.instance.signup_enabled) {
+    throw new ApiError(403, { detail: trans('Registration is currently disabled'), code: 'signup_disabled' });
+  }
+  return {
+    beta: dto.betaShown(),
+    jetstream: { hasTermsAndPrivacyPolicyFeature: true },
+  };
+}
 
-export const forgotPassword = notPorted('auth.forgotPassword');
+/** Fortify's `PasswordResetLinkController::create`. */
+export const forgotPassword = () => ({});
 
-export const resetPassword = notPorted('auth.resetPassword');
+/** Fortify's `NewPasswordController::create`. */
+export const resetPassword = (to) => ({ token: to.params.token, email: to.query.email ?? null });
 
-export const twoFactorChallenge = notPorted('auth.twoFactorChallenge');
+/** `TwoFactorChallengeView` (minus WebAuthn); without a pending login, back to the login page. */
+export function twoFactorChallenge() {
+  if (!dto.hasPendingLogin()) return { redirect: route('login') };
+  return { twoFactor: true };
+}
 
-export const verifyEmail = notPorted('auth.verifyEmail');
+/** Fortify's `EmailVerificationPromptController`. */
+export function verifyEmail() {
+  if (session.user.email_verified_at) return { redirect: intended() };
+  return {};
+}
 
-export const verifyEmailLink = notPorted('auth.verifyEmailLink');
+/** Fortify's `VerifyEmailController`: the link of the verification email. */
+export async function verifyEmailLink(to) {
+  await sendVerification(
+    {},
+    {
+      id: to.params.id,
+      hash: to.params.hash,
+      expires: Number(to.query.expires),
+      signature: to.query.signature,
+    },
+  );
+  return { redirect: intended(route('vault.index', { verified: 1 })) };
+}
 
-export const confirmPassword = notPorted('auth.confirmPassword');
+/** Fortify's `ConfirmablePasswordController::show`. */
+export const confirmPassword = () => ({});
 
-export const acceptInvitation = notPorted('auth.acceptInvitation');
+/** `AcceptInvitationController::show`: an unknown or used code goes home. */
+export async function acceptInvitation(to) {
+  try {
+    const inv = await getInvitation({ invitation_code: to.params.code });
+    return { data: dto.invitation(inv) };
+  } catch (e) {
+    if (e instanceof ApiError && [400, 404, 422].includes(e.status)) return { redirect: '/' };
+    throw e;
+  }
+}
 
-export const terms = notPorted('auth.terms');
+const MARKDOWN = import.meta.glob('../../markdown/*.md', { query: '?raw', import: 'default' });
 
-export const policy = notPorted('auth.policy');
+/** `Str::markdown` of `Jetstream::localizedMarkdownPath($name)`: `terms.fr.md` before `terms.md`. */
+async function localizedMarkdown(name) {
+  const locale = session.user?.preferences.locale ?? session.instance.locale;
+  const localName = name.replace(/(\.md)$/i, `.${locale}$1`);
+  const load = MARKDOWN[`../../markdown/${localName}`] ?? MARKDOWN[`../../markdown/${name}`];
+  return markdown(await load());
+}
+
+/** Jetstream's `TermsOfServiceController::show`. */
+export const terms = async () => ({ terms: await localizedMarkdown('terms.md') });
+
+/** Jetstream's `PrivacyPolicyController::show`. */
+export const policy = async () => ({ policy: await localizedMarkdown('policy.md') });

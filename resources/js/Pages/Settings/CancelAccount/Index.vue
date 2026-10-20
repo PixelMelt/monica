@@ -94,6 +94,7 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Help from '@/Shared/Help.vue';
+import { cancelAccount } from '@/api/client';
 
 export default {
   components: {
@@ -131,10 +132,9 @@ export default {
     destroy() {
       this.loadingState = 'loading';
 
-      axios
-        .put(this.data.url.destroy, this.form)
-        .then((response) => {
-          this.$inertia.visit(response.data.data);
+      cancelAccount({}, { password: this.form.password })
+        .then(() => {
+          this.$router.push(this.route('login'));
         })
         .catch((error) => {
           this.loadingState = null;

@@ -1,13 +1,16 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import Head from '@/router/Head.vue';
+import { useForm } from '@/lib/form';
+import { route, visit, intended } from '@/router';
+import { completeTwoFactorChallenge } from '@/api/client';
+import { setPendingLogin } from '@/adapters/auth';
 import AuthenticationCard from '@/Layouts/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import JetButton from '@/Components/Button.vue';
 import JetInput from '@/Components/Input.vue';
 import JetLabel from '@/Components/Label.vue';
 import JetValidationErrors from '@/Components/ValidationErrors.vue';
-import WebauthnLogin from '@/Pages/Webauthn/WebauthnLogin.vue';
 
 const recovery = ref(false);
 
@@ -34,13 +37,23 @@ const toggleRecovery = async () => {
 };
 
 const submit = () => {
-  form.post(route('two-factor.login'));
+  form.submit((data) => completeTwoFactorChallenge({}, { code: data.code, recovery_code: data.recovery_code }), {
+    onSuccess: () => {
+      setPendingLogin(false);
+      return visit(intended());
+    },
+    onError: (errors, error) => {
+      // No pending login any more (`hasChallengedUser()` failed): log in again.
+      if (error.status === 401) {
+        setPendingLogin(false);
+        visit(route('login'));
+      }
+    },
+  });
 };
 
 defineProps({
   twoFactor: Boolean,
-  remember: Boolean,
-  publicKey: Object,
 });
 </script>
 
@@ -51,14 +64,6 @@ defineProps({
     <template #logo>
       <AuthenticationCardLogo />
     </template>
-
-    <div v-if="publicKey !== null">
-      <h1 class="mb-4 max-w-xl text-gray-600 dark:text-gray-400">
-        {{ $t('Please confirm access to your account by validating your security key.') }}
-      </h1>
-
-      <WebauthnLogin :remember="remember" :public-key="publicKey" :autofill="false" />
-    </div>
 
     <div v-if="twoFactor">
       <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">

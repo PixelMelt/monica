@@ -1,6 +1,8 @@
 <script setup>
-import { ref, useTemplateRef } from 'vue';
+import { nextTick, ref, useTemplateRef } from 'vue';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { deleteMe } from '@/api/client';
 import JetActionSection from '@/Components/Jetstream/ActionSection.vue';
 import JetDialogModal from '@/Components/Jetstream/DialogModal.vue';
 import JetDangerButton from '@/Components/Jetstream/DangerButton.vue';
@@ -22,9 +24,12 @@ const confirmUserDeletion = () => {
 };
 
 const deleteUser = () => {
-  form.delete(route('current-user.destroy'), {
-    preserveScroll: true,
-    onSuccess: () => closeModal(),
+  form.submit((data) => deleteMe({}, { password: data.password }), {
+    onSuccess: () => {
+      closeModal();
+      // `Inertia::location(url('/'))`: the session ended.
+      return visit(route('login'));
+    },
     onError: () => nextTick().then(() => passwordInput.value.focus()),
     onFinish: () => form.reset(),
   });
@@ -62,7 +67,6 @@ const closeModal = () => {
         <p class="pt-5">{{ $t('This will immediately:') }}</p>
         <ul class="mb-2 ms-5">
           <li>- {{ $t('Cancel all your active subscriptions') }},</li>
-          <li>- {{ $t('Delete your account on https://customers.monicahq.com.') }}</li>
         </ul>
 
         <p class="font-semibold text-red-500">

@@ -81,6 +81,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Help from '@/Shared/Help.vue';
+import { updateMyPreferences } from '@/api/client';
+import * as dto from '@/adapters/settings';
 
 export default {
   components: {
@@ -124,12 +126,11 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      updateMyPreferences({}, { date_format: this.form.dateFormat })
+        .then((prefs) => {
           this.flash(this.$t('Changes saved'), 'success');
           this.localDateFormat = this.form.dateFormat;
-          this.localHumanDateFormat = response.data.data.human_date_format;
+          this.localHumanDateFormat = dto.dateFormat(prefs).human_date_format;
           this.editMode = false;
           this.loadingState = null;
         })

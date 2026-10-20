@@ -1,5 +1,7 @@
 <script setup>
-import { router, useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { acceptInvitation } from '@/api/client';
 import { trans } from 'laravel-vue-i18n';
 import JetButton from '@/Components/Button.vue';
 import JetGuestLayout from '@/Shared/Guest.vue';
@@ -20,12 +22,24 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(props.data.url.store, {
-    onSuccess: (response) => {
-      localStorage.success = trans('Your account has been created');
-      router.visit(response.data.data);
+  form.submit(
+    (data) =>
+      acceptInvitation(
+        { invitation_code: data.invitation_code },
+        {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+        },
+      ),
+    {
+      onSuccess: () => {
+        localStorage.success = trans('Your account has been created');
+        return visit(route('home'));
+      },
     },
-  });
+  );
 };
 </script>
 
