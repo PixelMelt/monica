@@ -44,7 +44,8 @@ servers the harness expects, then select the engine with `MONICA_TEST_DB`:
 
 ```
 docker run -d --name monica-test-mysql --tmpfs /var/lib/mysql:rw -e MYSQL_ROOT_PASSWORD=root \
-  -p 127.0.0.1:33306:3306 mysql:8.4 --skip-log-bin --innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=0
+  -p 127.0.0.1:33306:3306 mysql:8.4 --skip-log-bin --innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=0 \
+  --table-definition-cache=20000 --table-open-cache=20000 --max-connections=1000
 docker run -d --name monica-test-pg --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_PASSWORD=postgres \
   -p 127.0.0.1:55432:5432 postgres:17 -c max_locks_per_transaction=1024 -c fsync=off -c max_connections=500
 
@@ -53,7 +54,10 @@ MONICA_TEST_DB=postgres cargo test
 ```
 
 `MONICA_TEST_MYSQL_URL` / `MONICA_TEST_POSTGRES_URL` override the server
-URLs. Each test creates and drops its own database.
+URLs. Each test gets an empty migrated database: SQLite uses a temp file;
+on MySQL and Postgres a finished test's database is emptied and reused by
+the next test of the same process, and databases left by dead processes
+are dropped.
 
 Lint: `cargo clippy --all-targets -- -D warnings` and `cargo fmt --check`.
 
