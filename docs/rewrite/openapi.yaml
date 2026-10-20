@@ -4429,6 +4429,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
   /vaults/{vault_id}/calendar/{year}/{month}:
     parameters:
     - $ref: '#/components/parameters/VaultId'
@@ -9173,11 +9175,11 @@ paths:
               $ref: '#/components/schemas/FileUpload'
       responses:
         '200':
-          description: The slice of life with its new cover.
+          description: The new cover `File`; the slice's `file_cover_image_id` is now its id.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SliceOfLife'
+                $ref: '#/components/schemas/File'
         '401':
           $ref: '#/components/responses/Unauthenticated'
         '403':
@@ -15052,7 +15054,11 @@ components:
           $ref: '#/components/schemas/Uuid'
         type:
           type: string
-          description: '`object` or `monetary` from the web UI.'
+          enum:
+          - object
+          - monetary
+          description: The values the web UI writes (`Loan::TYPE_DEBT`/`TYPE_LOAN` are unused). `amount_lent`
+            is set only for `monetary`.
         name:
           type: string
         description:
@@ -15112,9 +15118,7 @@ components:
       properties:
         type:
           type: string
-          minLength: 1
-          maxLength: 255
-          examples:
+          enum:
           - object
           - monetary
         name:
@@ -15161,8 +15165,9 @@ components:
       properties:
         type:
           type: string
-          minLength: 1
-          maxLength: 255
+          enum:
+          - object
+          - monetary
         name:
           type: string
           minLength: 1

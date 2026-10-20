@@ -685,10 +685,10 @@ paths:
             schema: { $ref: '#/components/schemas/FileUpload' }
       responses:
         '200':
-          description: The slice of life with its new cover.
+          description: The new cover `File`; the slice's `file_cover_image_id` is now its id.
           content:
             application/json:
-              schema: { $ref: '#/components/schemas/SliceOfLife' }
+              schema: { $ref: '#/components/schemas/File' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }

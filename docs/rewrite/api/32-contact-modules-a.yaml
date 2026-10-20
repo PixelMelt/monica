@@ -1218,7 +1218,7 @@ components:
       properties:
         id: { $ref: '#/components/schemas/Id' }
         vault_id: { $ref: '#/components/schemas/Uuid' }
-        type: { type: string, description: '`object` or `monetary` from the web UI.' }
+        type: { type: string, enum: [object, monetary], description: 'The values the web UI writes (`Loan::TYPE_DEBT`/`TYPE_LOAN` are unused). `amount_lent` is set only for `monetary`.' }
         name: { type: string }
         description: { type: [string, 'null'] }
         amount_lent: { type: [integer, 'null'], description: In the minor unit of `currency`. }
@@ -1255,7 +1255,7 @@ components:
       type: object
       required: [type, name, loaner_ids, loanee_ids]
       properties:
-        type: { type: string, minLength: 1, maxLength: 255, examples: [object, monetary] }
+        type: { type: string, enum: [object, monetary] }
         name: { type: string, minLength: 1, maxLength: 255 }
         description: { type: [string, 'null'], maxLength: 65535 }
         amount_lent: { type: [integer, 'null'], description: In the minor unit of the currency. }
@@ -1277,7 +1277,7 @@ components:
       type: object
       minProperties: 1
       properties:
-        type: { type: string, minLength: 1, maxLength: 255 }
+        type: { type: string, enum: [object, monetary] }
         name: { type: string, minLength: 1, maxLength: 255 }
         description: { type: [string, 'null'], maxLength: 65535 }
         amount_lent: { type: [integer, 'null'] }
