@@ -2,9 +2,7 @@
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
-use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, QueryOrder,
-};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -127,7 +125,11 @@ pub async fn update_my_password(
             Some(body.password_confirmation.as_deref()),
         );
     }
-    let current_ok = body.current_password.as_deref().zip(id.user.password.as_deref()).is_some_and(|(p, h)| crate::password::verify(p, h));
+    let current_ok = body
+        .current_password
+        .as_deref()
+        .zip(id.user.password.as_deref())
+        .is_some_and(|(p, h)| crate::password::verify(p, h));
     if !current_ok && !v.has("current_password") {
         let msg = i18n::t(&i18n::current(), "The provided password does not match your current password.", &[]);
         v.add("current_password", "current_password", msg);
@@ -177,7 +179,10 @@ pub struct Bootstrap {
     responses((status = 200, description = "The bootstrap data.", body = Bootstrap)),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!([])), ("x-services" = json!([])))
 )]
-pub async fn get_bootstrap(State(state): State<AppState>, AuthUnverified(id): AuthUnverified) -> ApiResult<Json<Bootstrap>> {
+pub async fn get_bootstrap(
+    State(state): State<AppState>,
+    AuthUnverified(id): AuthUnverified,
+) -> ApiResult<Json<Bootstrap>> {
     let rows = user_vault::Entity::find()
         .filter(user_vault::Column::UserId.eq(id.user.id))
         .find_also_related(vaults::Entity)
@@ -550,7 +555,8 @@ pub async fn enable_two_factor(
     }
     let secret = two_factor::new_secret();
     let codes = two_factor::new_recovery_codes();
-    let otpauth_url = two_factor::otpauth_url(&secret, &id.user.email).ok_or_else(|| ApiError::internal("otpauth url"))?;
+    let otpauth_url =
+        two_factor::otpauth_url(&secret, &id.user.email).ok_or_else(|| ApiError::internal("otpauth url"))?;
     let qr_code_svg = two_factor::qr_code_svg(&otpauth_url).ok_or_else(|| ApiError::internal("qr code"))?;
     let mut u = id.user.into_active_model();
     u.two_factor_secret = Set(Some(crate::crypto::encrypt(&state.config.key, &secret)));
@@ -675,7 +681,8 @@ mod tests {
     fn describes_common_agents() {
         let mac = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15";
         assert_eq!(describe_agent(mac), (Some("OS X".into()), Some("Safari".into()), true));
-        let android = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";
+        let android =
+            "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";
         assert_eq!(describe_agent(android), (Some("AndroidOS".into()), Some("Chrome".into()), false));
         assert_eq!(describe_agent(""), (None, None, false));
     }

@@ -146,7 +146,8 @@ async fn resets_a_forgotten_password() {
     let url = mail.text.lines().find(|l| l.contains("/reset-password/")).unwrap();
     let token = url.split("/reset-password/").nth(1).unwrap().split('?').next().unwrap().to_owned();
 
-    let body = |t: &str| json!({"token": t, "email": user.email, "password": "newpass", "password_confirmation": "newpass"});
+    let body =
+        |t: &str| json!({"token": t, "email": user.email, "password": "newpass", "password_confirmation": "newpass"});
     app.post("/auth/reset-password", body("wrong")).await.assert(422);
     app.post("/auth/reset-password", body(&token)).await.assert(204);
     app.post("/auth/reset-password", body(&token)).await.assert(422);
@@ -203,9 +204,12 @@ async fn changes_password_and_lists_sessions() {
         .await
         .assert(422);
     assert_eq!(res.json()["errors"][0]["field"], "current_password");
-    app.put("/me/password", json!({"current_password": factory::PASSWORD, "password": "abcd", "password_confirmation": "abcd"}))
-        .await
-        .assert(204);
+    app.put(
+        "/me/password",
+        json!({"current_password": factory::PASSWORD, "password": "abcd", "password_confirmation": "abcd"}),
+    )
+    .await
+    .assert(204);
     app.get("/me").await.assert(200);
     app.finish().await;
 }

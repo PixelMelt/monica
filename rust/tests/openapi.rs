@@ -50,7 +50,11 @@ fn generated_operations_match_the_draft() {
             }
         }
         if success_codes(d) != success_codes(&op) {
-            problems.push(format!("{method} {path} ({id}): success codes {:?} vs draft {:?}", success_codes(&op), success_codes(d)));
+            problems.push(format!(
+                "{method} {path} ({id}): success codes {:?} vs draft {:?}",
+                success_codes(&op),
+                success_codes(d)
+            ));
         }
     }
     assert!(problems.is_empty(), "{} problems:\n{}", problems.len(), problems.join("\n"));

@@ -92,7 +92,8 @@ pub async fn log_in(
     state.limiter.per_minute(&key, 5)?;
 
     let user = users::Entity::find().filter(users::Column::Email.eq(email)).one(&state.db).await?;
-    let Some(user) = user.filter(|u| u.password.as_deref().is_some_and(|h| crate::password::verify(&password, h))) else {
+    let Some(user) = user.filter(|u| u.password.as_deref().is_some_and(|h| crate::password::verify(&password, h)))
+    else {
         let msg = i18n::group(&i18n::current(), "auth.failed", &[]).unwrap_or_default();
         return Err(ApiError::field("email", "failed", msg));
     };
@@ -135,14 +136,19 @@ pub async fn complete_two_factor_challenge(
 ) -> ApiResult<Json<CurrentUser>> {
     let pending = session.payload().pending_login.ok_or_else(ApiError::unauthenticated)?;
     state.limiter.per_minute(&format!("two-factor|{}", pending.user_id), 5)?;
-    let user = users::Entity::find_by_id(pending.user_id).one(&state.db).await?.ok_or_else(ApiError::unauthenticated)?;
+    let user =
+        users::Entity::find_by_id(pending.user_id).one(&state.db).await?.ok_or_else(ApiError::unauthenticated)?;
 
     let config = &state.config;
     let l = i18n::current();
     if let Some(recovery) = clean(body.recovery_code) {
         let mut codes = two_factor::recovery_codes(config, &user);
         let Some(pos) = codes.iter().position(|c| crate::crypto::eq(c, &recovery)) else {
-            return Err(ApiError::field("recovery_code", "invalid", i18n::t(&l, "The provided two factor recovery code was invalid.", &[])));
+            return Err(ApiError::field(
+                "recovery_code",
+                "invalid",
+                i18n::t(&l, "The provided two factor recovery code was invalid.", &[]),
+            ));
         };
         codes[pos] = two_factor::new_recovery_code();
         let mut u: users::ActiveModel = user.clone().into();
@@ -153,7 +159,11 @@ pub async fn complete_two_factor_challenge(
         let secret = two_factor::secret(config, &user).unwrap_or_default();
         let now = chrono::Utc::now().timestamp() as u64;
         if !two_factor::verify(user.id, &secret, &user.email, &code, now) {
-            return Err(ApiError::field("code", "invalid", i18n::t(&l, "The provided two factor authentication code was invalid.", &[])));
+            return Err(ApiError::field(
+                "code",
+                "invalid",
+                i18n::t(&l, "The provided two factor authentication code was invalid.", &[]),
+            ));
         }
     }
     session.login(user.id, pending.remember);

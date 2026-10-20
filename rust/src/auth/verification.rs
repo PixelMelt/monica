@@ -35,7 +35,15 @@ pub fn link(config: &Config, user: &users::Model, now: i64) -> String {
 }
 
 /// Whether the link values are genuine, unexpired and for `user`.
-pub fn valid(config: &Config, user: &users::Model, id: &str, hash: &str, expires: i64, signature: &str, now: i64) -> bool {
+pub fn valid(
+    config: &Config,
+    user: &users::Model,
+    id: &str,
+    hash: &str,
+    expires: i64,
+    signature: &str,
+    now: i64,
+) -> bool {
     crypto::eq(signature, &crypto::sign(&config.key, &payload(id, hash, expires)))
         && expires > now
         && id == user.id.to_string()
@@ -44,7 +52,12 @@ pub fn valid(config: &Config, user: &users::Model, id: &str, hash: &str, expires
 
 /// `User::sendEmailVerificationNotification`: mails the link, except that
 /// with SMTP and no credentials the user is marked verified instead.
-pub async fn send<C: ConnectionTrait>(db: &C, mailer: &Mailer, config: &Config, user: users::Model) -> ApiResult<users::Model> {
+pub async fn send<C: ConnectionTrait>(
+    db: &C,
+    mailer: &Mailer,
+    config: &Config,
+    user: users::Model,
+) -> ApiResult<users::Model> {
     if Mailer::smtp_without_credentials(config) {
         let mut u: users::ActiveModel = user.into();
         u.email_verified_at = Set(Some(crate::db::now()));
