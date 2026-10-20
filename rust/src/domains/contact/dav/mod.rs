@@ -92,7 +92,7 @@ impl From<vobject::Error> for ApiError {
 }
 
 /// PHP's `empty()` on a string.
-fn php_empty(value: &str) -> bool {
+pub fn php_empty(value: &str) -> bool {
     value.is_empty() || value == "0"
 }
 
@@ -180,7 +180,7 @@ fn eq_or_null<T: Into<sea_orm::Value>>(column: impl ColumnTrait, value: Option<T
 }
 
 /// `SyncDAVBackend::decodeUri()`: `pathinfo(urldecode($uri), PATHINFO_FILENAME)`.
-fn decode_uri(uri: &str) -> String {
+pub fn decode_uri(uri: &str) -> String {
     let b = uri.as_bytes();
     let mut decoded = Vec::with_capacity(b.len());
     let mut i = 0;

@@ -2,7 +2,7 @@
 //! `AddressBookSynchronizer`, the `PrepareJobs*` classes and the
 //! `Model` DTOs.
 
-use sea_orm::{ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 
 use super::dav::{self, DavClient, MultiStatus, NS_CARDDAV, PropFind, StatusList, Value};
@@ -11,9 +11,10 @@ use super::jobs::{
     MODE_MATCH_ETAG, MODE_MATCH_NONE, PushVCard, dispatch_batch,
 };
 use super::services::UpdateSubscriptionLocalSyncToken;
-use super::{Exception, get_client, has_capability, is_way_get, is_way_push, php_empty};
+use super::{Exception, get_client, has_capability, is_way_get, is_way_push, php_empty, with_user};
 use crate::config::Config;
-use crate::domains::contact::dav::VCardResource;
+use crate::dav::backend::{self, DavResource};
+use crate::domains::contact::dav::decode_uri;
 use crate::entities::{addressbook_subscriptions, user_vault, users};
 use crate::error::ApiResult;
 
@@ -356,12 +357,7 @@ impl AddressBookSynchronizer {
     }
 
     /// Sync the address book.
-    pub async fn execute<C: ConnectionTrait>(
-        mut self,
-        db: &C,
-        config: &Config,
-        force: bool,
-    ) -> Result<String, Exception> {
+    pub async fn execute(mut self, db: &DatabaseConnection, config: &Config, force: bool) -> Result<String, Exception> {
         self.client = get_client(config, &self.subscription)?;
 
         let update_sync_token = UpdateSubscriptionLocalSyncToken { addressbook_subscription_id: self.subscription.id };
@@ -370,14 +366,17 @@ impl AddressBookSynchronizer {
 
         let then = is_way_push(&self.subscription).then_some(update_sync_token);
 
-        Ok(dispatch_batch(db, config, jobs, then).await?)
+        dispatch_batch(db, config, jobs, then).await
     }
 
-    async fn get_local_changes<C: ConnectionTrait>(&self, db: &C, config: &Config) -> ApiResult<LocalChanges> {
+    async fn get_local_changes(&self, db: &DatabaseConnection, config: &Config) -> Result<LocalChanges, Exception> {
         let sync_token = self.subscription.sync_token_id.map(|id| id.to_string()).unwrap_or_default();
-        let local_changes =
-            super::get_changes_for_address_book(db, config, &self.user, self.subscription.vault_id, &sync_token)
-                .await?;
+        let local_changes = backend::get_changes_for_address_book(
+            &with_user(db, config, &self.user),
+            &self.subscription.vault_id.to_string(),
+            Some(&sync_token),
+        )
+        .await?;
 
         Ok(local_changes
             .map(|c| LocalChanges { added: c.added, modified: c.modified, deleted: c.deleted })
@@ -385,7 +384,7 @@ impl AddressBookSynchronizer {
     }
 
     /// Sync the address book.
-    pub(super) async fn sync<C: ConnectionTrait>(&mut self, db: &C, config: &Config) -> Result<Vec<Job>, Exception> {
+    pub(super) async fn sync(&mut self, db: &DatabaseConnection, config: &Config) -> Result<Vec<Job>, Exception> {
         // Get distant changes to sync
         let changes = self.get_distant_changes(db, config).await?;
 
@@ -412,30 +411,18 @@ impl AddressBookSynchronizer {
     }
 
     /// Sync the address book.
-    pub(super) async fn forcesync<C: ConnectionTrait>(
-        &mut self,
-        db: &C,
-        config: &Config,
-    ) -> Result<Vec<Job>, Exception> {
+    pub(super) async fn forcesync(&mut self, db: &DatabaseConnection, config: &Config) -> Result<Vec<Job>, Exception> {
         // Get current list of contacts
-        let local_contacts = super::get_objects(db, &self.user, self.subscription.vault_id).await?;
-        let local_uuids: Vec<String> = local_contacts
-            .iter()
-            .map(|c| match c {
-                VCardResource::Contact(c) => c.id.to_string(),
-                VCardResource::Group(g) => g.id.to_string(),
-            })
-            .collect();
+        let vault_id = self.subscription.vault_id.to_string();
+        let local_contacts = backend::card_get_objects(&with_user(db, config, &self.user), Some(&vault_id)).await?;
+        let local_uuids: Vec<String> = local_contacts.iter().map(DavResource::id).collect();
 
         // Get distant changes to sync
         let dist_contacts = self.get_all_contacts_etag().await?;
 
         // Get missed contacts
-        let missed: Vec<ContactDto> = dist_contacts
-            .iter()
-            .filter(|contact| !local_uuids.contains(&super::get_uuid(contact.uri())))
-            .cloned()
-            .collect();
+        let missed: Vec<ContactDto> =
+            dist_contacts.iter().filter(|contact| !local_uuids.contains(&decode_uri(contact.uri()))).cloned().collect();
 
         let mut jobs = Vec::new();
         if is_way_get(&self.subscription) {
@@ -459,20 +446,21 @@ impl AddressBookSynchronizer {
     }
 
     /// Filter contacts to only return vcards type and new contacts or contacts with matching etags.
-    async fn filter_distant_contacts<C: ConnectionTrait>(
+    async fn filter_distant_contacts(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         contact: &StatusList,
         href: &str,
-    ) -> ApiResult<bool> {
+    ) -> Result<bool, Exception> {
         // only return vcards
         if !contact.get("200", "{DAV:}getcontenttype").and_then(Value::text).is_some_and(|t| t.contains("text/vcard")) {
             return Ok(false);
         }
 
         // only new contact or contact with etag that match
-        let card = super::get_card(db, config, &self.user, self.subscription.vault_id, href).await?;
+        let ctx = with_user(db, config, &self.user);
+        let card = backend::get_card(&ctx, &self.subscription.vault_id.to_string(), href).await?;
 
         Ok(match card {
             None => true,
@@ -481,9 +469,9 @@ impl AddressBookSynchronizer {
     }
 
     /// Get distant changes to sync.
-    pub(super) async fn get_distant_changes<C: ConnectionTrait>(
+    pub(super) async fn get_distant_changes(
         &mut self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
     ) -> Result<Vec<ContactDto>, Exception> {
         let etags = self.get_distant_etags(db).await?;
@@ -643,13 +631,13 @@ impl PrepareJobsContactPush {
     }
 
     /// Push contacts to the distant server.
-    pub async fn execute<C: ConnectionTrait>(
+    pub async fn execute(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         local_changes: &LocalChanges,
         changes: Option<&[ContactDto]>,
-    ) -> ApiResult<Vec<Job>> {
+    ) -> Result<Vec<Job>, Exception> {
         let modified = self
             .prepare_push_changed_contacts(db, config, &local_changes.modified, changes.unwrap_or_default())
             .await?;
@@ -660,16 +648,17 @@ impl PrepareJobsContactPush {
     }
 
     /// Get list of requests to push new contacts.
-    async fn prepare_push_added_contacts<C: ConnectionTrait>(
+    async fn prepare_push_added_contacts(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         contacts: &[String],
-    ) -> ApiResult<Vec<Option<Job>>> {
+    ) -> Result<Vec<Option<Job>>, Exception> {
         // All added contact must be pushed
+        let ctx = with_user(db, config, &self.user);
         let mut jobs = Vec::new();
         for uri in self.filter_contacts(db, contacts).await? {
-            let card = super::get_card(db, config, &self.user, self.subscription.vault_id, &uri).await?;
+            let card = backend::get_card(&ctx, &self.subscription.vault_id.to_string(), &uri).await?;
 
             jobs.push(card.map(|card| {
                 Job::PushVCard(PushVCard::new(
@@ -701,23 +690,24 @@ impl PrepareJobsContactPush {
     }
 
     /// Get list of requests to push modified contacts.
-    async fn prepare_push_changed_contacts<C: ConnectionTrait>(
+    async fn prepare_push_changed_contacts(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         contacts: &[String],
         changes: &[ContactDto],
-    ) -> ApiResult<Vec<Option<Job>>> {
-        let refresh_ids: Vec<String> = changes.iter().map(|contact| super::get_uuid(contact.uri())).collect();
+    ) -> Result<Vec<Option<Job>>, Exception> {
+        let refresh_ids: Vec<String> = changes.iter().map(|contact| decode_uri(contact.uri())).collect();
 
         // We don't push contact that have just been pulled
+        let ctx = with_user(db, config, &self.user);
         let mut jobs = Vec::new();
         for uri in self.filter_contacts(db, contacts).await? {
-            if refresh_ids.contains(&super::get_uuid(&uri)) {
+            if refresh_ids.contains(&decode_uri(&uri)) {
                 continue;
             }
 
-            let card = super::get_card(db, config, &self.user, self.subscription.vault_id, &uri).await?;
+            let card = backend::get_card(&ctx, &self.subscription.vault_id.to_string(), &uri).await?;
 
             let Some(card) = card else {
                 jobs.push(None);
@@ -741,7 +731,7 @@ impl PrepareJobsContactPush {
     async fn filter_contacts<C: ConnectionTrait>(&self, db: &C, contacts: &[String]) -> ApiResult<Vec<String>> {
         let mut result = Vec::new();
         for uri in contacts {
-            if self.get_contact_in_vault(db).await?.as_deref() != Some(super::get_uuid(uri).as_str()) {
+            if self.get_contact_in_vault(db).await?.as_deref() != Some(decode_uri(uri).as_str()) {
                 result.push(uri.clone());
             }
         }
@@ -776,14 +766,14 @@ impl PrepareJobsContactPushMissed {
     }
 
     /// Push contacts to the distant server.
-    pub async fn execute<C: ConnectionTrait>(
+    pub async fn execute(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         local_changes: &LocalChanges,
         dist_contacts: &[ContactDto],
-        local_contacts: &[VCardResource],
-    ) -> ApiResult<Vec<Job>> {
+        local_contacts: &[DavResource],
+    ) -> Result<Vec<Job>, Exception> {
         let changes = PrepareJobsContactPush::with_subscription(db, self.subscription.clone())
             .await?
             .execute(db, config, local_changes, None)
@@ -796,28 +786,26 @@ impl PrepareJobsContactPushMissed {
     }
 
     /// Get list of requests of missed contacts.
-    async fn prepare_push_missed_contacts<C: ConnectionTrait>(
+    async fn prepare_push_missed_contacts(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         added: &[String],
         dist_contacts: &[ContactDto],
-        local_contacts: &[VCardResource],
-    ) -> ApiResult<Vec<Job>> {
-        let dist_uuids: Vec<String> = dist_contacts.iter().map(|contact| super::get_uuid(contact.uri())).collect();
-        let added_uuids: Vec<String> = added.iter().map(|uri| super::get_uuid(uri)).collect();
+        local_contacts: &[DavResource],
+    ) -> Result<Vec<Job>, Exception> {
+        let dist_uuids: Vec<String> = dist_contacts.iter().map(|contact| decode_uri(contact.uri())).collect();
+        let added_uuids: Vec<String> = added.iter().map(|uri| decode_uri(uri)).collect();
 
+        let ctx = with_user(db, config, &self.user);
         let mut jobs = Vec::new();
         for resource in local_contacts {
-            let id = match resource {
-                VCardResource::Contact(c) => c.id.to_string(),
-                VCardResource::Group(g) => g.id.to_string(),
-            };
+            let id = resource.id();
             if dist_uuids.contains(&id) || added_uuids.contains(&id) {
                 continue;
             }
 
-            let card = super::prepare_card(db, config, &self.user, resource).await?;
+            let card = backend::prepare_card(&ctx, resource).await?;
 
             let mode = if card.distant_etag.is_some() { MODE_MATCH_ANY } else { MODE_MATCH_NONE };
             jobs.push(Job::PushVCard(PushVCard::new(

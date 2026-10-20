@@ -4,15 +4,17 @@
 use std::collections::VecDeque;
 
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    QueryOrder, QuerySelect,
 };
 use tracing::Instrument;
 
 use super::dav::{NS_CARDDAV, Prop, Value};
 use super::services::{SynchronizeAddressBook, UpdateSubscriptionLocalSyncToken};
 use super::utils::ContactDto;
-use super::{Exception, get_client, php_empty, share_context, user};
+use super::{Exception, get_client, php_empty, share_context, user, with_user};
 use crate::config::Config;
+use crate::dav::backend;
 use crate::db::id::Id;
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
@@ -42,9 +44,9 @@ pub enum Job {
 
 impl Job {
     /// `handle()`: the jobs it adds to its batch (`$this->batch()->add(…)`).
-    async fn handle<C: ConnectionTrait>(self, db: &C, config: &Config) -> Result<Vec<Job>, Exception> {
+    async fn handle(self, db: &DatabaseConnection, config: &Config) -> Result<Vec<Job>, Exception> {
         match self {
-            Job::DeleteLocalVCard(job) => job.handle(db).await.map(|()| Vec::new()),
+            Job::DeleteLocalVCard(job) => job.handle(db, config).await.map(|()| Vec::new()),
             Job::DeleteMultipleVCard(job) => Ok(job.handle()),
             Job::DeleteVCard(job) => job.handle(config).await.map(|()| Vec::new()),
             Job::GetMultipleVCard(job) => job.handle(db, config).await,
@@ -59,12 +61,12 @@ impl Job {
 /// run now: every job and the jobs they add, in order, a failure not
 /// stopping the others; `then` when all of them succeeded. The batch is
 /// recorded in `job_batches`; returns its id.
-pub(super) async fn dispatch_batch<C: ConnectionTrait>(
-    db: &C,
+pub(super) async fn dispatch_batch(
+    db: &DatabaseConnection,
     config: &Config,
     jobs: Vec<Job>,
     then: Option<UpdateSubscriptionLocalSyncToken>,
-) -> ApiResult<String> {
+) -> Result<String, Exception> {
     let now = || i32::try_from(chrono::Utc::now().timestamp()).unwrap_or(i32::MAX);
     let total = i32::try_from(jobs.len()).unwrap_or(i32::MAX);
     let batch = job_batches::ActiveModel {
@@ -114,7 +116,7 @@ pub(super) async fn dispatch_batch<C: ConnectionTrait>(
     if let Some(then) = then
         && succeeded
     {
-        then.execute(db).await?;
+        then.execute(db, config).await?;
     }
 
     Ok(batch.id)
@@ -133,16 +135,17 @@ impl DeleteLocalVCard {
     }
 
     /// Send Delete contact.
-    pub async fn handle<C: ConnectionTrait>(self, db: &C) -> Result<(), Exception> {
+    pub async fn handle(self, db: &DatabaseConnection, config: &Config) -> Result<(), Exception> {
         let span = share_context(&self.subscription);
-        self.run(db).instrument(span).await
+        self.run(db, config).instrument(span).await
     }
 
     /// Run the job.
-    async fn run<C: ConnectionTrait>(&self, db: &C) -> Result<(), Exception> {
+    async fn run(&self, db: &DatabaseConnection, config: &Config) -> Result<(), Exception> {
         tracing::debug!("Delete local card {}", self.uri);
 
-        super::delete_card(db, &user(db, &self.subscription).await?, self.subscription.vault_id, &self.uri).await?;
+        let ctx = with_user(db, config, &user(db, &self.subscription).await?);
+        backend::delete_card(&ctx, &self.subscription.vault_id.to_string(), &self.uri).await?;
 
         Ok(())
     }
@@ -440,7 +443,7 @@ pub struct SynchronizeAddressBooks {
 
 impl SynchronizeAddressBooks {
     /// Execute the job.
-    pub async fn handle<C: ConnectionTrait>(mut self, db: &C, config: &Config) -> ApiResult<()> {
+    pub async fn handle(mut self, db: &DatabaseConnection, config: &Config) -> ApiResult<()> {
         let logid = self.subscription.current_logid.map_or(0, |l| l.0);
         let mut am: addressbook_subscriptions::ActiveModel = self.subscription.clone().into();
         am.current_logid = Set(Some(Id(logid + 1)));
@@ -453,7 +456,7 @@ impl SynchronizeAddressBooks {
     }
 
     /// Run synchronization.
-    async fn synchronize<C: ConnectionTrait>(self, db: &C, config: &Config) -> ApiResult<()> {
+    async fn synchronize(self, db: &DatabaseConnection, config: &Config) -> ApiResult<()> {
         tracing::info!("Synchronize addressbook '{}'", vault(db, &self.subscription).await?.name);
 
         let mut am: addressbook_subscriptions::ActiveModel = self.subscription.clone().into();
@@ -484,7 +487,7 @@ pub struct UpdateAddressBooks;
 
 impl UpdateAddressBooks {
     /// Update all address book subscriptions.
-    pub async fn handle<C: ConnectionTrait>(self, db: &C, config: &Config) -> ApiResult<()> {
+    pub async fn handle(self, db: &DatabaseConnection, config: &Config) -> ApiResult<()> {
         let now = crate::db::now();
 
         let mut last_id: Option<Uuid> = None;
@@ -514,9 +517,9 @@ impl UpdateAddressBooks {
     }
 
     /// Manage the subscriptions.
-    pub(super) async fn manage_subscriptions<C: ConnectionTrait>(
+    pub(super) async fn manage_subscriptions(
         &self,
-        db: &C,
+        db: &DatabaseConnection,
         config: &Config,
         subscriptions: Vec<addressbook_subscriptions::Model>,
         now: Timestamp,
