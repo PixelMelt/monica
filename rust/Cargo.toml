@@ -20,6 +20,7 @@ deunicode = "1.6"
 dotenvy = "0.15.7"
 fake = { version = "4", features = ["chrono"] }
 hex = "0.4.3"
+hickory-resolver = "0.25"
 hmac = "0.13.0"
 icu_collator = "2.1"
 icu_locale_core = "2.1"
@@ -28,7 +29,9 @@ infer = "0.22.0"
 lettre = { version = "0.11.23", default-features = false, features = ["builder", "smtp-transport", "tokio1-rustls", "ring", "webpki-roots", "hostname", "pool"] }
 mime_guess = "2.0.5"
 qrcode = { version = "0.14.1", default-features = false, features = ["svg"] }
+quick-xml = "0.38"
 rand = "0.10.3"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "http2", "charset"] }
 sea-orm = { version = "2.0.4", default-features = false, features = ["sqlx-sqlite", "sqlx-mysql", "sqlx-postgres", "runtime-tokio-rustls", "macros", "with-chrono", "with-uuid", "with-json", "postgres-array"] }
 sea-orm-migration = { version = "2.0.4", default-features = false, features = ["sqlx-sqlite", "sqlx-mysql", "sqlx-postgres", "runtime-tokio-rustls"] }
 serde = { version = "1.0.229", features = ["derive"] }
