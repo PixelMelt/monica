@@ -295,7 +295,7 @@ for d, _, fs in os.walk(os.path.join(ROOT, "tests")):
 
 REMOVE_PATTERNS = [
     (r"Socialite|UserToken", "OAuth/Socialite removed"),
-    (r"Webauthn", "WebAuthn removed"),
+    (r"Webauthn|LoginListener", "WebAuthn removed"),
     (r"Telegram", "Telegram removed"),
     (r"Uploadcare", "Uploadcare removed (local storage)"),
     (r"GetGPSCoordinate|ContactModuleAddressImage", "Mapbox/LocationIQ removed"),
