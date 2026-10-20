@@ -94,8 +94,8 @@ pub async fn build_instance(state: &AppState) -> ApiResult<Instance> {
         locale: i18n::current(),
         default_locale: state.config.locale.clone(),
         locales,
-        version: env!("CARGO_PKG_VERSION").to_owned(),
-        commit: option_env!("MONICA_COMMIT").map(str::to_owned),
+        version: std::env::var("APP_VERSION").unwrap_or_else(|_| env!("MONICA_VERSION").to_owned()),
+        commit: std::env::var("APP_COMMIT").ok().or_else(|| option_env!("MONICA_COMMIT").map(str::to_owned)),
         features: Features { account_deletion: state.config.enable_account_deletion },
     })
 }

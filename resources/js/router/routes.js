@@ -16,7 +16,13 @@ import * as dashboard from '@/loaders/dashboard';
 import * as modulesA from '@/loaders/modules-a';
 import * as modulesB from '@/loaders/modules-b';
 
-const page = (name) => () => import(`../Pages/${name}.vue`);
+const pages = import.meta.glob('../Pages/**/*.vue');
+
+const page = (name) => {
+  const load = pages[`../Pages/${name}.vue`];
+  if (!load) throw new Error(`no page component ${name}`);
+  return load;
+};
 
 const r = (path, name, component, load, extra = {}) => ({
   path,
