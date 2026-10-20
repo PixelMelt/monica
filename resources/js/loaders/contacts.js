@@ -14,13 +14,3 @@ export const move = notPorted('contacts.move');
 export const blank = notPorted('contacts.blank');
 
 export const importantDates = notPorted('contacts.importantDates');
-
-export const notes = notPorted('contacts.notes');
-
-export const goal = notPorted('contacts.goal');
-
-export const createRelationship = notPorted('contacts.createRelationship');
-
-export const photos = notPorted('contacts.photos');
-
-export const photo = notPorted('contacts.photo');
