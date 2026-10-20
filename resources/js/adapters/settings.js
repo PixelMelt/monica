@@ -5,8 +5,7 @@ import dayjs from 'dayjs';
 import { trans } from 'laravel-vue-i18n';
 import { route } from '@/router';
 import { session as current, userName, localeIetf } from '@/lib/session';
-import { contactName, formatDate, formatUserDate, isoFormat, sortByCollator } from '@/lib/format';
-import { formatFileSize } from '@/lib/helpers';
+import { contactName, formatUserDate, isoFormat, sortByCollator } from '@/lib/format';
 
 const UNITS = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'];
 
@@ -35,8 +34,6 @@ export const settingsIndex = (user) => ({
     notifications: { index: route('settings.notifications.index') },
     users: { index: route('settings.user.index') },
     personalize: { index: route('settings.personalize.index') },
-    storage: { index: route('settings.storage.index') },
-    cancel: { index: route('settings.cancel.index') },
   },
 });
 
@@ -166,21 +163,21 @@ export const locale = (prefs) => ({
 
 // --- NotificationsIndexViewHelper --------------------------------------
 
-/** `NotificationsIndexViewHelper::data`: the email channels. */
+/** `NotificationsIndexViewHelper::data`: the Pushover channels. */
 export const notifications = (channels) => ({
-  emails: channels.filter((c) => c.type === 'email').map(email),
+  channels: channels.map(channel),
   url: {
     settings: route('settings.index'),
     back: route('settings.index'),
   },
 });
 
-/** `NotificationsIndexViewHelper::dtoEmail`. */
-export const email = (c) => ({
+/** `NotificationsIndexViewHelper::dtoEmail`, for a Pushover channel. */
+export const channel = (c) => ({
   id: c.id,
   type: c.type,
   label: c.label,
-  content: c.content,
+  user_key: c.user_key,
   active: c.active,
   verified_at: c.verified_at ? isoFormat(c.verified_at, 'YYYY-MM-DD HH:mm:ss', null) : null,
   preferred_time: c.preferred_time,
@@ -193,7 +190,7 @@ export const email = (c) => ({
 export const notificationLogs = (channel, logs) => ({
   channel: {
     id: channel.id,
-    type: channel.type === 'email' ? trans('Email address') : trans('Email'),
+    type: 'Pushover',
     label: channel.label,
   },
   notifications: logs.map((n) => ({
@@ -223,10 +220,9 @@ export const users = (list, loggedUser) => ({
 /** `UserIndexViewHelper::dtoUser`. */
 export const user = (u, loggedUser) => ({
   id: u.id,
-  email: u.email,
+  username: u.username,
   name: userName(u),
   is_account_administrator: u.is_account_administrator,
-  invitation_accepted_at: u.invitation_accepted_at ? formatDate(u.invitation_accepted_at) : null,
   is_logged_user: u.id === loggedUser.id,
 });
 
@@ -235,37 +231,5 @@ export const userCreate = () => ({
   url: {
     settings: route('settings.index'),
     back: route('settings.user.index'),
-  },
-});
-
-// --- StorageIndexViewHelper, CancelAccountViewHelper -------------------
-
-const percent = (part, total) => (total > 0 ? Math.round((part * 100) / total) : 0);
-
-/** `StorageIndexViewHelper::data`. */
-export function storage(usage) {
-  const total = usage.photo.size + usage.document.size + usage.avatar.size;
-  const limit = usage.storage_limit_in_mb * 1024 * 1024;
-  const type = (t) => ({ total: t.count, total_percent: percent(t.size, total), size: formatFileSize(t.size) });
-  return {
-    statistics: {
-      total: formatFileSize(total),
-      total_percent: percent(total, limit),
-      photo: type(usage.photo),
-      document: type(usage.document),
-      avatar: type(usage.avatar),
-    },
-    account_limit: formatFileSize(limit),
-    url: {
-      settings: { index: route('settings.index') },
-    },
-  };
-}
-
-/** `CancelAccountViewHelper::data`. */
-export const cancelAccount = () => ({
-  url: {
-    settings: route('settings.index'),
-    back: route('settings.index'),
   },
 });

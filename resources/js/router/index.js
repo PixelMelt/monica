@@ -1,7 +1,8 @@
 // The router: before a page shows, its loader fetches the props the server
 // used to render it with (`meta.load(to)` → `meta.props`), after the
 // session (`/me/bootstrap`) of the visit. Access rules follow the Laravel
-// middleware: `auth` → login, `verified` → email notice, `guest` → home.
+// middleware: `auth` → login, `guest` → home; before the first user exists,
+// every visit goes to the first-run setup.
 
 import { reactive } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
@@ -49,19 +50,19 @@ export function intended(fallback = '/vaults') {
 }
 
 router.beforeResolve(async (to) => {
-  const access = to.meta.access ?? 'verified';
+  const access = to.meta.access ?? 'user';
   progress.start();
   try {
     await refreshSession();
+    if (!session.user && session.instance.setup_required && to.name !== 'register') {
+      return { name: 'register' };
+    }
     if (access === 'guest' && session.user) {
       return { name: 'home' };
     }
-    if ((access === 'user' || access === 'verified') && !session.user) {
+    if (access === 'user' && !session.user) {
       setIntended(to.fullPath);
       return { name: 'login' };
-    }
-    if (access === 'verified' && !session.user.email_verified_at) {
-      return { name: 'verification.notice' };
     }
     pageErrors.errors = {};
     to.meta.error = null;
@@ -75,7 +76,6 @@ router.beforeResolve(async (to) => {
       setIntended(to.fullPath);
       return { name: 'login' };
     }
-    if (e.code === 'email_not_verified') return { name: 'verification.notice' };
     if (e.code === 'password_confirmation_required') {
       setIntended(to.fullPath);
       return { name: 'password.confirm' };

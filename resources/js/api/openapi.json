@@ -35,35 +35,6 @@
         "x-services": [],
         "x-permission": "account:member",
         "x-inventory": []
-      },
-      "delete": {
-        "tags": ["Account"],
-        "summary": "Delete the account and everything in it",
-        "operationId": "cancelAccount",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordConfirmation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "202": {
-            "description": "Deleted."
-          },
-          "403": {
-            "description": "Not an administrator, or `password_confirmation_required`."
-          },
-          "422": {
-            "description": "Wrong password."
-          }
-        },
-        "x-permission": "account:admin",
-        "x-services": ["CancelAccount"],
-        "x-inventory": ["R326"]
       }
     },
     "/account/address-types": {
@@ -89,9 +60,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-services": [],
+        "x-inventory": ["R286"],
         "x-permission": "account:member",
-        "x-inventory": ["R286"]
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -129,8 +100,8 @@
           }
         },
         "x-inventory": ["R287"],
-        "x-services": ["CreateAddressType"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-services": ["CreateAddressType"]
       }
     },
     "/account/address-types/{address_type_id}": {
@@ -163,9 +134,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyAddressType"],
         "x-permission": "account:admin",
-        "x-inventory": ["R289"],
-        "x-services": ["DestroyAddressType"]
+        "x-inventory": ["R289"]
       },
       "patch": {
         "tags": ["Account"],
@@ -216,9 +187,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R288"],
         "x-services": ["UpdateAddressType"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R288"]
       }
     },
     "/account/call-reason-types": {
@@ -244,9 +215,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-permission": "account:member",
         "x-inventory": ["R243"],
-        "x-services": [],
-        "x-permission": "account:member"
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -283,9 +254,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R244"],
         "x-services": ["CreateCallReasonType"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R244"]
       }
     },
     "/account/call-reason-types/{call_reason_type_id}": {
@@ -318,9 +289,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["DestroyCallReasonType"],
         "x-permission": "account:admin",
-        "x-inventory": ["R246"]
+        "x-inventory": ["R246"],
+        "x-services": ["DestroyCallReasonType"]
       },
       "patch": {
         "tags": ["Account"],
@@ -371,9 +342,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdateCallReasonType"],
         "x-permission": "account:admin",
-        "x-inventory": ["R245"]
+        "x-inventory": ["R245"],
+        "x-services": ["UpdateCallReasonType"]
       }
     },
     "/account/call-reason-types/{call_reason_type_id}/reasons": {
@@ -427,8 +398,8 @@
           }
         },
         "x-permission": "account:admin",
-        "x-inventory": ["R247"],
-        "x-services": ["CreateCallReason"]
+        "x-services": ["CreateCallReason"],
+        "x-inventory": ["R247"]
       }
     },
     "/account/call-reason-types/{call_reason_type_id}/reasons/{call_reason_id}": {
@@ -532,9 +503,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R248"],
         "x-services": ["UpdateCallReason"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R248"]
       }
     },
     "/account/contact-information-types": {
@@ -560,9 +531,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-inventory": ["R294"],
         "x-permission": "account:member",
-        "x-services": [],
-        "x-inventory": ["R294"]
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -599,9 +570,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R295"],
         "x-permission": "account:admin",
-        "x-services": ["CreateContactInformationType"]
+        "x-services": ["CreateContactInformationType"],
+        "x-inventory": ["R295"]
       }
     },
     "/account/contact-information-types/{contact_information_type_id}": {
@@ -637,9 +608,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
+        "x-services": ["DestroyContactInformationType"],
         "x-permission": "account:admin",
-        "x-inventory": ["R297"],
-        "x-services": ["DestroyContactInformationType"]
+        "x-inventory": ["R297"]
       },
       "patch": {
         "tags": ["Account"],
@@ -691,8 +662,8 @@
           }
         },
         "x-permission": "account:admin",
-        "x-services": ["UpdateContactInformationType"],
-        "x-inventory": ["R296"]
+        "x-inventory": ["R296"],
+        "x-services": ["UpdateContactInformationType"]
       }
     },
     "/account/currencies": {
@@ -728,8 +699,8 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-permission": "account:member",
         "x-inventory": ["R315", "R327"],
+        "x-permission": "account:member",
         "x-services": []
       }
     },
@@ -770,8 +741,8 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-inventory": ["R317"],
         "x-permission": "account:admin",
+        "x-inventory": ["R317"],
         "x-services": ["EnableAllCurrencies"]
       }
     },
@@ -825,9 +796,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["ToggleCurrency"],
+        "x-inventory": ["R316"],
         "x-permission": "account:admin",
-        "x-inventory": ["R316"]
+        "x-services": ["ToggleCurrency"]
       }
     },
     "/account/emotions": {
@@ -854,8 +825,8 @@
           }
         },
         "x-services": [],
-        "x-inventory": [],
-        "x-permission": "account:member"
+        "x-permission": "account:member",
+        "x-inventory": []
       }
     },
     "/account/genders": {
@@ -881,9 +852,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-permission": "account:member",
         "x-inventory": ["R278"],
-        "x-services": [],
-        "x-permission": "account:member"
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -920,9 +891,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "account:admin",
         "x-inventory": ["R279"],
-        "x-services": ["CreateGender"],
-        "x-permission": "account:admin"
+        "x-services": ["CreateGender"]
       }
     },
     "/account/genders/{gender_id}": {
@@ -1008,9 +979,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
+        "x-inventory": ["R280"],
         "x-services": ["UpdateGender"],
-        "x-inventory": ["R280"]
+        "x-permission": "account:admin"
       }
     },
     "/account/gift-occasions": {
@@ -1036,9 +1007,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-inventory": ["R250"],
         "x-permission": "account:member",
-        "x-services": [],
-        "x-inventory": ["R250"]
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -1075,8 +1046,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
         "x-services": ["CreateGiftOccasion"],
+        "x-permission": "account:admin",
         "x-inventory": ["R251"]
       }
     },
@@ -1110,9 +1081,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "account:admin",
+        "x-services": ["DestroyGiftOccasion"],
         "x-inventory": ["R253"],
-        "x-services": ["DestroyGiftOccasion"]
+        "x-permission": "account:admin"
       },
       "patch": {
         "tags": ["Account"],
@@ -1163,9 +1134,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R252", "R254"],
         "x-services": ["UpdateGiftOccasion", "UpdateGiftOccasionPosition"],
-        "x-permission": "account:admin",
-        "x-inventory": ["R252", "R254"]
+        "x-permission": "account:admin"
       }
     },
     "/account/gift-states": {
@@ -1191,9 +1162,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-services": [],
+        "x-permission": "account:member",
         "x-inventory": ["R255"],
-        "x-permission": "account:member"
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -1230,9 +1201,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["CreateGiftState"],
+        "x-inventory": ["R256"],
         "x-permission": "account:admin",
-        "x-inventory": ["R256"]
+        "x-services": ["CreateGiftState"]
       }
     },
     "/account/gift-states/{gift_state_id}": {
@@ -1266,8 +1237,8 @@
           }
         },
         "x-inventory": ["R258"],
-        "x-services": ["DestroyGiftState"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-services": ["DestroyGiftState"]
       },
       "patch": {
         "tags": ["Account"],
@@ -1318,9 +1289,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdateGiftState", "UpdateGiftStatePosition"],
         "x-permission": "account:admin",
-        "x-inventory": ["R257", "R259"]
+        "x-inventory": ["R257", "R259"],
+        "x-services": ["UpdateGiftState", "UpdateGiftStatePosition"]
       }
     },
     "/account/group-types": {
@@ -1346,9 +1317,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-inventory": ["R269"],
+        "x-services": [],
         "x-permission": "account:member",
-        "x-services": []
+        "x-inventory": ["R269"]
       },
       "post": {
         "tags": ["Account"],
@@ -1473,9 +1444,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
+        "x-inventory": ["R271", "R273"],
         "x-services": ["UpdateGroupType", "UpdateGroupTypePosition"],
-        "x-inventory": ["R271", "R273"]
+        "x-permission": "account:admin"
       }
     },
     "/account/group-types/{group_type_id}/roles": {
@@ -1528,9 +1499,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["CreateGroupTypeRole"],
         "x-permission": "account:admin",
-        "x-inventory": ["R274"],
-        "x-services": ["CreateGroupTypeRole"]
+        "x-inventory": ["R274"]
       }
     },
     "/account/group-types/{group_type_id}/roles/{group_type_role_id}": {
@@ -1572,8 +1543,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "account:admin",
         "x-inventory": ["R276"],
+        "x-permission": "account:admin",
         "x-services": ["DestroyGroupTypeRole"]
       },
       "patch": {
@@ -1635,8 +1606,8 @@
           }
         },
         "x-inventory": ["R275", "R277"],
-        "x-services": ["UpdateGroupTypeRole", "UpdateGroupTypeRolePosition"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-services": ["UpdateGroupTypeRole", "UpdateGroupTypeRolePosition"]
       }
     },
     "/account/modules": {
@@ -1662,8 +1633,8 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-inventory": ["R311"],
         "x-services": [],
+        "x-inventory": ["R311"],
         "x-permission": "account:member"
       }
     },
@@ -1690,9 +1661,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-permission": "account:member",
         "x-inventory": ["R290"],
-        "x-services": [],
-        "x-permission": "account:member"
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -1729,9 +1700,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R291"],
         "x-services": ["CreatePetCategory"],
-        "x-permission": "account:admin",
-        "x-inventory": ["R291"]
+        "x-permission": "account:admin"
       }
     },
     "/account/pet-categories/{pet_category_id}": {
@@ -1764,9 +1735,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyPetCategory"],
         "x-permission": "account:admin",
-        "x-inventory": ["R293"],
-        "x-services": ["DestroyPetCategory"]
+        "x-inventory": ["R293"]
       },
       "patch": {
         "tags": ["Account"],
@@ -1817,9 +1788,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R292"],
         "x-services": ["UpdatePetCategory"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R292"]
       }
     },
     "/account/post-templates": {
@@ -1884,9 +1855,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
+        "x-inventory": ["R261"],
         "x-services": ["CreatePostTemplate"],
-        "x-inventory": ["R261"]
+        "x-permission": "account:admin"
       }
     },
     "/account/post-templates/{post_template_id}": {
@@ -1922,9 +1893,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-inventory": ["R263"],
         "x-services": ["DestroyPostTemplate"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R263"]
       },
       "patch": {
         "tags": ["Account"],
@@ -1975,8 +1946,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
         "x-inventory": ["R262", "R264"],
+        "x-permission": "account:admin",
         "x-services": ["UpdatePostTemplate", "UpdatePostTemplatePosition"]
       }
     },
@@ -2030,9 +2001,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
+        "x-inventory": ["R265"],
         "x-services": ["CreatePostTemplateSection"],
-        "x-inventory": ["R265"]
+        "x-permission": "account:admin"
       }
     },
     "/account/post-templates/{post_template_id}/sections/{post_template_section_id}": {
@@ -2077,9 +2048,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-services": ["DestroyPostTemplateSection"],
         "x-permission": "account:admin",
-        "x-inventory": ["R267"]
+        "x-inventory": ["R267"],
+        "x-services": ["DestroyPostTemplateSection"]
       },
       "patch": {
         "tags": ["Account"],
@@ -2140,8 +2111,8 @@
           }
         },
         "x-inventory": ["R266", "R268"],
-        "x-permission": "account:admin",
-        "x-services": ["UpdatePostTemplateSection", "UpdatePostTemplateSectionPosition"]
+        "x-services": ["UpdatePostTemplateSection", "UpdatePostTemplateSectionPosition"],
+        "x-permission": "account:admin"
       }
     },
     "/account/pronouns": {
@@ -2168,8 +2139,8 @@
           }
         },
         "x-services": [],
-        "x-inventory": ["R282"],
-        "x-permission": "account:member"
+        "x-permission": "account:member",
+        "x-inventory": ["R282"]
       },
       "post": {
         "tags": ["Account"],
@@ -2206,9 +2177,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["CreatePronoun"],
         "x-permission": "account:admin",
-        "x-inventory": ["R283"],
-        "x-services": ["CreatePronoun"]
+        "x-inventory": ["R283"]
       }
     },
     "/account/pronouns/{pronoun_id}": {
@@ -2241,9 +2212,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyPronoun"],
         "x-inventory": ["R285"],
-        "x-permission": "account:admin",
-        "x-services": ["DestroyPronoun"]
+        "x-permission": "account:admin"
       },
       "patch": {
         "tags": ["Account"],
@@ -2400,8 +2371,8 @@
           }
         },
         "x-permission": "account:admin",
-        "x-inventory": ["R239"],
-        "x-services": ["DestroyRelationshipGroupType"]
+        "x-services": ["DestroyRelationshipGroupType"],
+        "x-inventory": ["R239"]
       },
       "patch": {
         "tags": ["Account"],
@@ -2453,8 +2424,8 @@
           }
         },
         "x-inventory": ["R238"],
-        "x-permission": "account:admin",
-        "x-services": ["UpdateRelationshipGroupType"]
+        "x-services": ["UpdateRelationshipGroupType"],
+        "x-permission": "account:admin"
       }
     },
     "/account/relationship-group-types/{relationship_group_type_id}/relationship-types": {
@@ -2554,9 +2525,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-permission": "account:admin",
         "x-services": ["DestroyRelationshipType"],
-        "x-inventory": ["R242"]
+        "x-inventory": ["R242"],
+        "x-permission": "account:admin"
       },
       "patch": {
         "tags": ["Account"],
@@ -2616,9 +2587,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "account:admin",
         "x-inventory": ["R241"],
-        "x-services": ["UpdateRelationshipType"],
-        "x-permission": "account:admin"
+        "x-services": ["UpdateRelationshipType"]
       }
     },
     "/account/religions": {
@@ -2645,8 +2616,8 @@
           }
         },
         "x-services": [],
-        "x-inventory": ["R319"],
-        "x-permission": "account:member"
+        "x-permission": "account:member",
+        "x-inventory": ["R319"]
       },
       "post": {
         "tags": ["Account"],
@@ -2683,9 +2654,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R320"],
+        "x-services": ["CreateReligion"],
         "x-permission": "account:admin",
-        "x-services": ["CreateReligion"]
+        "x-inventory": ["R320"]
       }
     },
     "/account/religions/{religion_id}": {
@@ -2718,8 +2689,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "account:admin",
         "x-inventory": ["R322"],
+        "x-permission": "account:admin",
         "x-services": ["DestroyReligion"]
       },
       "patch": {
@@ -2772,30 +2743,8 @@
           }
         },
         "x-permission": "account:admin",
-        "x-inventory": ["R321", "R323"],
-        "x-services": ["UpdateReligion", "UpdateReligionPosition"]
-      }
-    },
-    "/account/storage": {
-      "get": {
-        "tags": ["Account"],
-        "summary": "Storage used by the account",
-        "operationId": "getAccountStorage",
-        "responses": {
-          "200": {
-            "description": "The usage.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StorageUsage"
-                }
-              }
-            }
-          }
-        },
-        "x-permission": "account:member",
-        "x-inventory": ["R324"],
-        "x-services": []
+        "x-services": ["UpdateReligion", "UpdateReligionPosition"],
+        "x-inventory": ["R321", "R323"]
       }
     },
     "/account/templates": {
@@ -2821,9 +2770,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-services": [],
+        "x-permission": "account:member",
         "x-inventory": ["R298"],
-        "x-permission": "account:member"
+        "x-services": []
       },
       "post": {
         "tags": ["Account"],
@@ -2860,8 +2809,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["CreateTemplate", "CreateTemplatePage"],
         "x-permission": "account:admin",
+        "x-services": ["CreateTemplate", "CreateTemplatePage"],
         "x-inventory": ["R299"]
       }
     },
@@ -2903,8 +2852,8 @@
           }
         },
         "x-inventory": ["R302"],
-        "x-permission": "account:member",
-        "x-services": []
+        "x-services": [],
+        "x-permission": "account:member"
       },
       "delete": {
         "tags": ["Account"],
@@ -2938,9 +2887,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-services": ["DestroyTemplate"],
+        "x-inventory": ["R301"],
         "x-permission": "account:admin",
-        "x-inventory": ["R301"]
+        "x-services": ["DestroyTemplate"]
       },
       "patch": {
         "tags": ["Account"],
@@ -2992,8 +2941,8 @@
           }
         },
         "x-permission": "account:admin",
-        "x-inventory": ["R300"],
-        "x-services": ["UpdateTemplate"]
+        "x-services": ["UpdateTemplate"],
+        "x-inventory": ["R300"]
       }
     },
     "/account/templates/{template_id}/pages": {
@@ -3046,9 +2995,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R303"],
+        "x-services": ["CreateTemplatePage"],
         "x-permission": "account:admin",
-        "x-services": ["CreateTemplatePage"]
+        "x-inventory": ["R303"]
       }
     },
     "/account/templates/{template_id}/pages/{template_page_id}": {
@@ -3265,8 +3214,8 @@
           }
         },
         "x-services": ["AssociateModuleToTemplatePage"],
-        "x-inventory": ["R308"],
-        "x-permission": "account:admin"
+        "x-permission": "account:admin",
+        "x-inventory": ["R308"]
       },
       "delete": {
         "tags": ["Account"],
@@ -3316,8 +3265,8 @@
           }
         },
         "x-inventory": ["R310"],
-        "x-permission": "account:admin",
-        "x-services": ["RemoveModuleFromTemplatePage"]
+        "x-services": ["RemoveModuleFromTemplatePage"],
+        "x-permission": "account:admin"
       },
       "patch": {
         "tags": ["Account"],
@@ -3386,15 +3335,15 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "account:admin",
+        "x-services": ["UpdateModulePosition"],
         "x-inventory": ["R309"],
-        "x-services": ["UpdateModulePosition"]
+        "x-permission": "account:admin"
       }
     },
     "/account/users": {
       "get": {
         "tags": ["Account"],
-        "summary": "The account's users, invited ones included",
+        "summary": "The account's users",
         "operationId": "listAccountUsers",
         "responses": {
           "200": {
@@ -3408,19 +3357,19 @@
             }
           }
         },
-        "x-inventory": ["R229", "R330"],
         "x-services": [],
+        "x-inventory": ["R229", "R330"],
         "x-permission": "account:member"
       },
       "post": {
         "tags": ["Account"],
-        "summary": "Invite someone to the account",
-        "operationId": "inviteAccountUser",
+        "summary": "Add a user, with a username and a first password",
+        "operationId": "createAccountUser",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AccountUserInvite"
+                "$ref": "#/components/schemas/AccountUserCreate"
               }
             }
           },
@@ -3428,7 +3377,7 @@
         },
         "responses": {
           "201": {
-            "description": "The invited user.",
+            "description": "The new user.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3443,7 +3392,7 @@
         },
         "x-permission": "account:admin",
         "x-inventory": ["R231"],
-        "x-services": ["InviteUser"]
+        "x-services": ["CreateUser"]
       }
     },
     "/account/users/{user_id}": {
@@ -3478,8 +3427,8 @@
           }
         },
         "x-services": [],
-        "x-inventory": ["R331"],
-        "x-permission": "account:member"
+        "x-permission": "account:member",
+        "x-inventory": ["R331"]
       },
       "delete": {
         "tags": ["Account"],
@@ -3592,9 +3541,9 @@
             "description": "Wrong password (on `password`)."
           }
         },
-        "x-permission": "user",
+        "x-services": [],
         "x-inventory": ["V017"],
-        "x-services": []
+        "x-permission": "user"
       }
     },
     "/auth/confirmed-password-status": {
@@ -3627,9 +3576,9 @@
             }
           }
         },
+        "x-services": [],
         "x-permission": "user",
-        "x-inventory": ["V016"],
-        "x-services": []
+        "x-inventory": ["V016"]
       }
     },
     "/auth/csrf": {
@@ -3648,88 +3597,10 @@
         "x-services": []
       }
     },
-    "/auth/email/verification-notification": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Email the verification link again",
-        "operationId": "sendEmailVerification",
-        "responses": {
-          "204": {
-            "description": "Sent (or already verified)."
-          },
-          "429": {
-            "description": "6 per minute."
-          }
-        },
-        "x-inventory": ["V012"],
-        "x-services": [],
-        "x-permission": "user"
-      }
-    },
-    "/auth/email/verify": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Verify the email address from the emailed link",
-        "operationId": "verifyEmail",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailVerification"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Verified."
-          },
-          "403": {
-            "description": "Bad, expired or someone else's link."
-          },
-          "429": {
-            "description": "6 per minute."
-          }
-        },
-        "x-services": [],
-        "x-inventory": ["V011"],
-        "x-permission": "user"
-      }
-    },
-    "/auth/forgot-password": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Email a password reset link",
-        "operationId": "requestPasswordReset",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordResetLinkRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Sent if the email has an account (the answer is the same either way)."
-          },
-          "422": {
-            "description": "A link was sent less than 60 seconds ago."
-          }
-        },
-        "security": [{}],
-        "x-inventory": ["V005"],
-        "x-services": [],
-        "x-permission": "public"
-      }
-    },
     "/auth/login": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Log in with email and password",
+        "summary": "Log in with username and password",
         "operationId": "logIn",
         "requestBody": {
           "content": {
@@ -3756,15 +3627,15 @@
             "description": "`csrf_token_mismatch`."
           },
           "422": {
-            "description": "Wrong credentials (on `email`)."
+            "description": "Wrong credentials (on `username`)."
           },
           "429": {
-            "description": "5 attempts per minute per email and IP."
+            "description": "5 attempts per minute per username and IP."
           }
         },
         "security": [{}],
-        "x-permission": "public",
         "x-inventory": ["V002"],
+        "x-permission": "public",
         "x-services": []
       }
     },
@@ -3781,15 +3652,16 @@
             "description": "Not logged in."
           }
         },
-        "x-permission": "user",
         "x-services": [],
+        "x-permission": "user",
         "x-inventory": ["V003"]
       }
     },
     "/auth/register": {
       "post": {
         "tags": ["Auth"],
-        "summary": "Create an account and its first user",
+        "summary": "First run: create the account and its first user",
+        "description": "Only while no user exists (`GET /instance` says `setup_required`); later users are added by an administrator.",
         "operationId": "registerUser",
         "requestBody": {
           "content": {
@@ -3813,45 +3685,16 @@
             }
           },
           "403": {
-            "description": "`signup_disabled` or `csrf_token_mismatch`."
+            "description": "`signup_disabled` (a user exists) or `csrf_token_mismatch`."
           },
           "422": {
             "description": "Validation failed."
           }
         },
         "security": [{}],
-        "x-services": ["CreateNewUser", "CreateAccount", "SetupAccount"],
         "x-permission": "public",
+        "x-services": ["CreateNewUser", "CreateAccount", "SetupAccount"],
         "x-inventory": ["V009"]
-      }
-    },
-    "/auth/reset-password": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Set a new password with the emailed token",
-        "operationId": "resetPassword",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordReset"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Password changed."
-          },
-          "422": {
-            "description": "Bad or expired token, or password rules."
-          }
-        },
-        "security": [{}],
-        "x-inventory": ["V007"],
-        "x-services": ["ResetUserPassword"],
-        "x-permission": "public"
       }
     },
     "/auth/two-factor-challenge": {
@@ -3891,8 +3734,8 @@
           }
         },
         "security": [{}],
-        "x-permission": "public",
         "x-services": [],
+        "x-permission": "public",
         "x-inventory": ["V019"]
       }
     },
@@ -3914,96 +3757,9 @@
           }
         },
         "security": [{}],
+        "x-permission": "public",
         "x-inventory": ["V001", "V008"],
-        "x-services": [],
-        "x-permission": "public"
-      }
-    },
-    "/invitations/{invitation_code}": {
-      "get": {
-        "tags": ["Auth"],
-        "summary": "A pending invitation",
-        "operationId": "getInvitation",
-        "parameters": [
-          {
-            "name": "invitation_code",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The invitation.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Invitation"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Unknown or already accepted."
-          }
-        },
-        "security": [{}],
-        "x-services": [],
-        "x-permission": "public",
-        "x-inventory": ["R009"]
-      }
-    },
-    "/invitations/{invitation_code}/accept": {
-      "post": {
-        "tags": ["Auth"],
-        "summary": "Accept an invitation and log in",
-        "operationId": "acceptInvitation",
-        "parameters": [
-          {
-            "name": "invitation_code",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InvitationAccept"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The new user, logged in.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CurrentUser"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Unknown or already accepted."
-          },
-          "422": {
-            "description": "Validation failed."
-          }
-        },
-        "security": [{}],
-        "x-permission": "public",
-        "x-inventory": ["R010"],
-        "x-services": ["AcceptInvitation", "CreateUserNotificationChannel"]
+        "x-services": []
       }
     },
     "/me": {
@@ -4026,45 +3782,13 @@
             "description": "Not logged in."
           }
         },
-        "x-services": [],
         "x-permission": "user",
-        "x-inventory": ["R329", "V029"]
-      },
-      "delete": {
-        "tags": ["Me"],
-        "summary": "Delete your own user (when enabled)",
-        "operationId": "deleteMe",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordConfirmation"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "Deleted; the session ends."
-          },
-          "403": {
-            "description": "`password_confirmation_required`."
-          },
-          "404": {
-            "description": "Account deletion is off on this server."
-          },
-          "409": {
-            "description": "You are the account's last administrator."
-          }
-        },
-        "x-permission": "user",
-        "x-inventory": ["V032"],
-        "x-services": ["DeleteUser", "DestroyUser"]
+        "x-inventory": ["R329", "V029"],
+        "x-services": []
       },
       "patch": {
         "tags": ["Me"],
-        "summary": "Change name or email",
+        "summary": "Change name or username",
         "operationId": "updateMe",
         "requestBody": {
           "content": {
@@ -4091,9 +3815,9 @@
             "description": "Validation failed."
           }
         },
+        "x-permission": "user",
         "x-inventory": ["V013"],
-        "x-services": ["UpdateUserProfileInformation"],
-        "x-permission": "user"
+        "x-services": ["UpdateUserProfileInformation"]
       }
     },
     "/me/bootstrap": {
@@ -4113,8 +3837,8 @@
             }
           }
         },
-        "x-services": [],
         "x-permission": "user",
+        "x-services": [],
         "x-inventory": []
       }
     },
@@ -4135,13 +3859,14 @@
             }
           }
         },
-        "x-permission": "user",
         "x-inventory": ["R221"],
+        "x-permission": "user",
         "x-services": []
       },
       "post": {
         "tags": ["Me"],
-        "summary": "Add an email channel",
+        "summary": "Add a Pushover channel",
+        "description": "The keys are checked with Pushover; the channel is then active and gets the reminders.",
         "operationId": "createNotificationChannel",
         "requestBody": {
           "content": {
@@ -4165,11 +3890,11 @@
             }
           },
           "422": {
-            "description": "Validation failed."
+            "description": "Validation failed, or Pushover refused the keys (on `user_key`)."
           }
         },
-        "x-permission": "user",
         "x-inventory": ["R222"],
+        "x-permission": "user",
         "x-services": ["CreateUserNotificationChannel"]
       }
     },
@@ -4232,8 +3957,8 @@
           }
         },
         "x-permission": "user",
-        "x-services": ["DestroyUserNotificationChannel"],
-        "x-inventory": ["R227"]
+        "x-inventory": ["R227"],
+        "x-services": ["DestroyUserNotificationChannel"]
       },
       "patch": {
         "tags": ["Me"],
@@ -4276,8 +4001,8 @@
           }
         },
         "x-inventory": ["R226"],
-        "x-services": ["ToggleUserNotificationChannel", "ScheduleAllContactRemindersForNotificationChannel"],
-        "x-permission": "user"
+        "x-permission": "user",
+        "x-services": ["ToggleUserNotificationChannel", "ScheduleAllContactRemindersForNotificationChannel"]
       }
     },
     "/me/notification-channels/{notification_channel_id}/logs": {
@@ -4338,7 +4063,7 @@
     "/me/notification-channels/{notification_channel_id}/test": {
       "post": {
         "tags": ["Me"],
-        "summary": "Send a test email",
+        "summary": "Send a test notification",
         "operationId": "sendNotificationChannelTest",
         "parameters": [
           {
@@ -4357,60 +4082,14 @@
           },
           "404": {
             "description": "Not found."
-          }
-        },
-        "x-inventory": ["R225"],
-        "x-services": ["SendTestEmail"],
-        "x-permission": "user"
-      }
-    },
-    "/me/notification-channels/{notification_channel_id}/verify": {
-      "post": {
-        "tags": ["Me"],
-        "summary": "Verify a channel with the token from its email",
-        "operationId": "verifyNotificationChannel",
-        "parameters": [
-          {
-            "name": "notification_channel_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationChannelVerification"
-              }
-            }
           },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The channel.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationChannel"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Wrong token."
+          "502": {
+            "description": "`notification_failed`: Pushover didn't take it (the detail says why)."
           }
         },
-        "x-inventory": ["R224"],
-        "x-services": [
-          "VerifyUserNotificationChannelEmailAddress",
-          "ScheduleAllContactRemindersForNotificationChannel"
-        ],
-        "x-permission": "user"
+        "x-services": ["SendTestNotification"],
+        "x-permission": "user",
+        "x-inventory": ["R225"]
       }
     },
     "/me/password": {
@@ -4436,9 +4115,9 @@
             "description": "Validation failed."
           }
         },
+        "x-permission": "user",
         "x-inventory": ["V014"],
-        "x-services": ["UpdateUserPassword"],
-        "x-permission": "user"
+        "x-services": ["UpdateUserPassword"]
       }
     },
     "/me/preferences": {
@@ -4458,9 +4137,9 @@
             }
           }
         },
+        "x-services": [],
         "x-permission": "user",
-        "x-inventory": ["R212"],
-        "x-services": []
+        "x-inventory": ["R212"]
       },
       "patch": {
         "tags": ["Me"],
@@ -4491,8 +4170,6 @@
             "description": "Validation failed."
           }
         },
-        "x-inventory": ["R038", "R213", "R214", "R215", "R216", "R217", "R218", "R219", "R220"],
-        "x-permission": "user",
         "x-services": [
           "StoreNameOrderPreference",
           "StoreDateFormatPreference",
@@ -4503,7 +4180,9 @@
           "StoreLocale",
           "StoreHelpPreference",
           "UpdateContactSortOrder"
-        ]
+        ],
+        "x-permission": "user",
+        "x-inventory": ["R038", "R213", "R214", "R215", "R216", "R217", "R218", "R219", "R220"]
       }
     },
     "/me/sessions": {
@@ -4523,9 +4202,9 @@
             }
           }
         },
+        "x-permission": "user",
         "x-services": [],
-        "x-inventory": ["V029"],
-        "x-permission": "user"
+        "x-inventory": ["V029"]
       }
     },
     "/me/sessions/log-out-others": {
@@ -4551,9 +4230,9 @@
             "description": "`password_confirmation_required`."
           }
         },
-        "x-inventory": ["V030"],
         "x-services": [],
-        "x-permission": "user"
+        "x-permission": "user",
+        "x-inventory": ["V030"]
       }
     },
     "/me/tokens": {
@@ -4609,9 +4288,9 @@
             "description": "Validation failed."
           }
         },
-        "x-permission": "user",
+        "x-inventory": ["V034"],
         "x-services": [],
-        "x-inventory": ["V034"]
+        "x-permission": "user"
       }
     },
     "/me/tokens/{token_id}": {
@@ -4638,8 +4317,8 @@
             "description": "Not found."
           }
         },
-        "x-inventory": ["V036"],
         "x-services": [],
+        "x-inventory": ["V036"],
         "x-permission": "user"
       },
       "patch": {
@@ -4682,9 +4361,9 @@
             "description": "Not found."
           }
         },
+        "x-inventory": ["V035"],
         "x-services": [],
-        "x-permission": "user",
-        "x-inventory": ["V035"]
+        "x-permission": "user"
       }
     },
     "/me/two-factor": {
@@ -4720,9 +4399,9 @@
             "description": "2FA is already confirmed."
           }
         },
-        "x-permission": "user",
         "x-inventory": ["V020", "V023", "V024"],
-        "x-services": ["EnableTwoFactorAuthentication"]
+        "x-services": ["EnableTwoFactorAuthentication"],
+        "x-permission": "user"
       },
       "delete": {
         "tags": ["Me"],
@@ -4746,9 +4425,9 @@
             "description": "`password_confirmation_required`."
           }
         },
-        "x-inventory": ["V022"],
+        "x-services": ["DisableTwoFactorAuthentication"],
         "x-permission": "user",
-        "x-services": ["DisableTwoFactorAuthentication"]
+        "x-inventory": ["V022"]
       }
     },
     "/me/two-factor/confirm": {
@@ -4774,9 +4453,9 @@
             "description": "Wrong code or no pending secret."
           }
         },
-        "x-inventory": ["V021"],
+        "x-services": ["ConfirmTwoFactorAuthentication"],
         "x-permission": "user",
-        "x-services": ["ConfirmTwoFactorAuthentication"]
+        "x-inventory": ["V021"]
       }
     },
     "/me/two-factor/recovery-codes": {
@@ -4799,9 +4478,9 @@
             "description": "`password_confirmation_required`."
           }
         },
-        "x-permission": "user",
         "x-inventory": ["V025"],
-        "x-services": []
+        "x-services": [],
+        "x-permission": "user"
       },
       "post": {
         "tags": ["Me"],
@@ -4832,9 +4511,9 @@
             "description": "2FA has no secret."
           }
         },
-        "x-services": ["GenerateNewRecoveryCodes"],
         "x-permission": "user",
-        "x-inventory": ["V026"]
+        "x-inventory": ["V026"],
+        "x-services": ["GenerateNewRecoveryCodes"]
       }
     },
     "/reference/countries": {
@@ -4860,9 +4539,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-inventory": [],
         "x-services": [],
-        "x-permission": "user",
-        "x-inventory": []
+        "x-permission": "user"
       }
     },
     "/reference/currencies": {
@@ -4888,9 +4567,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
-        "x-services": [],
         "x-permission": "user",
-        "x-inventory": []
+        "x-inventory": [],
+        "x-services": []
       }
     },
     "/reference/languages": {
@@ -4917,8 +4596,8 @@
           }
         },
         "x-permission": "user",
-        "x-services": [],
-        "x-inventory": []
+        "x-inventory": [],
+        "x-services": []
       }
     },
     "/reference/timezones": {
@@ -4944,9 +4623,9 @@
             "description": "`forbidden`, `csrf_token_mismatch`, `email_not_verified`, `token_ability_missing`, `password_confirmation_required` or `signup_disabled`."
           }
         },
+        "x-permission": "user",
         "x-inventory": ["R212"],
-        "x-services": [],
-        "x-permission": "user"
+        "x-services": []
       }
     },
     "/vaults": {
@@ -4999,9 +4678,9 @@
             "description": "Validation failed."
           }
         },
-        "x-permission": "user",
+        "x-services": ["CreateVault", "CreateContactImportantDateType"],
         "x-inventory": ["R014", "R333"],
-        "x-services": ["CreateVault", "CreateContactImportantDateType"]
+        "x-permission": "user"
       }
     },
     "/vaults/{vault_id}": {
@@ -5036,8 +4715,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-services": [],
-        "x-inventory": ["R016", "R334"]
+        "x-inventory": ["R016", "R334"],
+        "x-services": []
       },
       "delete": {
         "tags": ["Vaults"],
@@ -5065,9 +4744,9 @@
             "description": "Not found."
           }
         },
+        "x-inventory": ["R018", "R336"],
         "x-services": ["DestroyVault"],
-        "x-permission": "vault:manage",
-        "x-inventory": ["R018", "R336"]
+        "x-permission": "vault:manage"
       },
       "patch": {
         "tags": ["Vaults"],
@@ -5109,7 +4788,7 @@
             "description": "Validation failed."
           }
         },
-        "x-permission": "vault:manage",
+        "x-inventory": ["R017", "R019", "R175", "R190", "R335"],
         "x-services": [
           "UpdateVault",
           "UpdateVaultDefaultTemplate",
@@ -5119,7 +4798,7 @@
         "x-field-permissions": {
           "default_activity_tab": "vault:view"
         },
-        "x-inventory": ["R017", "R019", "R175", "R190", "R335"]
+        "x-permission": "vault:manage"
       }
     },
     "/vaults/{vault_id}/address-book-subscriptions": {
@@ -5159,9 +4838,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": [],
         "x-inventory": [],
-        "x-permission": "vault:manage",
-        "x-services": []
+        "x-permission": "vault:manage"
       },
       "post": {
         "tags": ["Vaults"],
@@ -5212,9 +4891,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["CreateAddressBookSubscription"],
+        "x-inventory": ["K003"],
         "x-permission": "vault:manage",
-        "x-inventory": ["K003"]
+        "x-services": ["CreateAddressBookSubscription"]
       }
     },
     "/vaults/{vault_id}/address-book-subscriptions/{subscription_id}": {
@@ -5264,8 +4943,8 @@
           }
         },
         "x-permission": "vault:manage",
-        "x-services": [],
-        "x-inventory": []
+        "x-inventory": [],
+        "x-services": []
       },
       "delete": {
         "tags": ["Vaults"],
@@ -5305,9 +4984,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
+        "x-permission": "vault:manage",
         "x-inventory": [],
-        "x-permission": "vault:manage"
+        "x-services": []
       },
       "patch": {
         "tags": ["Vaults"],
@@ -5424,9 +5103,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:manage",
+        "x-services": [],
         "x-inventory": ["K007"],
-        "x-services": []
+        "x-permission": "vault:manage"
       }
     },
     "/vaults/{vault_id}/calendar/{year}/{month}": {
@@ -5488,8 +5167,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": ["R020", "R021"],
-        "x-services": []
+        "x-services": [],
+        "x-inventory": ["R020", "R021"]
       }
     },
     "/vaults/{vault_id}/calendar/{year}/{month}/{day}": {
@@ -5559,9 +5238,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R022"],
+        "x-services": [],
         "x-permission": "vault:view",
-        "x-services": []
+        "x-inventory": ["R022"]
       }
     },
     "/vaults/{vault_id}/companies": {
@@ -5601,9 +5280,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": [],
         "x-inventory": ["R171", "R091"],
-        "x-permission": "vault:view",
-        "x-services": []
+        "x-permission": "vault:view"
       },
       "post": {
         "tags": ["Vaults"],
@@ -5654,8 +5333,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": [],
+        "x-permission": "vault:edit",
         "x-services": ["CreateCompany"]
       }
     },
@@ -5696,8 +5375,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
         "x-inventory": ["R173"],
+        "x-permission": "vault:view",
         "x-services": []
       },
       "post": {
@@ -5749,8 +5428,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R187"],
         "x-services": ["CreateContactImportantDateType"],
+        "x-inventory": ["R187"],
         "x-permission": "vault:manage"
       }
     },
@@ -5797,8 +5476,8 @@
           }
         },
         "x-permission": "vault:manage",
-        "x-inventory": ["R189"],
-        "x-services": ["DestroyContactImportantDateType"]
+        "x-services": ["DestroyContactImportantDateType"],
+        "x-inventory": ["R189"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -5858,9 +5537,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdateContactImportantDateType"],
         "x-inventory": ["R188"],
-        "x-permission": "vault:manage"
+        "x-permission": "vault:manage",
+        "x-services": ["UpdateContactImportantDateType"]
       }
     },
     "/vaults/{vault_id}/contacts": {
@@ -5958,8 +5637,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": [],
         "x-inventory": ["R036", "R037", "R210"],
+        "x-services": [],
         "x-permission": "vault:view"
       },
       "post": {
@@ -6011,8 +5690,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R040"],
         "x-services": ["CreateContact"],
+        "x-inventory": ["R040"],
         "x-permission": "vault:edit"
       }
     },
@@ -6053,9 +5732,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R209", "X014"],
+        "x-permission": "vault:view",
         "x-services": [],
-        "x-permission": "vault:view"
+        "x-inventory": ["R209", "X014"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}": {
@@ -6105,8 +5784,8 @@
           }
         },
         "x-inventory": ["R042", "R053", "R055"],
-        "x-permission": "vault:view",
-        "x-services": []
+        "x-services": [],
+        "x-permission": "vault:view"
       },
       "delete": {
         "tags": ["Contacts"],
@@ -6149,8 +5828,8 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R044"],
+        "x-permission": "vault:edit",
         "x-services": ["DestroyContact"]
       },
       "patch": {
@@ -6277,8 +5956,8 @@
           }
         },
         "x-services": [],
-        "x-permission": "vault:view",
-        "x-inventory": []
+        "x-inventory": [],
+        "x-permission": "vault:view"
       },
       "post": {
         "tags": ["Contact modules"],
@@ -6342,8 +6021,8 @@
           }
         },
         "x-inventory": ["R080"],
-        "x-permission": "vault:edit",
-        "x-services": ["CreateAddress", "AssociateAddressToContact"]
+        "x-services": ["CreateAddress", "AssociateAddressToContact"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/addresses/{address_id}": {
@@ -6394,9 +6073,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:edit",
         "x-inventory": ["R082"],
-        "x-services": ["RemoveAddressFromContact"],
-        "x-permission": "vault:edit"
+        "x-services": ["RemoveAddressFromContact"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -6465,9 +6144,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:edit",
         "x-inventory": ["R081"],
-        "x-services": ["UpdateAddress"],
-        "x-permission": "vault:edit"
+        "x-services": ["UpdateAddress"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/avatar": {
@@ -6515,8 +6194,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
         "x-services": [],
+        "x-permission": "vault:view",
         "x-inventory": ["X021"]
       },
       "put": {
@@ -6580,9 +6259,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UploadFile", "UpdatePhotoAsAvatar"],
+        "x-inventory": ["R058"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R058"]
+        "x-services": ["UploadFile", "UpdatePhotoAsAvatar"]
       },
       "delete": {
         "tags": ["Contacts"],
@@ -6622,9 +6301,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyAvatar"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R059"],
-        "x-services": ["DestroyAvatar"]
+        "x-inventory": ["R059"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/calls": {
@@ -6673,8 +6352,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
         "x-inventory": [],
+        "x-services": [],
         "x-permission": "vault:view"
       },
       "post": {
@@ -6735,8 +6414,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R112"],
         "x-services": ["CreateCall"],
+        "x-inventory": ["R112"],
         "x-permission": "vault:edit"
       }
     },
@@ -6788,9 +6467,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyCall"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R114"],
-        "x-services": ["DestroyCall"]
+        "x-inventory": ["R114"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -6859,8 +6538,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R113"],
         "x-permission": "vault:edit",
+        "x-inventory": ["R113"],
         "x-services": ["UpdateCall"]
       }
     },
@@ -6910,9 +6589,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": [],
-        "x-services": []
+        "x-permission": "vault:view"
       },
       "post": {
         "tags": ["Contact modules"],
@@ -6972,9 +6651,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:edit",
         "x-inventory": ["R084"],
-        "x-services": ["CreateContactInformation"],
-        "x-permission": "vault:edit"
+        "x-services": ["CreateContactInformation"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/contact-information/{contact_information_id}": {
@@ -7026,8 +6705,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-inventory": ["R086"],
-        "x-services": ["DestroyContactInformation"]
+        "x-services": ["DestroyContactInformation"],
+        "x-inventory": ["R086"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -7096,9 +6775,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["UpdateContactInformation"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R085"],
-        "x-services": ["UpdateContactInformation"]
+        "x-inventory": ["R085"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/documents": {
@@ -7147,8 +6826,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
         "x-services": [],
+        "x-permission": "vault:view",
         "x-inventory": []
       },
       "post": {
@@ -7215,9 +6894,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UploadFile"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R101"]
+        "x-inventory": ["R101"],
+        "x-services": ["UploadFile"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/documents/{document_id}": {
@@ -7269,8 +6948,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-inventory": ["R102"],
-        "x-services": ["DestroyFile"]
+        "x-services": ["DestroyFile"],
+        "x-inventory": ["R102"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/feed": {
@@ -7337,9 +7016,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-inventory": ["R060", "X012"],
         "x-services": [],
-        "x-permission": "vault:view",
-        "x-inventory": ["R060", "X012"]
+        "x-permission": "vault:view"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/goals": {
@@ -7398,8 +7077,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": [],
-        "x-services": []
+        "x-services": [],
+        "x-inventory": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -7459,9 +7138,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
+        "x-services": ["CreateGoal"],
         "x-inventory": ["R070"],
-        "x-services": ["CreateGoal"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/goals/{goal_id}": {
@@ -7519,9 +7198,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R069"],
         "x-services": [],
-        "x-permission": "vault:view"
+        "x-permission": "vault:view",
+        "x-inventory": ["R069"]
       },
       "delete": {
         "tags": ["Contact modules"],
@@ -7570,9 +7249,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
+        "x-inventory": ["R073"],
         "x-services": ["DestroyGoal"],
-        "x-inventory": ["R073"]
+        "x-permission": "vault:edit"
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -7641,9 +7320,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["UpdateGoal"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R071"],
-        "x-services": ["UpdateGoal"]
+        "x-inventory": ["R071"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/goals/{goal_id}/streaks/{date}": {
@@ -7710,9 +7389,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
         "x-services": ["ToggleStreak"],
-        "x-inventory": ["R072"]
+        "x-inventory": ["R072"],
+        "x-permission": "vault:edit"
       },
       "delete": {
         "tags": ["Contact modules"],
@@ -7777,9 +7456,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["ToggleStreak"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R072"],
-        "x-services": ["ToggleStreak"]
+        "x-inventory": ["R072"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/groups": {
@@ -7828,9 +7507,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
         "x-permission": "vault:view",
-        "x-services": []
+        "x-services": [],
+        "x-inventory": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -8057,8 +7736,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-inventory": ["R062"],
-        "x-services": ["CreateContactImportantDate"]
+        "x-services": ["CreateContactImportantDate"],
+        "x-inventory": ["R062"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/important-dates/{important_date_id}": {
@@ -8180,9 +7859,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdateContactImportantDate"],
+        "x-permission": "vault:edit",
         "x-inventory": ["R063"],
-        "x-permission": "vault:edit"
+        "x-services": ["UpdateContactImportantDate"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/job-information": {
@@ -8244,8 +7923,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R092"],
         "x-permission": "vault:edit",
+        "x-inventory": ["R092"],
         "x-services": ["UpdateJobInformation"]
       },
       "delete": {
@@ -8286,9 +7965,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
+        "x-services": ["ResetJobInformation"],
         "x-inventory": ["R093"],
-        "x-services": ["ResetJobInformation"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/labels": {
@@ -8337,9 +8016,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
+        "x-services": [],
         "x-permission": "vault:view",
-        "x-services": []
+        "x-inventory": []
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/labels/{label_id}": {
@@ -8448,9 +8127,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
+        "x-inventory": ["R076"],
         "x-services": ["RemoveLabel"],
-        "x-inventory": ["R076"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/loans": {
@@ -8507,9 +8186,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
         "x-permission": "vault:view",
-        "x-services": []
+        "x-services": [],
+        "x-inventory": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -8569,9 +8248,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
+        "x-services": ["CreateLoan"],
         "x-inventory": ["R087"],
-        "x-services": ["CreateLoan"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/loans/{loan_id}": {
@@ -8622,8 +8301,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R090"],
         "x-permission": "vault:edit",
+        "x-inventory": ["R090"],
         "x-services": ["DestroyLoan"]
       },
       "patch": {
@@ -8693,9 +8372,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdateLoan", "ToggleLoan"],
+        "x-permission": "vault:edit",
         "x-inventory": ["R088", "R089"],
-        "x-permission": "vault:edit"
+        "x-services": ["UpdateLoan", "ToggleLoan"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/mood-tracking-events": {
@@ -8757,9 +8436,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R125"],
         "x-services": ["CreateMoodTrackingEvent"],
-        "x-permission": "vault:edit",
-        "x-inventory": ["R125"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/move": {
@@ -8821,9 +8500,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["MoveContactToAnotherVault"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R054"],
-        "x-services": ["MoveContactToAnotherVault"]
+        "x-inventory": ["R054"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/notes": {
@@ -8952,8 +8631,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-services": ["CreateNote"],
+        "x-permission": "vault:edit",
         "x-inventory": ["R066"]
       }
     },
@@ -9005,9 +8684,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
+        "x-inventory": ["R068"],
         "x-services": ["DestroyNote"],
-        "x-inventory": ["R068"]
+        "x-permission": "vault:edit"
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -9136,9 +8815,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R041", "R057"],
         "x-services": [],
-        "x-permission": "vault:view"
+        "x-permission": "vault:view",
+        "x-inventory": ["R041", "R057"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/pets": {
@@ -9187,9 +8866,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
         "x-permission": "vault:view",
-        "x-services": []
+        "x-services": [],
+        "x-inventory": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -9249,9 +8928,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["CreatePet"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R098"]
+        "x-inventory": ["R098"],
+        "x-services": ["CreatePet"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/pets/{pet_id}": {
@@ -9302,9 +8981,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["DestroyPet"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R100"]
+        "x-inventory": ["R100"],
+        "x-services": ["DestroyPet"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -9373,9 +9052,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["UpdatePet"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R099"]
+        "x-inventory": ["R099"],
+        "x-services": ["UpdatePet"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/photos": {
@@ -9443,8 +9122,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-services": [],
-        "x-inventory": ["R103"]
+        "x-inventory": ["R103"],
+        "x-services": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -9570,8 +9249,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
         "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": ["R104"]
       },
       "delete": {
@@ -9621,9 +9300,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["DestroyFile"],
         "x-inventory": ["R106"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["DestroyFile"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/quick-facts": {
@@ -9868,9 +9547,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["UpdateQuickFact"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R049"],
-        "x-services": ["UpdateQuickFact"]
+        "x-inventory": ["R049"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/relationships": {
@@ -9919,8 +9598,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
         "x-services": [],
+        "x-inventory": [],
         "x-permission": "vault:view"
       },
       "post": {
@@ -9981,9 +9660,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R096"],
-        "x-services": ["CreateContact", "SetRelationship"]
+        "x-services": ["CreateContact", "SetRelationship"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/relationships/{relationship_id}": {
@@ -10035,8 +9714,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-services": ["UnsetRelationship"],
-        "x-inventory": ["R097"]
+        "x-inventory": ["R097"],
+        "x-services": ["UnsetRelationship"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/religion": {
@@ -10098,9 +9777,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
+        "x-inventory": ["R094"],
         "x-services": ["UpdateReligion"],
-        "x-inventory": ["R094"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/reminders": {
@@ -10149,9 +9828,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": [],
         "x-services": [],
-        "x-permission": "vault:view"
+        "x-permission": "vault:view",
+        "x-inventory": []
       },
       "post": {
         "tags": ["Contact modules"],
@@ -10211,9 +9890,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["CreateContactReminder", "ScheduleContactReminderForUser"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R077"],
-        "x-services": ["CreateContactReminder", "ScheduleContactReminderForUser"]
+        "x-inventory": ["R077"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/reminders/{reminder_id}": {
@@ -10336,8 +10015,8 @@
           }
         },
         "x-inventory": ["R078"],
-        "x-services": ["UpdateContactReminder", "ScheduleContactReminderForUser"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["UpdateContactReminder", "ScheduleContactReminderForUser"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/tasks": {
@@ -10395,8 +10074,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": ["R107"],
-        "x-services": []
+        "x-services": [],
+        "x-inventory": ["R107"]
       },
       "post": {
         "tags": ["Contact modules"],
@@ -10457,8 +10136,8 @@
           }
         },
         "x-inventory": ["R108"],
-        "x-services": ["CreateContactTask"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["CreateContactTask"]
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/tasks/{task_id}": {
@@ -10580,8 +10259,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R109", "R110"],
+        "x-permission": "vault:edit",
         "x-services": ["UpdateContactTask", "ToggleContactTask"]
       }
     },
@@ -10649,9 +10328,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-inventory": ["R117"],
         "x-services": [],
-        "x-permission": "vault:view",
-        "x-inventory": ["R117"]
+        "x-permission": "vault:view"
       },
       "post": {
         "tags": ["Contact modules"],
@@ -10711,9 +10390,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R118"],
-        "x-services": ["CreateTimelineEvent", "CreateLifeEvent"]
+        "x-services": ["CreateTimelineEvent", "CreateLifeEvent"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/timeline-events/{timeline_event_id}": {
@@ -10764,9 +10443,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyTimelineEvent"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R121"],
-        "x-services": ["DestroyTimelineEvent"]
+        "x-inventory": ["R121"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -10908,9 +10587,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R120"],
         "x-services": ["CreateLifeEvent"],
-        "x-permission": "vault:edit",
-        "x-inventory": ["R120"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/timeline-events/{timeline_event_id}/life-events/{life_event_id}": {
@@ -10970,9 +10649,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R124"],
         "x-services": ["DestroyLifeEvent"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-inventory": ["R124"]
       },
       "patch": {
         "tags": ["Contact modules"],
@@ -11051,8 +10730,8 @@
           }
         },
         "x-services": ["UpdateLifeEvent", "ToggleLifeEvent"],
-        "x-permission": "vault:edit",
-        "x-inventory": ["R122", "R123"]
+        "x-inventory": ["R122", "R123"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/vcard": {
@@ -11097,9 +10776,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
+        "x-services": ["ExportVCard"],
         "x-inventory": ["R045"],
-        "x-services": ["ExportVCard"]
+        "x-permission": "vault:view"
       }
     },
     "/vaults/{vault_id}/contacts/{contact_id}/view": {
@@ -11141,9 +10820,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["UpdateContactView"],
+        "x-inventory": ["R041"],
         "x-permission": "vault:view",
-        "x-inventory": ["R041"]
+        "x-services": ["UpdateContactView"]
       }
     },
     "/vaults/{vault_id}/dashboard": {
@@ -11183,8 +10862,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
         "x-services": [],
+        "x-permission": "vault:view",
         "x-inventory": ["R015"]
       }
     },
@@ -11243,8 +10922,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
         "x-inventory": ["R024"],
+        "x-services": [],
         "x-permission": "vault:view"
       }
     },
@@ -11315,8 +10994,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": ["R166", "R167", "R168", "R169"],
-        "x-services": []
+        "x-services": [],
+        "x-inventory": ["R166", "R167", "R168", "R169"]
       }
     },
     "/vaults/{vault_id}/files/{file_id}": {
@@ -11358,8 +11037,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
         "x-services": ["DestroyFile"],
+        "x-permission": "vault:edit",
         "x-inventory": ["R170", "E009"]
       }
     },
@@ -11444,8 +11123,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["X020"],
         "x-permission": "vault:view",
+        "x-inventory": ["X020"],
         "x-services": []
       }
     },
@@ -11540,8 +11219,8 @@
           }
         },
         "x-inventory": ["R115"],
-        "x-permission": "vault:edit",
-        "x-services": ["CreateGroup"]
+        "x-services": ["CreateGroup"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/groups/{group_id}": {
@@ -11633,8 +11312,8 @@
           }
         },
         "x-services": ["DestroyGroup"],
-        "x-inventory": ["R130"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-inventory": ["R130"]
       },
       "patch": {
         "tags": ["Groups"],
@@ -11695,8 +11374,8 @@
           }
         },
         "x-inventory": ["R129"],
-        "x-services": ["UpdateGroup"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["UpdateGroup"]
       }
     },
     "/vaults/{vault_id}/journals": {
@@ -11737,8 +11416,8 @@
           }
         },
         "x-inventory": ["R131"],
-        "x-services": [],
-        "x-permission": "vault:view"
+        "x-permission": "vault:view",
+        "x-services": []
       },
       "post": {
         "tags": ["Journals"],
@@ -11789,9 +11468,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R133"],
         "x-services": ["CreateJournal"],
-        "x-permission": "vault:edit",
-        "x-inventory": ["R133"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}": {
@@ -11840,9 +11519,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": ["R137", "R140"],
-        "x-services": []
+        "x-permission": "vault:view"
       },
       "delete": {
         "tags": ["Journals"],
@@ -11882,9 +11561,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroyJournal"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R139"],
-        "x-services": ["DestroyJournal"]
+        "x-inventory": ["R139"]
       },
       "patch": {
         "tags": ["Journals"],
@@ -11945,8 +11624,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-inventory": ["R138"],
-        "x-services": ["UpdateJournal"]
+        "x-services": ["UpdateJournal"],
+        "x-inventory": ["R138"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/metrics": {
@@ -12110,9 +11789,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["DestroyJournalMetric"],
         "x-inventory": ["R165"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["DestroyJournalMetric"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/overview": {
@@ -12174,8 +11853,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": [],
         "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": ["R134", "R136"]
       }
     },
@@ -12226,8 +11905,8 @@
           }
         },
         "x-inventory": ["R135"],
-        "x-services": [],
-        "x-permission": "vault:view"
+        "x-permission": "vault:view",
+        "x-services": []
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts": {
@@ -12289,9 +11968,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-services": ["CreatePost"],
-        "x-inventory": ["R141"]
+        "x-inventory": ["R141"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}": {
@@ -12349,9 +12028,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:view",
         "x-inventory": ["R142", "R143"],
-        "x-services": [],
-        "x-permission": "vault:view"
+        "x-services": []
       },
       "delete": {
         "tags": ["Journals"],
@@ -12400,9 +12079,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:edit",
         "x-services": ["DestroyPost"],
-        "x-inventory": ["R147"],
-        "x-permission": "vault:edit"
+        "x-inventory": ["R147"]
       },
       "patch": {
         "tags": ["Journals"],
@@ -12471,8 +12150,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R144"],
         "x-permission": "vault:edit",
+        "x-inventory": ["R144"],
         "x-services": ["UpdatePost"]
       }
     },
@@ -12593,9 +12272,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R144"],
-        "x-services": ["RemoveContactFromPost"]
+        "x-services": ["RemoveContactFromPost"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/metrics": {
@@ -12666,9 +12345,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:edit",
         "x-services": ["CreatePostMetric"],
-        "x-inventory": ["R153"],
-        "x-permission": "vault:edit"
+        "x-inventory": ["R153"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/metrics/{post_metric_id}": {
@@ -12805,8 +12484,8 @@
           }
         },
         "x-inventory": ["R145"],
-        "x-services": ["UploadFile", "AddPhotoToPost"],
-        "x-permission": "vault:edit"
+        "x-permission": "vault:edit",
+        "x-services": ["UploadFile", "AddPhotoToPost"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/photos/{file_id}": {
@@ -12866,9 +12545,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": ["DestroyFile"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R146"]
+        "x-inventory": ["R146"],
+        "x-services": ["DestroyFile"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/slice": {
@@ -12990,9 +12669,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-inventory": ["R152"],
         "x-services": ["RemovePostFromSliceOfLife"],
-        "x-permission": "vault:edit",
-        "x-inventory": ["R152"]
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/tags": {
@@ -13063,9 +12742,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R148"],
-        "x-services": ["CreateTag", "AssignTag"]
+        "x-services": ["CreateTag", "AssignTag"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/tags/{tag_id}": {
@@ -13132,9 +12811,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:edit",
         "x-services": ["AssignTag"],
-        "x-inventory": ["R149"],
-        "x-permission": "vault:edit"
+        "x-inventory": ["R149"]
       },
       "delete": {
         "tags": ["Journals"],
@@ -13192,9 +12871,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R150"],
+        "x-permission": "vault:edit",
         "x-services": ["RemoveTag"],
-        "x-permission": "vault:edit"
+        "x-inventory": ["R150"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/view": {
@@ -13246,8 +12925,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": ["R142"],
-        "x-services": ["IncrementPostReadCounter"]
+        "x-services": ["IncrementPostReadCounter"],
+        "x-inventory": ["R142"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/slices": {
@@ -13296,8 +12975,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-permission": "vault:view",
         "x-services": [],
+        "x-permission": "vault:view",
         "x-inventory": ["R155"]
       },
       "post": {
@@ -13358,8 +13037,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R156"],
+        "x-permission": "vault:edit",
         "x-services": ["CreateSliceOfLife"]
       }
     },
@@ -13418,9 +13097,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:view",
         "x-inventory": ["R157", "R158"],
-        "x-services": [],
-        "x-permission": "vault:view"
+        "x-services": []
       },
       "delete": {
         "tags": ["Journals"],
@@ -13469,9 +13148,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": ["DestroySliceOfLife"],
         "x-inventory": ["R162"],
-        "x-permission": "vault:edit",
-        "x-services": ["DestroySliceOfLife"]
+        "x-permission": "vault:edit"
       },
       "patch": {
         "tags": ["Journals"],
@@ -13540,9 +13219,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-services": ["UpdateSliceOfLife"],
         "x-permission": "vault:edit",
-        "x-inventory": ["R159"],
-        "x-services": ["UpdateSliceOfLife"]
+        "x-inventory": ["R159"]
       }
     },
     "/vaults/{vault_id}/journals/{journal_id}/slices/{slice_id}/cover": {
@@ -13616,8 +13295,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-inventory": ["R160"],
+        "x-permission": "vault:edit",
         "x-services": ["UploadFile", "SetSliceOfLifeCoverImage"]
       },
       "delete": {
@@ -13709,8 +13388,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
         "x-inventory": ["R173"],
+        "x-services": [],
         "x-permission": "vault:view"
       },
       "post": {
@@ -13807,8 +13486,8 @@
           }
         },
         "x-permission": "vault:manage",
-        "x-services": ["DestroyLabel"],
-        "x-inventory": ["R182"]
+        "x-inventory": ["R182"],
+        "x-services": ["DestroyLabel"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -13868,9 +13547,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:manage",
         "x-inventory": ["R181"],
-        "x-services": ["UpdateLabel"],
-        "x-permission": "vault:manage"
+        "x-services": ["UpdateLabel"]
       }
     },
     "/vaults/{vault_id}/life-event-categories": {
@@ -13910,9 +13589,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:view",
         "x-inventory": ["R173"],
-        "x-services": [],
-        "x-permission": "vault:view"
+        "x-services": []
       },
       "post": {
         "tags": ["Vaults"],
@@ -13963,9 +13642,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R195"],
         "x-services": ["CreateLifeEventCategory"],
-        "x-permission": "vault:manage"
+        "x-permission": "vault:manage",
+        "x-inventory": ["R195"]
       }
     },
     "/vaults/{vault_id}/life-event-categories/{life_event_category_id}": {
@@ -14010,9 +13689,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
-        "x-services": ["DestroyLifeEventCategory"],
+        "x-permission": "vault:manage",
         "x-inventory": ["R197"],
-        "x-permission": "vault:manage"
+        "x-services": ["DestroyLifeEventCategory"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -14136,9 +13815,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R199"],
         "x-permission": "vault:manage",
-        "x-services": ["CreateLifeEventType"]
+        "x-services": ["CreateLifeEventType"],
+        "x-inventory": ["R199"]
       }
     },
     "/vaults/{vault_id}/life-event-categories/{life_event_category_id}/life-event-types/{life_event_type_id}": {
@@ -14192,9 +13871,9 @@
             "description": "State or uniqueness conflict (`conflict`)."
           }
         },
+        "x-inventory": ["R201"],
         "x-services": ["DestroyLifeEventType"],
-        "x-permission": "vault:manage",
-        "x-inventory": ["R201"]
+        "x-permission": "vault:manage"
       },
       "patch": {
         "tags": ["Vaults"],
@@ -14318,8 +13997,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R015"],
         "x-services": [],
+        "x-inventory": ["R015"],
         "x-permission": "vault:view"
       },
       "post": {
@@ -14415,9 +14094,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-permission": "vault:edit",
         "x-inventory": ["R035"],
-        "x-services": ["DestroyLifeMetric"],
-        "x-permission": "vault:edit"
+        "x-services": ["DestroyLifeMetric"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -14477,9 +14156,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:edit",
         "x-services": ["UpdateLifeMetric"],
-        "x-inventory": ["R033"]
+        "x-inventory": ["R033"],
+        "x-permission": "vault:edit"
       }
     },
     "/vaults/{vault_id}/life-metrics/{life_metric_id}/increment": {
@@ -14551,7 +14230,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Verified users of the account who aren't members.",
+            "description": "Users of the account who aren't members.",
             "content": {
               "application/json": {
                 "schema": {
@@ -14561,8 +14240,8 @@
             }
           }
         },
-        "x-permission": "vault:manage",
         "x-inventory": ["R173"],
+        "x-permission": "vault:manage",
         "x-services": []
       }
     },
@@ -14594,9 +14273,9 @@
             }
           }
         },
+        "x-permission": "vault:manage",
         "x-inventory": ["R173"],
-        "x-services": [],
-        "x-permission": "vault:manage"
+        "x-services": []
       },
       "post": {
         "tags": ["Vaults"],
@@ -14679,9 +14358,9 @@
             "description": "Yourself."
           }
         },
-        "x-permission": "vault:manage",
         "x-inventory": ["R178"],
-        "x-services": ["RemoveVaultAccess"]
+        "x-services": ["RemoveVaultAccess"],
+        "x-permission": "vault:manage"
       },
       "patch": {
         "tags": ["Vaults"],
@@ -14735,9 +14414,9 @@
             "description": "Validation failed."
           }
         },
+        "x-inventory": ["R177"],
         "x-services": ["ChangeVaultAccess"],
-        "x-permission": "vault:manage",
-        "x-inventory": ["R177"]
+        "x-permission": "vault:manage"
       }
     },
     "/vaults/{vault_id}/mood-tracking-parameters": {
@@ -14777,8 +14456,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R173"],
         "x-permission": "vault:view",
+        "x-inventory": ["R173"],
         "x-services": []
       },
       "post": {
@@ -14830,9 +14509,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": ["CreateMoodTrackingParameter"],
         "x-permission": "vault:manage",
-        "x-inventory": ["R191"]
+        "x-inventory": ["R191"],
+        "x-services": ["CreateMoodTrackingParameter"]
       }
     },
     "/vaults/{vault_id}/mood-tracking-parameters/{mood_tracking_parameter_id}": {
@@ -14874,9 +14553,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R194"],
         "x-services": ["DestroyMoodTrackingParameter"],
-        "x-permission": "vault:manage"
+        "x-permission": "vault:manage",
+        "x-inventory": ["R194"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -14936,8 +14615,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-inventory": ["R192", "R193"],
         "x-permission": "vault:manage",
+        "x-inventory": ["R192", "R193"],
         "x-services": ["UpdateMoodTrackingParameter", "UpdateMoodTrackingParameterPosition"]
       }
     },
@@ -15031,8 +14710,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-permission": "vault:manage",
         "x-inventory": ["R203"],
+        "x-permission": "vault:manage",
         "x-services": ["CreateQuickFactTemplate"]
       }
     },
@@ -15075,9 +14754,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-inventory": ["R206"],
         "x-services": ["DestroyQuickFactTemplate"],
-        "x-permission": "vault:manage"
+        "x-permission": "vault:manage",
+        "x-inventory": ["R206"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -15137,9 +14816,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:manage",
         "x-inventory": ["R204", "R205"],
-        "x-services": ["UpdateQuickFactTemplate", "UpdateQuickFactTemplatePosition"],
-        "x-permission": "vault:manage"
+        "x-services": ["UpdateQuickFactTemplate", "UpdateQuickFactTemplatePosition"]
       }
     },
     "/vaults/{vault_id}/reminders": {
@@ -15221,9 +14900,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-services": [],
         "x-permission": "vault:view",
-        "x-inventory": ["R027"],
-        "x-services": []
+        "x-inventory": ["R027"]
       }
     },
     "/vaults/{vault_id}/reports/addresses/by-city": {
@@ -15327,9 +15006,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R029"],
         "x-services": [],
-        "x-permission": "vault:view",
-        "x-inventory": ["R029"]
+        "x-permission": "vault:view"
       }
     },
     "/vaults/{vault_id}/reports/important-dates": {
@@ -15370,8 +15049,8 @@
           }
         },
         "x-permission": "vault:view",
-        "x-inventory": ["R031"],
-        "x-services": []
+        "x-services": [],
+        "x-inventory": ["R031"]
       }
     },
     "/vaults/{vault_id}/reports/mood-tracking-events": {
@@ -15424,9 +15103,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-inventory": ["R030"],
         "x-services": [],
-        "x-permission": "vault:view",
-        "x-inventory": ["R030"]
+        "x-permission": "vault:view"
       }
     },
     "/vaults/{vault_id}/search": {
@@ -15478,8 +15157,8 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
-        "x-services": [],
         "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": ["R207", "R208"]
       }
     },
@@ -15520,8 +15199,8 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
-        "x-services": [],
         "x-permission": "vault:view",
+        "x-services": [],
         "x-inventory": ["R173"]
       },
       "post": {
@@ -15574,8 +15253,8 @@
           }
         },
         "x-permission": "vault:edit",
-        "x-services": ["CreateTag"],
-        "x-inventory": ["R184"]
+        "x-inventory": ["R184"],
+        "x-services": ["CreateTag"]
       }
     },
     "/vaults/{vault_id}/tags/{tag_id}": {
@@ -15617,9 +15296,9 @@
             "description": "Doesn't exist or isn't visible to the user (`not_found`)."
           }
         },
+        "x-inventory": ["R186"],
         "x-permission": "vault:manage",
-        "x-services": ["DestroyTag"],
-        "x-inventory": ["R186"]
+        "x-services": ["DestroyTag"]
       },
       "patch": {
         "tags": ["Vaults"],
@@ -15679,9 +15358,9 @@
             "description": "`validation_failed` (with `errors`), `storage_limit_exceeded` or `vault_user_limit_reached`."
           }
         },
+        "x-permission": "vault:manage",
         "x-services": ["UpdateTag"],
-        "x-inventory": ["R185"],
-        "x-permission": "vault:manage"
+        "x-inventory": ["R185"]
       }
     },
     "/vaults/{vault_id}/tasks": {
@@ -15731,7 +15410,7 @@
     "schemas": {
       "Account": {
         "type": "object",
-        "required": ["id", "storage_limit_in_mb", "created_at", "updated_at"],
+        "required": ["id", "created_at", "updated_at"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -15740,11 +15419,6 @@
           "id": {
             "type": "string",
             "format": "uuid"
-          },
-          "storage_limit_in_mb": {
-            "type": "integer",
-            "format": "int32",
-            "description": "0 means unlimited (X011)."
           },
           "updated_at": {
             "type": "string",
@@ -15840,17 +15514,10 @@
       },
       "AccountUser": {
         "type": "object",
-        "required": ["id", "email", "is_account_administrator", "is_invitation_pending", "created_at", "updated_at"],
+        "required": ["id", "username", "is_account_administrator", "created_at", "updated_at"],
         "properties": {
           "created_at": {
             "type": "string",
-            "format": "date-time"
-          },
-          "email": {
-            "type": "string"
-          },
-          "email_verified_at": {
-            "type": ["string", "null"],
             "format": "date-time"
           },
           "first_name": {
@@ -15860,16 +15527,8 @@
             "type": "string",
             "format": "uuid"
           },
-          "invitation_accepted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
           "is_account_administrator": {
             "type": "boolean"
-          },
-          "is_invitation_pending": {
-            "type": "boolean",
-            "description": "Invited and not accepted yet."
           },
           "last_name": {
             "type": ["string", "null"]
@@ -15877,17 +15536,33 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "username": {
+            "type": "string"
           }
         }
       },
-      "AccountUserInvite": {
+      "AccountUserCreate": {
         "type": "object",
         "properties": {
-          "email": {
+          "first_name": {
             "type": ["string", "null"]
           },
           "is_account_administrator": {
             "type": "boolean"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "password": {
+            "type": ["string", "null"],
+            "description": "The user's first password; they can change it in their profile."
+          },
+          "password_confirmation": {
+            "type": ["string", "null"]
+          },
+          "username": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -17285,12 +16960,8 @@
       },
       "ContactDocumentList": {
         "type": "object",
-        "required": ["data", "can_upload_file"],
+        "required": ["data"],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited)."
-          },
           "data": {
             "type": "array",
             "items": {
@@ -17782,7 +17453,6 @@
         "required": [
           "contact",
           "is_current_user_contact",
-          "can_upload_file",
           "header_modules",
           "groups",
           "quick_fact_templates",
@@ -17795,10 +17465,6 @@
             "type": ["integer", "null"],
             "format": "int64",
             "description": "The page whose modules are in `modules`; null when there is none."
-          },
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed: the account is below its storage limit (X011)."
           },
           "contact": {
             "$ref": "#/components/schemas/Contact"
@@ -18495,12 +18161,8 @@
       },
       "ContactPhotoList": {
         "type": "object",
-        "required": ["data", "meta", "can_upload_file"],
+        "required": ["data", "meta"],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited)."
-          },
           "data": {
             "type": "array",
             "items": {
@@ -18932,7 +18594,7 @@
         "required": [
           "id",
           "account_id",
-          "email",
+          "username",
           "is_account_administrator",
           "is_instance_administrator",
           "two_factor_enabled",
@@ -18947,13 +18609,6 @@
           },
           "created_at": {
             "type": "string",
-            "format": "date-time"
-          },
-          "email": {
-            "type": "string"
-          },
-          "email_verified_at": {
-            "type": ["string", "null"],
             "format": "date-time"
           },
           "first_name": {
@@ -18982,19 +18637,22 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "username": {
+            "type": "string"
           }
         }
       },
       "CurrentUserUpdate": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": ["string", "null"]
-          },
           "first_name": {
             "type": ["string", "null"]
           },
           "last_name": {
+            "type": ["string", "null"]
+          },
+          "username": {
             "type": ["string", "null"]
           }
         }
@@ -19006,35 +18664,13 @@
       "DocumentsModule": {
         "type": "object",
         "description": "Module `documents`. All documents, newest first.",
-        "required": ["documents", "can_upload_file"],
+        "required": ["documents"],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed (X011), as in `ContactDocumentList`."
-          },
           "documents": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/File"
             }
-          }
-        }
-      },
-      "EmailVerification": {
-        "type": "object",
-        "properties": {
-          "expires": {
-            "type": ["integer", "null"],
-            "format": "int64"
-          },
-          "hash": {
-            "type": ["string", "null"]
-          },
-          "id": {
-            "type": ["string", "null"]
-          },
-          "signature": {
-            "type": ["string", "null"]
           }
         }
       },
@@ -19103,16 +18739,6 @@
             "items": {
               "$ref": "#/components/schemas/FamilySummaryMember"
             }
-          }
-        }
-      },
-      "Features": {
-        "type": "object",
-        "required": ["account_deletion"],
-        "properties": {
-          "account_deletion": {
-            "type": "boolean",
-            "description": "`DELETE /me` is enabled (server flag, off by default, V032)."
           }
         }
       },
@@ -20132,15 +19758,7 @@
       },
       "Instance": {
         "type": "object",
-        "required": [
-          "signup_enabled",
-          "show_deletion_notice",
-          "locale",
-          "default_locale",
-          "locales",
-          "version",
-          "features"
-        ],
+        "required": ["setup_required", "locale", "default_locale", "locales", "version"],
         "properties": {
           "commit": {
             "type": ["string", "null"],
@@ -20148,9 +19766,6 @@
           },
           "default_locale": {
             "type": "string"
-          },
-          "features": {
-            "$ref": "#/components/schemas/Features"
           },
           "locale": {
             "type": "string",
@@ -20163,46 +19778,12 @@
             },
             "description": "Supported locales, by name."
           },
-          "show_deletion_notice": {
+          "setup_required": {
             "type": "boolean",
-            "description": "`APP_SHOW_DELETION_NOTICE` (X008)."
-          },
-          "signup_enabled": {
-            "type": "boolean",
-            "description": "False when `APP_DISABLE_SIGNUP` is set and at least one account\nexists; the first user can always sign up (X007)."
+            "description": "No user exists yet: the first visitor creates the account\n(`POST /auth/register`); sign-up is closed after that."
           },
           "version": {
             "type": "string"
-          }
-        }
-      },
-      "Invitation": {
-        "type": "object",
-        "required": ["invitation_code", "email"],
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "invitation_code": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
-      "InvitationAccept": {
-        "type": "object",
-        "properties": {
-          "first_name": {
-            "type": ["string", "null"]
-          },
-          "last_name": {
-            "type": ["string", "null"]
-          },
-          "password": {
-            "type": ["string", "null"]
-          },
-          "password_confirmation": {
-            "type": ["string", "null"]
           }
         }
       },
@@ -21369,14 +20950,14 @@
       "LoginCredentials": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": ["string", "null"]
-          },
           "password": {
             "type": ["string", "null"]
           },
           "remember": {
             "type": "boolean"
+          },
+          "username": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -21735,13 +21316,10 @@
       },
       "NotificationChannel": {
         "type": "object",
-        "required": ["id", "type", "content", "active", "fails", "created_at", "updated_at"],
+        "required": ["id", "type", "user_key", "active", "fails", "created_at", "updated_at"],
         "properties": {
           "active": {
             "type": "boolean"
-          },
-          "content": {
-            "type": "string"
           },
           "created_at": {
             "type": "string",
@@ -21764,11 +21342,15 @@
           },
           "type": {
             "type": "string",
-            "description": "`email`."
+            "description": "`pushover`."
           },
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "user_key": {
+            "type": "string",
+            "description": "The Pushover user key (the application token is never sent back)."
           },
           "verified_at": {
             "type": ["string", "null"],
@@ -21779,8 +21361,9 @@
       "NotificationChannelCreate": {
         "type": "object",
         "properties": {
-          "content": {
-            "type": ["string", "null"]
+          "app_token": {
+            "type": ["string", "null"],
+            "description": "The token of your Pushover application."
           },
           "label": {
             "type": ["string", "null"]
@@ -21788,6 +21371,10 @@
           "preferred_time": {
             "type": ["string", "null"],
             "description": "`HH:MM`."
+          },
+          "user_key": {
+            "type": ["string", "null"],
+            "description": "The Pushover user (or group) key."
           }
         }
       },
@@ -21808,15 +21395,6 @@
         "properties": {
           "active": {
             "type": ["boolean", "null"]
-          }
-        }
-      },
-      "NotificationChannelVerification": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": ["string", "null"],
-            "format": "uuid"
           }
         }
       },
@@ -21896,31 +21474,6 @@
         "properties": {
           "confirmed": {
             "type": "boolean"
-          }
-        }
-      },
-      "PasswordReset": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": ["string", "null"]
-          },
-          "password": {
-            "type": ["string", "null"]
-          },
-          "password_confirmation": {
-            "type": ["string", "null"]
-          },
-          "token": {
-            "type": ["string", "null"]
-          }
-        }
-      },
-      "PasswordResetLinkRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": ["string", "null"]
           }
         }
       },
@@ -22149,12 +21702,8 @@
       "PhotosModule": {
         "type": "object",
         "description": "Module `photos`. The 6 newest photos; \"View all\" opens the photos page (`listContactPhotos`).",
-        "required": ["photos", "can_upload_file"],
+        "required": ["photos"],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed (X011), as in `ContactPhotoList`."
-          },
           "photos": {
             "type": "array",
             "items": {
@@ -22168,7 +21717,6 @@
         "description": "A post with everything its show and edit pages display.",
         "required": [
           "id",
-          "can_upload_file",
           "journal",
           "published",
           "written_at",
@@ -22184,10 +21732,6 @@
           "updated_at"
         ],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed: the account is under its storage limit (X011); the edit page hides the photo upload otherwise."
-          },
           "contacts": {
             "type": "array",
             "items": {
@@ -22875,9 +22419,6 @@
       "Registration": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": ["string", "null"]
-          },
           "first_name": {
             "type": ["string", "null"]
           },
@@ -22890,9 +22431,8 @@
           "password_confirmation": {
             "type": ["string", "null"]
           },
-          "terms": {
-            "type": ["boolean", "null"],
-            "description": "The terms of service and privacy policy are accepted."
+          "username": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -23486,22 +23026,8 @@
       },
       "SliceOfLifeDetail": {
         "type": "object",
-        "required": [
-          "id",
-          "journal_id",
-          "name",
-          "created_at",
-          "updated_at",
-          "can_upload_file",
-          "journal",
-          "posts",
-          "contacts"
-        ],
+        "required": ["id", "journal_id", "name", "created_at", "updated_at", "journal", "posts", "contacts"],
         "properties": {
-          "can_upload_file": {
-            "type": "boolean",
-            "description": "Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise."
-          },
           "contacts": {
             "type": "array",
             "items": {
@@ -23591,50 +23117,6 @@
           },
           "name": {
             "type": ["string", "null"]
-          }
-        }
-      },
-      "StorageTypeUsage": {
-        "type": "object",
-        "required": ["count", "size"],
-        "properties": {
-          "count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Number of files of this type.",
-            "minimum": 0
-          },
-          "size": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Bytes.",
-            "minimum": 0
-          }
-        }
-      },
-      "StorageUsage": {
-        "type": "object",
-        "description": "Bytes summed over the files of all the account's vaults.",
-        "required": ["storage_limit_in_mb", "total_size", "photo", "document", "avatar"],
-        "properties": {
-          "avatar": {
-            "$ref": "#/components/schemas/StorageTypeUsage"
-          },
-          "document": {
-            "$ref": "#/components/schemas/StorageTypeUsage"
-          },
-          "photo": {
-            "$ref": "#/components/schemas/StorageTypeUsage"
-          },
-          "storage_limit_in_mb": {
-            "type": "integer",
-            "format": "int32",
-            "description": "0 means unlimited."
-          },
-          "total_size": {
-            "type": "integer",
-            "format": "int64",
-            "minimum": 0
           }
         }
       },

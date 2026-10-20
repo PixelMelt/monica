@@ -2,8 +2,8 @@
 // names (so `route('contact.show', …)` keeps working), the page component,
 // and the loader that fetches its props from the API (`loaders/*.js`).
 //
-// `access`: `guest` (logged-out only), `any`, `user` (logged in, email
-// not verified yet is fine), or `verified` (the default).
+// `access`: `guest` (logged-out only), `any`, or `user` (logged in, the
+// default).
 
 import * as auth from '@/loaders/auth';
 import * as settings from '@/loaders/settings';
@@ -37,30 +37,17 @@ export default [
   // Authentication (Fortify, Jetstream)
   r('/login', 'login', 'Auth/Login', auth.login, { access: 'guest' }),
   r('/register', 'register', 'Auth/Register', auth.register, { access: 'guest' }),
-  r('/forgot-password', 'password.request', 'Auth/ForgotPassword', auth.forgotPassword, { access: 'guest' }),
-  r('/reset-password/:token', 'password.reset', 'Auth/ResetPassword', auth.resetPassword, { access: 'guest' }),
   r('/two-factor-challenge', 'two-factor.login', 'Auth/TwoFactorChallenge', auth.twoFactorChallenge, {
     access: 'guest',
   }),
-  r('/email/verify', 'verification.notice', 'Auth/VerifyEmail', auth.verifyEmail, { access: 'user' }),
-  r('/email/verify/:id/:hash', 'verification.verify', 'Auth/VerifyEmail', auth.verifyEmailLink, { access: 'user' }),
-  r('/user/confirm-password', 'password.confirm', 'Auth/ConfirmPassword', auth.confirmPassword, { access: 'user' }),
-  r('/invitation/:code', 'invitation.show', 'Auth/AcceptInvitation', auth.acceptInvitation, { access: 'guest' }),
-  r('/terms-of-service', 'terms.show', 'TermsOfService', auth.terms, { access: 'any' }),
-  r('/privacy-policy', 'policy.show', 'PrivacyPolicy', auth.policy, { access: 'any' }),
+  r('/user/confirm-password', 'password.confirm', 'Auth/ConfirmPassword', auth.confirmPassword),
 
   // User and account settings
-  r('/user/profile', 'profile.show', 'Profile/Show', settings.profile, { access: 'user' }),
+  r('/user/profile', 'profile.show', 'Profile/Show', settings.profile),
   r('/user/api-tokens', 'api-tokens.index', 'API/Index', settings.apiTokens),
   r('/settings', 'settings.index', 'Settings/Index', settings.index),
   r('/settings/preferences', 'settings.preferences.index', 'Settings/Preferences/Index', settings.preferences),
   r('/settings/notifications', 'settings.notifications.index', 'Settings/Notifications/Index', settings.notifications),
-  r(
-    '/settings/notifications/:notification/verify/:uuid',
-    'settings.notifications.verification.store',
-    'Settings/Notifications/Index',
-    settings.verifyNotificationChannel,
-  ),
   r(
     '/settings/notifications/:notification/logs',
     'settings.notifications.log.index',
@@ -69,8 +56,6 @@ export default [
   ),
   r('/settings/users', 'settings.user.index', 'Settings/Users/Index', settings.users),
   r('/settings/users/create', 'settings.user.create', 'Settings/Users/Create', settings.createUser),
-  r('/settings/storage', 'settings.storage.index', 'Settings/Storage/Index', settings.storage),
-  r('/settings/cancel', 'settings.cancel.index', 'Settings/CancelAccount/Index', settings.cancel),
 
   // Personalize the account
   r('/settings/personalize', 'settings.personalize.index', 'Settings/Personalize/Index', personalize.index),

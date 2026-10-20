@@ -7,11 +7,9 @@ import {
   listMySessions,
   listMyTokens,
   listNotificationChannels,
-  verifyNotificationChannel as sendVerification,
   getNotificationChannel,
   listNotificationChannelLogs,
   listAccountUsers,
-  getAccountStorage,
 } from '@/api/client';
 import { ApiError } from '@/api/runtime';
 import * as dto from '@/adapters/settings';
@@ -35,7 +33,6 @@ export async function profile() {
       canUpdateProfileInformation: true,
       canUpdatePassword: true,
       canManageTwoFactorAuthentication: true,
-      hasAccountDeletionFeatures: session.instance.features.account_deletion,
     },
     user: session.user,
   };
@@ -73,12 +70,6 @@ export async function notifications() {
   };
 }
 
-/** `NotificationsVerificationController::store`: verifies the channel, then shows the channels. */
-export async function verifyNotificationChannel(to) {
-  await sendVerification({ notification_channel_id: to.params.notification }, { token: to.params.uuid });
-  return notifications();
-}
-
 /** `NotificationsLogController::index`: someone else's or an unknown channel goes to the vaults. */
 export async function notificationLogs(to) {
   const id = to.params.notification;
@@ -113,24 +104,5 @@ export function createUser() {
   return {
     layoutData: layoutData(),
     data: dto.userCreate(),
-  };
-}
-
-/** `AccountStorageController::index`. */
-export async function storage() {
-  administrator();
-  const usage = await getAccountStorage();
-  return {
-    layoutData: layoutData(),
-    data: dto.storage(usage),
-  };
-}
-
-/** `CancelAccountController::index`. */
-export function cancel() {
-  administrator();
-  return {
-    layoutData: layoutData(),
-    data: dto.cancelAccount(),
   };
 }

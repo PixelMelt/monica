@@ -9,18 +9,9 @@
           {{ $t('Photos') }}
         </span>
       </div>
-      <file-upload v-if="data.canUploadFile" :upload="upload" :images-only="true" @success="onSuccess">
+      <file-upload :upload="upload" :images-only="true" @success="onSuccess">
         <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" />
       </file-upload>
-    </div>
-
-    <!-- not enough space in storage -->
-    <div
-      v-if="!data.canUploadFile"
-      class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-      <p class="bg-gray-100 p-3 text-center">
-        <span class="me-1">⚠️</span> {{ $t('You don’t have enough space left in your account.') }}
-      </p>
     </div>
 
     <!-- photos -->

@@ -15,11 +15,13 @@ const props = defineProps({
 const form = useForm({
   first_name: props.user.first_name,
   last_name: props.user.last_name,
-  email: props.user.email,
+  username: props.user.username,
 });
 
 const updateProfileInformation = () => {
-  form.submit((data) => updateMe({}, { first_name: data.first_name, last_name: data.last_name, email: data.email }));
+  form.submit((data) =>
+    updateMe({}, { first_name: data.first_name, last_name: data.last_name, username: data.username }),
+  );
 };
 </script>
 
@@ -30,7 +32,7 @@ const updateProfileInformation = () => {
     </template>
 
     <template #description>
-      {{ $t("Update your account's profile information and email address.") }}
+      {{ $t('Update your name and the username you sign in with.') }}
     </template>
 
     <template #form>
@@ -58,11 +60,17 @@ const updateProfileInformation = () => {
         <JetInputError :message="form.errors.last_name" class="mt-2" />
       </div>
 
-      <!-- Email -->
+      <!-- Username -->
       <div class="col-span-6 mb-4 sm:col-span-4">
-        <JetLabel for="email" :value="$t('Email')" />
-        <JetInput id="email" v-model="form.email" type="email" class="mt-1 block w-full" autocomplete="email" />
-        <JetInputError :message="form.errors.email" class="mt-2" />
+        <JetLabel for="username" :value="$t('Username')" />
+        <JetInput
+          id="username"
+          v-model="form.username"
+          type="text"
+          class="mt-1 block w-full"
+          autocapitalize="none"
+          autocomplete="username" />
+        <JetInputError :message="form.errors.username" class="mt-2" />
       </div>
     </template>
 

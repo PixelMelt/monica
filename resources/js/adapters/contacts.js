@@ -177,7 +177,6 @@ export function show(page, contactInformation, modules) {
     quick_fact_template_entries: quickFacts(page),
     modules,
     avatar: {
-      canUploadFile: page.can_upload_file,
       hasFile: contact.avatar_file_id !== null,
     },
     options: {

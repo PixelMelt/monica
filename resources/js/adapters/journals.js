@@ -453,7 +453,6 @@ export function postEdit(post, journalSlices, vaultTags, vaultId) {
     tags_in_post: post.tags.map((tag) => postTag(tag)),
     tags_in_vault: vaultTags.map((tag) => postTag(tag, taken.has(tag.id))),
     journal_metrics: postJournalMetrics(post),
-    canUploadFile: post.can_upload_file,
     journal: {
       name: post.journal.name,
     },
@@ -525,7 +524,6 @@ export const sliceOfLifeShow = (slice, vaultId) => ({
     },
   })),
   contacts: slice.contacts.map(contactCard),
-  canUploadFile: slice.can_upload_file,
   url: {
     slices_index: route('slices.index', { vault: vaultId, journal: slice.journal_id }),
   },

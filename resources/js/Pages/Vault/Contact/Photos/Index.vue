@@ -81,7 +81,7 @@
           </div>
 
           <!-- upload -->
-          <file-upload v-if="data.canUploadFile" :upload="upload" :images-only="true" @success="onSuccess">
+          <file-upload :upload="upload" :images-only="true" @success="onSuccess">
             <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" />
           </file-upload>
         </div>

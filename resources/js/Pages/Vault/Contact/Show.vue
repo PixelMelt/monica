@@ -194,11 +194,7 @@ const navigateToSelected = () => {
               </li>
               <!-- upload new avatar -->
               <li v-if="!data.avatar.hasFile" class="mb-2">
-                <FileUpload
-                  v-if="data.avatar.canUploadFile"
-                  :upload="uploadAvatar"
-                  :images-only="true"
-                  @success="onSuccess">
+                <FileUpload :upload="uploadAvatar" :images-only="true" @success="onSuccess">
                   <span class="cursor-pointer text-blue-500 hover:underline"> {{ $t('Upload photo as avatar') }} </span>
                 </FileUpload>
               </li>

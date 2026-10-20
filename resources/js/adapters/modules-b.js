@@ -292,9 +292,8 @@ export const document = (file, vaultId) => ({
 });
 
 /** `ModuleDocumentsViewHelper::data`. */
-export const documents = (data, { page, vaultId }) => ({
+export const documents = (data, { vaultId }) => ({
   documents: data.documents.map((file) => document(file, vaultId)),
-  canUploadFile: page.can_upload_file,
 });
 
 // --- photos --------------------------------------------------------------
@@ -313,9 +312,8 @@ export const photo = (file, vaultId, contactId) => ({
 });
 
 /** `ModulePhotosViewHelper::data`. */
-export const photos = (data, { page, vaultId, contactId }) => ({
+export const photos = (data, { vaultId, contactId }) => ({
   photos: data.photos.map((file) => photo(file, vaultId, contactId)),
-  canUploadFile: page.can_upload_file,
   url: {
     index: route('contact.photo.index', { vault: vaultId, contact: contactId }),
   },
@@ -340,7 +338,6 @@ export const contactPhotosIndex = (contact, list) => ({
     name: contactName(contact),
   },
   photos: list.data.map((file) => contactPhotosIndexPhoto(file, contact.vault_id, contact.id)),
-  canUploadFile: list.can_upload_file,
   url: {
     show: route('contact.show', { vault: contact.vault_id, contact: contact.id }),
   },

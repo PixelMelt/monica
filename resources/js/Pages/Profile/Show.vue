@@ -1,6 +1,5 @@
 <script setup>
 import Layout from '@/Layouts/Layout.vue';
-import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
 import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
 import TwoFactorAuthenticationForm from '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
@@ -49,10 +48,6 @@ defineProps({
         <div class="mb-16">
           <LogoutOtherBrowserSessionsForm :sessions="sessions" class="mt-10 sm:mt-0" />
         </div>
-
-        <template v-if="jetstream.hasAccountDeletionFeatures">
-          <DeleteUserForm class="mt-10 sm:mt-0" />
-        </template>
       </div>
     </div>
   </Layout>
