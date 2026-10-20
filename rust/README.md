@@ -45,7 +45,8 @@ servers the harness expects, then select the engine with `MONICA_TEST_DB`:
 ```
 docker run -d --name monica-test-mysql --tmpfs /var/lib/mysql:rw -e MYSQL_ROOT_PASSWORD=root \
   -p 127.0.0.1:33306:3306 mysql:8.4 --skip-log-bin --innodb-flush-log-at-trx-commit=0 --innodb-doublewrite=0
-docker run -d --name monica-test-pg -e POSTGRES_PASSWORD=postgres -p 127.0.0.1:55432:5432 postgres:17
+docker run -d --name monica-test-pg --tmpfs /var/lib/postgresql/data:rw -e POSTGRES_PASSWORD=postgres \
+  -p 127.0.0.1:55432:5432 postgres:17 -c max_locks_per_transaction=1024 -c fsync=off -c max_connections=500
 
 MONICA_TEST_DB=mysql cargo test
 MONICA_TEST_DB=postgres cargo test

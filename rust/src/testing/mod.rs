@@ -55,8 +55,11 @@ impl TestDb {
         }
     }
 
-    /// A migrated database.
+    /// A migrated database. At most four migrate at once, so a parallel
+    /// test run doesn't swamp the MySQL or Postgres server with DDL.
     pub async fn migrated() -> TestDb {
+        static MIGRATING: tokio::sync::Semaphore = tokio::sync::Semaphore::const_new(4);
+        let _permit = MIGRATING.acquire().await.expect("semaphore");
         let db = TestDb::empty().await;
         crate::db::migrate(&db.conn).await.expect("migrations");
         db
