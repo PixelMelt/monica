@@ -58,13 +58,13 @@
 
           <div>
             <p>
-              {{ $t('You can be notified by email.') }}
+              {{ $t('You can be notified through Pushover.') }}
             </p>
           </div>
         </div>
 
-        <!-- Email notifications -->
-        <emails :data="data" />
+        <!-- Pushover notifications -->
+        <pushover :data="data" />
       </div>
     </main>
   </layout>
@@ -73,13 +73,13 @@
 <script>
 import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
-import Emails from '@/Pages/Settings/Notifications/Partials/Emails.vue';
+import Pushover from '@/Pages/Settings/Notifications/Partials/Pushover.vue';
 
 export default {
   components: {
     AppLink: Link,
     Layout,
-    Emails,
+    Pushover,
   },
 
   props: {
@@ -92,22 +92,5 @@ export default {
       default: null,
     },
   },
-
-  data() {
-    return {
-      localEmails: [],
-      testEmailSentId: 0,
-      form: {
-        name: '',
-        errors: [],
-      },
-    };
-  },
-
-  mounted() {
-    this.localEmails = this.data.emails;
-  },
-
-  methods: {},
 };
 </script>

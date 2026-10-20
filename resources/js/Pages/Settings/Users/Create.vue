@@ -55,7 +55,7 @@ k
           <!-- title -->
           <div class="section-head border-b border-gray-200 bg-blue-50 p-5 dark:border-gray-700 dark:bg-blue-900">
             <h1 class="mb-1 text-center text-2xl font-medium">
-              {{ $t('Invite someone') }}
+              {{ $t('Add a user') }}
             </h1>
             <p class="text-center">
               {{
@@ -71,14 +71,56 @@ k
             <errors :errors="form.errors" />
 
             <text-input
-              v-model="form.email"
-              :label="$t('Email address to send the invitation to')"
-              :type="'email'"
+              v-model="form.first_name"
+              :label="$t('First name')"
+              :type="'text'"
               :autofocus="true"
               :input-class="'block w-full'"
+              :class="'mb-4'"
               :required="true"
               :autocomplete="false"
               :maxlength="255" />
+
+            <text-input
+              v-model="form.last_name"
+              :label="$t('Last name')"
+              :type="'text'"
+              :input-class="'block w-full'"
+              :class="'mb-4'"
+              :required="true"
+              :autocomplete="false"
+              :maxlength="255" />
+
+            <text-input
+              v-model="form.username"
+              :label="$t('Username')"
+              :type="'text'"
+              :input-class="'block w-full'"
+              :class="'mb-4'"
+              :required="true"
+              :autocomplete="false"
+              :maxlength="255" />
+
+            <text-input
+              v-model="form.password"
+              :label="$t('Password')"
+              :type="'password'"
+              :input-class="'block w-full'"
+              :class="'mb-4'"
+              :required="true"
+              :autocomplete="'new-password'"
+              :maxlength="255" />
+
+            <text-input
+              v-model="form.password_confirmation"
+              :label="$t('Confirm Password')"
+              :type="'password'"
+              :input-class="'block w-full'"
+              :class="'mb-2'"
+              :required="true"
+              :autocomplete="'new-password'"
+              :maxlength="255" />
+            <p class="text-xs text-gray-600">{{ $t('They can change their password in their profile.') }}</p>
           </div>
 
           <!-- permissions -->
@@ -119,11 +161,7 @@ k
                   class="ms-3 block cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
                   {{ $t('Administrator') }}
                   <span class="ms-4 font-normal text-gray-500">
-                    {{
-                      $t(
-                        'Can do everything, including adding or removing other users, managing billing and closing the account.',
-                      )
-                    }}
+                    {{ $t('Can do everything, including adding or removing other users.') }}
                   </span>
                 </label>
               </div>
@@ -132,7 +170,7 @@ k
 
           <div class="flex justify-between p-5">
             <pretty-link :href="data.url.back" :text="$t('Cancel')" :class="'me-3'" />
-            <pretty-button :text="$t('Send invitation')" :state="loadingState" :icon="'check'" :class="'save'" />
+            <pretty-button :text="$t('Add')" :state="loadingState" :icon="'check'" :class="'save'" />
           </div>
         </form>
       </div>
@@ -147,7 +185,7 @@ import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
-import { inviteAccountUser } from '@/api/client';
+import { createAccountUser } from '@/api/client';
 
 export default {
   components: {
@@ -174,7 +212,11 @@ export default {
     return {
       loadingState: '',
       form: {
-        email: '',
+        first_name: '',
+        last_name: '',
+        username: '',
+        password: '',
+        password_confirmation: '',
         administrator: Boolean,
         errors: [],
       },
@@ -190,9 +232,19 @@ export default {
       this.loadingState = 'loading';
 
       // `$request->input('administrator') === 'true'`: the radio buttons hold strings.
-      inviteAccountUser({}, { email: this.form.email, is_account_administrator: this.form.administrator === 'true' })
+      createAccountUser(
+        {},
+        {
+          first_name: this.form.first_name,
+          last_name: this.form.last_name,
+          username: this.form.username,
+          password: this.form.password,
+          password_confirmation: this.form.password_confirmation,
+          is_account_administrator: this.form.administrator === 'true',
+        },
+      )
         .then(() => {
-          localStorage.success = this.$t('Invitation sent');
+          localStorage.success = this.$t('The user has been added');
           this.$router.push(this.route('settings.user.index'));
         })
         .catch((error) => {

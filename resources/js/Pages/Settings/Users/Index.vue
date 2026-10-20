@@ -48,13 +48,10 @@
             v-for="user in data.users"
             :key="user.id"
             class="border-b border-gray-200 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-            <!-- case: user has been invited -->
-            <div v-if="!user.name" class="flex items-center justify-between px-5 py-2">
+            <div v-if="editModalshownId !== user.id" class="flex items-center justify-between px-5 py-2">
               <div>
-                <!-- email -->
                 <span class="block">
-                  {{ user.email }}
-
+                  {{ user.name.trim() || user.username }}
                   <!-- is administrator -->
                   <span
                     v-if="user.is_account_administrator"
@@ -63,40 +60,7 @@
                   >
                 </span>
 
-                <!-- case : invitation sent -->
-                <span class="relative text-sm text-gray-400">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="icon-mail relative inline h-4 w-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-
-                  {{ $t('Invitation sent') }}
-                </span>
-              </div>
-            </div>
-
-            <!-- case: normal user -->
-            <div v-if="user.name && editModalshownId !== user.id" class="flex items-center justify-between px-5 py-2">
-              <div>
-                <span class="block">
-                  {{ user.name }}
-                  <!-- is administrator -->
-                  <span
-                    v-if="user.is_account_administrator"
-                    class="ms-2 rounded-xs bg-neutral-200 px-2 py-1 text-xs text-neutral-500"
-                    >{{ $t('Administrator') }}</span
-                  >
-                </span>
-
-                <span class="text-sm text-gray-400">{{ user.email }}</span>
+                <span class="text-sm text-gray-400">{{ user.username }}</span>
               </div>
 
               <!-- actions -->

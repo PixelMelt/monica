@@ -9,14 +9,6 @@ export const getAccount = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/account', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Delete the account and everything in it (`DELETE /account`).
- * @param {import('./schema').operations['cancelAccount']['parameters']['path'] & import('./schema').operations['cancelAccount']['parameters']['query']} [params]
- * @param {import('./schema').operations['cancelAccount']['requestBody']['content']['application/json']} [body]
- */
-export const cancelAccount = (params = {}, body = undefined) =>
-  request({ method: 'DELETE', path: '/account', pathParams: [], queryParams: [], binary: false }, params, body);
-
-/**
  * List the account's address types (`GET /account/address-types`).
  * @param {import('./schema').operations['listAddressTypes']['parameters']['path'] & import('./schema').operations['listAddressTypes']['parameters']['query']} [params]
  */
@@ -966,13 +958,6 @@ export const deleteReligion = (params = {}, body = undefined) =>
   );
 
 /**
- * Storage used by the account (`GET /account/storage`).
- * @param {import('./schema').operations['getAccountStorage']['parameters']['path'] & import('./schema').operations['getAccountStorage']['parameters']['query']} [params]
- */
-export const getAccountStorage = (params = {}, body = undefined) =>
-  request({ method: 'GET', path: '/account/storage', pathParams: [], queryParams: [], binary: false }, params, body);
-
-/**
  * List the account's contact templates (`GET /account/templates`).
  * @param {import('./schema').operations['listTemplates']['parameters']['path'] & import('./schema').operations['listTemplates']['parameters']['query']} [params]
  */
@@ -1162,18 +1147,18 @@ export const removeTemplatePageModule = (params = {}, body = undefined) =>
   );
 
 /**
- * The account's users, invited ones included (`GET /account/users`).
+ * The account's users (`GET /account/users`).
  * @param {import('./schema').operations['listAccountUsers']['parameters']['path'] & import('./schema').operations['listAccountUsers']['parameters']['query']} [params]
  */
 export const listAccountUsers = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/account/users', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Invite someone to the account (`POST /account/users`).
- * @param {import('./schema').operations['inviteAccountUser']['parameters']['path'] & import('./schema').operations['inviteAccountUser']['parameters']['query']} [params]
- * @param {import('./schema').operations['inviteAccountUser']['requestBody']['content']['application/json']} [body]
+ * Add a user, with a username and a first password (`POST /account/users`).
+ * @param {import('./schema').operations['createAccountUser']['parameters']['path'] & import('./schema').operations['createAccountUser']['parameters']['query']} [params]
+ * @param {import('./schema').operations['createAccountUser']['requestBody']['content']['application/json']} [body]
  */
-export const inviteAccountUser = (params = {}, body = undefined) =>
+export const createAccountUser = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/account/users', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
@@ -1242,38 +1227,7 @@ export const getCsrfCookie = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/auth/csrf', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Email the verification link again (`POST /auth/email/verification-notification`).
- * @param {import('./schema').operations['sendEmailVerification']['parameters']['path'] & import('./schema').operations['sendEmailVerification']['parameters']['query']} [params]
- */
-export const sendEmailVerification = (params = {}, body = undefined) =>
-  request(
-    { method: 'POST', path: '/auth/email/verification-notification', pathParams: [], queryParams: [], binary: false },
-    params,
-    body,
-  );
-
-/**
- * Verify the email address from the emailed link (`POST /auth/email/verify`).
- * @param {import('./schema').operations['verifyEmail']['parameters']['path'] & import('./schema').operations['verifyEmail']['parameters']['query']} [params]
- * @param {import('./schema').operations['verifyEmail']['requestBody']['content']['application/json']} [body]
- */
-export const verifyEmail = (params = {}, body = undefined) =>
-  request({ method: 'POST', path: '/auth/email/verify', pathParams: [], queryParams: [], binary: false }, params, body);
-
-/**
- * Email a password reset link (`POST /auth/forgot-password`).
- * @param {import('./schema').operations['requestPasswordReset']['parameters']['path'] & import('./schema').operations['requestPasswordReset']['parameters']['query']} [params]
- * @param {import('./schema').operations['requestPasswordReset']['requestBody']['content']['application/json']} [body]
- */
-export const requestPasswordReset = (params = {}, body = undefined) =>
-  request(
-    { method: 'POST', path: '/auth/forgot-password', pathParams: [], queryParams: [], binary: false },
-    params,
-    body,
-  );
-
-/**
- * Log in with email and password (`POST /auth/login`).
+ * Log in with username and password (`POST /auth/login`).
  * @param {import('./schema').operations['logIn']['parameters']['path'] & import('./schema').operations['logIn']['parameters']['query']} [params]
  * @param {import('./schema').operations['logIn']['requestBody']['content']['application/json']} [body]
  */
@@ -1288,24 +1242,12 @@ export const logOut = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/auth/logout', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Create an account and its first user (`POST /auth/register`).
+ * First run: create the account and its first user (`POST /auth/register`).
  * @param {import('./schema').operations['registerUser']['parameters']['path'] & import('./schema').operations['registerUser']['parameters']['query']} [params]
  * @param {import('./schema').operations['registerUser']['requestBody']['content']['application/json']} [body]
  */
 export const registerUser = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/auth/register', pathParams: [], queryParams: [], binary: false }, params, body);
-
-/**
- * Set a new password with the emailed token (`POST /auth/reset-password`).
- * @param {import('./schema').operations['resetPassword']['parameters']['path'] & import('./schema').operations['resetPassword']['parameters']['query']} [params]
- * @param {import('./schema').operations['resetPassword']['requestBody']['content']['application/json']} [body]
- */
-export const resetPassword = (params = {}, body = undefined) =>
-  request(
-    { method: 'POST', path: '/auth/reset-password', pathParams: [], queryParams: [], binary: false },
-    params,
-    body,
-  );
 
 /**
  * Finish a login with a 2FA or recovery code (`POST /auth/two-factor-challenge`).
@@ -1327,41 +1269,6 @@ export const getInstance = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/instance', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * A pending invitation (`GET /invitations/{invitation_code}`).
- * @param {import('./schema').operations['getInvitation']['parameters']['path'] & import('./schema').operations['getInvitation']['parameters']['query']} [params]
- */
-export const getInvitation = (params = {}, body = undefined) =>
-  request(
-    {
-      method: 'GET',
-      path: '/invitations/{invitation_code}',
-      pathParams: ['invitation_code'],
-      queryParams: [],
-      binary: false,
-    },
-    params,
-    body,
-  );
-
-/**
- * Accept an invitation and log in (`POST /invitations/{invitation_code}/accept`).
- * @param {import('./schema').operations['acceptInvitation']['parameters']['path'] & import('./schema').operations['acceptInvitation']['parameters']['query']} [params]
- * @param {import('./schema').operations['acceptInvitation']['requestBody']['content']['application/json']} [body]
- */
-export const acceptInvitation = (params = {}, body = undefined) =>
-  request(
-    {
-      method: 'POST',
-      path: '/invitations/{invitation_code}/accept',
-      pathParams: ['invitation_code'],
-      queryParams: [],
-      binary: false,
-    },
-    params,
-    body,
-  );
-
-/**
  * The logged-in user (`GET /me`).
  * @param {import('./schema').operations['getMe']['parameters']['path'] & import('./schema').operations['getMe']['parameters']['query']} [params]
  */
@@ -1369,20 +1276,12 @@ export const getMe = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Change name or email (`PATCH /me`).
+ * Change name or username (`PATCH /me`).
  * @param {import('./schema').operations['updateMe']['parameters']['path'] & import('./schema').operations['updateMe']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateMe']['requestBody']['content']['application/json']} [body]
  */
 export const updateMe = (params = {}, body = undefined) =>
   request({ method: 'PATCH', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
-
-/**
- * Delete your own user (when enabled) (`DELETE /me`).
- * @param {import('./schema').operations['deleteMe']['parameters']['path'] & import('./schema').operations['deleteMe']['parameters']['query']} [params]
- * @param {import('./schema').operations['deleteMe']['requestBody']['content']['application/json']} [body]
- */
-export const deleteMe = (params = {}, body = undefined) =>
-  request({ method: 'DELETE', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
  * Everything the layout needs (aggregate) (`GET /me/bootstrap`).
@@ -1403,7 +1302,7 @@ export const listNotificationChannels = (params = {}, body = undefined) =>
   );
 
 /**
- * Add an email channel (`POST /me/notification-channels`).
+ * Add a Pushover channel (`POST /me/notification-channels`).
  * @param {import('./schema').operations['createNotificationChannel']['parameters']['path'] & import('./schema').operations['createNotificationChannel']['parameters']['query']} [params]
  * @param {import('./schema').operations['createNotificationChannel']['requestBody']['content']['application/json']} [body]
  */
@@ -1484,7 +1383,7 @@ export const listNotificationChannelLogs = (params = {}, body = undefined) =>
   );
 
 /**
- * Send a test email (`POST /me/notification-channels/{notification_channel_id}/test`).
+ * Send a test notification (`POST /me/notification-channels/{notification_channel_id}/test`).
  * @param {import('./schema').operations['sendNotificationChannelTest']['parameters']['path'] & import('./schema').operations['sendNotificationChannelTest']['parameters']['query']} [params]
  */
 export const sendNotificationChannelTest = (params = {}, body = undefined) =>
@@ -1492,24 +1391,6 @@ export const sendNotificationChannelTest = (params = {}, body = undefined) =>
     {
       method: 'POST',
       path: '/me/notification-channels/{notification_channel_id}/test',
-      pathParams: ['notification_channel_id'],
-      queryParams: [],
-      binary: false,
-    },
-    params,
-    body,
-  );
-
-/**
- * Verify a channel with the token from its email (`POST /me/notification-channels/{notification_channel_id}/verify`).
- * @param {import('./schema').operations['verifyNotificationChannel']['parameters']['path'] & import('./schema').operations['verifyNotificationChannel']['parameters']['query']} [params]
- * @param {import('./schema').operations['verifyNotificationChannel']['requestBody']['content']['application/json']} [body]
- */
-export const verifyNotificationChannel = (params = {}, body = undefined) =>
-  request(
-    {
-      method: 'POST',
-      path: '/me/notification-channels/{notification_channel_id}/verify',
       pathParams: ['notification_channel_id'],
       queryParams: [],
       binary: false,

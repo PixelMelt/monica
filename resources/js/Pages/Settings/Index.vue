@@ -74,22 +74,10 @@ defineProps({
                   {{ $t('Manage users') }}
                 </Link>
               </li>
-              <li class="mb-2 flex justify-start">
+              <li class="flex justify-start">
                 <span class="me-2">🎃</span>
                 <Link :href="data.url.personalize.index" class="text-blue-500 hover:underline">
                   {{ $t('Personalize your account') }}
-                </Link>
-              </li>
-              <li class="mb-2 flex justify-start">
-                <span class="me-2">📸</span>
-                <Link :href="data.url.storage.index" class="text-blue-500 hover:underline">
-                  {{ $t('Manage storage') }}
-                </Link>
-              </li>
-              <li class="flex justify-start">
-                <span class="me-2">💩</span>
-                <Link :href="data.url.cancel.index" class="text-blue-500 hover:underline">
-                  {{ $t('Cancel your account') }}
                 </Link>
               </li>
             </ul>

@@ -1,6 +1,6 @@
 // End-to-end smoke test: drives the SPA in headless Chrome against a
 // freshly installed server, through the UI as a user would. Started by
-// run.sh (see README.md), which sets BASE, OUT, MAIL_DIR and MONICA_BIN.
+// run.sh (see README.md), which sets BASE, OUT, PUSHOVER_DIR and MONICA_BIN.
 
 import puppeteer from 'puppeteer-core';
 import crypto from 'node:crypto';
@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 
 const BASE = process.env.BASE ?? 'http://127.0.0.1:8095';
 const OUT = process.env.OUT ?? 'output';
-const MAIL_DIR = process.env.MAIL_DIR ?? path.join(OUT, 'mail');
+const PUSHOVER_DIR = process.env.PUSHOVER_DIR ?? path.join(OUT, 'pushover');
 const SHOTS = path.join(OUT, 'screenshots');
 fs.mkdirSync(SHOTS, { recursive: true });
 
@@ -19,7 +19,7 @@ const run = Date.now().toString(36);
 const user = {
   firstName: 'Ada',
   lastName: 'Lovelace',
-  email: `ada-${run}@example.com`,
+  username: `ada-${run}`,
   password: 'Analytical-Engine-1843!',
 };
 const state = {};
@@ -296,78 +296,26 @@ async function assertNoGarbage() {
   }
 }
 
-// --- mail ------------------------------------------------------------------
+// --- Pushover ----------------------------------------------------------------
 
-function decodeWords(s) {
-  return s.replace(/=\?([^?]+)\?([bBqQ])\?([^?]*)\?=/g, (_, charset, enc, text) => {
-    const buf =
-      enc.toUpperCase() === 'B'
-        ? Buffer.from(text, 'base64')
-        : Buffer.from(
-            text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16))),
-            'latin1',
-          );
-    return buf.toString(/utf-?8/i.test(charset) ? 'utf8' : 'latin1');
-  });
-}
-
-/** A MIME entity: headers (lower-case names) and its decoded text parts. */
-function parseMime(raw) {
-  const split = raw.search(/\r?\n\r?\n/);
-  const head = split < 0 ? raw : raw.slice(0, split);
-  const body = split < 0 ? '' : raw.slice(split).replace(/^\r?\n\r?\n/, '');
-  const headers = {};
-  for (const line of head.replace(/\r?\n[ \t]+/g, ' ').split(/\r?\n/)) {
-    const i = line.indexOf(':');
-    if (i > 0) headers[line.slice(0, i).trim().toLowerCase()] = line.slice(i + 1).trim();
-  }
-  const type = headers['content-type'] ?? 'text/plain';
-  const boundary = /boundary="?([^";]+)"?/i.exec(type)?.[1];
-  if (/^multipart\//i.test(type) && boundary) {
-    const parts = body
-      .split(`--${boundary}`)
-      .slice(1, -1)
-      .map((p) => parseMime(p.replace(/^\r?\n/, '')));
-    return { headers, parts: parts.flatMap((p) => p.parts) };
-  }
-  const cte = (headers['content-transfer-encoding'] ?? '').toLowerCase();
-  let text = body;
-  if (cte === 'base64') text = Buffer.from(body.replace(/\s+/g, ''), 'base64').toString('utf8');
-  if (cte === 'quoted-printable') {
-    text = Buffer.from(
-      body.replace(/=\r?\n/g, '').replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16))),
-      'latin1',
-    ).toString('utf8');
-  }
-  return { headers, parts: [{ type: type.split(';')[0].toLowerCase(), text }] };
-}
-
-function readMails() {
-  if (!fs.existsSync(MAIL_DIR)) return [];
+/** The messages the fake Pushover got: their form fields (`token`, `user`, `title`, `message`). */
+function readPushes() {
+  if (!fs.existsSync(PUSHOVER_DIR)) return [];
   return fs
-    .readdirSync(MAIL_DIR)
-    .filter((f) => f.endsWith('.eml'))
+    .readdirSync(PUSHOVER_DIR)
+    .filter((f) => f.endsWith('.json'))
     .sort()
-    .map((f) => {
-      const { headers, parts } = parseMime(fs.readFileSync(path.join(MAIL_DIR, f), 'utf8'));
-      return {
-        file: f,
-        to: headers.to ?? '',
-        subject: decodeWords(headers.subject ?? ''),
-        text: parts.find((p) => p.type === 'text/plain')?.text ?? '',
-        html: parts.find((p) => p.type === 'text/html')?.text ?? '',
-      };
-    });
+    .map((f) => ({ file: f, ...JSON.parse(fs.readFileSync(path.join(PUSHOVER_DIR, f), 'utf8')) }));
 }
 
-async function waitForMail(predicate, what, timeout = 20000) {
+async function waitForPush(predicate, what, timeout = 20000) {
   const start = Date.now();
   while (Date.now() - start < timeout) {
-    const mail = readMails().find(predicate);
-    if (mail) return mail;
+    const push = readPushes().find(predicate);
+    if (push) return push;
     await sleep(250);
   }
-  throw new Error(`no ${what} email arrived at the sink`);
+  throw new Error(`no ${what} notification arrived at the fake Pushover`);
 }
 
 // --- TOTP (RFC 6238, SHA-1, 6 digits, 30 s) ---------------------------------
@@ -484,11 +432,11 @@ async function step(name, fn) {
   return issues.length === 0;
 }
 
-/** Logs in with the email and password, through the 2FA challenge when `secret` is given. */
+/** Logs in with the username and password, through the 2FA challenge when `secret` is given. */
 async function logIn(secret = null) {
   expected.push(['GET', /^\/api\/v1\/me\/bootstrap$/, 401]);
   await goto('/login');
-  await fill('Email', user.email);
+  await fill('Username', user.username);
   await typeInto(await page.$('#password'), user.password);
   await click('Log in', { selector: 'button' });
   if (secret) {
@@ -502,29 +450,26 @@ async function logIn(secret = null) {
   await waitForPath(/^\/vaults/);
 }
 
-async function signUp() {
+/** First run: any page leads to the setup page, which creates the account and its first user; sign-up is closed after that. */
+async function setUp() {
   expected.push(['GET', /^\/api\/v1\/me\/bootstrap$/, 401]);
-  await goto('/register');
+  await goto('/vaults');
+  await waitForPath(/^\/register$/);
+  await see('Set up Monica');
   await fill('First name', user.firstName);
   await fill('Last name', user.lastName);
-  await fill('Email', user.email);
+  await fill('Username', user.username);
   await fill('Password', user.password);
   await fill('Confirm Password', user.password);
-  const terms = await page.$('#terms');
-  if (terms) await clickElement(terms);
-  await click('Register', { selector: 'button' });
-  await waitForPath(/^\/email\/verify$/);
-  await see('verify your email address');
-
-  const mail = await waitForMail((m) => m.to.includes(user.email) && /verify/i.test(m.subject), 'verification');
-  const link = /https?:\/\/\S+\/email\/verify\/[^\s"<]+/.exec(mail.text)?.[0];
-  if (!link) throw new Error(`no verification link in the email:\n${mail.text}`);
-  const url = new URL(link.replace(/&amp;/g, '&'));
-  await goto(url.pathname + url.search);
+  await click('Create Account', { selector: 'button' });
   await waitForPath(/^\/vaults/);
-  // Verified: the vaults page (not the verification notice) after a reload.
-  await reload();
-  if (here().startsWith('/email/verify')) throw new Error('still unverified after following the link');
+  await see('Create a vault');
+
+  await click('Logout', { selector: 'button' });
+  await waitForPath(/^\/login$/);
+  await goto('/register');
+  await waitForPath(/^\/login$/);
+  await logIn();
   await see('Create a vault');
 }
 
@@ -1358,9 +1303,24 @@ async function files() {
   await see('Upload photo as avatar');
 }
 
-// --- step 6: reminder email ---------------------------------------------------
+// --- step 6: reminder through Pushover --------------------------------------
 
-async function reminderEmail() {
+async function reminderPushover() {
+  // A Pushover channel; its keys are checked with the (fake) Pushover.
+  await goto('/settings/notifications');
+  await see('You can be notified through Pushover.');
+  await click('Add a Pushover channel', { selector: 'button' });
+  await fill('Give this channel a name', 'Phone');
+  await fill('Your Pushover user key', 'uSmokeUserKey');
+  await fill('The token of your Pushover application', 'aSmokeAppToken');
+  await click('Add', { selector: 'button' });
+  await see('uSmokeUserKey');
+  await click('Send test', { selector: 'li' });
+  await see('Test notification sent!');
+  const test = await waitForPush((m) => /^This is a test notification for /.test(m.message), 'test');
+  if (test.user !== 'uSmokeUserKey' || test.token !== 'aSmokeAppToken')
+    throw new Error(`test sent with ${JSON.stringify(test)}`);
+
   const label = `Call Charles about the engine ${run}`;
   await openContact('Information');
   const m = await moduleRoot('Reminders');
@@ -1378,9 +1338,9 @@ async function reminderEmail() {
     encoding: 'utf8',
   });
   if (!/[1-9]\d* reminders sent/.test(out)) throw new Error(`test-reminders: ${out.trim()}`);
-  const mail = await waitForMail((m) => m.to.includes(user.email) && m.text.includes(label), 'reminder');
-  console.log(`     reminder email: "${mail.subject}" (${mail.file})`);
-  if (!mail.html.includes(label)) throw new Error('the reminder email HTML lacks the label');
+  const push = await waitForPush((p) => p.message === label, 'reminder');
+  console.log(`     reminder: "${push.title}" / "${push.message}" (${push.file})`);
+  if (push.title !== `Reminder for ${state.contacts[0].name}`) throw new Error(`unexpected title ${push.title}`);
 }
 
 // --- step 7: every page ---------------------------------------------------------
@@ -1402,13 +1362,7 @@ function appRoutes() {
 const SKIPPED_ROUTES = {
   login: 'guest only',
   register: 'guest only',
-  'password.request': 'guest only',
-  'password.reset': 'guest only',
   'two-factor.login': 'guest only',
-  'invitation.show': 'guest only (needs an invitation code)',
-  'verification.notice': 'the user is verified (step 1)',
-  'verification.verify': 'the user is verified (step 1)',
-  'settings.notifications.verification.store': 'needs a channel verification link',
   'post.store': 'creates a post on visit (step 4 uses it)',
   'not-found': 'the error page',
 };
@@ -1589,7 +1543,7 @@ async function cardDav() {
   const storage = (kind, type) => `[storage ${kind}_remote]
 type = "${type}"
 url = "${BASE}/dav/"
-username = "${user.email}"
+username = "${user.username}"
 password = "${token}"
 `;
   fs.writeFileSync(
@@ -1687,14 +1641,14 @@ page.on('dialog', (d) => d.accept());
 const only = process.env.SMOKE_STEPS?.split(',');
 const onlyModules = process.env.SMOKE_MODULES?.split(',');
 const steps = [
-  ['1-sign-up-and-verify', signUp],
+  ['1-first-run-setup', setUp],
   ['2-two-factor', enableTwoFactor],
   ['3-vault-and-contacts', createVaultAndContacts],
   ...modules
     .filter(([name]) => !onlyModules || onlyModules.includes(name))
     .map(([name, fn]) => [`4-module-${name}`, fn]),
   ['5-photo-and-document', files],
-  ['6-reminder-email', reminderEmail],
+  ['6-reminder-pushover', reminderPushover],
   ['7-every-page', everyPage],
   ['8-carddav-sync', cardDav],
 ];

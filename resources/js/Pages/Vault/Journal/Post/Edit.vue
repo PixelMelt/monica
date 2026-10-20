@@ -271,12 +271,7 @@ const destroy = () => {
               </ul>
 
               <!-- upload component -->
-              <file-upload
-                v-if="data.canUploadFile"
-                :upload="upload"
-                :images-only="true"
-                @success="onSuccess"
-                @error="onError">
+              <file-upload :upload="upload" :images-only="true" @success="onSuccess" @error="onError">
                 <!-- case when there are no photos yet -->
                 <div
                   v-if="localPhotos.length === 0"
@@ -305,16 +300,6 @@ const destroy = () => {
                   </p>
                 </div>
               </file-upload>
-
-              <!-- not enough storage -->
-              <div
-                v-if="!data.canUploadFile"
-                class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-                <p class="bg-gray-100 p-3 text-center">
-                  <span class="me-1">⚠️</span>
-                  {{ $t('You don’t have enough space left in your account.') }}
-                </p>
-              </div>
             </div>
 
             <!-- post body -->
@@ -389,11 +374,7 @@ const destroy = () => {
             <p class="mb-2 flex items-center font-bold">
               <span>{{ $t('Written on') }}</span>
             </p>
-            <DatePicker
-              v-model.string="form.date"
-              :masks="masks"
-              :locale="localeIetf()"
-              class="mb-6 inline-block">
+            <DatePicker v-model.string="form.date" :masks="masks" :locale="localeIetf()" class="mb-6 inline-block">
               <template #default="{ inputValue, inputEvents }">
                 <input
                   class="rounded-xs border bg-white px-2 py-1 dark:border-gray-700 dark:bg-gray-900"
