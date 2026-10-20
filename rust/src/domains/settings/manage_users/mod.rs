@@ -63,7 +63,8 @@ impl AcceptInvitation {
 
     async fn update_user<C: ConnectionTrait>(&self, db: &C, user: users::Model) -> ApiResult<users::Model> {
         let mut user: users::ActiveModel = user.into();
-        user.is_account_administrator = Set(false);
+        // Q5: the PHP sets is_account_administrator = false here, which undid
+        // InviteUser's administrator flag; it is kept as invited.
         user.first_name = Set(Some(self.first_name.clone()));
         user.last_name = Set(Some(self.last_name.clone()));
         user.invitation_accepted_at = Set(Some(crate::db::now()));
