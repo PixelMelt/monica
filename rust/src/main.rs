@@ -1,7 +1,10 @@
 use clap::{Parser, Subcommand};
 use monica::config::Config;
 use monica::http::state::AppState;
-use tracing_subscriber::EnvFilter;
+use tracing::Level;
+use tracing_subscriber::filter::Targets;
+use tracing_subscriber::prelude::*;
+use tracing_subscriber::{EnvFilter, fmt};
 
 #[derive(Parser)]
 #[command(version, about = "Monica server")]
@@ -77,14 +80,16 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()))
+    tracing_subscriber::registry()
+        .with(fmt::layer().with_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())))
+        .with(monica::logging::layer().with_filter(Targets::new().with_target(monica::logging::TARGET, Level::DEBUG)))
         .init();
     match Cli::parse().command.unwrap_or(Command::Serve) {
         Command::Serve => {
             let config = Config::from_env()?;
             let db = monica::commands::wait_for_db(&config.database_url).await?;
             monica::db::migrate(&db).await?;
+            monica::logging::start(db.clone(), config.env.name().into());
             let bind = config.bind;
             let state = AppState::new(db, config)?;
             tokio::spawn(monica::scheduler::run_forever(state.clone()));

@@ -15,6 +15,17 @@ pub enum Environment {
     Testing,
 }
 
+impl Environment {
+    /// `APP_ENV`'s value.
+    pub fn name(self) -> &'static str {
+        match self {
+            Environment::Production => "production",
+            Environment::Local => "local",
+            Environment::Testing => "testing",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MailTransport {
     /// SMTP; `encryption` is `tls` (STARTTLS), `ssl` (implicit TLS) or none.
