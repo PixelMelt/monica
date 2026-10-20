@@ -156,6 +156,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createVaultLabel, updateVaultLabel, deleteVaultLabel } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 export default {
   components: {
@@ -199,6 +201,15 @@ export default {
   },
 
   methods: {
+    labelBody() {
+      return {
+        name: this.form.name,
+        description: this.form.description || null,
+        bg_color: this.form.bg_color,
+        text_color: this.form.text_color,
+      };
+    },
+
     showLabelModal() {
       this.form.name = '';
       this.createlabelModalShown = true;
@@ -218,11 +229,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.label_store, this.form)
-        .then((response) => {
+      createVaultLabel({ vault_id: this.$route.params.vault }, this.labelBody())
+        .then((label) => {
           this.flash(this.$t('The label has been created'), 'success');
-          this.localLabels.unshift(response.data.data);
+          this.localLabels.unshift(dto.label(label));
           this.loadingState = null;
           this.createlabelModalShown = false;
         })
@@ -235,11 +245,10 @@ export default {
     update(label) {
       this.loadingState = 'loading';
 
-      axios
-        .put(label.url.update, this.form)
-        .then((response) => {
+      updateVaultLabel({ vault_id: this.$route.params.vault, label_id: label.id }, this.labelBody())
+        .then((updated) => {
           this.flash(this.$t('The label has been updated'), 'success');
-          this.localLabels[this.localLabels.findIndex((x) => x.id === label.id)] = response.data.data;
+          this.localLabels[this.localLabels.findIndex((x) => x.id === label.id)] = dto.label(updated);
           this.loadingState = null;
           this.editLabelModalShownId = 0;
         })
@@ -251,8 +260,7 @@ export default {
 
     destroy(label) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(label.url.destroy)
+        deleteVaultLabel({ vault_id: this.$route.params.vault, label_id: label.id })
           .then(() => {
             this.flash(this.$t('The label has been deleted'), 'success');
             var id = this.localLabels.findIndex((x) => x.id === label.id);

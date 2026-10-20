@@ -82,6 +82,8 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
 import Help from '@/Shared/Help.vue';
 import { ChevronRight } from 'lucide-vue-next';
+import { createVault } from '@/api/client';
+import { route, visit } from '@/router';
 
 export default {
   components: {
@@ -125,11 +127,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createVault({}, { name: this.form.name, description: this.form.description || null })
+        .then(() => {
           localStorage.success = this.$t('The vault has been created');
-          this.$inertia.visit(response.data.data);
+          visit(route('vault.index'));
         })
         .catch(() => {
           this.loadingState = null;

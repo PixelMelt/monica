@@ -1,11 +1,14 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import { createVaultQuickFactTemplate, updateVaultQuickFactTemplate, deleteVaultQuickFactTemplate } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 const props = defineProps({
   data: Object,
@@ -16,11 +19,11 @@ const createEntryModalShown = ref(false);
 const editEntryId = ref(0);
 const localEntries = ref(props.data.quick_fact_templates);
 const newEntry = useTemplateRef('newEntry');
+const vaultId = useRoute().params.vault;
 
 const form = useForm({
   label: '',
   position: '',
-  errors: [],
 });
 
 const showAddEntryModal = () => {
@@ -41,10 +44,9 @@ const renameEntryModal = (entry) => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.quick_fact_templates_store, form)
-    .then((response) => {
-      localEntries.value.unshift(response.data.data);
+  createVaultQuickFactTemplate({ vault_id: vaultId }, { label: form.label })
+    .then((entry) => {
+      localEntries.value.unshift(dto.quickFactTemplateEntry(entry));
       loadingState.value = null;
       createEntryModalShown.value = false;
     })
@@ -57,10 +59,9 @@ const submit = () => {
 const update = (entry) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(entry.url.update, form)
-    .then((response) => {
-      localEntries.value[localEntries.value.findIndex((x) => x.id === entry.id)] = response.data.data;
+  updateVaultQuickFactTemplate({ vault_id: vaultId, quick_fact_template_id: entry.id }, { label: form.label })
+    .then((updated) => {
+      localEntries.value[localEntries.value.findIndex((x) => x.id === entry.id)] = dto.quickFactTemplateEntry(updated);
       loadingState.value = null;
       editEntryId.value = 0;
     })
@@ -71,8 +72,7 @@ const update = (entry) => {
 };
 
 const destroy = (entry) => {
-  axios
-    .delete(entry.url.destroy)
+  deleteVaultQuickFactTemplate({ vault_id: vaultId, quick_fact_template_id: entry.id })
     .then(() => {
       var id = localEntries.value.findIndex((x) => x.id === entry.id);
       localEntries.value.splice(id, 1);
@@ -87,7 +87,10 @@ const updatePosition = (event) => {
   // the event object comes from the draggable component
   form.position = event.moved.newIndex + 1;
 
-  axios.put(event.moved.element.url.position, form).catch((error) => {
+  updateVaultQuickFactTemplate(
+    { vault_id: vaultId, quick_fact_template_id: event.moved.element.id },
+    { position: form.position },
+  ).catch((error) => {
     loadingState.value = null;
     form.errors = error.response.data;
   });

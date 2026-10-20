@@ -125,6 +125,7 @@ import Layout from '@/Layouts/Layout.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import Pagination from '@/Components/Pagination.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { deleteVaultFile } from '@/api/client';
 
 export default {
   components: {
@@ -169,8 +170,7 @@ export default {
     destroy(file) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
         this.errors = [];
-        axios
-          .delete(file.url.destroy)
+        deleteVaultFile({ vault_id: this.$route.params.vault, file_id: file.id })
           .then(() => {
             this.flash(this.$t('The document has been deleted'), 'success');
             var id = this.localFiles.findIndex((x) => x.id === file.id);

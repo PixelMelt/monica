@@ -113,6 +113,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createVaultTag, updateVaultTag, deleteVaultTag } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 export default {
   components: {
@@ -168,11 +170,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.tag_store, this.form)
-        .then((response) => {
+      createVaultTag({ vault_id: this.$route.params.vault }, { name: this.form.name })
+        .then((tag) => {
           this.flash(this.$t('The tag has been created'), 'success');
-          this.localTags.unshift(response.data.data);
+          this.localTags.unshift(dto.tag(tag));
           this.loadingState = null;
           this.createTagModalShown = false;
         })
@@ -185,11 +186,10 @@ export default {
     update(tag) {
       this.loadingState = 'loading';
 
-      axios
-        .put(tag.url.update, this.form)
-        .then((response) => {
+      updateVaultTag({ vault_id: this.$route.params.vault, tag_id: tag.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The tag has been updated'), 'success');
-          this.localTags[this.localTags.findIndex((x) => x.id === tag.id)] = response.data.data;
+          this.localTags[this.localTags.findIndex((x) => x.id === tag.id)] = dto.tag(updated);
           this.loadingState = null;
           this.editTagModalShownId = 0;
         })
@@ -201,8 +201,7 @@ export default {
 
     destroy(tag) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(tag.url.destroy)
+        deleteVaultTag({ vault_id: this.$route.params.vault, tag_id: tag.id })
           .then(() => {
             this.flash(this.$t('The tag has been deleted'), 'success');
             var id = this.localTags.findIndex((x) => x.id === tag.id);

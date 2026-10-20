@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import { updateVault } from '@/api/client';
+
 export default {
   props: {
     data: {
@@ -94,8 +96,7 @@ export default {
     update(template) {
       this.form.template_id = template.id;
 
-      axios
-        .put(this.data.url.template_update, this.form)
+      updateVault({ vault_id: this.$route.params.vault }, { default_template_id: this.form.template_id })
         .then(() => {
           this.flash(this.$t('The vault has been updated'), 'success');
 

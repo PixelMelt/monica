@@ -7,6 +7,9 @@ import Contact from '@/Pages/Vault/Search/Partials/Contact.vue';
 import Note from '@/Pages/Vault/Search/Partials/Note.vue';
 import Group from '@/Pages/Vault/Search/Partials/Group.vue';
 import Loading from '@/Shared/Loading.vue';
+import { useRoute } from 'vue-router';
+import { searchVault } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 const props = defineProps({
   layoutData: Object,
@@ -19,6 +22,7 @@ const form = reactive({
   errors: [],
 });
 const results = ref([]);
+const vaultId = useRoute().params.vault;
 
 onMounted(() => {
   search();
@@ -28,10 +32,9 @@ const search = debounce(() => {
   if (form.searchTerm !== undefined && form.searchTerm.length >= 3) {
     processingSearch.value = true;
 
-    axios
-      .post(props.data.url.search, form)
-      .then((response) => {
-        results.value = response.data.data;
+    searchVault({ vault_id: vaultId, q: form.searchTerm })
+      .then((found) => {
+        results.value = dto.searchResults(found, form.searchTerm, vaultId);
         processingSearch.value = false;
       })
       .catch((error) => {

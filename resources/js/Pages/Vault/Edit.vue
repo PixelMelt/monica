@@ -90,6 +90,8 @@ import PrimaryButton from '@/Shared/Form/PrimaryButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
 import Help from '@/Shared/Help.vue';
+import { updateVault } from '@/api/client';
+import { route, visit } from '@/router';
 
 export default {
   components: {
@@ -133,11 +135,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .put(this.data.url.update, this.form)
-        .then((response) => {
+      updateVault({ vault_id: this.data.id }, { name: this.form.name, description: this.form.description || null })
+        .then(() => {
           localStorage.success = this.$t('The vault has been updated');
-          this.$inertia.visit(response.data.data);
+          visit(route('vault.show', { vault: this.data.id }));
         })
         .catch(() => {
           this.loadingState = null;

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import draggable from 'vuedraggable';
@@ -7,6 +8,15 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import {
+  createVaultLifeEventCategory,
+  updateVaultLifeEventCategory,
+  deleteVaultLifeEventCategory,
+  createVaultLifeEventType,
+  updateVaultLifeEventType,
+  deleteVaultLifeEventType,
+} from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 const props = defineProps({
   data: Object,
@@ -23,11 +33,11 @@ const newLifeEventCategory = useTemplateRef('newLifeEventCategory');
 const renameLifeEventCategory = useTemplateRef('renameLifeEventCategory');
 const newLifeEventType = useTemplateRef('newLifeEventType');
 const renameLifeEventType = useTemplateRef('renameLifeEventType');
+const vaultId = useRoute().params.vault;
 
 const form = useForm({
   label: '',
   position: '',
-  errors: [],
 });
 
 const showCreateLifeEventCategoryModal = () => {
@@ -79,10 +89,9 @@ const renameLifeEventTypeModal = (lifeEventType) => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.life_event_category_store, form)
-    .then((response) => {
-      localLifeEventCategories.value.push(response.data.data);
+  createVaultLifeEventCategory({ vault_id: vaultId }, { label: form.label })
+    .then((category) => {
+      localLifeEventCategories.value.push(dto.lifeEventCategory(category));
       loadingState.value = null;
       createLifeEventCategoryModalShown.value = false;
     })
@@ -95,11 +104,13 @@ const submit = () => {
 const update = (lifeEventCategory) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(lifeEventCategory.url.update, form)
-    .then((response) => {
+  updateVaultLifeEventCategory(
+    { vault_id: vaultId, life_event_category_id: lifeEventCategory.id },
+    { label: form.label },
+  )
+    .then((updated) => {
       localLifeEventCategories.value[localLifeEventCategories.value.findIndex((x) => x.id === lifeEventCategory.id)] =
-        response.data.data;
+        dto.lifeEventCategory(updated);
       loadingState.value = null;
       editLifeEventCategoryId.value = 0;
     })
@@ -111,8 +122,7 @@ const update = (lifeEventCategory) => {
 
 const destroy = (lifeEventCategory) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(lifeEventCategory.url.destroy)
+    deleteVaultLifeEventCategory({ vault_id: vaultId, life_event_category_id: lifeEventCategory.id })
       .then(() => {
         var id = localLifeEventCategories.value.findIndex((x) => x.id === lifeEventCategory.id);
         localLifeEventCategories.value.splice(id, 1);
@@ -128,8 +138,20 @@ const updatePosition = (event) => {
   // the event object comes from the draggable component
   form.position = event.moved.newIndex + 1;
 
-  axios
-    .post(event.moved.element.url.position, form)
+  // the element is a category or, in a category's list, a life event type
+  const element = event.moved.element;
+  const request =
+    element.life_event_category_id === undefined
+      ? updateVaultLifeEventCategory(
+          { vault_id: vaultId, life_event_category_id: element.id },
+          { position: form.position },
+        )
+      : updateVaultLifeEventType(
+          { vault_id: vaultId, life_event_category_id: element.life_event_category_id, life_event_type_id: element.id },
+          { position: form.position },
+        );
+
+  request
     .then(() => {})
     .catch((error) => {
       loadingState.value = null;
@@ -140,11 +162,10 @@ const updatePosition = (event) => {
 const submitLifeEventType = (lifeEventCategory) => {
   loadingState.value = 'loading';
 
-  axios
-    .post(lifeEventCategory.url.store, form)
-    .then((response) => {
+  createVaultLifeEventType({ vault_id: vaultId, life_event_category_id: lifeEventCategory.id }, { label: form.label })
+    .then((type) => {
       var id = localLifeEventCategories.value.findIndex((x) => x.id === lifeEventCategory.id);
-      localLifeEventCategories.value[id].life_event_types.push(response.data.data);
+      localLifeEventCategories.value[id].life_event_types.push(dto.lifeEventType(lifeEventCategory.id, type));
 
       loadingState.value = null;
       lifeEventCategoryId.value = 0;
@@ -159,14 +180,23 @@ const submitLifeEventType = (lifeEventCategory) => {
 const updateLifeEventType = (lifeEventType) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(lifeEventType.url.update, form)
-    .then((response) => {
+  updateVaultLifeEventType(
+    {
+      vault_id: vaultId,
+      life_event_category_id: lifeEventType.life_event_category_id,
+      life_event_type_id: lifeEventType.id,
+    },
+    { label: form.label },
+  )
+    .then((updated) => {
       var categoryId = localLifeEventCategories.value.findIndex((x) => x.id === lifeEventType.life_event_category_id);
       var typeId = localLifeEventCategories.value[categoryId].life_event_types.findIndex(
         (x) => x.id === lifeEventType.id,
       );
-      localLifeEventCategories.value[categoryId].life_event_types[typeId] = response.data.data;
+      localLifeEventCategories.value[categoryId].life_event_types[typeId] = dto.lifeEventType(
+        lifeEventType.life_event_category_id,
+        updated,
+      );
 
       loadingState.value = null;
       lifeEventCategoryId.value = 0;
@@ -180,8 +210,11 @@ const updateLifeEventType = (lifeEventType) => {
 
 const destroyLifeEventType = (lifeEventType) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(lifeEventType.url.destroy)
+    deleteVaultLifeEventType({
+      vault_id: vaultId,
+      life_event_category_id: lifeEventType.life_event_category_id,
+      life_event_type_id: lifeEventType.id,
+    })
       .then(() => {
         var lifeEventCategoryId = localLifeEventCategories.value.findIndex(
           (x) => x.id === lifeEventType.life_event_category_id,

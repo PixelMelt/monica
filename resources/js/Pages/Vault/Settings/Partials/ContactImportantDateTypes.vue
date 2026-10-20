@@ -116,6 +116,12 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import {
+  createVaultContactImportantDateType,
+  updateVaultContactImportantDateType,
+  deleteVaultContactImportantDateType,
+} from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 export default {
   components: {
@@ -175,11 +181,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.contact_date_important_date_type_store, this.form)
-        .then((response) => {
+      createVaultContactImportantDateType({ vault_id: this.$route.params.vault }, { label: this.form.label })
+        .then((type) => {
           this.flash(this.$t('The type has been created'), 'success');
-          this.localTypes.unshift(response.data.data);
+          this.localTypes.unshift(dto.importantDateType(type));
           this.loadingState = null;
           this.createTypeModalShown = false;
         })
@@ -192,11 +197,13 @@ export default {
     update(type) {
       this.loadingState = 'loading';
 
-      axios
-        .put(type.url.update, this.form)
-        .then((response) => {
+      updateVaultContactImportantDateType(
+        { vault_id: this.$route.params.vault, contact_important_date_type_id: type.id },
+        { label: this.form.label },
+      )
+        .then((updated) => {
           this.flash(this.$t('The type has been updated'), 'success');
-          this.localTypes[this.localTypes.findIndex((x) => x.id === type.id)] = response.data.data;
+          this.localTypes[this.localTypes.findIndex((x) => x.id === type.id)] = dto.importantDateType(updated);
           this.loadingState = null;
           this.editTypeModalShownId = 0;
         })
@@ -208,8 +215,10 @@ export default {
 
     destroy(type) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(type.url.destroy)
+        deleteVaultContactImportantDateType({
+          vault_id: this.$route.params.vault,
+          contact_important_date_type_id: type.id,
+        })
           .then(() => {
             this.flash(this.$t('The type has been deleted'), 'success');
             var id = this.localTypes.findIndex((x) => x.id === type.id);
