@@ -1,5 +1,6 @@
 //! `app/Domains/Contact`.
 
+pub mod dav;
 pub mod manage_avatar;
 pub mod manage_calls;
 pub mod manage_contact;
