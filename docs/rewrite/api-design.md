@@ -291,7 +291,7 @@ Replaces Uploadcare (I005, X020).
   - `PUT /vaults/{vault_id}/contacts/{contact_id}/avatar`
   - `POST /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/photos`
   - `PUT /vaults/{vault_id}/journals/{journal_id}/slices/{slice_id}/cover`
-- The server stores the bytes under `<DATA_DIR>/files/<account_id>/<uuid>`,
+- The server stores the bytes under `<DATA_DIR>/files/<vault_id>/<uuid>`,
   writes a `files` row (the existing columns: `uuid` is the storage key,
   `original_url`/`cdn_url` stay null, `name`, `mime_type`, `size`, `type`),
   and returns a `File` object `{id, uuid, name, mime_type, size, type,

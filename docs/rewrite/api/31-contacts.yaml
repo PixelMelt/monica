@@ -294,7 +294,8 @@ paths:
       description: |
         The uploaded avatar's 300×300 `thumbnail` variant when the contact has
         one, else the MultiAvatar SVG generated from `first_name + ' ' +
-        last_name`, or from the contact id when `first_name` is null (X021).
+        last_name`, or from a random name when `first_name` is null, as
+        `AvatarHelper` does (X021).
         The URL doesn't change with the avatar, so it is served with an
         `ETag` and `Cache-Control: private, no-cache`.
       x-permission: vault:view
@@ -942,9 +943,10 @@ components:
     FamilySummaryModule:
       type: object
       description: |
-        Partners (relationship types of type `love` in the account's `love`
-        group) and children (types of type `child` in the `family` group),
-        matched in either direction of the relationship.
+        Partners (relationship types whose stored type is `family`,
+        `RelationshipType::TYPE_LOVE`, in the account's `love` group) and
+        children (types of type `child` in the `family` group), matched in
+        either direction of the relationship.
       required: [love_relationships, family_relationships]
       properties:
         love_relationships:

@@ -33,9 +33,13 @@ Configuration is read from the environment (or `.env`):
 | `MAIL_MAILER` | `smtp` if `MAIL_HOST` is set, else `log` | `smtp`, `log` |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` | | `MAIL_ENCRYPTION`: `tls` (STARTTLS), `ssl` |
 | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | `hello@example.com`, `Monica` | |
+| `WIKIPEDIA_URL` | `https://{lang}.wikipedia.org/w/api.php` | summaries on the city/country reports; empty disables |
+| `APP_VERSION`, `APP_COMMIT` | from git at build time | shown in the footer |
 
 Other subcommands: `migrate`, `openapi` (prints the generated OpenAPI
-document), `key-generate`, `schema-dump --database-url …`.
+document), `key-generate`, `schema-dump --database-url …`, `test-reminders`
+(sends every scheduled reminder now; not in production), `dummy [--migrate]
+[--force]` (wipes the database and creates a demo account).
 
 ## Test
 
