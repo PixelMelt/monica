@@ -72,5 +72,10 @@ export default [
       globals: globals.node,
     },
   },
+  {
+    // The smoke test's callbacks run in the browser.
+    files: ['tests/smoke/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
   eslintConfigPrettier,
 ];

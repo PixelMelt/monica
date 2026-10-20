@@ -43,10 +43,11 @@ if [ "${SMOKE_SKIP_BUILD:-}" != 1 ]; then
 fi
 
 # The SMTP sink, in its own venv.
-if [ ! -x "$here/.venv/bin/python" ] || ! "$here/.venv/bin/python" -c 'import aiosmtpd' 2>/dev/null; then
+if [ ! -x "$here/.venv/bin/python" ] || ! "$here/.venv/bin/python" -c 'import aiosmtpd' 2>/dev/null \
+  || [ ! -x "$here/.venv/bin/vdirsyncer" ]; then
   echo "Creating the Python venv…"
   python3 -m venv "$here/.venv"
-  "$here/.venv/bin/pip" install --quiet --disable-pip-version-check aiosmtpd==1.4.6
+  "$here/.venv/bin/pip" install --quiet --disable-pip-version-check aiosmtpd==1.4.6 vdirsyncer==0.21.0
 fi
 "$here/.venv/bin/python" -I -W ignore "$here/sink.py" 127.0.0.1 "$smtp_port" "$smtp_user" "$smtp_password" "$out/mail" \
   >"$out/sink.log" 2>&1 &
@@ -80,4 +81,4 @@ curl -sf "http://127.0.0.1:$port/up" >/dev/null || { echo "The server did not st
 # The browser test. `monica test-reminders` runs against the same database
 # (it refuses to run in production, hence APP_ENV=local for it only).
 BASE="http://127.0.0.1:$port" OUT="$out" MAIL_DIR="$out/mail" MONICA_BIN="$bin" \
-  node "$here/smoke.mjs"
+  VDIRSYNCER="$here/.venv/bin/vdirsyncer" node "$here/smoke.mjs"

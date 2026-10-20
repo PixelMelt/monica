@@ -22,13 +22,17 @@ Steps:
    server's database, and wait for the reminder email at the sink.
 7. Visit every page of `resources/js/router/routes.js` a logged-in user
    reaches (following links, then the ids created above).
+8. CardDAV/CalDAV with a real client: create an API token with `write` on
+   the API tokens page, let `vdirsyncer` discover and pull the vault's
+   address book and its dates and tasks calendars, then push a new card, an
+   edit and a deletion, each checked in the UI.
 
 Every step fails on a console error, a page error, a failed request or an
 HTTP response ≥ 400 that the step doesn't expect; pages also fail when blank
 or an error page.
 
 The SMTP sink (`sink.py`, `aiosmtpd` in `tests/smoke/.venv`, created by
-`run.sh`) requires AUTH, so the server sends the verification email instead of
+`run.sh` with `vdirsyncer`) requires AUTH, so the server sends the verification email instead of
 marking the user verified (E005). Messages are written to `output/mail/`.
 
 Output, in `tests/smoke/output/` (ignored by git): `screenshots/` (one per
