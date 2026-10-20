@@ -536,7 +536,7 @@ impl ProcessScheduledContactReminders {
 
 /// `App\Notifications\ReminderTriggered` on the mail channel: `toMail`
 /// logs the notification, then the message goes to the channel's address.
-async fn reminder_triggered<C: ConnectionTrait>(
+pub async fn reminder_triggered<C: ConnectionTrait>(
     db: &C,
     mailer: &Mailer,
     channel: &user_notification_channels::Model,
@@ -677,7 +677,7 @@ fn to_utc(local: NaiveDateTime, tz: Tz) -> NaiveDateTime {
 
 /// Stand-in for `App\Helpers\NameHelper::formatContactName` until the
 /// helpers are ported; a `%variable%` is one of the contact's name columns.
-fn format_contact_name(user: &users::Model, contact: &contacts::Model) -> String {
+pub fn format_contact_name(user: &users::Model, contact: &contacts::Model) -> String {
     const PHP_TRIM: [char; 6] = [' ', '\t', '\n', '\r', '\0', '\x0B'];
     let mut variable_found = false;
     let mut variable_name = String::new();

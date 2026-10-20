@@ -9,7 +9,8 @@ use chrono::{Datelike, Duration, NaiveDate, NaiveDateTime, Timelike};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 
 use crate::db::timestamp::Timestamp;
-use crate::entities::{crons, logs, sessions};
+use crate::domains::contact::manage_reminders::ProcessScheduledContactReminders;
+use crate::entities::{crons, failed_jobs, job_batches, logs, sessions};
 use crate::error::ApiResult;
 use crate::http::state::AppState;
 
@@ -81,12 +82,28 @@ pub struct Task {
     pub run: for<'a> fn(&'a AppState) -> TaskFuture<'a>,
 }
 
-/// The schedule of `routes/console.php`, in its order.
+/// The schedule of `routes/console.php`, in its order (the command names
+/// are its `crons.command` values), then the storage sweep (E009).
 pub fn tasks() -> Vec<Task> {
     vec![
         Task { command: "model:prune", frequency: Frequency::Daily, run: |s| Box::pin(prune(s)) },
+        Task {
+            command: "queue:prune-batches --hours=48 --unfinished=72 --cancelled=72",
+            frequency: Frequency::Daily,
+            run: |s| Box::pin(prune_batches(s)),
+        },
+        Task {
+            command: "queue:prune-failed --hours=48",
+            frequency: Frequency::Daily,
+            run: |s| Box::pin(prune_failed(s)),
+        },
+        Task {
+            command: "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
+            frequency: Frequency::Minutes(1),
+            run: |s| Box::pin(process_reminders(s)),
+        },
+        Task { command: "App\\Logging\\CleanLogs", frequency: Frequency::Daily, run: |s| Box::pin(clean_logs(s)) },
         Task { command: "storage:sweep", frequency: Frequency::Daily, run: |s| Box::pin(sweep_storage(s)) },
-        Task { command: "logs:clean", frequency: Frequency::Daily, run: |s| Box::pin(clean_logs(s)) },
     ]
 }
 
@@ -119,6 +136,41 @@ pub async fn run_forever(state: AppState) {
 async fn prune(state: &AppState) -> anyhow::Result<()> {
     let cutoff = chrono::Utc::now().timestamp() - crate::http::session::REMEMBER_MINUTES * 60;
     sessions::Entity::delete_many().filter(sessions::Column::LastActivity.lt(cutoff as i32)).exec(&state.db).await?;
+    Ok(())
+}
+
+/// `queue:prune-batches --hours=48 --unfinished=72 --cancelled=72` (J006).
+async fn prune_batches(state: &AppState) -> anyhow::Result<()> {
+    let now = chrono::Utc::now().timestamp();
+    let hours = |h: i64| i32::try_from(now - h * 3600).unwrap_or(i32::MAX);
+    job_batches::Entity::delete_many()
+        .filter(job_batches::Column::FinishedAt.is_not_null())
+        .filter(job_batches::Column::FinishedAt.lt(hours(48)))
+        .exec(&state.db)
+        .await?;
+    job_batches::Entity::delete_many()
+        .filter(job_batches::Column::FinishedAt.is_null())
+        .filter(job_batches::Column::CreatedAt.lt(hours(72)))
+        .exec(&state.db)
+        .await?;
+    job_batches::Entity::delete_many()
+        .filter(job_batches::Column::CancelledAt.is_not_null())
+        .filter(job_batches::Column::CreatedAt.lt(hours(72)))
+        .exec(&state.db)
+        .await?;
+    Ok(())
+}
+
+/// `queue:prune-failed --hours=48` (J007).
+async fn prune_failed(state: &AppState) -> anyhow::Result<()> {
+    let cutoff = Timestamp(crate::db::now().0 - Duration::hours(48));
+    failed_jobs::Entity::delete_many().filter(failed_jobs::Column::FailedAt.lt(cutoff)).exec(&state.db).await?;
+    Ok(())
+}
+
+/// `ProcessScheduledContactReminders` (J001).
+async fn process_reminders(state: &AppState) -> anyhow::Result<()> {
+    ProcessScheduledContactReminders.execute(&state.db, &state.mailer, &state.config).await?;
     Ok(())
 }
 
@@ -158,6 +210,52 @@ mod tests {
             .unwrap()
             .last_run_at
             .map(|t| t.0)
+    }
+
+    #[test]
+    fn the_schedule_is_the_one_of_routes_console() {
+        let schedule: Vec<(&str, Frequency)> = tasks().iter().map(|t| (t.command, t.frequency)).collect();
+        assert_eq!(
+            schedule,
+            [
+                ("model:prune", Frequency::Daily),
+                ("queue:prune-batches --hours=48 --unfinished=72 --cancelled=72", Frequency::Daily),
+                ("queue:prune-failed --hours=48", Frequency::Daily),
+                (
+                    "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
+                    Frequency::Minutes(1)
+                ),
+                ("App\\Logging\\CleanLogs", Frequency::Daily),
+                ("storage:sweep", Frequency::Daily),
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn due_tasks_run_and_prune_old_failed_jobs() {
+        let db = TestDb::migrated().await;
+        let state = AppState::new(db.conn.clone(), crate::config::Config::for_tests("", std::env::temp_dir())).unwrap();
+        let old = Timestamp(crate::db::now().0 - Duration::hours(49));
+        for (uuid, failed_at) in [("old", old), ("new", crate::db::now())] {
+            failed_jobs::ActiveModel {
+                uuid: Set(uuid.into()),
+                connection: Set("database".into()),
+                queue: Set("default".into()),
+                payload: Set("{}".into()),
+                exception: Set("boom".into()),
+                failed_at: Set(failed_at),
+                ..Default::default()
+            }
+            .insert(&db.conn)
+            .await
+            .unwrap();
+        }
+        run_due(&state, crate::db::now().0).await.unwrap();
+        let left: Vec<String> =
+            failed_jobs::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|f| f.uuid).collect();
+        assert_eq!(left, ["new"]);
+        assert_eq!(crons::Entity::find().all(&db.conn).await.unwrap().len(), tasks().len());
+        db.drop().await;
     }
 
     #[tokio::test]
