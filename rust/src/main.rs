@@ -44,7 +44,9 @@ async fn main() -> anyhow::Result<()> {
             let db = monica::db::connect(&config.database_url).await?;
             monica::db::migrate(&db).await?;
             let bind = config.bind;
-            let app = monica::http::app(AppState::new(db, config)?);
+            let state = AppState::new(db, config)?;
+            tokio::spawn(monica::scheduler::run_forever(state.clone()));
+            let app = monica::http::app(state);
             let listener = tokio::net::TcpListener::bind(bind).await?;
             tracing::info!("listening on {bind}");
             axum::serve(listener, app.into_make_service_with_connect_info::<std::net::SocketAddr>()).await?;

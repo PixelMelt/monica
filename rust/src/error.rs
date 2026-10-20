@@ -223,3 +223,18 @@ impl Errors {
         if self.errors.is_empty() { Ok(()) } else { Err(self.into_error()) }
     }
 }
+
+impl std::fmt::Display for ApiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}: {}", self.code, self.title)?;
+        if let Some(d) = &self.detail {
+            write!(f, " ({d})")?;
+        }
+        for e in &self.errors {
+            write!(f, "; {}: {}", e.field, e.message)?;
+        }
+        Ok(())
+    }
+}
+
+impl std::error::Error for ApiError {}
