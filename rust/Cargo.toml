@@ -16,9 +16,12 @@ base64 = "0.23.1"
 chrono = { version = "0.4.45", features = ["serde"] }
 chrono-tz = "0.10.4"
 clap = { version = "4.6.7", features = ["derive"] }
+deunicode = "1.6"
 dotenvy = "0.15.7"
 hex = "0.4.3"
 hmac = "0.13.0"
+icu_collator = "2.1"
+icu_locale_core = "2.1"
 image = { version = "0.25.10", default-features = false, features = ["jpeg", "png", "gif", "webp"] }
 infer = "0.22.0"
 lettre = { version = "0.11.23", default-features = false, features = ["builder", "smtp-transport", "tokio1-rustls", "ring", "webpki-roots", "hostname", "pool"] }

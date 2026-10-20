@@ -15,6 +15,7 @@ pub mod multiavatar;
 pub mod password;
 pub mod scheduler;
 pub mod storage;
+pub mod text;
 #[doc(hidden)]
 pub mod testing;
 pub mod validate;
