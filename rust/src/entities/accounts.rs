@@ -8,7 +8,6 @@ use crate::db::timestamp::Timestamp;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
-    pub storage_limit_in_mb: i32,
     pub created_at: Option<Timestamp>,
     pub updated_at: Option<Timestamp>,
 }

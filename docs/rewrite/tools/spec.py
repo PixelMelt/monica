@@ -27,7 +27,7 @@ OUT = os.path.join(ROOT, "docs/rewrite/openapi.yaml")
 INVENTORY = os.path.join(ROOT, "docs/rewrite/inventory.md")
 
 METHODS = ("get", "put", "post", "delete", "patch", "head", "options")
-PERMISSIONS = {"public", "user", "account:member", "account:admin", "vault:view", "vault:edit", "vault:manage"}
+PERMISSIONS = {"public", "user", "account:member", "account:admin", "instance:admin", "vault:view", "vault:edit", "vault:manage"}
 COMPONENT_KINDS = ("schemas", "parameters", "responses", "requestBodies", "headers", "securitySchemes")
 
 errors = []

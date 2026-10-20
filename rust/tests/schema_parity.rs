@@ -22,6 +22,8 @@ fn fixture(e: Engine) -> Schema {
 
 /// `m20261020_000001_usernames`: `users.email` and its unique index become
 /// a nullable `username` of the same type, and `email_verified_at` goes.
+/// `m20261020_000002_leftovers`: the columns and tables of removed features
+/// go.
 fn with_usernames(mut schema: Schema) -> Schema {
     let users = schema.tables.get_mut("users").unwrap();
     let mut username = users.columns.remove("email").unwrap();
@@ -31,6 +33,18 @@ fn with_usernames(mut schema: Schema) -> Schema {
     let mut index = users.indexes.remove("users_email_unique").unwrap();
     index.columns = vec!["username".into()];
     users.indexes.insert("users_username_unique".into(), index);
+    for (table, columns) in [
+        ("accounts", &["storage_limit_in_mb"][..]),
+        ("users", &["invitation_code", "invitation_accepted_at", "help_shown"][..]),
+        ("user_notification_channels", &["verification_token"][..]),
+    ] {
+        for column in columns {
+            schema.tables.get_mut(table).unwrap().columns.remove(*column).unwrap();
+        }
+    }
+    for table in ["password_resets", "cache", "cache_locks", "jobs", "failed_jobs"] {
+        schema.tables.remove(table).unwrap();
+    }
     schema
 }
 

@@ -194,7 +194,7 @@ async fn it_creates_another_user() {
     assert_eq!(row.account_id, author.account_id);
     assert!(row.is_account_administrator);
     assert!(crate::password::verify("abcd", row.password.as_deref().unwrap()));
-    assert!(row.invitation_code.is_none());
+    assert!(!row.is_instance_administrator);
     db.drop().await;
 }
 

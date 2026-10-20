@@ -14,8 +14,8 @@ use monica::domains::base::VaultPermission;
 use monica::domains::contact::manage_groups::CreateGroup;
 use monica::domains::settings::create_account::CreateAccount;
 use monica::entities::{
-    accounts, call_reason_types, call_reasons, contact_feed_items, contact_tasks, contacts, emotions, files,
-    group_type_roles, group_types, life_event_categories, life_event_types, mood_tracking_parameters, pet_categories,
+    call_reason_types, call_reasons, contact_feed_items, contact_tasks, contacts, emotions, files, group_type_roles,
+    group_types, life_event_categories, life_event_types, mood_tracking_parameters, pet_categories,
     relationship_group_types, relationship_types, timeline_events, users, vaults,
 };
 use monica::testing::factory;
@@ -40,6 +40,7 @@ async fn setup() -> Setup {
         last_name: "Smith".into(),
         username: uuid::Uuid::new_v4().simple().to_string(),
         password: Some(factory::PASSWORD.into()),
+        is_instance_administrator: false,
     }
     .execute(&app.state.db)
     .await
@@ -378,11 +379,7 @@ async fn uploads_lists_and_deletes_documents() {
     assert!(s.app.state.storage.get(s.vault.id, &row.uuid).await.is_err(), "the bytes are deleted");
     assert_eq!(len(&s.app.get(&base).await.json()["data"]), 0);
 
-    // No storage limit: an account over its old `storage_limit_in_mb` still uploads.
-    let mut account: accounts::ActiveModel =
-        accounts::Entity::find_by_id(s.user.account_id).one(&db).await.unwrap().unwrap().into();
-    account.storage_limit_in_mb = Set(1);
-    account.update(&db).await.unwrap();
+    // No storage limit: an account with large files still uploads.
     files::ActiveModel {
         vault_id: Set(s.vault.id),
         uuid: Set(uuid::Uuid::new_v4().to_string()),

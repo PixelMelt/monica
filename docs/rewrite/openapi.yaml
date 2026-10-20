@@ -31,6 +31,7 @@ tags:
 - name: Journals
 - name: Files
 - name: Reference
+- name: Admin
 x-not-api:
 - id: R001
   reason: 'SPA route `/`: the SPA redirects to login, the only vault, or the vault list using GET /me/bootstrap'
@@ -2622,6 +2623,103 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/ValidationFailed'
+  /admin/accounts:
+    get:
+      operationId: listAdminAccounts
+      tags:
+      - Admin
+      summary: The accounts of this install
+      description: Oldest first, each with its users and how much it holds.
+      x-permission: instance:admin
+      x-inventory:
+      - X010
+      x-services: []
+      responses:
+        '200':
+          description: The accounts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountList'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      operationId: createAdminAccount
+      tags:
+      - Admin
+      summary: Create an account and its first user
+      description: 'The account is set up as at the first run (J014). Its first user
+
+        administers it; they are not an instance administrator.
+
+        '
+      x-permission: instance:admin
+      x-inventory:
+      - X010
+      x-services:
+      - CreateAccount
+      - SetupAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountCreate'
+      responses:
+        '201':
+          description: The new account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccount'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+  /admin/accounts/{account_id}:
+    parameters:
+    - name: account_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    delete:
+      operationId: deleteAdminAccount
+      tags:
+      - Admin
+      summary: Delete an account with its users, vaults and files
+      description: 'Sensitive action (api-design.md §7.4). 409 for the caller''s own
+
+        account.
+
+        '
+      x-permission: instance:admin
+      x-inventory:
+      - X010
+      x-services: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordConfirmation'
+      responses:
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
   /auth/confirm-password:
     post:
       operationId: confirmPassword
@@ -3248,9 +3346,9 @@ paths:
       tags:
       - Me
       summary: Change one or more preferences
-      description: 'One field per former form (R213–R220) plus the contacts list sort
+      description: 'One field per former form (R213–R219) plus the contacts list sort
 
-        (R038). `help_shown` is set, not flipped.
+        (R038).
 
         '
       x-permission: user
@@ -3263,7 +3361,6 @@ paths:
       - R217
       - R218
       - R219
-      - R220
       x-services:
       - StoreNameOrderPreference
       - StoreDateFormatPreference
@@ -3272,7 +3369,6 @@ paths:
       - StoreDistanceFormatPreference
       - StoreMapsPreference
       - StoreLocale
-      - StoreHelpPreference
       - UpdateContactSortOrder
       requestBody:
         required: true
@@ -10872,7 +10968,6 @@ components:
       - distance_format
       - default_map_site
       - locale
-      - help_shown
       properties:
         name_order:
           type: string
@@ -10931,9 +11026,6 @@ components:
           - open_street_maps
         locale:
           $ref: '#/components/schemas/LocaleCode'
-        help_shown:
-          type: boolean
-          description: Show help links next to features.
     UserPreferencesUpdate:
       type: object
       minProperties: 1
@@ -10980,8 +11072,6 @@ components:
           - open_street_maps
         locale:
           $ref: '#/components/schemas/LocaleCode'
-        help_shown:
-          type: boolean
     Bootstrap:
       type: object
       required:
@@ -18032,3 +18122,95 @@ components:
           type: string
           minLength: 1
           maxLength: 255
+    AdminAccountUser:
+      type: object
+      required:
+      - id
+      - username
+      - first_name
+      - last_name
+      - is_account_administrator
+      - is_instance_administrator
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        username:
+          $ref: '#/components/schemas/Username'
+        first_name:
+          type:
+          - string
+          - 'null'
+        last_name:
+          type:
+          - string
+          - 'null'
+        is_account_administrator:
+          type: boolean
+        is_instance_administrator:
+          type: boolean
+    AdminAccount:
+      type: object
+      required:
+      - id
+      - users
+      - vault_count
+      - contact_count
+      - file_size
+      - created_at
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        users:
+          type: array
+          description: By creation date.
+          items:
+            $ref: '#/components/schemas/AdminAccountUser'
+        vault_count:
+          type: integer
+          minimum: 0
+        contact_count:
+          type: integer
+          minimum: 0
+          description: Contacts that aren't deleted
+          in all the account's vaults.: null
+        file_size:
+          type: integer
+          minimum: 0
+          description: Bytes of the files of the account's vaults.
+        created_at:
+          oneOf:
+          - $ref: '#/components/schemas/Timestamp'
+          - type: 'null'
+    AdminAccountList:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminAccount'
+    AdminAccountCreate:
+      type: object
+      required:
+      - first_name
+      - last_name
+      - username
+      - password
+      - password_confirmation
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        username:
+          $ref: '#/components/schemas/Username'
+        password:
+          $ref: '#/components/schemas/NewPassword'
+        password_confirmation:
+          type: string
+          description: Must equal `password`.

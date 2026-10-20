@@ -2,6 +2,7 @@
 
 pub mod account;
 pub mod address_books;
+pub mod admin;
 pub mod auth;
 pub mod base;
 pub mod contact_modules_a;
@@ -44,7 +45,8 @@ use crate::http::state::AppState;
     modifiers(&Security),
     tags(
         (name = "Auth"), (name = "Me"), (name = "Account"), (name = "Vaults"), (name = "Contacts"),
-        (name = "Contact modules"), (name = "Groups"), (name = "Journals"), (name = "Files"), (name = "Reference")
+        (name = "Contact modules"), (name = "Groups"), (name = "Journals"), (name = "Files"), (name = "Reference"),
+        (name = "Admin")
     )
 )]
 struct ApiDoc;
@@ -109,6 +111,8 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(account::get_account))
         .routes(routes!(account::list_account_users, account::create_account_user))
         .routes(routes!(account::get_account_user, account::update_account_user, account::delete_account_user))
+        .routes(routes!(admin::list_admin_accounts, admin::create_admin_account))
+        .routes(routes!(admin::delete_admin_account))
         .routes(routes!(vaults::list_vaults, vaults::create_vault))
         .routes(routes!(vaults::get_vault, vaults::update_vault, vaults::delete_vault))
         .routes(routes!(vaults::list_vault_members, vaults::add_vault_member))

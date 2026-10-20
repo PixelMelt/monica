@@ -25,7 +25,8 @@ fn name() -> String {
 
 /// `Account::factory()`.
 pub async fn account<C: ConnectionTrait>(db: &C) -> accounts::Model {
-    accounts::ActiveModel { id: Set(Uuid::new()), storage_limit_in_mb: Set(10), ..Default::default() }
+    let now = crate::db::now();
+    accounts::ActiveModel { id: Set(Uuid::new()), created_at: Set(Some(now)), updated_at: Set(Some(now)) }
         .insert(db)
         .await
         .expect("account")
@@ -49,7 +50,6 @@ pub async fn user<C: ConnectionTrait>(db: &C, account: Option<Uuid>) -> users::M
         name_order: Set("%first_name% %last_name%".into()),
         date_format: Set("MMM DD, YYYY".into()),
         default_map_site: Set("google_maps".into()),
-        help_shown: Set(true),
         timezone: Set(Some("UTC".into())),
         number_format: Set("locale".into()),
         distance_format: Set("mi".into()),

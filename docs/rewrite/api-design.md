@@ -214,6 +214,7 @@ extra code. Requests from other origins are not given CORS headers.
 | Forgotten password      | none over HTTP (no email): `monica reset-password <username>` on the server prints a new one                                                               |
 | Confirm password (§7.4) | `POST /auth/confirm-password`; `GET /auth/confirmed-password-status`                                                                                       |
 | Add a user              | an administrator calls `POST /account/users` with a username and a first password                                                                          |
+| Add an account          | an instance administrator calls `POST /admin/accounts` (the admin dashboard) with the first user's names, username and password                            |
 | Instance info (public)  | `GET /instance`: setup required, locales, version                                                                                                          |
 
 Bearer tokens are created from a logged-in session (`POST /me/tokens`); there
@@ -266,6 +267,7 @@ Each operation in the spec has an `x-permission`:
 | `user`           | any authenticated user                            |
 | `account:member` | any user of the account that owns the resource    |
 | `account:admin`  | `is_account_administrator` (gate `administrator`) |
+| `instance:admin` | `is_instance_administrator`: manages the accounts |
 | `vault:view`     | vault permission ≤ 300 (any member)               |
 | `vault:edit`     | vault permission ≤ 200                            |
 | `vault:manage`   | vault permission ≤ 100                            |

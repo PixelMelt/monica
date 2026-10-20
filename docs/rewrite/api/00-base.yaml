@@ -26,6 +26,7 @@ tags:
   - name: Journals
   - name: Files
   - name: Reference
+  - name: Admin
 
 # Inventory rows that are ported but have no /api/v1 operation, with the reason.
 x-not-api:

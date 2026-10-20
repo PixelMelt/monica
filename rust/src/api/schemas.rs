@@ -22,7 +22,6 @@ pub struct UserPreferences {
     /// `google_maps` or `open_street_maps`.
     pub default_map_site: String,
     pub locale: String,
-    pub help_shown: bool,
 }
 
 /// The logged-in user.
@@ -66,7 +65,6 @@ impl From<users::Model> for CurrentUser {
                 distance_format: u.distance_format,
                 default_map_site: u.default_map_site,
                 locale: u.locale,
-                help_shown: u.help_shown,
             },
             created_at: u.created_at.unwrap_or_else(crate::db::now),
             updated_at: u.updated_at.unwrap_or_else(crate::db::now),

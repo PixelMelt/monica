@@ -13,8 +13,10 @@ cargo run              # = cargo run -- serve; migrates, then listens on BIND (0
 
 This is a single-user install. The first visit opens the setup page, which
 creates the account and its administrator (username and password); sign-up
-is closed after that, and the administrator adds any other users. There is
-no email: reminders go to Pushover (Settings → Notifications: your Pushover
+is closed after that, and the administrator adds any other users. That first
+user is also the instance administrator: Settings → Instance administration
+lists the accounts of the install, creates one (with its first user) or
+deletes one. There is no email: reminders go to Pushover (Settings → Notifications: your Pushover
 user key and the token of a Pushover application you create at
 pushover.net), and a forgotten password is reset on the server with
 `monica reset-password <username>`, which prints a new one
@@ -71,19 +73,17 @@ Lint: `cargo clippy --all-targets -- -D warnings` and `cargo fmt --check`.
 
 ## Schema
 
-`src/db/migrations` builds the schema of `database/migrations` (see the
-module docs). `tests/schema_parity.rs` compares it with
-`tests/fixtures/schema/*.json`, which are `monica schema-dump` of databases
-migrated by Laravel itself. To regenerate them, run `php artisan migrate`
-(e.g. in a `serversideup/php:8.4-cli` container with the repo mounted,
-`SCOUT_DRIVER=database`) against each engine, dump them, and drop the tables
-of removed features (`migrations`, `pulse_*`, `telescope_*`,
-`webauthn_keys`, `user_tokens`).
+`src/db/migrations` first builds the schema the Laravel app's migrations
+built, then changes it (see the module docs). `tests/schema_parity.rs`
+compares the result with `tests/fixtures/schema/*.json`, `monica
+schema-dump` of databases migrated by Laravel (before the PHP app left the
+repository), plus the changes of the later migrations.
 
 Entities in `src/entities` were generated with `sea-orm-cli generate entity`
 from such a database and adapted (see `src/entities/mod.rs`).
 
 ## Translations
 
-`src/i18n.rs` embeds `lang/<locale>.json` and `locales/<locale>.json`; the
-latter are generated from Laravel's PHP arrays with `php locales/generate.php`.
+`src/i18n.rs` embeds `lang/<locale>.json` (the app strings) and
+`lang/<locale>/{auth,validation}.json` (Laravel's arrays); the SPA uses the
+app strings and `lang/<locale>/{format,pagination}.json`.

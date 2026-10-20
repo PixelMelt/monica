@@ -306,6 +306,7 @@ pub async fn register_user(
         last_name: last_name.unwrap(),
         username,
         password: body.password,
+        is_instance_administrator: true,
     }
     .execute(&tx)
     .await?;
