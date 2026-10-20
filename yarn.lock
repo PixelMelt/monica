@@ -3006,12 +3006,12 @@ __metadata:
   linkType: hard
 
 "laravel-vue-i18n@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "laravel-vue-i18n@npm:2.8.0"
+  version: 2.9.0
+  resolution: "laravel-vue-i18n@npm:2.9.0"
   dependencies:
-    php-parser: "npm:3.2.2"
+    php-parser: "npm:3.7.0"
     vue: "npm:^3.5.13"
-  checksum: 10c0/0755ac3f2721a29bfdc9ad494eb71c02c327c51624f59ae1c7ecb29071d521975f2591f4db2bafb7f8decd33507cda769e3f941023392e1fe244592307ac6c9c
+  checksum: 10c0/bb8f1c555999d9d2b53a3cd65018b41d703ca5b530893526cf0c4b0f5785b6adc3cf4bfaed43e8ede76339909211a4623d8fe3683f417a65068e5fff7e974450
   languageName: node
   linkType: hard
 
@@ -3704,10 +3704,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"php-parser@npm:3.2.2":
-  version: 3.2.2
-  resolution: "php-parser@npm:3.2.2"
-  checksum: 10c0/56b420f0780fe2fc482a5f8080d98359eeaf31d1468680acfaae5375e631883b4d5574ffe7f1a4d585cae7a08eb1764277c456326320481f1055a3280e51d991
+"php-parser@npm:3.7.0":
+  version: 3.7.0
+  resolution: "php-parser@npm:3.7.0"
+  checksum: 10c0/eecfb4da0fe900f5a1abb4370f64404345ae6a98a026e1eac8d4f11e7a3b56ef45fde031a98793aaa5a54cead27a6b93c00e447f0dfc71f58bdcbe5382c3dae7
   languageName: node
   linkType: hard
 
