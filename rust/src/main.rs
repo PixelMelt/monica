@@ -32,6 +32,41 @@ enum Command {
         #[arg(long)]
         force: bool,
     },
+    /// Add a CardDAV address book subscription to a vault
+    /// (`monica:newaddressbooksubscription`).
+    NewAddressBookSubscription {
+        /// Monica account to add subscription to.
+        #[arg(long)]
+        email: Option<String>,
+        /// Id of the vault to add subscription to.
+        #[arg(long = "vaultId")]
+        vault_id: Option<String>,
+        /// CardDAV url of the address book.
+        #[arg(long)]
+        url: Option<String>,
+        /// Login.
+        #[arg(long)]
+        login: Option<String>,
+        /// Password of the account.
+        #[arg(long)]
+        password: Option<String>,
+        /// Set only push way.
+        #[arg(long)]
+        pushonly: bool,
+        /// Set only get way.
+        #[arg(long)]
+        getonly: bool,
+    },
+    /// Synchronize one address book subscription now
+    /// (`monica:updateaddressbooksubscription`).
+    UpdateAddressBookSubscription {
+        /// The subscription's id.
+        #[arg(long = "subscriptionId")]
+        subscription_id: String,
+        /// Force a full sync.
+        #[arg(long)]
+        force: bool,
+    },
     /// Print the schema of a database as JSON.
     SchemaDump {
         /// Database URL.
@@ -86,6 +121,29 @@ async fn main() -> anyhow::Result<()> {
                 return Ok(());
             }
             monica::dummy::setup_dummy_account(&db, &config, &mailer, !migrate, true).await?;
+        }
+        Command::NewAddressBookSubscription { email, vault_id, url, login, password, pushonly, getonly } => {
+            let config = Config::from_env()?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
+            let state = AppState::new(db, config)?;
+            let options = monica::domains::contact::dav_client::NewAddressBookSubscriptionOptions {
+                email,
+                vault_id,
+                url,
+                login,
+                password,
+                pushonly,
+                getonly,
+            };
+            let code = monica::domains::contact::dav_client::new_address_book_subscription(&state, options).await;
+            std::process::exit(code);
+        }
+        Command::UpdateAddressBookSubscription { subscription_id, force } => {
+            let config = Config::from_env()?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
+            let state = AppState::new(db, config)?;
+            monica::domains::contact::dav_client::update_address_book_subscription(&state, &subscription_id, force)
+                .await?;
         }
         Command::Openapi => println!("{}", monica::api::openapi().to_pretty_json()?),
         Command::KeyGenerate => println!("{}", monica::config::generate_key()),
