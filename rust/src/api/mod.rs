@@ -2,6 +2,8 @@
 
 pub mod auth;
 pub mod instance;
+pub mod me;
+pub mod schemas;
 
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
@@ -57,6 +59,26 @@ pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(instance::get_instance))
         .routes(routes!(auth::get_csrf_cookie))
+        .routes(routes!(auth::log_in))
+        .routes(routes!(auth::complete_two_factor_challenge))
+        .routes(routes!(auth::log_out))
+        .routes(routes!(auth::verify_email))
+        .routes(routes!(auth::send_email_verification))
+        .routes(routes!(auth::request_password_reset))
+        .routes(routes!(auth::reset_password))
+        .routes(routes!(auth::confirm_password))
+        .routes(routes!(auth::get_password_confirmation_status))
+        .routes(routes!(me::get_me, me::update_me))
+        .routes(routes!(me::update_my_password))
+        .routes(routes!(me::get_bootstrap))
+        .routes(routes!(me::get_my_preferences))
+        .routes(routes!(me::list_my_sessions))
+        .routes(routes!(me::log_out_other_sessions))
+        .routes(routes!(me::list_my_tokens, me::create_my_token))
+        .routes(routes!(me::update_my_token, me::delete_my_token))
+        .routes(routes!(me::enable_two_factor, me::disable_two_factor))
+        .routes(routes!(me::confirm_two_factor))
+        .routes(routes!(me::get_two_factor_recovery_codes, me::regenerate_two_factor_recovery_codes))
 }
 
 /// The OpenAPI document of the API.

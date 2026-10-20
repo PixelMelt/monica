@@ -68,6 +68,11 @@ impl Validator {
         self.errors.add_with(field, code, msg, p);
     }
 
+    /// Records a failure with its own message (Laravel's `$validator->errors()->add`).
+    pub fn add(&mut self, field: &str, code: &str, message: String) {
+        self.errors.add(field, code, message);
+    }
+
     pub fn has(&self, field: &str) -> bool {
         self.errors.has(field)
     }

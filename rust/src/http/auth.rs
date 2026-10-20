@@ -88,3 +88,16 @@ impl FromRequestParts<AppState> for Session {
         parts.extensions.get::<Session>().cloned().ok_or_else(|| ApiError::internal("session layer missing"))
     }
 }
+
+/// Sensitive actions (api-design.md §7.4): a cookie session that confirmed
+/// the password in the last 3 hours, or the current `password` in the body.
+pub fn require_password_confirmation(id: &Identity, session: &Session, password: Option<&str>) -> Result<(), ApiError> {
+    if id.credential == Credential::Session && session.password_recently_confirmed() {
+        return Ok(());
+    }
+    match (password, id.user.password.as_deref()) {
+        (_, None) => Ok(()),
+        (Some(p), Some(hash)) if crate::password::verify(p, hash) => Ok(()),
+        _ => Err(ApiError::new(Code::PasswordConfirmationRequired)),
+    }
+}
