@@ -162,6 +162,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createPronoun, updatePronoun, deletePronoun } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -225,11 +227,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.pronoun_store, this.form)
-        .then((response) => {
+      createPronoun({}, { name: this.form.name })
+        .then((pronoun) => {
           this.flash(this.$t('The pronoun has been created'), 'success');
-          this.localPronouns.unshift(response.data.data);
+          this.localPronouns.unshift(dto.pronoun(pronoun));
           this.loadingState = null;
           this.createPronounModalShown = false;
         })
@@ -242,11 +243,10 @@ export default {
     update(pronoun) {
       this.loadingState = 'loading';
 
-      axios
-        .put(pronoun.url.update, this.form)
-        .then((response) => {
+      updatePronoun({ pronoun_id: pronoun.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The pronoun has been updated'), 'success');
-          this.localPronouns[this.localPronouns.findIndex((x) => x.id === pronoun.id)] = response.data.data;
+          this.localPronouns[this.localPronouns.findIndex((x) => x.id === pronoun.id)] = dto.pronoun(updated);
           this.loadingState = null;
           this.renamePronounModalShownId = 0;
         })
@@ -258,8 +258,7 @@ export default {
 
     destroy(pronoun) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(pronoun.url.destroy)
+        deletePronoun({ pronoun_id: pronoun.id })
           .then(() => {
             this.flash(this.$t('The pronoun has been deleted'), 'success');
             var id = this.localPronouns.findIndex((x) => x.id === pronoun.id);

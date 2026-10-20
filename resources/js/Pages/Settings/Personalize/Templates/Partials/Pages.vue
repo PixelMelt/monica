@@ -153,6 +153,8 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import { createTemplatePage, updateTemplatePage, deleteTemplatePage } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -226,11 +228,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.template_page_store, this.form)
-        .then((response) => {
+      createTemplatePage({ template_id: this.data.template.id }, { name: this.form.name })
+        .then((page) => {
           this.flash(this.$t('The page has been added'), 'success');
-          this.localPages.push(response.data.data);
+          this.localPages.push(dto.templatePage(page));
           this.loadingState = null;
           this.createPageModalShown = false;
         })
@@ -243,11 +244,10 @@ export default {
     update(page) {
       this.loadingState = 'loading';
 
-      axios
-        .put(page.url.update, this.form)
-        .then((response) => {
+      updateTemplatePage({ template_id: this.data.template.id, template_page_id: page.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The page has been updated'), 'success');
-          this.localPages[this.localPages.findIndex((x) => x.id === page.id)] = response.data.data;
+          this.localPages[this.localPages.findIndex((x) => x.id === page.id)] = dto.templatePage(updated);
           this.loadingState = null;
           this.renamePageModalShownId = 0;
         })
@@ -259,8 +259,7 @@ export default {
 
     destroy(page) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(page.url.destroy)
+        deleteTemplatePage({ template_id: this.data.template.id, template_page_id: page.id })
           .then(() => {
             this.flash(this.$t('The page has been deleted'), 'success');
             var id = this.localPages.findIndex((x) => x.id === page.id);
@@ -278,8 +277,10 @@ export default {
       // no idea why we need to +2 but otherwise it doesn't work
       this.form.position = event.moved.newIndex + 2;
 
-      axios
-        .post(event.moved.element.url.order, this.form)
+      updateTemplatePage(
+        { template_id: this.data.template.id, template_page_id: event.moved.element.id },
+        { position: this.form.position },
+      )
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })

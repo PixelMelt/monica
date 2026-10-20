@@ -183,6 +183,8 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import { createGiftState, updateGiftState, deleteGiftState } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -247,11 +249,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createGiftState({}, { label: this.form.label })
+        .then((giftState) => {
           this.flash(this.$t('The gift state has been created'), 'success');
-          this.localGiftStates.push(response.data.data);
+          this.localGiftStates.push(dto.giftState(giftState));
           this.loadingState = null;
           this.createGiftStateModalShown = false;
         })
@@ -264,11 +265,10 @@ export default {
     update(giftState) {
       this.loadingState = 'loading';
 
-      axios
-        .put(giftState.url.update, this.form)
-        .then((response) => {
+      updateGiftState({ gift_state_id: giftState.id }, { label: this.form.label })
+        .then((updated) => {
           this.flash(this.$t('The gift state has been updated'), 'success');
-          this.localGiftStates[this.localGiftStates.findIndex((x) => x.id === giftState.id)] = response.data.data;
+          this.localGiftStates[this.localGiftStates.findIndex((x) => x.id === giftState.id)] = dto.giftState(updated);
           this.loadingState = null;
           this.editGiftStateId = 0;
         })
@@ -280,8 +280,7 @@ export default {
 
     destroy(giftState) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(giftState.url.destroy)
+        deleteGiftState({ gift_state_id: giftState.id })
           .then(() => {
             this.flash(this.$t('The gift state has been deleted'), 'success');
             var id = this.localGiftStates.findIndex((x) => x.id === giftState.id);
@@ -298,8 +297,7 @@ export default {
       // the event object comes from the draggable component
       this.form.position = event.moved.newIndex + 1;
 
-      axios
-        .post(event.moved.element.url.position, this.form)
+      updateGiftState({ gift_state_id: event.moved.element.id }, { position: this.form.position })
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })

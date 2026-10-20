@@ -182,6 +182,8 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import { createReligion, updateReligion, deleteReligion } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -244,11 +246,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createReligion({}, { name: this.form.name })
+        .then((religion) => {
           this.flash(this.$t('The religion has been created'), 'success');
-          this.localReligions.unshift(response.data.data);
+          this.localReligions.unshift(dto.religion(religion));
           this.loadingState = null;
           this.createReligionModalShown = false;
         })
@@ -261,11 +262,10 @@ export default {
     update(religion) {
       this.loadingState = 'loading';
 
-      axios
-        .put(religion.url.update, this.form)
-        .then((response) => {
+      updateReligion({ religion_id: religion.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The religion has been updated'), 'success');
-          this.localReligions[this.localReligions.findIndex((x) => x.id === religion.id)] = response.data.data;
+          this.localReligions[this.localReligions.findIndex((x) => x.id === religion.id)] = dto.religion(updated);
           this.loadingState = null;
           this.editReligionId = 0;
         })
@@ -277,8 +277,7 @@ export default {
 
     destroy(religion) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(religion.url.destroy)
+        deleteReligion({ religion_id: religion.id })
           .then(() => {
             this.flash(this.$t('The religion has been deleted'), 'success');
             var id = this.localReligions.findIndex((x) => x.id === religion.id);
@@ -295,8 +294,7 @@ export default {
       // the event object comes from the draggable component
       this.form.position = event.moved.newIndex + 1;
 
-      axios
-        .post(event.moved.element.url.position, this.form)
+      updateReligion({ religion_id: event.moved.element.id }, { position: this.form.position })
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })

@@ -182,6 +182,8 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import { createGiftOccasion, updateGiftOccasion, deleteGiftOccasion } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -244,11 +246,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createGiftOccasion({}, { label: this.form.label })
+        .then((giftOccasion) => {
           this.flash(this.$t('The gift occasion has been created'), 'success');
-          this.localGiftOccasions.unshift(response.data.data);
+          this.localGiftOccasions.unshift(dto.giftOccasion(giftOccasion));
           this.loadingState = null;
           this.createGiftOccasionModalShown = false;
         })
@@ -261,12 +262,11 @@ export default {
     update(giftOccasion) {
       this.loadingState = 'loading';
 
-      axios
-        .put(giftOccasion.url.update, this.form)
-        .then((response) => {
+      updateGiftOccasion({ gift_occasion_id: giftOccasion.id }, { label: this.form.label })
+        .then((updated) => {
           this.flash(this.$t('The gift occasion has been updated'), 'success');
           this.localGiftOccasions[this.localGiftOccasions.findIndex((x) => x.id === giftOccasion.id)] =
-            response.data.data;
+            dto.giftOccasion(updated);
           this.loadingState = null;
           this.editGiftOccasionId = 0;
         })
@@ -278,8 +278,7 @@ export default {
 
     destroy(giftOccasion) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(giftOccasion.url.destroy)
+        deleteGiftOccasion({ gift_occasion_id: giftOccasion.id })
           .then(() => {
             this.flash(this.$t('The gift occasion has been deleted'), 'success');
             var id = this.localGiftOccasions.findIndex((x) => x.id === giftOccasion.id);
@@ -296,8 +295,7 @@ export default {
       // the event object comes from the draggable component
       this.form.position = event.moved.newIndex + 1;
 
-      axios
-        .post(event.moved.element.url.position, this.form)
+      updateGiftOccasion({ gift_occasion_id: event.moved.element.id }, { position: this.form.position })
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })

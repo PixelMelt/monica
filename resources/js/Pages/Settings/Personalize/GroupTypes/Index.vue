@@ -363,6 +363,15 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import draggable from 'vuedraggable';
+import {
+  createGroupType,
+  updateGroupType,
+  deleteGroupType,
+  createGroupTypeRole,
+  updateGroupTypeRole,
+  deleteGroupTypeRole,
+} from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -461,11 +470,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createGroupType({}, { label: this.form.label })
+        .then((groupType) => {
           this.flash(this.$t('The group type has been created'), 'success');
-          this.localGroupTypes.push(response.data.data);
+          this.localGroupTypes.push(dto.groupType(groupType));
           this.loadingState = null;
           this.createGroupTypeModalShown = false;
         })
@@ -478,11 +486,10 @@ export default {
     update(groupType) {
       this.loadingState = 'loading';
 
-      axios
-        .put(groupType.url.update, this.form)
-        .then((response) => {
+      updateGroupType({ group_type_id: groupType.id }, { label: this.form.label })
+        .then((updated) => {
           this.flash(this.$t('The group type has been updated'), 'success');
-          this.localGroupTypes[this.localGroupTypes.findIndex((x) => x.id === groupType.id)] = response.data.data;
+          this.localGroupTypes[this.localGroupTypes.findIndex((x) => x.id === groupType.id)] = dto.groupType(updated);
           this.loadingState = null;
           this.editGroupTypeId = 0;
         })
@@ -494,8 +501,7 @@ export default {
 
     destroy(groupType) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(groupType.url.destroy)
+        deleteGroupType({ group_type_id: groupType.id })
           .then(() => {
             this.flash(this.$t('The group type has been deleted'), 'success');
             var id = this.localGroupTypes.findIndex((x) => x.id === groupType.id);
@@ -511,9 +517,18 @@ export default {
     updatePosition(event) {
       // the event object comes from the draggable component
       this.form.position = event.moved.newIndex + 1;
+      const element = event.moved.element;
 
-      axios
-        .post(event.moved.element.url.position, this.form)
+      // the same handler serves both lists: a role carries its group type's id
+      const save =
+        element.group_type_id === undefined
+          ? updateGroupType({ group_type_id: element.id }, { position: this.form.position })
+          : updateGroupTypeRole(
+              { group_type_id: element.group_type_id, group_type_role_id: element.id },
+              { position: this.form.position },
+            );
+
+      save
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })
@@ -526,12 +541,11 @@ export default {
     submitRole(groupType) {
       this.loadingState = 'loading';
 
-      axios
-        .post(groupType.url.store, this.form)
-        .then((response) => {
+      createGroupTypeRole({ group_type_id: groupType.id }, { label: this.form.label })
+        .then((role) => {
           this.flash(this.$t('The role has been created'), 'success');
           var id = this.localGroupTypes.findIndex((x) => x.id === groupType.id);
-          this.localGroupTypes[id].group_type_roles.push(response.data.data);
+          this.localGroupTypes[id].group_type_roles.push(dto.groupTypeRole(groupType.id, role));
           this.loadingState = null;
           this.roleGroupTypeId = 0;
           this.createRoleModalShown = false;
@@ -545,14 +559,16 @@ export default {
     updateRole(role) {
       this.loadingState = 'loading';
 
-      axios
-        .put(role.url.update, this.form)
-        .then((response) => {
+      updateGroupTypeRole(
+        { group_type_id: role.group_type_id, group_type_role_id: role.id },
+        { label: this.form.label },
+      )
+        .then((updated) => {
           this.flash(this.$t('The role has been updated'), 'success');
 
           var groupTypeId = this.localGroupTypes.findIndex((x) => x.id === role.group_type_id);
           var roleId = this.localGroupTypes[groupTypeId].group_type_roles.findIndex((x) => x.id === role.id);
-          this.localGroupTypes[groupTypeId].group_type_roles[roleId] = response.data.data;
+          this.localGroupTypes[groupTypeId].group_type_roles[roleId] = dto.groupTypeRole(role.group_type_id, updated);
 
           this.loadingState = null;
           this.roleGroupTypeId = 0;
@@ -566,8 +582,7 @@ export default {
 
     destroyRole(role) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(role.url.destroy)
+        deleteGroupTypeRole({ group_type_id: role.group_type_id, group_type_role_id: role.id })
           .then(() => {
             this.flash(this.$t('The role has been deleted'), 'success');
 

@@ -136,6 +136,7 @@
 <script>
 import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
+import { updateAccountCurrency, enableAllAccountCurrencies, disableAllAccountCurrencies } from '@/api/client';
 
 export default {
   components: {
@@ -170,8 +171,7 @@ export default {
 
   methods: {
     update(currency) {
-      axios
-        .put(currency.url.update, this.form)
+      updateAccountCurrency({ currency_id: currency.id }, { active: !currency.active })
         .then(() => {
           this.flash(this.$t('The currency has been updated'), 'success');
           this.localCurrencies[this.localCurrencies.findIndex((x) => x.id === currency.id)].active = !currency.active;
@@ -182,8 +182,7 @@ export default {
     },
 
     enableAll() {
-      axios
-        .post(this.data.url.enable_all)
+      enableAllAccountCurrencies()
         .then(() => {
           this.flash(this.$t('The currencies have been updated'), 'success');
           this.localCurrencies.forEach((entry) => {
@@ -196,8 +195,7 @@ export default {
     },
 
     disableAll() {
-      axios
-        .delete(this.data.url.disable_all)
+      disableAllAccountCurrencies()
         .then(() => {
           this.flash(this.$t('The currencies have been updated'), 'success');
           this.localCurrencies.forEach((entry) => {
