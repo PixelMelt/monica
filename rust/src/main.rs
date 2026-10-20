@@ -81,7 +81,11 @@ enum Command {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
-        .with(fmt::layer().with_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())))
+        .with(
+            fmt::layer()
+                .with_writer(std::io::stderr)
+                .with_filter(EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into())),
+        )
         .with(monica::logging::layer().with_filter(Targets::new().with_target(monica::logging::TARGET, Level::DEBUG)))
         .init();
     match Cli::parse().command.unwrap_or(Command::Serve) {
