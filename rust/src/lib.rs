@@ -12,6 +12,8 @@ pub mod http;
 pub mod i18n;
 pub mod mail;
 pub mod password;
+pub mod scheduler;
+pub mod storage;
 #[doc(hidden)]
 pub mod testing;
 pub mod validate;
