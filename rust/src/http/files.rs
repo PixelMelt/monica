@@ -67,12 +67,12 @@ pub async fn receive(
 
     let mut v = Validator::new();
     let Some(upload) = upload.filter(|u| !u.bytes.is_empty()) else {
-        v.fail("file", "validation.required", &[]);
+        v.fail("file", "required", &[]);
         v.finish()?;
         unreachable!("a failed validation returns");
     };
     if accept == Accept::Images && !storage::is_image(&upload.bytes) {
-        v.fail("file", "validation.mimes", &[("values", "jpeg, png, gif, webp")]);
+        v.fail("file", "mimes", &[("values", "jpeg, png, gif, webp")]);
         v.finish()?;
     }
 
