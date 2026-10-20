@@ -776,7 +776,7 @@ fn preg_split_whitespace(value: &str) -> Vec<&str> {
 
 /// `CardDAVBackend::withUser($author)->getObject($collectionId, $uri)`: the
 /// contact or group of the uri's file name in one of the author's vaults.
-async fn card_dav_get_object<C: ConnectionTrait>(
+pub async fn card_dav_get_object<C: ConnectionTrait>(
     db: &C,
     author: &users::Model,
     collection_id: Uuid,
