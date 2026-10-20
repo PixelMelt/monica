@@ -1,19 +1,31 @@
 //! `app/Domains/Vault/ManageVaultSettings/Services`.
 
+mod labels;
+mod life_events;
+mod mood_tracking_parameters;
+mod quick_fact_templates;
+mod tags;
 #[cfg(test)]
 mod tests;
 
-use chrono::{Datelike, Duration, NaiveDate, NaiveDateTime, Timelike};
-use sea_orm::sea_query::Expr;
+pub use labels::*;
+pub use life_events::*;
+pub use mood_tracking_parameters::*;
+pub use quick_fact_templates::*;
+pub use tags::*;
+
+#[cfg(test)]
+use chrono::{Datelike, NaiveDate};
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, QueryOrder,
-    QuerySelect, QueryTrait,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, QuerySelect, QueryTrait,
 };
 
 use crate::db::id::Id;
+#[cfg(test)]
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, Checked, VaultPermission, check};
+use crate::domains::contact::manage_reminders::ScheduleContactReminderForUser;
 use crate::entities::{
     contact_reminder_scheduled, contact_reminders, contacts, templates, user_notification_channels, user_vault, users,
     vaults,
@@ -318,121 +330,11 @@ async fn validate<C: ConnectionTrait>(db: &C, c: &Check, user_id: Uuid) -> ApiRe
     Ok((checked, user))
 }
 
-/// `App\Domains\Contact\ManageReminders\Services\ScheduleContactReminderForUser`,
-/// called by GrantVaultAccessToUser.
-struct ScheduleContactReminderForUser {
-    contact_reminder_id: Id,
-    user_id: Uuid,
-}
-
-impl ScheduleContactReminderForUser {
-    async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let contact_reminder = contact_reminders::Entity::find_by_id(self.contact_reminder_id).one(db).await?;
-        let user = users::Entity::find_by_id(self.user_id).one(db).await?;
-        let mut v = Validator::new();
-        if contact_reminder.is_none() {
-            v.fail("contact_reminder_id", "exists", &[]);
-        }
-        if user.is_none() {
-            v.fail("user_id", "exists", &[]);
-        }
-        v.finish()?;
-        let (Some(contact_reminder), Some(user)) = (contact_reminder, user) else {
-            return Err(ApiError::not_found());
-        };
-
-        let contact = contacts::Entity::live()
-            .filter(contacts::Column::Id.eq(contact_reminder.contact_id))
-            .one(db)
-            .await?
-            .ok_or_else(|| ApiError::internal("the contact of the reminder is deleted"))?;
-        let vault = vaults::Entity::find_by_id(contact.vault_id).one(db).await?.ok_or_else(ApiError::not_found)?;
-        if user.account_id != vault.account_id {
-            return Err(ApiError::not_found());
-        }
-
-        let upcoming_date = get_date(&contact_reminder)?;
-        schedule(db, &contact_reminder, &user, upcoming_date).await
-    }
-}
-
-/// A ContactReminder can be either a complete date, or only a day/month.
-/// If it is only a day/month, we need to add a fake year so we can still
-/// manipulate the date as a Carbon object.
-fn get_date(contact_reminder: &contact_reminders::Model) -> ApiResult<NaiveDateTime> {
-    let year = match contact_reminder.year {
-        None | Some(0) => 1900,
-        Some(year) => year,
-    };
-    // `Carbon::parse("$year-$month-$day")`: day 0–31 and month 0–12 roll over.
-    match (contact_reminder.month, contact_reminder.day) {
-        (Some(month @ 0..=12), Some(day @ 0..=31)) => Ok(set_date(year, month, day).and_time(Default::default())),
-        _ => Err(ApiError::internal("the contact reminder date can't be parsed")),
-    }
-}
-
-async fn schedule<C: ConnectionTrait>(
-    db: &C,
-    contact_reminder: &contact_reminders::Model,
-    user: &users::Model,
-    mut upcoming_date: NaiveDateTime,
-) -> ApiResult<()> {
-    // is the date in the past? if so, we need to schedule the reminder
-    // for next year
-    let now = crate::db::now().0;
-    if upcoming_date < now {
-        let (month, day) = (upcoming_date.month() as i32, upcoming_date.day() as i32);
-        upcoming_date = set_date(now.year(), month, day).and_time(upcoming_date.time());
-        if upcoming_date < now {
-            upcoming_date = set_date(now.year() + 1, month, day).and_time(upcoming_date.time());
-        }
-    }
-
-    let notification_channels = user_notification_channels::Entity::find()
-        .filter(user_notification_channels::Column::UserId.eq(user.id))
-        .order_by_asc(user_notification_channels::Column::Id)
-        .all(db)
-        .await?;
-    for channel in notification_channels {
-        let preferred_time = channel
-            .preferred_time
-            .ok_or_else(|| ApiError::internal("the notification channel has no preferred time"))?;
-        upcoming_date = upcoming_date
-            .date()
-            .and_hms_opt(preferred_time.hour(), preferred_time.minute(), upcoming_date.second())
-            .expect("a NaiveTime's hour and minute");
-        let scheduled_at = Timestamp(upcoming_date);
-
-        let scheduled = contact_reminder_scheduled::Entity::find()
-            .filter(contact_reminder_scheduled::Column::ContactReminderId.eq(contact_reminder.id))
-            .filter(contact_reminder_scheduled::Column::UserNotificationChannelId.eq(channel.id))
-            .one(db)
-            .await?;
-        if scheduled.is_none() {
-            contact_reminder_scheduled::ActiveModel {
-                user_notification_channel_id: Set(channel.id),
-                contact_reminder_id: Set(contact_reminder.id),
-                scheduled_at: Set(scheduled_at),
-                ..Default::default()
-            }
-            .insert(db)
-            .await?;
-        } else {
-            contact_reminder_scheduled::Entity::update_many()
-                .col_expr(contact_reminder_scheduled::Column::ScheduledAt, Expr::value(scheduled_at))
-                .col_expr(contact_reminder_scheduled::Column::UpdatedAt, Expr::value(crate::db::now()))
-                .filter(contact_reminder_scheduled::Column::ContactReminderId.eq(contact_reminder.id))
-                .filter(contact_reminder_scheduled::Column::UserNotificationChannelId.eq(channel.id))
-                .exec(db)
-                .await?;
-        }
-    }
-    Ok(())
-}
-
-/// PHP's `setDate`: months and days past the end of the month roll over.
-fn set_date(year: i32, month: i32, day: i32) -> NaiveDate {
-    let first = NaiveDate::from_ymd_opt(year + (month - 1).div_euclid(12), (month - 1).rem_euclid(12) as u32 + 1, 1)
-        .expect("the first of a month");
-    first + Duration::days(i64::from(day) - 1)
+/// Stand-in for `Str::slug($name, '-', language: currentLang())` until a
+/// shared slug helper exists (the one in `settings::manage_templates` is
+/// private): `Str::ascii` isn't ported, so non-ASCII letters are kept.
+fn slug(title: &str) -> String {
+    let title = title.replace('_', "-").replace('@', "-at-").to_lowercase();
+    let title: String = title.chars().filter(|c| *c == '-' || c.is_alphanumeric() || c.is_whitespace()).collect();
+    title.split(|c: char| c == '-' || c.is_whitespace()).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("-")
 }
