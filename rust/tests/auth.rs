@@ -136,8 +136,9 @@ async fn resets_a_forgotten_password() {
     let user = factory::user(&app.state.db, None).await;
     app.get("/auth/csrf").await.assert(204);
 
-    let res = app.post("/auth/forgot-password", json!({"email": "nobody@example.com"})).await.assert(422);
-    assert_eq!(res.json()["errors"][0]["message"], "We can't find a user with that email address.");
+    // Q8: no difference for an unknown email, and nothing is sent.
+    app.post("/auth/forgot-password", json!({"email": "nobody@example.com"})).await.assert(204);
+    assert!(app.state.mailer.sent().is_empty());
     app.post("/auth/forgot-password", json!({"email": user.email})).await.assert(204);
     app.post("/auth/forgot-password", json!({"email": user.email})).await.assert(422);
 

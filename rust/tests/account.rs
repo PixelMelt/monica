@@ -97,7 +97,11 @@ async fn invites_users_who_accept_and_log_in() {
     let admin = factory::create_administrator(&app.state.db).await;
     login(&mut app, &admin.email, factory::PASSWORD).await;
 
-    let invited = app.post("/account/users", json!({"email": "new@example.com"})).await.assert(201).json();
+    let invited = app
+        .post("/account/users", json!({"email": "new@example.com", "is_account_administrator": true}))
+        .await
+        .assert(201)
+        .json();
     assert_eq!(invited["is_invitation_pending"], true);
     app.post("/account/users", json!({"email": "new@example.com"})).await.assert(422);
     assert_eq!(app.get("/account/users").await.json()["data"].as_array().unwrap().len(), 2);
@@ -114,6 +118,7 @@ async fn invites_users_who_accept_and_log_in() {
     let me = app.post(&format!("/invitations/{code}/accept"), body.clone()).await.assert(200).json();
     assert_eq!(me["email"], "new@example.com");
     assert!(me["email_verified_at"].is_string());
+    assert_eq!(me["is_account_administrator"], true, "Q5: invited as administrator");
     assert_eq!(app.get("/me").await.assert(200).json()["first_name"], "New");
     app.post(&format!("/invitations/{code}/accept"), body).await.assert(404);
     app.finish().await;

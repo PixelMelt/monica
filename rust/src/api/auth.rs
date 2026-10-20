@@ -269,8 +269,8 @@ pub struct PasswordResetLinkRequest {
     security(()),
     request_body = PasswordResetLinkRequest,
     responses(
-        (status = 204, description = "Sent."),
-        (status = 422, description = "Unknown email, or a link was sent less than 60 seconds ago."),
+        (status = 204, description = "Sent if the email has an account (the answer is the same either way)."),
+        (status = 422, description = "A link was sent less than 60 seconds ago."),
     ),
     extensions(("x-permission" = json!("public")), ("x-inventory" = json!(["V005"])), ("x-services" = json!([])))
 )]
@@ -285,11 +285,10 @@ pub async fn request_password_reset(
     }
     v.finish()?;
     let l = i18n::current();
+    // Q8: an unknown email gets the same answer as a known one, so the
+    // endpoint doesn't reveal who has an account.
     match password_reset::send_link(&state.db, &state.mailer, &state.config, &email.unwrap()).await? {
-        password_reset::LinkStatus::Sent => Ok(StatusCode::NO_CONTENT),
-        password_reset::LinkStatus::InvalidUser => {
-            Err(ApiError::field("email", "user", i18n::group(&l, "passwords.user", &[]).unwrap_or_default()))
-        }
+        password_reset::LinkStatus::Sent | password_reset::LinkStatus::InvalidUser => Ok(StatusCode::NO_CONTENT),
         password_reset::LinkStatus::Throttled => {
             Err(ApiError::field("email", "throttled", i18n::group(&l, "passwords.throttled", &[]).unwrap_or_default()))
         }

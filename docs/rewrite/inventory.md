@@ -1193,7 +1193,21 @@ behaviour, so the port fixes them:
   pages, post templates and sections, and contact information types; deleting
   the contact information page breaks the contact page. The spec answers 409.
 
-Open questions (to answer at the phase 1 ★):
+Decisions (2026-10-19: the user asked to take the rewrite to the finish
+without stopping at the ★s; the recommendations below are applied):
+
+- Q1 → (b): the city/country report pages call Wikipedia from the browser;
+  the server makes no outbound call.
+- Q4 → self-service deletion stays, behind `ENABLE_ACCOUNT_DELETION` (off).
+- Q5 → fixed: an invited administrator stays an administrator.
+- Q6 → goal streak numbers fixed; un-settling a loan and un-completing a task
+  clear `settled_at` / `completed_at`; the tag post count stays vault-wide.
+- Q7 → deleting a journal, a slice or a cover image deletes their files.
+- Q8 → forgot-password answers 204 whether or not the email has an account.
+- Q9 → account-level reads are open to members, writes to administrators.
+- F1, F6–F21: fixed as described.
+
+Open questions (as asked at the phase 1 ★):
 
 - **Q1. Wikipedia lookups (I004).** The city and country report pages call
   Wikipedia for a summary and thumbnail. The plan allows no external service
