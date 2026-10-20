@@ -29,9 +29,48 @@ use axum::extract::State;
 use axum::http::StatusCode;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 use utoipa::{IntoParams, ToSchema};
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;
+
+use super::contact_page::ModuleContext;
+use super::groups::GroupMember;
+use super::paging::{PageQuery, paginate};
+use super::templates::{GroupType, GroupTypeRole};
+use super::views;
+use super::views::ContactCardGroup;
+use crate::domains::base::{VaultPermission, contact_in_vault};
+use crate::domains::contact::manage_calls::{CreateCall, DestroyCall, UpdateCall};
+use crate::domains::contact::manage_contact::CreateContact;
+use crate::domains::contact::manage_documents::{DestroyFile, UploadFile};
+use crate::domains::contact::manage_groups::{AddContactToGroup, RemoveContactFromGroup};
+use crate::domains::contact::manage_life_events::{
+    CreateLifeEvent, CreateTimelineEvent, DestroyLifeEvent, DestroyTimelineEvent, ToggleLifeEvent, ToggleTimelineEvent,
+    UpdateLifeEvent,
+};
+use crate::domains::contact::manage_mood_tracking_events::CreateMoodTrackingEvent;
+use crate::domains::contact::manage_pets::{CreatePet, DestroyPet, UpdatePet};
+use crate::domains::contact::manage_relationships::{SetRelationship, UnsetRelationship};
+use crate::domains::contact::manage_tasks::{
+    CreateContactTask, DestroyContactTask, ToggleContactTask, UpdateContactTask,
+};
+use crate::domains::settings::manage_storage::{self, TYPE_DOCUMENT, TYPE_PHOTO};
+use crate::entities::{
+    account_currency, accounts, call_reason_types, call_reasons, calls, contact_group, contact_tasks, contacts,
+    emotions, files, genders, group_type_roles, group_types, groups, life_event_categories, life_event_participants,
+    life_event_types, life_events, mood_tracking_parameters, pet_categories, pets, pronouns, relationship_group_types,
+    relationship_types, relationships, timeline_event_participants, timeline_events,
+};
+use crate::error::ApiError;
+use crate::http::files::{Accept, Upload, receive};
+use crate::http::session::Identity;
+use crate::text;
+use crate::validate::{Validator, clean};
+use sea_orm::{
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, Condition, ConnectionTrait, EntityTrait, PaginatorTrait,
+    QueryFilter, QueryOrder, QuerySelect, Select, TransactionTrait,
+};
 
 /// A `relationships` row involving the contact in the path, on either
 /// side. `contact_id` has the role `relationship_type.name` and
@@ -555,8 +594,11 @@ pub async fn list_contact_relationships(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<RelationshipList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactRelationships")
+    let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let (_, types) = relationship_types_of(&state.db, access.vault.account_id).await?;
+    let data = relationships_of(&state.db, &contact, &types).await?;
+    Ok(Json(RelationshipList { data }))
 }
 
 #[utoipa::path(
@@ -576,8 +618,68 @@ pub async fn create_contact_relationship(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<RelationshipCreate>,
 ) -> ApiResult<(StatusCode, Json<Relationship>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactRelationship")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let mut v = Validator::new();
+    let mut relationship_type = None;
+    match body.relationship_type_id {
+        Some(type_id) => {
+            relationship_type = relationship_type_in_account(&state.db, account_id, Id(type_id)).await?;
+            if relationship_type.is_none() {
+                v.fail("relationship_type_id", "exists", &[]);
+            }
+        }
+        None => v.fail("relationship_type_id", "required", &[]),
+    }
+    let direction = clean(body.direction).unwrap_or_else(|| "forward".into());
+    v.one_of("direction", Some(&direction), &["forward", "reverse"]);
+    let other_contact_id = body.other_contact_id;
+    let new_contact = match (other_contact_id, body.new_contact) {
+        (None, None) => {
+            v.fail("other_contact_id", "required_without", &[("values", "new contact")]);
+            None
+        }
+        (Some(_), Some(_)) => {
+            v.fail("other_contact_id", "prohibits", &[("other", "new contact")]);
+            None
+        }
+        (Some(other), None) => {
+            check_vault_contact(&state.db, &mut v, "other_contact_id", vault_id, other).await?;
+            None
+        }
+        (None, Some(n)) => Some(new_contact(&state.db, &mut v, (account_id, vault_id, author_id), n).await?),
+    };
+    v.finish()?;
+    let relationship_type = relationship_type.ok_or_else(ApiError::not_found)?;
+
+    let tx = state.db.begin().await?;
+    let other_id = match new_contact {
+        Some(create) => create.execute(&tx).await?.id,
+        None => other_contact_id.ok_or_else(ApiError::not_found)?,
+    };
+    let (from, to) = if direction == "reverse" { (other_id, contact.id) } else { (contact.id, other_id) };
+    SetRelationship {
+        account_id,
+        vault_id,
+        author_id,
+        relationship_type_id: relationship_type.id,
+        contact_id: from,
+        other_contact_id: to,
+    }
+    .execute(&tx)
+    .await?;
+    let row = relationships::Entity::find()
+        .filter(relationships::Column::ContactId.eq(from))
+        .filter(relationships::Column::RelatedContactId.eq(to))
+        .one(&tx)
+        .await?
+        .ok_or_else(|| ApiError::internal("the relationship was not saved"))?;
+    tx.commit().await?;
+    let types = HashMap::from([(relationship_type.id, relationship_type)]);
+    let relationship =
+        relationship_views(&state.db, &contact, vec![row], &types).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok((StatusCode::CREATED, Json(relationship)))
 }
 
 #[utoipa::path(
@@ -595,8 +697,30 @@ pub async fn delete_contact_relationship(
     Auth(id): Auth,
     Path((vault_id, contact_id, relationship_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactRelationship")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let relationship = relationships::Entity::find_by_id(relationship_id)
+        .filter(
+            Condition::any()
+                .add(relationships::Column::ContactId.eq(contact.id))
+                .add(relationships::Column::RelatedContactId.eq(contact.id)),
+        )
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let tx = state.db.begin().await?;
+    UnsetRelationship {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        relationship_type_id: relationship.relationship_type_id,
+        contact_id: relationship.contact_id,
+        other_contact_id: relationship.related_contact_id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -614,8 +738,9 @@ pub async fn list_contact_pets(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<PetList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactPets")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    Ok(Json(PetList { data: pets_of(&state.db, &contact).await? }))
 }
 
 #[utoipa::path(
@@ -635,8 +760,29 @@ pub async fn create_contact_pet(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<PetCreate>,
 ) -> ApiResult<(StatusCode, Json<Pet>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactPet")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let name = clean(body.name);
+    let mut v = Validator::new();
+    match body.pet_category_id {
+        Some(category_id) => check_pet_category(&state.db, &mut v, id.user.account_id, Id(category_id)).await?,
+        None => v.fail("pet_category_id", "required", &[]),
+    }
+    v.max_len("name", name.as_deref(), 255);
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    let pet = CreatePet {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        pet_category_id: Id(body.pet_category_id.unwrap_or_default()),
+        name,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok((StatusCode::CREATED, Json(pet_view(&state.db, pet).await?)))
 }
 
 #[utoipa::path(
@@ -656,8 +802,37 @@ pub async fn update_contact_pet(
     Path((vault_id, contact_id, pet_id)): Path<(Uuid, Uuid, Id)>,
     Json(body): Json<PetUpdate>,
 ) -> ApiResult<Json<Pet>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("updateContactPet")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let pet = pets::Entity::find_by_id(pet_id)
+        .filter(pets::Column::ContactId.eq(contact.id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let mut v = Validator::new();
+    if let Some(category_id) = body.pet_category_id {
+        check_pet_category(&state.db, &mut v, id.user.account_id, Id(category_id)).await?;
+    }
+    let name = match body.name {
+        Some(name) => clean(name),
+        None => pet.name.clone(),
+    };
+    v.max_len("name", name.as_deref(), 255);
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    let pet = UpdatePet {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        pet_id: pet.id,
+        pet_category_id: body.pet_category_id.map_or(pet.pet_category_id, Id),
+        name,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(Json(pet_view(&state.db, pet).await?))
 }
 
 #[utoipa::path(
@@ -675,8 +850,13 @@ pub async fn delete_contact_pet(
     Auth(id): Auth,
     Path((vault_id, contact_id, pet_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactPet")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let tx = state.db.begin().await?;
+    DestroyPet { account_id: id.user.account_id, vault_id, author_id: id.user.id, contact_id, pet_id }
+        .execute(&tx)
+        .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -694,8 +874,11 @@ pub async fn list_contact_documents(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<ContactDocumentList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactDocuments")
+    let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let data = contact_files(contact.id, TYPE_DOCUMENT).all(&state.db).await?.into_iter().map(File::from).collect();
+    let can_upload_file = can_upload(&state, access.vault.account_id).await?;
+    Ok(Json(ContactDocumentList { data, can_upload_file }))
 }
 
 #[utoipa::path(
@@ -715,8 +898,10 @@ pub async fn upload_contact_document(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     multipart: Multipart,
 ) -> ApiResult<(StatusCode, Json<File>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("uploadContactDocument")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let file = store_file(&state, &id, &contact, multipart, Accept::Any, TYPE_DOCUMENT).await?;
+    Ok((StatusCode::CREATED, Json(file.into())))
 }
 
 #[utoipa::path(
@@ -734,8 +919,10 @@ pub async fn delete_contact_document(
     Auth(id): Auth,
     Path((vault_id, contact_id, document_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactDocument")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    destroy_file(&state, &id, &contact, document_id, TYPE_DOCUMENT).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
@@ -761,8 +948,15 @@ pub async fn list_contact_photos(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Query(query): Query<ListContactPhotosQuery>,
 ) -> ApiResult<Json<ContactPhotoList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactPhotos")
+    let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let q = page_query(query.page, query.per_page);
+    let (rows, meta) = paginate(&state.db, contact_files(contact.id, TYPE_PHOTO), &q, 30).await?;
+    Ok(Json(ContactPhotoList {
+        data: rows.into_iter().map(File::from).collect(),
+        meta,
+        can_upload_file: can_upload(&state, access.vault.account_id).await?,
+    }))
 }
 
 #[utoipa::path(
@@ -782,8 +976,10 @@ pub async fn upload_contact_photo(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     multipart: Multipart,
 ) -> ApiResult<(StatusCode, Json<File>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("uploadContactPhoto")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let file = store_file(&state, &id, &contact, multipart, Accept::Images, TYPE_PHOTO).await?;
+    Ok((StatusCode::CREATED, Json(file.into())))
 }
 
 #[utoipa::path(
@@ -801,8 +997,9 @@ pub async fn get_contact_photo(
     Auth(id): Auth,
     Path((vault_id, contact_id, photo_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<Json<File>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("getContactPhoto")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    Ok(Json(contact_file(&state.db, &contact, photo_id, TYPE_PHOTO).await?.into()))
 }
 
 #[utoipa::path(
@@ -820,8 +1017,10 @@ pub async fn delete_contact_photo(
     Auth(id): Auth,
     Path((vault_id, contact_id, photo_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactPhoto")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    destroy_file(&state, &id, &contact, photo_id, TYPE_PHOTO).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
@@ -846,8 +1045,11 @@ pub async fn list_contact_tasks(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Query(query): Query<ListContactTasksQuery>,
 ) -> ApiResult<Json<ContactTaskList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactTasks")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let select = if query.completed.unwrap_or(false) { completed_tasks(contact.id) } else { open_tasks(contact.id) };
+    let data = select.all(&state.db).await?.into_iter().map(task_view).collect();
+    Ok(Json(ContactTaskList { data }))
 }
 
 #[utoipa::path(
@@ -867,8 +1069,31 @@ pub async fn create_contact_task(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<ContactTaskCreate>,
 ) -> ApiResult<(StatusCode, Json<ContactTask>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactTask")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let label = clean(body.label);
+    let description = clean(body.description);
+    let mut v = Validator::new();
+    if v.required("label", &label) {
+        v.max_len("label", label.as_deref(), 255);
+    }
+    v.max_len("description", description.as_deref(), 65535);
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    let task = CreateContactTask {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        label: label.unwrap_or_default(),
+        // F8: the body's description (the PHP controller sent null).
+        description,
+        due_at: body.due_at.map(ymd),
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok((StatusCode::CREATED, Json(task_view(task))))
 }
 
 #[utoipa::path(
@@ -888,8 +1113,59 @@ pub async fn update_contact_task(
     Path((vault_id, contact_id, task_id)): Path<(Uuid, Uuid, Id)>,
     Json(body): Json<ContactTaskUpdate>,
 ) -> ApiResult<Json<ContactTask>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("updateContactTask")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let mut task = contact_tasks::Entity::live()
+        .filter(contact_tasks::Column::Id.eq(task_id))
+        .filter(contact_tasks::Column::ContactId.eq(contact.id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let edits = body.label.is_some() || body.description.is_some() || body.due_at.is_some();
+    let label = match body.label {
+        Some(label) => clean(Some(label)),
+        None => Some(task.label.clone()),
+    };
+    let description = match body.description {
+        Some(description) => clean(description),
+        None => task.description.clone(),
+    };
+    let due_at = match body.due_at {
+        Some(due_at) => due_at.map(ymd),
+        None => task.due_at.map(|d| d.0.format("%Y-%m-%d %H:%M:%S").to_string()),
+    };
+    let mut v = Validator::new();
+    if v.required("label", &label) {
+        v.max_len("label", label.as_deref(), 255);
+    }
+    v.max_len("description", description.as_deref(), 65535);
+    v.finish()?;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let tx = state.db.begin().await?;
+    if edits {
+        task = UpdateContactTask {
+            account_id,
+            vault_id,
+            author_id,
+            contact_id: contact.id,
+            contact_task_id: task.id,
+            label: label.unwrap_or_default(),
+            // F8: the body's description (the PHP controller sent null).
+            description,
+            due_at,
+        }
+        .execute(&tx)
+        .await?;
+    }
+    if let Some(completed) = body.completed
+        && completed != task.completed
+    {
+        task = ToggleContactTask { account_id, vault_id, author_id, contact_id: contact.id, contact_task_id: task.id }
+            .execute(&tx)
+            .await?;
+    }
+    tx.commit().await?;
+    Ok(Json(task_view(task)))
 }
 
 #[utoipa::path(
@@ -907,8 +1183,19 @@ pub async fn delete_contact_task(
     Auth(id): Auth,
     Path((vault_id, contact_id, task_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactTask")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let tx = state.db.begin().await?;
+    DestroyContactTask {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id,
+        contact_task_id: task_id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -926,8 +1213,9 @@ pub async fn list_contact_calls(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<CallList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactCalls")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    Ok(Json(CallList { data: calls_of(&state.db, &contact).await? }))
 }
 
 #[utoipa::path(
@@ -947,8 +1235,48 @@ pub async fn create_contact_call(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<CallCreate>,
 ) -> ApiResult<(StatusCode, Json<Call>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactCall")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let account_id = id.user.account_id;
+    let r#type = clean(body.r#type);
+    let who_initiated = clean(body.who_initiated);
+    let description = clean(body.description);
+    let mut v = Validator::new();
+    v.required("called_at", &body.called_at);
+    if v.required("type", &r#type) {
+        v.one_of("type", r#type.as_deref(), CALL_TYPES);
+    }
+    if v.required("who_initiated", &who_initiated) {
+        v.one_of("who_initiated", who_initiated.as_deref(), WHO_INITIATED);
+    }
+    v.max_len("description", description.as_deref(), 65535);
+    let duration = int32(&mut v, "duration", body.duration);
+    if let Some(reason_id) = body.call_reason_id {
+        check_call_reason(&state.db, &mut v, account_id, Id(reason_id)).await?;
+    }
+    if let Some(emotion_id) = body.emotion_id {
+        check_emotion(&state.db, &mut v, account_id, Id(emotion_id)).await?;
+    }
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    let call = CreateCall {
+        account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        call_reason_id: body.call_reason_id.map(Id),
+        called_at: body.called_at.map(ymd).unwrap_or_default(),
+        duration,
+        description,
+        r#type: r#type.unwrap_or_default(),
+        answered: Some(body.answered.unwrap_or(true)),
+        who_initiated: who_initiated.unwrap_or_default(),
+        emotion_id: body.emotion_id.map(Id),
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok((StatusCode::CREATED, Json(call_view(&state.db, call).await?)))
 }
 
 #[utoipa::path(
@@ -968,8 +1296,76 @@ pub async fn update_contact_call(
     Path((vault_id, contact_id, call_id)): Path<(Uuid, Uuid, Id)>,
     Json(body): Json<CallUpdate>,
 ) -> ApiResult<Json<Call>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("updateContactCall")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let call = calls::Entity::find_by_id(call_id)
+        .filter(calls::Column::ContactId.eq(contact.id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let account_id = id.user.account_id;
+    let mut v = Validator::new();
+    let r#type = match body.r#type {
+        Some(t) => clean(Some(t)),
+        None => Some(call.r#type.clone()),
+    };
+    if v.required("type", &r#type) {
+        v.one_of("type", r#type.as_deref(), CALL_TYPES);
+    }
+    let who_initiated = match body.who_initiated {
+        Some(w) => clean(Some(w)),
+        None => Some(call.who_initiated.clone()),
+    };
+    if v.required("who_initiated", &who_initiated) {
+        v.one_of("who_initiated", who_initiated.as_deref(), WHO_INITIATED);
+    }
+    let description = match body.description {
+        Some(description) => clean(description),
+        None => call.description.clone(),
+    };
+    v.max_len("description", description.as_deref(), 65535);
+    let duration = match body.duration {
+        Some(duration) => int32(&mut v, "duration", duration),
+        None => call.duration,
+    };
+    let call_reason_id = match body.call_reason_id {
+        Some(Some(reason_id)) => {
+            check_call_reason(&state.db, &mut v, account_id, Id(reason_id)).await?;
+            Some(Id(reason_id))
+        }
+        Some(None) => None,
+        None => call.call_reason_id,
+    };
+    let emotion_id = match body.emotion_id {
+        Some(Some(emotion_id)) => {
+            check_emotion(&state.db, &mut v, account_id, Id(emotion_id)).await?;
+            Some(Id(emotion_id))
+        }
+        Some(None) => None,
+        None => call.emotion_id,
+    };
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    let call = UpdateCall {
+        account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        call_id: call.id,
+        call_reason_id,
+        called_at: ymd(body.called_at.unwrap_or_else(|| call.called_at.0.date())),
+        duration,
+        // F8: the description is saved.
+        description,
+        r#type: r#type.unwrap_or_default(),
+        answered: Some(body.answered.unwrap_or(call.answered)),
+        who_initiated: who_initiated.unwrap_or_default(),
+        emotion_id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(Json(call_view(&state.db, call).await?))
 }
 
 #[utoipa::path(
@@ -987,8 +1383,13 @@ pub async fn delete_contact_call(
     Auth(id): Auth,
     Path((vault_id, contact_id, call_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactCall")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let tx = state.db.begin().await?;
+    DestroyCall { account_id: id.user.account_id, vault_id, author_id: id.user.id, contact_id, call_id }
+        .execute(&tx)
+        .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -1006,8 +1407,10 @@ pub async fn list_contact_groups(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<GroupList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactGroups")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let groups = groups_of_contact(&state.db, &contact).await?;
+    Ok(Json(GroupList { data: group_views(&state.db, groups).await? }))
 }
 
 #[utoipa::path(
@@ -1027,8 +1430,40 @@ pub async fn add_contact_to_group(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<ContactGroupAdd>,
 ) -> ApiResult<(StatusCode, Json<Group>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("addContactToGroup")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let account_id = id.user.account_id;
+    let mut v = Validator::new();
+    let mut group = None;
+    match body.group_id {
+        Some(group_id) => {
+            group = vault_group(&state.db, vault_id, Id(group_id)).await?;
+            if group.is_none() {
+                v.fail("group_id", "exists", &[]);
+            }
+        }
+        None => v.fail("group_id", "required", &[]),
+    }
+    if let Some(role_id) = body.group_type_role_id {
+        check_group_type_role(&state.db, &mut v, account_id, Id(role_id)).await?;
+    }
+    v.finish()?;
+    let group = group.ok_or_else(ApiError::not_found)?;
+    let tx = state.db.begin().await?;
+    AddContactToGroup {
+        account_id,
+        vault_id,
+        author_id: id.user.id,
+        group_id: group.id,
+        contact_id: contact.id,
+        group_type_role_id: body.group_type_role_id.map(Id),
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    let group = vault_group(&state.db, vault_id, group.id).await?.ok_or_else(ApiError::not_found)?;
+    let group = group_views(&state.db, vec![group]).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok((StatusCode::CREATED, Json(group)))
 }
 
 #[utoipa::path(
@@ -1046,8 +1481,22 @@ pub async fn remove_contact_from_group(
     Auth(id): Auth,
     Path((vault_id, contact_id, group_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("removeContactFromGroup")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let group = vault_group(&state.db, vault_id, group_id).await?.ok_or_else(ApiError::not_found)?;
+    contact_group::Entity::find_by_id((group.id, contact.id)).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
+    let tx = state.db.begin().await?;
+    RemoveContactFromGroup {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        group_id: group.id,
+        contact_id: contact.id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[derive(Debug, Default, Deserialize, IntoParams)]
@@ -1073,8 +1522,10 @@ pub async fn list_contact_timeline_events(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Query(query): Query<ListContactTimelineEventsQuery>,
 ) -> ApiResult<Json<TimelineEventList>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("listContactTimelineEvents")
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let (data, meta) = timeline_events_page(&state.db, &contact, &page_query(query.page, query.per_page)).await?;
+    Ok(Json(TimelineEventList { data, meta }))
 }
 
 #[utoipa::path(
@@ -1094,8 +1545,34 @@ pub async fn create_contact_timeline_event(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<TimelineEventCreate>,
 ) -> ApiResult<(StatusCode, Json<TimelineEvent>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactTimelineEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let label = clean(body.label);
+    let mut v = Validator::new();
+    v.max_len("label", label.as_deref(), 255);
+    let fields = match body.life_event {
+        Some(life_event) => {
+            life_event_fields(&state.db, &mut v, "life_event.", (account_id, vault_id), life_event).await?
+        }
+        None => {
+            v.fail("life_event", "required", &[]);
+            None
+        }
+    };
+    v.finish()?;
+    let mut fields = fields.ok_or_else(ApiError::not_found)?;
+    fields.participant_ids = with_contact(fields.participant_ids, contact.id);
+    let tx = state.db.begin().await?;
+    // F9: the label is the timeline event's.
+    let timeline_event =
+        CreateTimelineEvent { account_id, vault_id, author_id, label, started_at: ymd(fields.happened_at) }
+            .execute(&tx)
+            .await?;
+    fields.create((account_id, vault_id, author_id), timeline_event.id).execute(&tx).await?;
+    tx.commit().await?;
+    let view = timeline_event_views(&state.db, vec![timeline_event]).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok((StatusCode::CREATED, Json(view)))
 }
 
 #[utoipa::path(
@@ -1115,8 +1592,26 @@ pub async fn update_contact_timeline_event(
     Path((vault_id, contact_id, timeline_event_id)): Path<(Uuid, Uuid, Id)>,
     Json(body): Json<TimelineEventUpdate>,
 ) -> ApiResult<Json<TimelineEvent>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("updateContactTimelineEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let mut timeline_event = timeline_event_of(&state.db, vault_id, &contact, timeline_event_id).await?;
+    let mut v = Validator::new();
+    v.required("collapsed", &body.collapsed);
+    v.finish()?;
+    if body.collapsed != Some(timeline_event.collapsed) {
+        let tx = state.db.begin().await?;
+        timeline_event = ToggleTimelineEvent {
+            account_id: id.user.account_id,
+            vault_id,
+            author_id: id.user.id,
+            timeline_event_id: timeline_event.id,
+        }
+        .execute(&tx)
+        .await?;
+        tx.commit().await?;
+    }
+    let view = timeline_event_views(&state.db, vec![timeline_event]).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok(Json(view))
 }
 
 #[utoipa::path(
@@ -1134,8 +1629,20 @@ pub async fn delete_contact_timeline_event(
     Auth(id): Auth,
     Path((vault_id, contact_id, timeline_event_id)): Path<(Uuid, Uuid, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactTimelineEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let timeline_event = timeline_event_of(&state.db, vault_id, &contact, timeline_event_id).await?;
+    let tx = state.db.begin().await?;
+    DestroyTimelineEvent {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        timeline_event_id: timeline_event.id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -1155,8 +1662,20 @@ pub async fn create_contact_life_event(
     Path((vault_id, contact_id, timeline_event_id)): Path<(Uuid, Uuid, Id)>,
     Json(body): Json<LifeEventCreate>,
 ) -> ApiResult<(StatusCode, Json<LifeEvent>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactLifeEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let timeline_event = timeline_event_of(&state.db, vault_id, &contact, timeline_event_id).await?;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let mut v = Validator::new();
+    let fields = life_event_fields(&state.db, &mut v, "", (account_id, vault_id), body).await?;
+    v.finish()?;
+    let mut fields = fields.ok_or_else(ApiError::not_found)?;
+    fields.participant_ids = with_contact(fields.participant_ids, contact.id);
+    let tx = state.db.begin().await?;
+    let life_event = fields.create((account_id, vault_id, author_id), timeline_event.id).execute(&tx).await?;
+    tx.commit().await?;
+    let view = life_event_views(&state.db, vec![life_event]).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok((StatusCode::CREATED, Json(view)))
 }
 
 #[utoipa::path(
@@ -1176,8 +1695,62 @@ pub async fn update_contact_life_event(
     Path((vault_id, contact_id, timeline_event_id, life_event_id)): Path<(Uuid, Uuid, Id, Id)>,
     Json(body): Json<LifeEventUpdate>,
 ) -> ApiResult<Json<LifeEvent>> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("updateContactLifeEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let timeline_event = timeline_event_of(&state.db, vault_id, &contact, timeline_event_id).await?;
+    let mut life_event = life_events::Entity::find_by_id(life_event_id)
+        .filter(life_events::Column::TimelineEventId.eq(timeline_event.id))
+        .one(&state.db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let collapsed = body.collapsed;
+    let mut v = Validator::new();
+    let fields = life_event_update_fields(&state.db, &mut v, (account_id, vault_id), &life_event, body).await?;
+    v.finish()?;
+    let tx = state.db.begin().await?;
+    if let Some(mut fields) = fields {
+        fields.participant_ids = with_contact(fields.participant_ids, contact.id);
+        life_event = UpdateLifeEvent {
+            account_id,
+            vault_id,
+            author_id,
+            timeline_event_id: timeline_event.id,
+            life_event_type_id: fields.life_event_type_id,
+            life_event_id: life_event.id,
+            summary: fields.summary,
+            description: fields.description,
+            happened_at: ymd(fields.happened_at),
+            costs: fields.costs,
+            currency_id: fields.currency_id,
+            paid_by_contact_id: fields.paid_by_contact_id,
+            duration_in_minutes: fields.duration_in_minutes,
+            distance: fields.distance,
+            distance_unit: fields.distance_unit,
+            from_place: fields.from_place,
+            to_place: fields.to_place,
+            place: fields.place,
+            participant_ids: fields.participant_ids,
+        }
+        .execute(&tx)
+        .await?;
+    }
+    if let Some(collapsed) = collapsed
+        && collapsed != life_event.collapsed
+    {
+        life_event = ToggleLifeEvent {
+            account_id,
+            vault_id,
+            author_id,
+            timeline_event_id: timeline_event.id,
+            life_event_id: life_event.id,
+        }
+        .execute(&tx)
+        .await?;
+    }
+    tx.commit().await?;
+    let view = life_event_views(&state.db, vec![life_event]).await?.pop().ok_or_else(ApiError::not_found)?;
+    Ok(Json(view))
 }
 
 #[utoipa::path(
@@ -1195,8 +1768,21 @@ pub async fn delete_contact_life_event(
     Auth(id): Auth,
     Path((vault_id, contact_id, timeline_event_id, life_event_id)): Path<(Uuid, Uuid, Id, Id)>,
 ) -> ApiResult<StatusCode> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("deleteContactLifeEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let timeline_event = timeline_event_of(&state.db, vault_id, &contact, timeline_event_id).await?;
+    let tx = state.db.begin().await?;
+    DestroyLifeEvent {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        timeline_event_id: timeline_event.id,
+        life_event_id,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -1216,8 +1802,1337 @@ pub async fn create_contact_mood_tracking_event(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Json(body): Json<MoodTrackingEventCreate>,
 ) -> ApiResult<(StatusCode, Json<MoodTrackingEvent>)> {
-    let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
-    todo!("createContactMoodTrackingEvent")
+    access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
+    let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
+    let note = clean(body.note);
+    let mut v = Validator::new();
+    let mut parameter = None;
+    match body.mood_tracking_parameter_id {
+        Some(parameter_id) => {
+            parameter = mood_tracking_parameters::Entity::find_by_id(Id(parameter_id))
+                .filter(mood_tracking_parameters::Column::VaultId.eq(vault_id))
+                .one(&state.db)
+                .await?;
+            if parameter.is_none() {
+                v.fail("mood_tracking_parameter_id", "exists", &[]);
+            }
+        }
+        None => v.fail("mood_tracking_parameter_id", "required", &[]),
+    }
+    v.required("rated_at", &body.rated_at);
+    v.max_len("note", note.as_deref(), 65535);
+    let hours = int32(&mut v, "number_of_hours_slept", body.number_of_hours_slept);
+    v.finish()?;
+    let parameter = parameter.ok_or_else(ApiError::not_found)?;
+    let tx = state.db.begin().await?;
+    let event = CreateMoodTrackingEvent {
+        account_id: id.user.account_id,
+        vault_id,
+        author_id: id.user.id,
+        contact_id: contact.id,
+        mood_tracking_parameter_id: parameter.id,
+        rated_at: body.rated_at.map(ymd).unwrap_or_default(),
+        note,
+        number_of_hours_slept: hours,
+    }
+    .execute(&tx)
+    .await?;
+    tx.commit().await?;
+    Ok((
+        StatusCode::CREATED,
+        Json(MoodTrackingEvent {
+            id: event.id,
+            contact_id: event.contact_id,
+            mood_tracking_parameter: mood_tracking_parameter(&parameter),
+            rated_at: event.rated_at.0.date(),
+            note: event.note,
+            number_of_hours_slept: event.number_of_hours_slept.map(i64::from),
+            created_at: ts(event.created_at),
+            updated_at: ts(event.updated_at),
+        }),
+    ))
+}
+
+// ---------------------------------------------------------------- contact page modules
+
+/// Module `relationships` (`ModuleRelationshipViewHelper::data`): every
+/// relationship group type of the account with the contact's relationships
+/// of its types.
+pub async fn relationships_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<RelationshipsModule> {
+    let (group_types, types) = relationship_types_of(&state.db, ctx.vault.account_id).await?;
+    let relationships = relationships_of(&state.db, &ctx.contact, &types).await?;
+    let number_of_defined_relations = i64::try_from(relationships.len()).unwrap_or(i64::MAX);
+    let mut by_group: HashMap<Id, Vec<Relationship>> = HashMap::new();
+    for r in relationships {
+        by_group.entry(r.relationship_type.relationship_group_type_id).or_default().push(r);
+    }
+    let relationship_group_types = group_types
+        .iter()
+        .map(|g| RelationshipsModuleRelationshipGroupType {
+            relationship_group_type: relationship_group_type(g, &types),
+            relationships: by_group.remove(&g.id).unwrap_or_default(),
+        })
+        .collect();
+    Ok(RelationshipsModule { relationship_group_types, number_of_defined_relations })
+}
+
+/// Module `pets` (`ModulePetsViewHelper::data`).
+pub async fn pets_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<PetsModule> {
+    Ok(PetsModule { pets: pets_of(&state.db, &ctx.contact).await? })
+}
+
+/// Module `documents` (`ModuleDocumentsViewHelper::data`).
+pub async fn documents_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<DocumentsModule> {
+    let documents =
+        contact_files(ctx.contact.id, TYPE_DOCUMENT).all(&state.db).await?.into_iter().map(File::from).collect();
+    Ok(DocumentsModule { documents, can_upload_file: can_upload(state, ctx.vault.account_id).await? })
+}
+
+/// Module `photos` (`ModulePhotosViewHelper::data`): the 6 newest photos.
+pub async fn photos_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<PhotosModule> {
+    let photos =
+        contact_files(ctx.contact.id, TYPE_PHOTO).limit(6).all(&state.db).await?.into_iter().map(File::from).collect();
+    Ok(PhotosModule { photos, can_upload_file: can_upload(state, ctx.vault.account_id).await? })
+}
+
+/// Module `tasks` (`ModuleContactTasksViewHelper::data`).
+pub async fn tasks_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<TasksModule> {
+    let tasks = open_tasks(ctx.contact.id).all(&state.db).await?.into_iter().map(task_view).collect();
+    let completed = completed_tasks(ctx.contact.id).count(&state.db).await?;
+    Ok(TasksModule { tasks, completed_tasks_count: i64::try_from(completed).unwrap_or(i64::MAX) })
+}
+
+/// Module `calls` (`ModuleCallsViewHelper::data`).
+pub async fn calls_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<CallsModule> {
+    Ok(CallsModule { calls: calls_of(&state.db, &ctx.contact).await? })
+}
+
+/// Module `groups` (`ModuleGroupsViewHelper::data`): the contact's groups
+/// and the vault's other groups, each by name.
+pub async fn groups_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<GroupsModule> {
+    let groups = groups_of_contact(&state.db, &ctx.contact).await?;
+    let taken: HashSet<Id> = groups.iter().map(|g| g.id).collect();
+    let mut available: Vec<groups::Model> = groups::Entity::live()
+        .filter(groups::Column::VaultId.eq(ctx.contact.vault_id))
+        .order_by_asc(groups::Column::Id)
+        .all(&state.db)
+        .await?
+        .into_iter()
+        .filter(|g| !taken.contains(&g.id))
+        .collect();
+    text::sort_by_collator(&mut available, |g| g.name.clone());
+    Ok(GroupsModule {
+        groups: group_views(&state.db, groups).await?,
+        available_groups: available
+            .into_iter()
+            .map(|g| GroupsModuleAvailableGroup { id: g.id, name: g.name, group_type_id: g.group_type_id.map(|t| t.0) })
+            .collect(),
+    })
+}
+
+/// Module `life_events`: the first page of `listContactTimelineEvents`.
+pub async fn life_events_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<LifeEventsModule> {
+    let (timeline_events, meta) = timeline_events_page(&state.db, &ctx.contact, &PageQuery::default()).await?;
+    Ok(LifeEventsModule { timeline_events, meta })
+}
+
+// ---------------------------------------------------------------- helpers
+
+/// `files.fileable_type` of a contact's files (`Contact::class`).
+const CONTACT_FILEABLE: &str = "App\\Models\\Contact";
+const CALL_TYPES: &[&str] = &["audio", "video"];
+const WHO_INITIATED: &[&str] = &["me", "contact"];
+const DISTANCE_UNITS: &[&str] = &["km", "mi", "miles"];
+
+fn ts(t: Option<Timestamp>) -> Timestamp {
+    t.unwrap_or_else(crate::db::now)
+}
+
+fn ymd(d: NaiveDate) -> String {
+    d.format("%Y-%m-%d").to_string()
+}
+
+/// `integer` for an `int` column: 422 outside its range.
+fn int32(v: &mut Validator, field: &str, value: Option<i64>) -> Option<i32> {
+    let n = i32::try_from(value?).ok();
+    if n.is_none() {
+        v.fail(field, "integer", &[]);
+    }
+    n
+}
+
+/// The `page` and `per_page` of a generated query.
+fn page_query(page: Option<i64>, per_page: Option<i64>) -> PageQuery {
+    PageQuery {
+        page: page.and_then(|p| u64::try_from(p.max(1)).ok()),
+        per_page: per_page.and_then(|p| u64::try_from(p.max(1)).ok()),
+    }
+}
+
+/// `exists` on `field` unless `contact_id` is a live contact of the vault.
+async fn check_vault_contact<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    field: &str,
+    vault_id: Uuid,
+    contact_id: Uuid,
+) -> ApiResult<()> {
+    let found = contacts::Entity::live()
+        .filter(contacts::Column::Id.eq(contact_id))
+        .filter(contacts::Column::VaultId.eq(vault_id))
+        .one(db)
+        .await?
+        .is_some();
+    if !found {
+        v.fail(field, "exists", &[]);
+    }
+    Ok(())
+}
+
+// relationships
+
+fn relationship_type(t: &relationship_types::Model) -> RelationshipType {
+    RelationshipType {
+        name: t.name.clone(),
+        name_translation_key: t.name_translation_key.clone(),
+        id: t.id,
+        relationship_group_type_id: t.relationship_group_type_id,
+        name_reverse_relationship: t.name_reverse_relationship.clone(),
+        name_reverse_relationship_translation_key: t.name_reverse_relationship_translation_key.clone(),
+        r#type: t.r#type.clone(),
+        can_be_deleted: t.can_be_deleted,
+    }
+}
+
+fn relationship_group_type(
+    g: &relationship_group_types::Model,
+    types: &[relationship_types::Model],
+) -> RelationshipGroupType {
+    RelationshipGroupType {
+        name: g.name.clone(),
+        name_translation_key: g.name_translation_key.clone(),
+        id: g.id,
+        r#type: g.r#type.clone(),
+        can_be_deleted: g.can_be_deleted,
+        types: types.iter().filter(|t| t.relationship_group_type_id == g.id).map(relationship_type).collect(),
+    }
+}
+
+/// `$account->relationshipGroupTypes()->with('types')`: the group types by
+/// id, and their types in group order, then by id.
+async fn relationship_types_of<C: ConnectionTrait>(
+    db: &C,
+    account_id: Uuid,
+) -> ApiResult<(Vec<relationship_group_types::Model>, Vec<relationship_types::Model>)> {
+    let group_types = relationship_group_types::Entity::find()
+        .filter(relationship_group_types::Column::AccountId.eq(account_id))
+        .order_by_asc(relationship_group_types::Column::Id)
+        .all(db)
+        .await?;
+    if group_types.is_empty() {
+        return Ok((group_types, Vec::new()));
+    }
+    let mut types = relationship_types::Entity::find()
+        .filter(relationship_types::Column::RelationshipGroupTypeId.is_in(group_types.iter().map(|g| g.id)))
+        .order_by_asc(relationship_types::Column::Id)
+        .all(db)
+        .await?;
+    let position: HashMap<Id, usize> = group_types.iter().enumerate().map(|(i, g)| (g.id, i)).collect();
+    types.sort_by_key(|t| position.get(&t.relationship_group_type_id).copied());
+    Ok((group_types, types))
+}
+
+/// A relationship type whose group type is the account's.
+async fn relationship_type_in_account<C: ConnectionTrait>(
+    db: &C,
+    account_id: Uuid,
+    type_id: Id,
+) -> ApiResult<Option<relationship_types::Model>> {
+    let Some(t) = relationship_types::Entity::find_by_id(type_id).one(db).await? else { return Ok(None) };
+    let in_account = relationship_group_types::Entity::find_by_id(t.relationship_group_type_id)
+        .filter(relationship_group_types::Column::AccountId.eq(account_id))
+        .one(db)
+        .await?
+        .is_some();
+    Ok(in_account.then_some(t))
+}
+
+/// The relations `ModuleRelationshipViewHelper` lists: the contact's
+/// relationships, on either side, whose type is one of `types`, in the
+/// order of `types`, then by id.
+async fn relationships_of<C: ConnectionTrait>(
+    db: &C,
+    contact: &contacts::Model,
+    types: &[relationship_types::Model],
+) -> ApiResult<Vec<Relationship>> {
+    if types.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut rows = relationships::Entity::find()
+        .filter(relationships::Column::RelationshipTypeId.is_in(types.iter().map(|t| t.id)))
+        .filter(
+            Condition::any()
+                .add(relationships::Column::ContactId.eq(contact.id))
+                .add(relationships::Column::RelatedContactId.eq(contact.id)),
+        )
+        .order_by_asc(relationships::Column::Id)
+        .all(db)
+        .await?;
+    let position: HashMap<Id, usize> = types.iter().enumerate().map(|(i, t)| (t.id, i)).collect();
+    rows.sort_by_key(|r| position.get(&r.relationship_type_id).copied());
+    let by_id: HashMap<Id, relationship_types::Model> = types.iter().map(|t| (t.id, t.clone())).collect();
+    relationship_views(db, contact, rows, &by_id).await
+}
+
+/// `Relationship` of each row, seen from `contact`; rows with a deleted
+/// contact on either side are left out.
+async fn relationship_views<C: ConnectionTrait>(
+    db: &C,
+    contact: &contacts::Model,
+    rows: Vec<relationships::Model>,
+    types: &HashMap<Id, relationship_types::Model>,
+) -> ApiResult<Vec<Relationship>> {
+    if rows.is_empty() {
+        return Ok(Vec::new());
+    }
+    let ids: Vec<Uuid> = rows.iter().flat_map(|r| [r.contact_id, r.related_contact_id]).collect();
+    let live: HashMap<Uuid, contacts::Model> = contacts::Entity::live()
+        .filter(contacts::Column::Id.is_in(ids))
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|c| (c.id, c))
+        .collect();
+    let people: Vec<contacts::Model> = live.values().cloned().collect();
+    let ages = views::ages(db, &people).await?;
+    let mut out = Vec::with_capacity(rows.len());
+    for r in rows {
+        let other_id = if r.contact_id == contact.id { r.related_contact_id } else { r.contact_id };
+        if !live.contains_key(&r.contact_id) || !live.contains_key(&r.related_contact_id) {
+            continue;
+        }
+        let (Some(other), Some(t)) = (live.get(&other_id), types.get(&r.relationship_type_id)) else { continue };
+        out.push(Relationship {
+            id: r.id,
+            relationship_type_id: r.relationship_type_id,
+            contact_id: r.contact_id,
+            related_contact_id: r.related_contact_id,
+            relationship_type: relationship_type(t),
+            other_contact: RelationshipOtherContact {
+                id: other.id,
+                vault_id: other.vault_id,
+                first_name: other.first_name.clone(),
+                middle_name: other.middle_name.clone(),
+                last_name: other.last_name.clone(),
+                nickname: other.nickname.clone(),
+                maiden_name: other.maiden_name.clone(),
+                prefix: other.prefix.clone(),
+                suffix: other.suffix.clone(),
+                avatar_file_id: other.file_id.map(|f| f.0),
+                listed: other.listed,
+                age: ages.get(&other.id).copied().flatten(),
+            },
+            created_at: ts(r.created_at),
+            updated_at: ts(r.updated_at),
+        });
+    }
+    Ok(out)
+}
+
+/// The `CreateContact` of the relationship form (no template), after the
+/// draft's rules on `new_contact`.
+async fn new_contact<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    (account_id, vault_id, author_id): (Uuid, Uuid, Uuid),
+    n: RelationshipNewContact,
+) -> ApiResult<CreateContact> {
+    let first_name = clean(n.first_name);
+    let last_name = clean(n.last_name);
+    let middle_name = clean(n.middle_name);
+    let nickname = clean(n.nickname);
+    let maiden_name = clean(n.maiden_name);
+    for (field, value) in [
+        ("new_contact.first_name", &first_name),
+        ("new_contact.last_name", &last_name),
+        ("new_contact.middle_name", &middle_name),
+        ("new_contact.nickname", &nickname),
+        ("new_contact.maiden_name", &maiden_name),
+    ] {
+        v.max_len(field, value.as_deref(), 255);
+    }
+    v.required("new_contact.listed", &n.listed);
+    if let Some(gender_id) = n.gender_id
+        && genders::Entity::find_by_id(Id(gender_id))
+            .filter(genders::Column::AccountId.eq(account_id))
+            .one(db)
+            .await?
+            .is_none()
+    {
+        v.fail("new_contact.gender_id", "exists", &[]);
+    }
+    if let Some(pronoun_id) = n.pronoun_id
+        && pronouns::Entity::find_by_id(Id(pronoun_id))
+            .filter(pronouns::Column::AccountId.eq(account_id))
+            .one(db)
+            .await?
+            .is_none()
+    {
+        v.fail("new_contact.pronoun_id", "exists", &[]);
+    }
+    Ok(CreateContact {
+        account_id,
+        id: None,
+        vault_id,
+        author_id,
+        first_name,
+        last_name,
+        middle_name,
+        nickname,
+        maiden_name,
+        prefix: None,
+        suffix: None,
+        gender_id: n.gender_id.map(Id),
+        pronoun_id: n.pronoun_id.map(Id),
+        template_id: None,
+        listed: n.listed.unwrap_or(false),
+    })
+}
+
+// pets
+
+fn pet_category(c: &pet_categories::Model) -> PetCategory {
+    PetCategory { name: c.name.clone(), name_translation_key: c.name_translation_key.clone(), id: c.id }
+}
+
+async fn pet_views<C: ConnectionTrait>(db: &C, pets: Vec<pets::Model>) -> ApiResult<Vec<Pet>> {
+    if pets.is_empty() {
+        return Ok(Vec::new());
+    }
+    let categories: HashMap<Id, pet_categories::Model> = pet_categories::Entity::find()
+        .filter(pet_categories::Column::Id.is_in(pets.iter().map(|p| p.pet_category_id)))
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|c| (c.id, c))
+        .collect();
+    Ok(pets
+        .into_iter()
+        .filter_map(|p| {
+            let category = categories.get(&p.pet_category_id)?;
+            Some(Pet {
+                id: p.id,
+                contact_id: p.contact_id,
+                name: p.name,
+                pet_category: pet_category(category),
+                created_at: ts(p.created_at),
+                updated_at: ts(p.updated_at),
+            })
+        })
+        .collect())
+}
+
+async fn pet_view<C: ConnectionTrait>(db: &C, pet: pets::Model) -> ApiResult<Pet> {
+    pet_views(db, vec![pet]).await?.pop().ok_or_else(|| ApiError::internal("the pet has no category"))
+}
+
+/// `$contact->pets()`, by id.
+async fn pets_of<C: ConnectionTrait>(db: &C, contact: &contacts::Model) -> ApiResult<Vec<Pet>> {
+    let rows = pets::Entity::find()
+        .filter(pets::Column::ContactId.eq(contact.id))
+        .order_by_asc(pets::Column::Id)
+        .all(db)
+        .await?;
+    pet_views(db, rows).await
+}
+
+async fn check_pet_category<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    account_id: Uuid,
+    pet_category_id: Id,
+) -> ApiResult<()> {
+    let found = pet_categories::Entity::find_by_id(pet_category_id)
+        .filter(pet_categories::Column::AccountId.eq(account_id))
+        .one(db)
+        .await?
+        .is_some();
+    if !found {
+        v.fail("pet_category_id", "exists", &[]);
+    }
+    Ok(())
+}
+
+// documents and photos
+
+/// `$contact->files()->where('type', $type)`, newest first.
+fn contact_files(contact_id: Uuid, r#type: &str) -> Select<files::Entity> {
+    files::Entity::find()
+        .filter(files::Column::FileableType.eq(CONTACT_FILEABLE))
+        .filter(files::Column::UfileableId.eq(contact_id))
+        .filter(files::Column::Type.eq(r#type))
+        .order_by_desc(files::Column::CreatedAt)
+        .order_by_desc(files::Column::Id)
+}
+
+/// F17: a file of `type` attached to the contact; 404 otherwise.
+async fn contact_file<C: ConnectionTrait>(
+    db: &C,
+    contact: &contacts::Model,
+    file_id: Id,
+    r#type: &str,
+) -> ApiResult<files::Model> {
+    contact_files(contact.id, r#type)
+        .filter(files::Column::Id.eq(file_id))
+        .one(db)
+        .await?
+        .ok_or_else(ApiError::not_found)
+}
+
+/// `StorageHelper::canUploadFile` of the account.
+async fn can_upload(state: &AppState, account_id: Uuid) -> ApiResult<bool> {
+    let account = accounts::Entity::find_by_id(account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
+    manage_storage::can_upload_file(&state.db, &account).await
+}
+
+/// Receives the `file` part, stores its bytes and writes its `files` row
+/// (`UploadFile`), attached to the contact (`$contact->files()->save($file)`).
+async fn store_file(
+    state: &AppState,
+    id: &Identity,
+    contact: &contacts::Model,
+    multipart: Multipart,
+    accept: Accept,
+    r#type: &str,
+) -> ApiResult<files::Model> {
+    let account =
+        accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
+    let upload = receive(state, &account, multipart, accept).await?;
+    let key = state.storage.put(contact.vault_id, &upload.bytes).await.map_err(ApiError::internal)?;
+    let saved = save_file(state, id, contact, &upload, &key, r#type).await;
+    if saved.is_err() {
+        state.storage.delete(contact.vault_id, &key).await;
+    }
+    saved
+}
+
+async fn save_file(
+    state: &AppState,
+    id: &Identity,
+    contact: &contacts::Model,
+    upload: &Upload,
+    key: &str,
+    r#type: &str,
+) -> ApiResult<files::Model> {
+    let tx = state.db.begin().await?;
+    let file = UploadFile {
+        account_id: id.user.account_id,
+        vault_id: contact.vault_id,
+        author_id: id.user.id,
+        uuid: key.to_owned(),
+        // `files.name` is a varchar(255).
+        name: upload.name.chars().take(255).collect(),
+        mime_type: upload.mime_type.clone(),
+        size: upload.size(),
+        r#type: r#type.to_owned(),
+    }
+    .execute(&tx)
+    .await?;
+    let mut file: files::ActiveModel = file.into();
+    file.fileable_type = Set(Some(CONTACT_FILEABLE.into()));
+    file.ufileable_id = Set(Some(contact.id));
+    let file = file.update(&tx).await?;
+    tx.commit().await?;
+    Ok(file)
+}
+
+/// F17: only a file of `type` attached to the contact. `DestroyFile`, then
+/// its bytes and thumbnail.
+async fn destroy_file(
+    state: &AppState,
+    id: &Identity,
+    contact: &contacts::Model,
+    file_id: Id,
+    r#type: &str,
+) -> ApiResult<()> {
+    let file = contact_file(&state.db, contact, file_id, r#type).await?;
+    let tx = state.db.begin().await?;
+    DestroyFile { account_id: id.user.account_id, vault_id: contact.vault_id, author_id: id.user.id, file_id: file.id }
+        .execute(&tx)
+        .await?;
+    tx.commit().await?;
+    state.storage.delete(file.vault_id, &file.uuid).await;
+    Ok(())
+}
+
+// tasks
+
+/// `ModuleContactTasksViewHelper::dtoTask`.
+fn task_view(t: contact_tasks::Model) -> ContactTask {
+    let now = crate::db::now();
+    ContactTask {
+        id: t.id,
+        contact_id: t.contact_id,
+        author_id: t.author_id,
+        author_name: t.author_name,
+        label: t.label,
+        description: t.description,
+        completed: t.completed,
+        completed_at: t.completed_at,
+        due_at: t.due_at.map(|d| d.0.date()),
+        // `$task->due_at->isPast()`.
+        is_late: t.due_at.is_some_and(|d| d.0 < now.0),
+        created_at: ts(t.created_at),
+        updated_at: ts(t.updated_at),
+    }
+}
+
+/// `$contact->tasks()->notCompleted()->orderBy('id', 'desc')`.
+fn open_tasks(contact_id: Uuid) -> Select<contact_tasks::Entity> {
+    contact_tasks::Entity::live()
+        .filter(contact_tasks::Column::ContactId.eq(contact_id))
+        .filter(contact_tasks::Column::Completed.eq(false))
+        .order_by_desc(contact_tasks::Column::Id)
+}
+
+/// `$contact->tasks()->completed()->orderBy('completed_at', 'desc')`.
+fn completed_tasks(contact_id: Uuid) -> Select<contact_tasks::Entity> {
+    contact_tasks::Entity::live()
+        .filter(contact_tasks::Column::ContactId.eq(contact_id))
+        .filter(contact_tasks::Column::Completed.eq(true))
+        .order_by_desc(contact_tasks::Column::CompletedAt)
+        .order_by_desc(contact_tasks::Column::Id)
+}
+
+// calls
+
+fn call_reason(r: &call_reasons::Model) -> CallReason {
+    CallReason {
+        id: r.id,
+        call_reason_type_id: r.call_reason_type_id,
+        label: r.label.clone(),
+        label_translation_key: r.label_translation_key.clone(),
+    }
+}
+
+/// `ModuleCallsViewHelper::dto` of each call, in their order.
+async fn call_views<C: ConnectionTrait>(db: &C, calls: Vec<calls::Model>) -> ApiResult<Vec<Call>> {
+    let reason_ids: Vec<Id> = calls.iter().filter_map(|c| c.call_reason_id).collect();
+    let emotion_ids: Vec<Id> = calls.iter().filter_map(|c| c.emotion_id).collect();
+    let mut reasons: HashMap<Id, call_reasons::Model> = HashMap::new();
+    if !reason_ids.is_empty() {
+        let rows = call_reasons::Entity::find().filter(call_reasons::Column::Id.is_in(reason_ids)).all(db).await?;
+        reasons = rows.into_iter().map(|r| (r.id, r)).collect();
+    }
+    let mut feelings: HashMap<Id, emotions::Model> = HashMap::new();
+    if !emotion_ids.is_empty() {
+        let rows = emotions::Entity::find().filter(emotions::Column::Id.is_in(emotion_ids)).all(db).await?;
+        feelings = rows.into_iter().map(|e| (e.id, e)).collect();
+    }
+    Ok(calls
+        .into_iter()
+        .map(|c| Call {
+            id: c.id,
+            contact_id: c.contact_id,
+            author_id: c.author_id,
+            author_name: c.author_name,
+            called_at: c.called_at.0.date(),
+            duration: c.duration.map(i64::from),
+            r#type: c.r#type,
+            description: c.description,
+            answered: c.answered,
+            who_initiated: c.who_initiated,
+            call_reason: c.call_reason_id.and_then(|i| reasons.get(&i)).map(call_reason),
+            emotion: c.emotion_id.and_then(|i| feelings.get(&i)).cloned().map(Emotion::from),
+            created_at: ts(c.created_at),
+            updated_at: ts(c.updated_at),
+        })
+        .collect())
+}
+
+async fn call_view<C: ConnectionTrait>(db: &C, call: calls::Model) -> ApiResult<Call> {
+    call_views(db, vec![call]).await?.pop().ok_or_else(ApiError::not_found)
+}
+
+/// `$contact->calls()->orderBy('called_at', 'desc')`.
+async fn calls_of<C: ConnectionTrait>(db: &C, contact: &contacts::Model) -> ApiResult<Vec<Call>> {
+    let rows = calls::Entity::find()
+        .filter(calls::Column::ContactId.eq(contact.id))
+        .order_by_desc(calls::Column::CalledAt)
+        .order_by_desc(calls::Column::Id)
+        .all(db)
+        .await?;
+    call_views(db, rows).await
+}
+
+/// `exists` unless the call reason's type is the account's.
+async fn check_call_reason<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    account_id: Uuid,
+    reason_id: Id,
+) -> ApiResult<()> {
+    let found = match call_reasons::Entity::find_by_id(reason_id).one(db).await? {
+        Some(r) => call_reason_types::Entity::find_by_id(r.call_reason_type_id)
+            .filter(call_reason_types::Column::AccountId.eq(account_id))
+            .one(db)
+            .await?
+            .is_some(),
+        None => false,
+    };
+    if !found {
+        v.fail("call_reason_id", "exists", &[]);
+    }
+    Ok(())
+}
+
+async fn check_emotion<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    account_id: Uuid,
+    emotion_id: Id,
+) -> ApiResult<()> {
+    let found = emotions::Entity::find_by_id(emotion_id)
+        .filter(emotions::Column::AccountId.eq(account_id))
+        .one(db)
+        .await?
+        .is_some();
+    if !found {
+        v.fail("emotion_id", "exists", &[]);
+    }
+    Ok(())
+}
+
+// groups
+
+fn group_type_role(r: &group_type_roles::Model) -> GroupTypeRole {
+    GroupTypeRole {
+        id: r.id,
+        group_type_id: r.group_type_id,
+        label: r.label.clone(),
+        label_translation_key: r.label_translation_key.clone(),
+        position: r.position.map(i64::from),
+    }
+}
+
+/// A live group of the vault.
+async fn vault_group<C: ConnectionTrait>(db: &C, vault_id: Uuid, group_id: Id) -> ApiResult<Option<groups::Model>> {
+    Ok(groups::Entity::live()
+        .filter(groups::Column::Id.eq(group_id))
+        .filter(groups::Column::VaultId.eq(vault_id))
+        .one(db)
+        .await?)
+}
+
+/// `$contact->groups()->get()->sortByCollator('name')`.
+async fn groups_of_contact<C: ConnectionTrait>(db: &C, contact: &contacts::Model) -> ApiResult<Vec<groups::Model>> {
+    let ids: Vec<Id> = contact_group::Entity::find()
+        .filter(contact_group::Column::ContactId.eq(contact.id))
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|l| l.group_id)
+        .collect();
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let mut groups =
+        groups::Entity::live().filter(groups::Column::Id.is_in(ids)).order_by_asc(groups::Column::Id).all(db).await?;
+    text::sort_by_collator(&mut groups, |g| g.name.clone());
+    Ok(groups)
+}
+
+/// `Group` of each group, in their order: its type with the roles by
+/// position, and its live members by first name, with their roles.
+async fn group_views<C: ConnectionTrait>(db: &C, groups: Vec<groups::Model>) -> ApiResult<Vec<Group>> {
+    if groups.is_empty() {
+        return Ok(Vec::new());
+    }
+    let links = contact_group::Entity::find()
+        .filter(contact_group::Column::GroupId.is_in(groups.iter().map(|g| g.id)))
+        .all(db)
+        .await?;
+    let mut people: HashMap<Uuid, contacts::Model> = HashMap::new();
+    if !links.is_empty() {
+        let rows = contacts::Entity::live()
+            .filter(contacts::Column::Id.is_in(links.iter().map(|l| l.contact_id)))
+            .all(db)
+            .await?;
+        people = rows.into_iter().map(|c| (c.id, c)).collect();
+    }
+    let ages = views::ages(db, &people.values().cloned().collect::<Vec<_>>()).await?;
+    let type_ids: Vec<Id> = groups.iter().filter_map(|g| g.group_type_id).collect();
+    let mut types: HashMap<Id, group_types::Model> = HashMap::new();
+    let mut roles: Vec<group_type_roles::Model> = Vec::new();
+    if !type_ids.is_empty() {
+        let rows = group_types::Entity::find().filter(group_types::Column::Id.is_in(type_ids.clone())).all(db).await?;
+        types = rows.into_iter().map(|t| (t.id, t)).collect();
+        roles = group_type_roles::Entity::find()
+            .filter(group_type_roles::Column::GroupTypeId.is_in(type_ids))
+            .all(db)
+            .await?;
+    }
+    roles.sort_by_key(|r| (r.position, r.id));
+    Ok(groups
+        .into_iter()
+        .map(|g| {
+            let group_type = g.group_type_id.and_then(|t| types.get(&t)).map(|t| GroupType {
+                id: t.id,
+                label: t.label.clone(),
+                label_translation_key: t.label_translation_key.clone(),
+                position: i64::from(t.position),
+                roles: roles.iter().filter(|r| r.group_type_id == t.id).map(group_type_role).collect(),
+            });
+            let mut members: Vec<GroupMember> = links
+                .iter()
+                .filter(|l| l.group_id == g.id)
+                .filter_map(|l| {
+                    let c = people.get(&l.contact_id)?;
+                    Some(GroupMember {
+                        id: c.id,
+                        vault_id: c.vault_id,
+                        first_name: c.first_name.clone(),
+                        middle_name: c.middle_name.clone(),
+                        last_name: c.last_name.clone(),
+                        nickname: c.nickname.clone(),
+                        maiden_name: c.maiden_name.clone(),
+                        prefix: c.prefix.clone(),
+                        suffix: c.suffix.clone(),
+                        avatar_file_id: c.file_id.map(|f| f.0),
+                        listed: c.listed,
+                        age: ages.get(&c.id).copied().flatten(),
+                        group_type_role_id: l.group_type_role_id.map(|r| r.0),
+                    })
+                })
+                .collect();
+            text::sort_by_collator(&mut members, |m| m.first_name.clone().unwrap_or_default());
+            Group {
+                id: g.id,
+                vault_id: g.vault_id,
+                name: g.name,
+                group_type,
+                members,
+                created_at: ts(g.created_at),
+                updated_at: ts(g.updated_at),
+            }
+        })
+        .collect())
+}
+
+/// `exists` unless the role's group type is the account's.
+async fn check_group_type_role<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    account_id: Uuid,
+    role_id: Id,
+) -> ApiResult<()> {
+    let found = match group_type_roles::Entity::find_by_id(role_id).one(db).await? {
+        Some(r) => group_types::Entity::find_by_id(r.group_type_id)
+            .filter(group_types::Column::AccountId.eq(account_id))
+            .one(db)
+            .await?
+            .is_some(),
+        None => false,
+    };
+    if !found {
+        v.fail("group_type_role_id", "exists", &[]);
+    }
+    Ok(())
+}
+
+// timeline and life events
+
+fn life_event_type(t: &life_event_types::Model) -> LifeEventType {
+    LifeEventType {
+        id: t.id,
+        life_event_category_id: t.life_event_category_id,
+        label: t.label.clone(),
+        label_translation_key: t.label_translation_key.clone(),
+        position: t.position.map(i64::from),
+        can_be_deleted: t.can_be_deleted,
+        created_at: ts(t.created_at),
+        updated_at: ts(t.updated_at),
+    }
+}
+
+fn copy_card(c: &ContactCard) -> ContactCard {
+    ContactCard {
+        id: c.id,
+        vault_id: c.vault_id,
+        first_name: c.first_name.clone(),
+        middle_name: c.middle_name.clone(),
+        last_name: c.last_name.clone(),
+        nickname: c.nickname.clone(),
+        maiden_name: c.maiden_name.clone(),
+        prefix: c.prefix.clone(),
+        suffix: c.suffix.clone(),
+        avatar_file_id: c.avatar_file_id,
+        listed: c.listed,
+        age: c.age,
+        groups: c.groups.iter().map(|g| ContactCardGroup { id: g.id, name: g.name.clone() }).collect(),
+    }
+}
+
+/// `ModuleLifeEventViewHelper::dtoLifeEvent` of each life event, in their
+/// order, with its live participants' hover cards.
+async fn life_event_views<C: ConnectionTrait>(db: &C, events: Vec<life_events::Model>) -> ApiResult<Vec<LifeEvent>> {
+    if events.is_empty() {
+        return Ok(Vec::new());
+    }
+    let types: HashMap<Id, life_event_types::Model> = life_event_types::Entity::find()
+        .filter(life_event_types::Column::Id.is_in(events.iter().map(|e| e.life_event_type_id)))
+        .all(db)
+        .await?
+        .into_iter()
+        .map(|t| (t.id, t))
+        .collect();
+    let mut categories: HashMap<Id, life_event_categories::Model> = HashMap::new();
+    if !types.is_empty() {
+        let rows = life_event_categories::Entity::find()
+            .filter(life_event_categories::Column::Id.is_in(types.values().map(|t| t.life_event_category_id)))
+            .all(db)
+            .await?;
+        categories = rows.into_iter().map(|c| (c.id, c)).collect();
+    }
+    let links = life_event_participants::Entity::find()
+        .filter(life_event_participants::Column::LifeEventId.is_in(events.iter().map(|e| e.id)))
+        .all(db)
+        .await?;
+    let mut ids: Vec<Uuid> = links.iter().map(|l| l.contact_id).collect();
+    ids.sort();
+    ids.dedup();
+    let mut cards: HashMap<Uuid, ContactCard> = HashMap::new();
+    if !ids.is_empty() {
+        let people = contacts::Entity::live()
+            .filter(contacts::Column::Id.is_in(ids))
+            .order_by_asc(contacts::Column::Id)
+            .all(db)
+            .await?;
+        cards = ContactCard::load_many(db, people).await?.into_iter().map(|c| (c.id, c)).collect();
+    }
+    let mut out = Vec::with_capacity(events.len());
+    for e in events {
+        let Some(t) = types.get(&e.life_event_type_id) else { continue };
+        let Some(category) = categories.get(&t.life_event_category_id) else { continue };
+        out.push(LifeEvent {
+            id: e.id,
+            timeline_event_id: e.timeline_event_id,
+            life_event_type: life_event_type(t),
+            life_event_category: LifeEventLifeEventCategory {
+                id: category.id,
+                label: category.label.clone(),
+                label_translation_key: category.label_translation_key.clone(),
+            },
+            emotion_id: e.emotion_id.map(|i| i.0),
+            happened_at: e.happened_at,
+            collapsed: e.collapsed,
+            summary: e.summary,
+            description: e.description,
+            costs: e.costs.map(i64::from),
+            currency_id: e.currency_id.map(|i| i.0),
+            paid_by_contact_id: e.paid_by_contact_id,
+            duration_in_minutes: e.duration_in_minutes.map(i64::from),
+            distance: e.distance.map(i64::from),
+            distance_unit: e.distance_unit,
+            from_place: e.from_place,
+            to_place: e.to_place,
+            place: e.place,
+            participants: links
+                .iter()
+                .filter(|l| l.life_event_id == e.id)
+                .filter_map(|l| cards.get(&l.contact_id))
+                .map(copy_card)
+                .collect(),
+            created_at: ts(e.created_at),
+            updated_at: ts(e.updated_at),
+        });
+    }
+    Ok(out)
+}
+
+/// `ModuleLifeEventViewHelper::dtoTimelineEvent` of each timeline event, in
+/// their order: its life events in creation order and the range of their
+/// dates (`TimelineEvent::range`).
+async fn timeline_event_views<C: ConnectionTrait>(
+    db: &C,
+    events: Vec<timeline_events::Model>,
+) -> ApiResult<Vec<TimelineEvent>> {
+    if events.is_empty() {
+        return Ok(Vec::new());
+    }
+    let rows = life_events::Entity::find()
+        .filter(life_events::Column::TimelineEventId.is_in(events.iter().map(|e| e.id)))
+        .order_by_asc(life_events::Column::Id)
+        .all(db)
+        .await?;
+    let mut by_event: HashMap<Id, Vec<LifeEvent>> = HashMap::new();
+    for life_event in life_event_views(db, rows).await? {
+        by_event.entry(life_event.timeline_event_id).or_default().push(life_event);
+    }
+    Ok(events
+        .into_iter()
+        .map(|t| {
+            let life_events = by_event.remove(&t.id).unwrap_or_default();
+            TimelineEvent {
+                id: t.id,
+                vault_id: t.vault_id,
+                label: t.label,
+                started_at: t.started_at,
+                collapsed: t.collapsed,
+                first_happened_at: life_events.iter().map(|l| l.happened_at).min(),
+                last_happened_at: life_events.iter().map(|l| l.happened_at).max(),
+                life_events,
+                created_at: ts(t.created_at),
+                updated_at: ts(t.updated_at),
+            }
+        })
+        .collect())
+}
+
+/// `ContactModuleTimelineEventController@index`: the timeline events the
+/// contact takes part in, latest start first, 15 per page.
+async fn timeline_events_page<C: ConnectionTrait>(
+    db: &C,
+    contact: &contacts::Model,
+    q: &PageQuery,
+) -> ApiResult<(Vec<TimelineEvent>, PaginationMeta)> {
+    let select = timeline_events::Entity::find()
+        .filter(
+            timeline_events::Column::Id.in_subquery(
+                sea_orm::sea_query::Query::select()
+                    .column(timeline_event_participants::Column::TimelineEventId)
+                    .from(timeline_event_participants::Entity)
+                    .and_where(timeline_event_participants::Column::ContactId.eq(contact.id))
+                    .to_owned(),
+            ),
+        )
+        .order_by_desc(timeline_events::Column::StartedAt)
+        .order_by_desc(timeline_events::Column::Id);
+    let (rows, meta) = paginate(db, select, q, 15).await?;
+    Ok((timeline_event_views(db, rows).await?, meta))
+}
+
+/// F17: a timeline event of the vault that the contact takes part in;
+/// 404 otherwise.
+async fn timeline_event_of<C: ConnectionTrait>(
+    db: &C,
+    vault_id: Uuid,
+    contact: &contacts::Model,
+    timeline_event_id: Id,
+) -> ApiResult<timeline_events::Model> {
+    let timeline_event = timeline_events::Entity::find_by_id(timeline_event_id)
+        .filter(timeline_events::Column::VaultId.eq(vault_id))
+        .one(db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    timeline_event_participants::Entity::find_by_id((contact.id, timeline_event.id))
+        .one(db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    Ok(timeline_event)
+}
+
+/// `collect($participants)->push(['id' => $contactId])->unique('id')`.
+fn with_contact(mut ids: Vec<Uuid>, contact_id: Uuid) -> Vec<Uuid> {
+    ids.push(contact_id);
+    let mut seen = HashSet::new();
+    ids.retain(|id| seen.insert(*id));
+    ids
+}
+
+/// The values `CreateLifeEvent` and `UpdateLifeEvent` take, validated.
+struct LifeEventFields {
+    life_event_type_id: Id,
+    happened_at: NaiveDate,
+    summary: Option<String>,
+    description: Option<String>,
+    costs: Option<i32>,
+    currency_id: Option<Id>,
+    paid_by_contact_id: Option<Uuid>,
+    duration_in_minutes: Option<i32>,
+    distance: Option<i32>,
+    distance_unit: Option<String>,
+    from_place: Option<String>,
+    to_place: Option<String>,
+    place: Option<String>,
+    participant_ids: Vec<Uuid>,
+}
+
+impl LifeEventFields {
+    fn create(self, (account_id, vault_id, author_id): (Uuid, Uuid, Uuid), timeline_event_id: Id) -> CreateLifeEvent {
+        CreateLifeEvent {
+            account_id,
+            vault_id,
+            author_id,
+            timeline_event_id,
+            life_event_type_id: self.life_event_type_id,
+            summary: self.summary,
+            description: self.description,
+            happened_at: ymd(self.happened_at),
+            costs: self.costs,
+            currency_id: self.currency_id,
+            paid_by_contact_id: self.paid_by_contact_id,
+            duration_in_minutes: self.duration_in_minutes,
+            distance: self.distance,
+            distance_unit: self.distance_unit,
+            from_place: self.from_place,
+            to_place: self.to_place,
+            place: self.place,
+            participant_ids: self.participant_ids,
+        }
+    }
+}
+
+/// `exists` unless the type's category is the vault's.
+async fn check_life_event_type<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    field: &str,
+    vault_id: Uuid,
+    type_id: Id,
+) -> ApiResult<()> {
+    let found = match life_event_types::Entity::find_by_id(type_id).one(db).await? {
+        Some(t) => life_event_categories::Entity::find_by_id(t.life_event_category_id)
+            .filter(life_event_categories::Column::VaultId.eq(vault_id))
+            .one(db)
+            .await?
+            .is_some(),
+        None => false,
+    };
+    if !found {
+        v.fail(field, "exists", &[]);
+    }
+    Ok(())
+}
+
+/// `exists` unless the currency is enabled for the account.
+async fn check_currency<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    field: &str,
+    account_id: Uuid,
+    currency_id: Id,
+) -> ApiResult<()> {
+    let found = account_currency::Entity::find()
+        .filter(account_currency::Column::AccountId.eq(account_id))
+        .filter(account_currency::Column::CurrencyId.eq(currency_id))
+        .one(db)
+        .await?
+        .is_some();
+    if !found {
+        v.fail(field, "exists", &[]);
+    }
+    Ok(())
+}
+
+async fn check_participants<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    prefix: &str,
+    vault_id: Uuid,
+    ids: &[Uuid],
+) -> ApiResult<()> {
+    for (i, contact_id) in ids.iter().enumerate() {
+        check_vault_contact(db, v, &format!("{prefix}participant_ids.{i}"), vault_id, *contact_id).await?;
+    }
+    Ok(())
+}
+
+/// `LifeEventCreate` with its fields under `prefix`: the PHP rules, the
+/// draft's limits, and 422 `exists` for a type outside the vault's
+/// categories, a currency the account doesn't use or a contact outside the
+/// vault. `None` when a required field is missing.
+async fn life_event_fields<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    prefix: &str,
+    (account_id, vault_id): (Uuid, Uuid),
+    body: LifeEventCreate,
+) -> ApiResult<Option<LifeEventFields>> {
+    let field = |name: &str| format!("{prefix}{name}");
+    match body.life_event_type_id {
+        Some(type_id) => check_life_event_type(db, v, &field("life_event_type_id"), vault_id, Id(type_id)).await?,
+        None => v.fail(&field("life_event_type_id"), "required", &[]),
+    }
+    v.required(&field("happened_at"), &body.happened_at);
+    let summary = clean(body.summary);
+    v.max_len(&field("summary"), summary.as_deref(), 255);
+    let description = clean(body.description);
+    v.max_len(&field("description"), description.as_deref(), 65535);
+    let costs = int32(v, &field("costs"), body.costs);
+    if let Some(currency_id) = body.currency_id {
+        check_currency(db, v, &field("currency_id"), account_id, Id(currency_id)).await?;
+    }
+    if let Some(contact_id) = body.paid_by_contact_id {
+        check_vault_contact(db, v, &field("paid_by_contact_id"), vault_id, contact_id).await?;
+    }
+    let duration_in_minutes = int32(v, &field("duration_in_minutes"), body.duration_in_minutes);
+    let distance = int32(v, &field("distance"), body.distance);
+    let distance_unit = clean(body.distance_unit);
+    v.one_of(&field("distance_unit"), distance_unit.as_deref(), DISTANCE_UNITS);
+    let from_place = clean(body.from_place);
+    v.max_len(&field("from_place"), from_place.as_deref(), 255);
+    let to_place = clean(body.to_place);
+    v.max_len(&field("to_place"), to_place.as_deref(), 255);
+    let place = clean(body.place);
+    v.max_len(&field("place"), place.as_deref(), 255);
+    let participant_ids = body.participant_ids.unwrap_or_default();
+    check_participants(db, v, prefix, vault_id, &participant_ids).await?;
+    let (Some(type_id), Some(happened_at)) = (body.life_event_type_id, body.happened_at) else { return Ok(None) };
+    Ok(Some(LifeEventFields {
+        life_event_type_id: Id(type_id),
+        happened_at,
+        summary,
+        description,
+        costs,
+        currency_id: body.currency_id.map(Id),
+        paid_by_contact_id: body.paid_by_contact_id,
+        duration_in_minutes,
+        distance,
+        distance_unit,
+        from_place,
+        to_place,
+        place,
+        participant_ids,
+    }))
+}
+
+/// `LifeEventUpdate` merged into the life event (absent fields keep their
+/// value, the participants too), validated as [`life_event_fields`]; `None`
+/// when nothing but `collapsed` is sent.
+async fn life_event_update_fields<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    (account_id, vault_id): (Uuid, Uuid),
+    life_event: &life_events::Model,
+    body: LifeEventUpdate,
+) -> ApiResult<Option<LifeEventFields>> {
+    let edits = body.life_event_type_id.is_some()
+        || body.happened_at.is_some()
+        || body.summary.is_some()
+        || body.description.is_some()
+        || body.costs.is_some()
+        || body.currency_id.is_some()
+        || body.paid_by_contact_id.is_some()
+        || body.duration_in_minutes.is_some()
+        || body.distance.is_some()
+        || body.distance_unit.is_some()
+        || body.from_place.is_some()
+        || body.to_place.is_some()
+        || body.place.is_some()
+        || body.participant_ids.is_some();
+    if !edits {
+        return Ok(None);
+    }
+    let life_event_type_id = match body.life_event_type_id {
+        Some(type_id) => {
+            check_life_event_type(db, v, "life_event_type_id", vault_id, Id(type_id)).await?;
+            Id(type_id)
+        }
+        None => life_event.life_event_type_id,
+    };
+    let merge = |value: Option<Option<String>>, current: &Option<String>| match value {
+        Some(value) => clean(value),
+        None => current.clone(),
+    };
+    let summary = merge(body.summary, &life_event.summary);
+    v.max_len("summary", summary.as_deref(), 255);
+    let description = merge(body.description, &life_event.description);
+    v.max_len("description", description.as_deref(), 65535);
+    let costs = match body.costs {
+        Some(costs) => int32(v, "costs", costs),
+        None => life_event.costs,
+    };
+    let currency_id = match body.currency_id {
+        Some(Some(currency_id)) => {
+            check_currency(db, v, "currency_id", account_id, Id(currency_id)).await?;
+            Some(Id(currency_id))
+        }
+        Some(None) => None,
+        None => life_event.currency_id,
+    };
+    let paid_by_contact_id = match body.paid_by_contact_id {
+        Some(Some(contact_id)) => {
+            check_vault_contact(db, v, "paid_by_contact_id", vault_id, contact_id).await?;
+            Some(contact_id)
+        }
+        Some(None) => None,
+        None => life_event.paid_by_contact_id,
+    };
+    let duration_in_minutes = match body.duration_in_minutes {
+        Some(minutes) => int32(v, "duration_in_minutes", minutes),
+        None => life_event.duration_in_minutes,
+    };
+    let distance = match body.distance {
+        Some(distance) => int32(v, "distance", distance),
+        None => life_event.distance,
+    };
+    let distance_unit = match body.distance_unit {
+        Some(unit) => {
+            let unit = clean(unit);
+            v.one_of("distance_unit", unit.as_deref(), DISTANCE_UNITS);
+            unit
+        }
+        None => life_event.distance_unit.clone(),
+    };
+    let from_place = merge(body.from_place, &life_event.from_place);
+    v.max_len("from_place", from_place.as_deref(), 255);
+    let to_place = merge(body.to_place, &life_event.to_place);
+    v.max_len("to_place", to_place.as_deref(), 255);
+    let place = merge(body.place, &life_event.place);
+    v.max_len("place", place.as_deref(), 255);
+    let participant_ids = match body.participant_ids {
+        Some(ids) => {
+            check_participants(db, v, "", vault_id, &ids).await?;
+            ids
+        }
+        None => {
+            let ids: Vec<Uuid> = life_event_participants::Entity::find()
+                .filter(life_event_participants::Column::LifeEventId.eq(life_event.id))
+                .all(db)
+                .await?
+                .into_iter()
+                .map(|l| l.contact_id)
+                .collect();
+            let live = contacts::Entity::live()
+                .filter(contacts::Column::Id.is_in(ids.clone()))
+                .filter(contacts::Column::VaultId.eq(vault_id))
+                .all(db)
+                .await?;
+            ids.into_iter().filter(|id| live.iter().any(|c| c.id == *id)).collect()
+        }
+    };
+    Ok(Some(LifeEventFields {
+        life_event_type_id,
+        happened_at: body.happened_at.unwrap_or(life_event.happened_at),
+        summary,
+        description,
+        costs,
+        currency_id,
+        paid_by_contact_id,
+        duration_in_minutes,
+        distance,
+        distance_unit,
+        from_place,
+        to_place,
+        place,
+        participant_ids,
+    }))
+}
+
+// mood tracking
+
+fn mood_tracking_parameter(p: &mood_tracking_parameters::Model) -> MoodTrackingParameter {
+    MoodTrackingParameter {
+        id: p.id,
+        vault_id: p.vault_id,
+        label: p.label.clone(),
+        label_translation_key: p.label_translation_key.clone(),
+        hex_color: p.hex_color.clone(),
+        position: p.position.map(i64::from),
+        created_at: ts(p.created_at),
+        updated_at: ts(p.updated_at),
+    }
 }
 
 /// The operations of this module.
