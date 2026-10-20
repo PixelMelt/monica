@@ -71,8 +71,13 @@ impl UpdateGender {
   - `required` on a `String`: fail `required` when it is empty after trim
     (Laravel's `required` rejects `""`);
   - `max:n`, `min:n`, `email`, `in:…`, `date_format`, integer bounds;
-  - `exists:table,id` on a value the caller passes: query that the row
-    exists (in any account), else fail `exists` (Laravel's ValidationException).
+  - `exists:table,id` on a value that references another row (an
+    `emotion_id` on a note, a `template_id` on a vault): query that the row
+    exists (in any account), else fail `exists` (Laravel's
+    ValidationException). Not for the id of the row the service acts on
+    (`gender_id` in UpdateGender) nor for `account_id`/`author_id`/
+    `vault_id`/`contact_id`: those are found by the scoped lookup or
+    `check()`, and a miss is a 404 (api-design.md §6).
 - **Permissions**: `crate::domains::base::check(db, &Check { … })` with the
   service's `permissions()` (see `base.rs` for the mapping). Use the returned
   `Checked` for `$this->author`, `$this->vault`, `$this->contact`,
