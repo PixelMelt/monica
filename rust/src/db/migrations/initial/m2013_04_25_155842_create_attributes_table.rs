@@ -5,7 +5,9 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("templates", |t| {
         t.id();
-        t.foreign_id_for("account_id", Key::Uuid).constrained("accounts").cascade_on_delete();
+        t.foreign_id_for("account_id", Key::Uuid)
+            .constrained("accounts")
+            .cascade_on_delete();
         t.string("name").nullable();
         t.string("name_translation_key").nullable();
         t.timestamps();
@@ -15,7 +17,9 @@ pub fn up(s: &mut Schema, _e: Engine) {
 
     s.create("template_pages", |t| {
         t.id();
-        t.foreign_id_for("template_id", Key::Int).constrained("templates").cascade_on_delete();
+        t.foreign_id_for("template_id", Key::Int)
+            .constrained("templates")
+            .cascade_on_delete();
         t.string("name").nullable();
         t.string("name_translation_key").nullable();
         t.string("slug");
@@ -27,7 +31,9 @@ pub fn up(s: &mut Schema, _e: Engine) {
 
     s.create("modules", |t| {
         t.id();
-        t.foreign_id_for("account_id", Key::Uuid).constrained("accounts").cascade_on_delete();
+        t.foreign_id_for("account_id", Key::Uuid)
+            .constrained("accounts")
+            .cascade_on_delete();
         t.string("name").nullable();
         t.string("name_translation_key").nullable();
         t.string("type").nullable();
@@ -38,22 +44,30 @@ pub fn up(s: &mut Schema, _e: Engine) {
     });
 
     s.create("module_template_page", |t| {
-        t.foreign_id_for("template_page_id", Key::Int).constrained("template_pages").cascade_on_delete();
-        t.foreign_id_for("module_id", Key::Int).constrained("modules").cascade_on_delete();
+        t.foreign_id_for("template_page_id", Key::Int)
+            .constrained("template_pages")
+            .cascade_on_delete();
+        t.foreign_id_for("module_id", Key::Int)
+            .constrained("modules")
+            .cascade_on_delete();
         t.integer("position").nullable();
         t.timestamps();
     });
 
     s.create("module_rows", |t| {
         t.id();
-        t.foreign_id_for("module_id", Key::Int).constrained("modules").cascade_on_delete();
+        t.foreign_id_for("module_id", Key::Int)
+            .constrained("modules")
+            .cascade_on_delete();
         t.integer("position").nullable();
         t.timestamps();
     });
 
     s.create("module_row_fields", |t| {
         t.id();
-        t.foreign_id_for("module_row_id", Key::Int).constrained("module_rows").cascade_on_delete();
+        t.foreign_id_for("module_row_id", Key::Int)
+            .constrained("module_rows")
+            .cascade_on_delete();
         t.string("label");
         t.string("module_field_type");
         t.boolean("required").default(false);
