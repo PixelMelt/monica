@@ -2,4 +2,15 @@
 
 use crate::db::blueprint::{Engine, Schema};
 
-pub fn up(_s: &mut Schema, _e: Engine) {}
+pub fn up(s: &mut Schema, _e: Engine) {
+    s.create("personal_access_tokens", |t| {
+        t.id();
+        t.morphs("tokenable");
+        t.string("name");
+        t.string_len("token", 64).unique();
+        t.text("abilities").nullable();
+        t.timestamp("last_used_at").nullable();
+        t.timestamp("expires_at").nullable();
+        t.timestamps();
+    });
+}
