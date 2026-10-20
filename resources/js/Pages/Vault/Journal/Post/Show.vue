@@ -127,7 +127,7 @@ defineProps({
                   v-for="photo in data.photos"
                   :key="photo.id"
                   class="me-2 rounded-md border border-gray-200 p-2 shadow-xs hover:bg-slate-50 hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-                  <img :src="photo.url.display" :alt="photo.name" />
+                  <img :src="photo.url.display" :alt="photo.name" width="100" height="100" />
                 </div>
               </div>
 

@@ -1,7 +1,11 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { updateJournalSlice } from '@/api/client';
+import * as dto from '@/adapters/journals';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -14,6 +18,7 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
 const loadingState = ref(false);
 
 const form = useForm({
@@ -24,9 +29,18 @@ const form = useForm({
 const submit = () => {
   loadingState.value = 'loading';
 
-  form.put(props.data.url.update, {
-    onFinish: () => {},
-  });
+  form.submit(
+    (data) =>
+      updateJournalSlice(
+        { vault_id: currentRoute.params.vault, journal_id: props.data.journal.id, slice_id: props.data.slice.id },
+        { name: data.name, description: dto.orNull(data.description) },
+      ),
+    {
+      onSuccess: (slice) =>
+        visit(route('slices.show', { vault: currentRoute.params.vault, journal: slice.journal_id, slice: slice.id })),
+      onFinish: () => {},
+    },
+  );
 };
 </script>
 

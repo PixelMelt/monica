@@ -1,7 +1,10 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { createJournalMetric, deleteJournalMetric } from '@/api/client';
+import * as dto from '@/adapters/journals';
 import { trans } from 'laravel-vue-i18n';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -13,6 +16,9 @@ const props = defineProps({
   layoutData: Object,
   data: Object,
 });
+
+const currentRoute = useRoute();
+const journalParams = () => ({ vault_id: currentRoute.params.vault, journal_id: props.data.journal.id });
 
 const localMetrics = ref(props.data.journalMetrics);
 const loadingState = ref('');
@@ -33,12 +39,11 @@ const showJournalMetricModal = () => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createJournalMetric(journalParams(), { label: form.label })
+    .then((metric) => {
       createJournalMetricModalShown.value = false;
       loadingState.value = '';
-      localMetrics.value.unshift(response.data.data);
+      localMetrics.value.unshift(dto.journalMetric(metric));
     })
     .catch(() => {
       loadingState.value = '';
@@ -47,8 +52,7 @@ const submit = () => {
 
 const destroy = (metric) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(metric.url.destroy)
+    deleteJournalMetric({ ...journalParams(), journal_metric_id: metric.id })
       .then(() => {
         var id = localMetrics.value.findIndex((x) => x.id === metric.id);
         localMetrics.value.splice(id, 1);

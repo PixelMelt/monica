@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { createJournalSlice } from '@/api/client';
+import * as dto from '@/adapters/journals';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
@@ -13,6 +16,7 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
 const localSlices = ref(props.data.slicesOfLife);
 const loadingState = ref('');
 const createSliceOfLifeModalShown = ref(false);
@@ -29,12 +33,11 @@ const showSliceOfLifeModal = () => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createJournalSlice({ vault_id: currentRoute.params.vault, journal_id: props.data.journal.id }, { name: form.name })
+    .then((slice) => {
       createSliceOfLifeModalShown.value = false;
       loadingState.value = '';
-      localSlices.value.unshift(response.data.data);
+      localSlices.value.unshift(dto.sliceOfLifeIndexSlice(slice, currentRoute.params.vault));
     })
     .catch(() => {
       loadingState.value = '';

@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
+import { createJournalPostMetric, deleteJournalPostMetric } from '@/api/client';
+import * as dto from '@/adapters/journals';
 import { trans } from 'laravel-vue-i18n';
 import Errors from '@/Shared/Form/Errors.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
@@ -9,6 +12,13 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 
 const props = defineProps({
   data: Object,
+});
+
+const currentRoute = useRoute();
+const postParams = () => ({
+  vault_id: currentRoute.params.vault,
+  journal_id: currentRoute.params.journal,
+  post_id: props.data.id,
 });
 
 const form = useForm({
@@ -38,13 +48,16 @@ const store = (journalMetric) => {
   loadingState.value = 'loading';
   form.journal_metric_id = journalMetric.id;
 
-  axios
-    .post(journalMetric.url.store, form)
-    .then((response) => {
+  createJournalPostMetric(postParams(), {
+    journal_metric_id: form.journal_metric_id,
+    value: Number(form.value),
+    label: dto.orNull(form.label),
+  })
+    .then((postMetric) => {
       loadingState.value = '';
       localJournalMetrics.value[
         localJournalMetrics.value.findIndex((x) => x.id === journalMetric.id)
-      ].post_metrics.push(response.data.data);
+      ].post_metrics.push(dto.postMetric(postMetric));
       addModalShown.value = false;
     })
     .catch(() => {
@@ -54,7 +67,7 @@ const store = (journalMetric) => {
 
 const destroy = (journalMetric, postMetric) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios.delete(postMetric.url.destroy).then(() => {
+    deleteJournalPostMetric({ ...postParams(), post_metric_id: postMetric.id }).then(() => {
       var id = localJournalMetrics.value.findIndex((x) => x.id === journalMetric.id);
       var postMetricId = localJournalMetrics.value[id].post_metrics.findIndex((x) => x.id === postMetric.id);
       localJournalMetrics.value[id].post_metrics.splice(postMetricId, 1);
