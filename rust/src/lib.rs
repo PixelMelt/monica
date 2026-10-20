@@ -22,3 +22,4 @@ pub mod text;
 pub mod testing;
 pub mod validate;
 pub mod vobject;
+pub mod wikipedia;

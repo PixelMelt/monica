@@ -11646,7 +11646,7 @@
           "Journals"
         ],
         "summary": "Delete a journal",
-        "description": "Its posts (with sections, tags, contacts and metrics), slices of life and\njournal metrics go with it by cascade. As today, the `files` rows of the\nposts' photos and of slice covers are not deleted.\n",
+        "description": "Its posts (with sections, tags, contacts and metrics), slices of life and\njournal metrics go with it by cascade. The `files` rows of the posts'\nphotos and of slice covers are deleted too, with their bytes (Q7).\n",
         "x-permission": "vault:edit",
         "x-inventory": [
           "R139"
@@ -12881,7 +12881,7 @@
           "Journals"
         ],
         "summary": "Delete a slice of life",
-        "description": "Its posts stay in the journal with `slice_of_life_id` set to null. As\ntoday, the cover image's `files` row is not deleted.\n",
+        "description": "Its posts stay in the journal with `slice_of_life_id` set to null. The\ncover image's `files` row is deleted, with its bytes (Q7).\n",
         "x-permission": "vault:edit",
         "x-inventory": [
           "R162"
@@ -12929,7 +12929,7 @@
           "Journals"
         ],
         "summary": "Upload a slice of life's cover image",
-        "description": "Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a\n`files` row of type `photo` and sets `file_cover_image_id`. As today, a\nprevious cover's file is kept.\n",
+        "description": "Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a\n`files` row of type `photo` and sets `file_cover_image_id`. A previous\ncover's `files` row is deleted, with its bytes (Q7).\n",
         "x-permission": "vault:edit",
         "x-inventory": [
           "R160"
@@ -20411,13 +20411,13 @@
           },
           "max_streak": {
             "type": "integer",
-            "minimum": 1,
-            "description": "Computed (`GoalHelper::getStreakData`): the longest run of\nconsecutive days with a streak. 1 when the goal has no streaks, as today.\n"
+            "minimum": 0,
+            "description": "Computed (`GoalHelper::getStreakData`): the longest run of\nconsecutive days with a streak; 0 when the goal has no streaks (Q6).\n"
           },
           "current_streak": {
             "type": "integer",
             "minimum": 0,
-            "description": "Computed (`GoalHelper::getStreakData`): when the latest streak is\ntoday (UTC), the number of day-to-day steps in the run ending on it\n(a run of n days gives n − 1, as today); otherwise 0.\n"
+            "description": "Computed (`GoalHelper::getStreakData`): when the latest streak is\ntoday (UTC), the number of days of the run ending on it (Q6);\notherwise 0.\n"
           },
           "last_7_days": {
             "type": "array",
@@ -24581,12 +24581,42 @@
         "type": "object",
         "required": [
           "name",
-          "addresses"
+          "addresses",
+          "wikipedia"
         ],
         "properties": {
           "name": {
             "type": "string",
             "description": "The requested city or country."
+          },
+          "wikipedia": {
+            "type": "object",
+            "description": "`WikipediaHelper::getInformation` of the place, asked by the server\nin the request's language when the report is requested; every\nfield is null when Wikipedia can't be reached or `WIKIPEDIA_URL`\nis empty (Q1).\n",
+            "required": [
+              "url",
+              "description",
+              "thumbnail"
+            ],
+            "properties": {
+              "url": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "thumbnail": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
           },
           "addresses": {
             "type": "array",

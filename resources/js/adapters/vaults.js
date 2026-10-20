@@ -36,52 +36,6 @@ export function strLimit(text, limit = 100) {
   return `${chars.slice(0, limit).join('').trimEnd()}...`;
 }
 
-/** `Str::slug($text, language: $lang)`, with accents dropped for `Str::ascii`. */
-export function slug(text) {
-  let s = (text ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
-  s = s.replace(/_+/g, '-').replaceAll('@', '-at-');
-  s = s.toLowerCase().replace(/[^-\p{L}\p{N}\s]+/gu, '');
-  s = s.replace(/[-\s]+/gu, '-');
-  return s.replace(/^-+|-+$/g, '');
-}
-
-/** `currentLang()`: the language part of the user's locale (`pt_BR` → `pt`). */
-const currentLang = () =>
-  (session.user?.preferences.locale ?? session.instance?.locale ?? 'en').split(/[-_]/, 1)[0].toLowerCase();
-
-/**
- * `WikipediaHelper::getInformation`: the summary and thumbnail of a city or
- * country. The browser asks Wikipedia directly (inventory Q1 → b); any
- * failure gives the empty panel, as the server ignored request errors.
- */
-export async function wikipedia(topic) {
-  const empty = { url: null, description: null, thumbnail: null };
-  const lang = currentLang();
-  const query = new URLSearchParams({
-    action: 'query',
-    prop: 'description|pageimages',
-    titles: topic,
-    pithumbsize: 400,
-    format: 'json',
-    origin: '*',
-  });
-  let json = null;
-  try {
-    const response = await fetch(`https://${lang}.wikipedia.org/w/api.php?${query}`);
-    if (!response.ok) return empty;
-    json = await response.json();
-  } catch {
-    return empty;
-  }
-  const page = Object.values(json?.query?.pages ?? {})[0];
-  if (page?.missing === true) return empty;
-  return {
-    url: `https://${lang}.wikipedia.org/wiki/${slug(topic)}`,
-    description: page?.description ?? null,
-    thumbnail: page?.thumbnail?.source ?? null,
-  };
-}
-
 const pad = (n) => String(n).padStart(2, '0');
 const firstOfMonth = (year, month) => `${year}-${pad(month)}-01`;
 

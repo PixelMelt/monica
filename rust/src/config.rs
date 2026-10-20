@@ -58,6 +58,9 @@ pub struct Config {
     pub mail: MailTransport,
     /// `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`.
     pub mail_from: (String, String),
+    /// `WIKIPEDIA_URL`: the API the city and country reports read summaries
+    /// from (`{lang}` is the request's language); empty disables it (Q1).
+    pub wikipedia_url: Option<String>,
 }
 
 fn var(name: &str) -> Option<String> {
@@ -144,6 +147,11 @@ impl Config {
                 var("MAIL_FROM_ADDRESS").unwrap_or_else(|| "hello@example.com".into()),
                 var("MAIL_FROM_NAME").unwrap_or_else(|| "Monica".into()),
             ),
+            wikipedia_url: match std::env::var("WIKIPEDIA_URL").ok() {
+                Some(url) if url.trim().is_empty() => None,
+                Some(url) => Some(url),
+                None => Some("https://{lang}.wikipedia.org/w/api.php".into()),
+            },
         })
     }
 
@@ -167,6 +175,7 @@ impl Config {
             secure_cookies: false,
             mail: MailTransport::Memory,
             mail_from: ("hello@example.com".into(), "Monica".into()),
+            wikipedia_url: None,
         }
     }
 

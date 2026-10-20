@@ -3900,8 +3900,8 @@ export interface paths {
     /**
      * Delete a journal
      * @description Its posts (with sections, tags, contacts and metrics), slices of life and
-     *     journal metrics go with it by cascade. As today, the `files` rows of the
-     *     posts' photos and of slice covers are not deleted.
+     *     journal metrics go with it by cascade. The `files` rows of the posts'
+     *     photos and of slice covers are deleted too, with their bytes (Q7).
      *
      */
     delete: operations['deleteJournal'];
@@ -4365,8 +4365,8 @@ export interface paths {
     post?: never;
     /**
      * Delete a slice of life
-     * @description Its posts stay in the journal with `slice_of_life_id` set to null. As
-     *     today, the cover image's `files` row is not deleted.
+     * @description Its posts stay in the journal with `slice_of_life_id` set to null. The
+     *     cover image's `files` row is deleted, with its bytes (Q7).
      *
      */
     delete: operations['deleteJournalSlice'];
@@ -4392,8 +4392,8 @@ export interface paths {
     /**
      * Upload a slice of life's cover image
      * @description Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a
-     *     `files` row of type `photo` and sets `file_cover_image_id`. As today, a
-     *     previous cover's file is kept.
+     *     `files` row of type `photo` and sets `file_cover_image_id`. A previous
+     *     cover's `files` row is deleted, with its bytes (Q7).
      *
      */
     put: operations['setJournalSliceCover'];
@@ -6692,12 +6692,12 @@ export interface components {
       /** @description True on creation; no operation changes it today. */
       active: boolean;
       /** @description Computed (`GoalHelper::getStreakData`): the longest run of
-       *     consecutive days with a streak. 1 when the goal has no streaks, as today.
+       *     consecutive days with a streak; 0 when the goal has no streaks (Q6).
        *      */
       max_streak: number;
       /** @description Computed (`GoalHelper::getStreakData`): when the latest streak is
-       *     today (UTC), the number of day-to-day steps in the run ending on it
-       *     (a run of n days gives n − 1, as today); otherwise 0.
+       *     today (UTC), the number of days of the run ending on it (Q6);
+       *     otherwise 0.
        *      */
       current_streak: number;
       /** @description Computed. Today (UTC) and the 6 days before it, oldest first. */
@@ -7853,6 +7853,16 @@ export interface components {
     AddressPlaceReport: {
       /** @description The requested city or country. */
       name: string;
+      /** @description `WikipediaHelper::getInformation` of the place, asked by the server
+       *     in the request's language when the report is requested; every
+       *     field is null when Wikipedia can't be reached or `WIKIPEDIA_URL`
+       *     is empty (Q1).
+       *      */
+      wikipedia: {
+        url: string | null;
+        description: string | null;
+        thumbnail: string | null;
+      };
       addresses: (components['schemas']['Address'] & {
         contacts: components['schemas']['ContactCard'][];
       })[];

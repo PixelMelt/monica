@@ -191,6 +191,10 @@ pub struct AddressPlaceReport {
     /// The requested city or country.
     pub name: String,
     pub addresses: Vec<AddressPlaceReportAddresse>,
+    /// `WikipediaHelper::getInformation` of the place, asked by the server
+    /// in the request's language; empty fields when Wikipedia can't be
+    /// reached (Q1).
+    pub wikipedia: crate::wikipedia::WikipediaInfo,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -1229,7 +1233,9 @@ async fn place_report(
             }
         })
         .collect();
-    Ok(AddressPlaceReport { name, addresses })
+    let lang = crate::i18n::current().split(['-', '_']).next().unwrap_or("en").to_lowercase();
+    let wikipedia = crate::wikipedia::get_information(state.config.wikipedia_url.as_deref(), &lang, &name).await;
+    Ok(AddressPlaceReport { name, addresses, wikipedia })
 }
 
 // ---------------------------------------------------------------- files
