@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.settings" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.settings" class="text-blue-500 hover:underline">
                 {{ $t('Settings') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -40,93 +40,93 @@
           <ul>
             <li class="mb-2 flex">
               <span class="me-2">📐</span>
-              <InertiaLink :href="data.url.manage_templates" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_templates" class="text-blue-500 hover:underline">
                 {{ $t('Manage templates') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <!-- <li class="mb-2 flex">
               <span class="me-2">🥪</span>
-              <InertiaLink :href="data.url.manage_modules" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_modules" class="text-blue-500 hover:underline">
                 {{ $t('Manage modules') }}
-              </InertiaLink>
+              </AppLink>
             </li> -->
             <li class="mb-2 flex">
               <span class="me-2">👥</span>
-              <InertiaLink :href="data.url.manage_relationships" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_relationships" class="text-blue-500 hover:underline">
                 {{ $t('Manage relationship types') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">👥</span>
-              <InertiaLink :href="data.url.manage_group_types" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_group_types" class="text-blue-500 hover:underline">
                 {{ $t('Manage group types') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">👩‍🔬</span>
-              <InertiaLink :href="data.url.manage_pronouns" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_pronouns" class="text-blue-500 hover:underline">
                 {{ $t('Manage pronouns') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">🚻</span>
-              <InertiaLink :href="data.url.manage_genders" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_genders" class="text-blue-500 hover:underline">
                 {{ $t('Manage genders') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">🏖</span>
-              <InertiaLink :href="data.url.manage_address_types" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_address_types" class="text-blue-500 hover:underline">
                 {{ $t('Manage address types') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">☎️</span>
-              <InertiaLink :href="data.url.manage_contact_information_types" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_contact_information_types" class="text-blue-500 hover:underline">
                 {{ $t('Manage contact information types') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">📲</span>
-              <InertiaLink :href="data.url.manage_call_reasons" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_call_reasons" class="text-blue-500 hover:underline">
                 {{ $t('Manage call reasons') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">🐱</span>
-              <InertiaLink :href="data.url.manage_pet_categories" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_pet_categories" class="text-blue-500 hover:underline">
                 {{ $t('Manage pet categories') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">🎁</span>
-              <InertiaLink :href="data.url.manage_gift_occasions" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_gift_occasions" class="text-blue-500 hover:underline">
                 {{ $t('Manage gift occasions') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">🎁</span>
-              <InertiaLink :href="data.url.manage_gift_states" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_gift_states" class="text-blue-500 hover:underline">
                 {{ $t('Manage gift states') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">📮</span>
-              <InertiaLink :href="data.url.manage_post_templates" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_post_templates" class="text-blue-500 hover:underline">
                 {{ $t('Manage post templates') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="mb-2 flex">
               <span class="me-2">💵</span>
-              <InertiaLink :href="data.url.manage_currencies" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_currencies" class="text-blue-500 hover:underline">
                 {{ $t('Manage currencies') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="flex">
               <span class="me-2">⛪</span>
-              <InertiaLink :href="data.url.manage_religions" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.manage_religions" class="text-blue-500 hover:underline">
                 {{ $t('Manage religions') }}
-              </InertiaLink>
+              </AppLink>
             </li>
           </ul>
         </div>
@@ -141,7 +141,7 @@ import Layout from '@/Layouts/Layout.vue';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
   },
 

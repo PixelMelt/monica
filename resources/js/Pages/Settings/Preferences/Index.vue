@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.settings" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.settings" class="text-blue-500 hover:underline">
                 {{ $t('Settings') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -67,7 +67,7 @@ import HelpPreference from '@/Pages/Settings/Preferences/Partials/HelpPreference
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     NameOrder,
     DateFormat,

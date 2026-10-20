@@ -192,11 +192,11 @@
 
       <!-- view all button -->
       <div v-if="moduleMode" class="text-center">
-        <InertiaLink
+        <AppLink
           :href="data.url.index"
           class="rounded-xs border border-gray-200 px-3 py-1 text-sm text-blue-500 hover:border-gray-500 dark:border-gray-700">
           {{ $t('View all') }}
-        </InertiaLink>
+        </AppLink>
       </div>
 
       <!-- pagination -->
@@ -229,7 +229,7 @@ import * as dto from '@/adapters/modules-a';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     HoverMenu,
     PrettyButton,
     PrettySpan,

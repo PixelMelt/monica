@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
+              <AppLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
                 {{ $t('Contacts') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -99,7 +99,7 @@ import { updateContact } from '@/api/client';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
   },
 

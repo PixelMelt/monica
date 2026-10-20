@@ -150,9 +150,9 @@
 
           <!-- view log -->
           <li class="me-4 inline cursor-pointer text-blue-500 hover:underline">
-            <InertiaLink :href="email.url.logs" class="text-blue-500 hover:underline">
+            <AppLink :href="email.url.logs" class="text-blue-500 hover:underline">
               {{ $t('View log') }}
-            </InertiaLink>
+            </AppLink>
           </li>
 
           <!-- delete email -->
@@ -202,7 +202,7 @@ import * as dto from '@/adapters/settings';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     ATooltip,
     PrettyButton,
     PrettySpan,

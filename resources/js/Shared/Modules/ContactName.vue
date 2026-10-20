@@ -2,9 +2,9 @@
   <div class="mb-4">
     <div class="pb-1 mb-2 items-center justify-between border-b border-gray-200 dark:border-gray-700 flex">
       <div class="text-xs">{{ $t('Name') }}</div>
-      <InertiaLink :href="data.url.edit" class="relative">
+      <AppLink :href="data.url.edit" class="relative">
         <Pencil class="h-3 w-3 text-gray-400" />
-      </InertiaLink>
+      </AppLink>
     </div>
 
     <h1 class="flex items-center justify-between text-xl font-bold">
@@ -34,7 +34,7 @@ import * as dto from '@/adapters/contacts';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     ATooltip,
     StarIcon,
     Pencil,

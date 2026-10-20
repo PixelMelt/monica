@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.settings" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.settings" class="text-blue-500 hover:underline">
                 {{ $t('Settings') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -24,9 +24,9 @@
               </svg>
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.personalize" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.personalize" class="text-blue-500 hover:underline">
                 {{ $t('Personalize your account') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -294,7 +294,7 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrettyLink,
     PrettyButton,

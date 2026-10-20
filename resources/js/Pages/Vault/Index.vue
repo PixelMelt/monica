@@ -17,7 +17,7 @@
             }}
           </p>
           <div class="mb-1 text-center">
-            <InertiaLink
+            <AppLink
               :href="data.url.vault.create"
               :text="$t('Create a vault')"
               class="cursor-pointer rounded-md border border-indigo-700 bg-indigo-500 px-3 py-2 font-semibold text-white shadow-xs hover:bg-indigo-700" />
@@ -50,7 +50,7 @@
           <h3 class="mb-3 dark:text-slate-200 sm:mb-0">
             {{ $t('All the vaults in the account') }}
           </h3>
-          <InertiaLink
+          <AppLink
             :href="data.url.vault.create"
             :text="$t('Create a vault')"
             class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1 font-semibold text-gray-700 hover:shadow-xs transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25" />
@@ -64,19 +64,19 @@
             <div class="vault-detail grid relative">
               <div
                 class="flex items-center justify-between border-b border-gray-200 hover:rounded-t-lg hover:bg-slate-50 dark:hover:bg-slate-800">
-                <InertiaLink
+                <AppLink
                   :href="vault.url.show"
                   class="px-3 py-1 text-lg font-medium dark:border-gray-700 dark:bg-slate-900 dark:text-gray-300">
                   {{ vault.name }}
-                </InertiaLink>
+                </AppLink>
 
                 <!-- Edit button -->
-                <InertiaLink
+                <AppLink
                   :href="vault.url.edit"
                   class="ml-2 px-2 py-1 text-sm font-medium text-blue-600 hover:text-white dark:text-blue-400 dark:border-blue-400 hover:dark:text-slate-900">
                   <Pencil
                     class="cursor-pointer h-4 w-4 text-gray-400 hover:text-gray-900 dark:text-gray-600 hover:dark:text-gray-100" />
-                </InertiaLink>
+                </AppLink>
               </div>
 
               <!-- description -->
@@ -104,15 +104,15 @@
 
               <!-- actions -->
               <div class="flex items-center justify-between border-t border-gray-200 px-3 py-2 dark:border-gray-700">
-                <InertiaLink :href="vault.url.settings">
+                <AppLink :href="vault.url.settings">
                   <Settings
                     class="h-5 w-5 text-gray-400 hover:text-gray-900 dark:text-gray-600 dark:hover:text-gray-100" />
-                </InertiaLink>
+                </AppLink>
 
-                <InertiaLink :href="vault.url.show">
+                <AppLink :href="vault.url.show">
                   <ArrowRight
                     class="h-5 w-5 text-gray-400 hover:text-gray-900 dark:text-gray-600 dark:hover:text-gray-100" />
-                </InertiaLink>
+                </AppLink>
               </div>
             </div>
           </div>
@@ -130,7 +130,7 @@ import { Pencil, Settings, ArrowRight } from 'lucide-vue-next';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     Avatar,
     Pencil,

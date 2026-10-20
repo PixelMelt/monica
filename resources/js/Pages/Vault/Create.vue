@@ -8,9 +8,9 @@
             {{ $t('You are here:') }}
           </div>
           <div class="inline">
-            <Link :href="data.url.back" class="text-blue-500 hover:underline">
+            <AppLink :href="data.url.back" class="text-blue-500 hover:underline">
               {{ $t('All the vaults') }}
-            </Link>
+            </AppLink>
           </div>
           <div class="relative inline">
             <ChevronRight class="h-3 w-3" />
@@ -57,7 +57,7 @@
           </div>
 
           <div class="flex justify-between p-5">
-            <InertiaLink
+            <AppLink
               :href="data.url.back"
               :text="$t('Cancel')"
               class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1 font-semibold text-gray-700 hover:shadow-xs transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25" />
@@ -87,7 +87,7 @@ import { route, visit } from '@/router';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrimaryButton,
     TextInput,
