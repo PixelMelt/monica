@@ -1,50 +1,24 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
-import JetButton from '@/Components/Button.vue';
+import { route, visit, intended } from '@/router';
+import { logIn } from '@/api/client';
+import { setPendingLogin } from '@/adapters/auth';
 import JetCheckbox from '@/Components/Checkbox.vue';
 import JetValidationErrors from '@/Components/ValidationErrors.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import PrimaryButton from '@/Shared/Form/PrimaryButton.vue';
-import WebauthnLogin from '@/Pages/Webauthn/WebauthnLogin.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
 import Beta from './Beta.vue';
-import ExternalProviders from './ExternalProviders.vue';
-import { platformAuthenticatorIsAvailable } from '@simplewebauthn/browser';
 import { TriangleAlert } from 'lucide-vue-next';
 
-const props = defineProps({
+defineProps({
   isSignupEnabled: Boolean,
   canResetPassword: Boolean,
   status: String,
   wallpaperUrl: String,
-  providers: Object,
-  publicKey: Object,
-  userless: Boolean,
-  autologin: Boolean,
   beta: Boolean,
   showDeletionNotice: Boolean,
-});
-const webauthn = ref(false);
-const publicKeyRef = ref(null);
-const platformAuthenticatorAvailable = ref(false);
-const useSecurityKey = computed(
-  () => (publicKeyRef.value !== null && props.autologin && platformAuthenticatorAvailable.value) || webauthn.value,
-);
-
-watch(
-  () => props.publicKey,
-  (value) => {
-    publicKeyRef.value = value;
-  },
-);
-
-onMounted(() => {
-  publicKeyRef.value = props.publicKey;
-  platformAuthenticatorIsAvailable().then((available) => {
-    platformAuthenticatorAvailable.value = available;
-  });
 });
 
 const form = useForm({
@@ -53,27 +27,14 @@ const form = useForm({
   remember: true,
 });
 
-watch(
-  () => props.publicKey,
-  (value) => {
-    publicKeyRef.value = value;
-  },
-);
-
 const submit = () => {
-  form
-    .transform((data) => ({
-      ...data,
-      remember: form.remember ? 'on' : '',
-    }))
-    .post(route('login'), {
-      onFinish: () => form.reset('password'),
-    });
-};
-
-const useWebauthn = () => {
-  form.reset();
-  webauthn.value = true;
+  form.submit((data) => logIn({}, { email: data.email, password: data.password, remember: data.remember }), {
+    onSuccess: (result) => {
+      setPendingLogin(result.two_factor);
+      return visit(result.two_factor ? route('two-factor.login') : intended());
+    },
+    onFinish: () => form.reset('password'),
+  });
 };
 </script>
 
@@ -127,7 +88,7 @@ const useWebauthn = () => {
                 :input-class="'block w-full'"
                 :required="true"
                 :autofocus="true"
-                :autocomplete="'username webauthn'"
+                :autocomplete="'username'"
                 :maxlength="255" />
             </div>
 
@@ -166,16 +127,6 @@ const useWebauthn = () => {
           </form>
         </div>
 
-        <div class="px-6 block" v-if="userless || publicKeyRef">
-          <div class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
-            <JetButton v-if="!useSecurityKey" class="block" @click.prevent="useWebauthn">
-              {{ $t('Sign in with a passkey') }}
-            </JetButton>
-          </div>
-
-          <WebauthnLogin v-if="useSecurityKey" :public-key="publicKeyRef" :remember="true" :autofill="true" />
-        </div>
-
         <div v-if="isSignupEnabled" class="px-6 py-6 text-l dark:text-gray-50">
           {{ $t('New to Monica?') }}
           <Link :href="route('register')" class="text-blue-500 text-l hover:underline">
@@ -184,7 +135,5 @@ const useWebauthn = () => {
         </div>
       </div>
     </div>
-
-    <ExternalProviders class="mt-3 block px-6" :providers="providers" :remember="form.remember" />
   </div>
 </template>

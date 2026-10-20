@@ -1,5 +1,9 @@
 <script setup>
+import { trans } from 'laravel-vue-i18n';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { resetPassword } from '@/api/client';
+import { flashStatus } from '@/adapters/auth';
 import JetButton from '@/Components/Button.vue';
 import JetGuestLayout from '@/Shared/Guest.vue';
 import JetInput from '@/Components/Input.vue';
@@ -19,9 +23,25 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('password.update'), {
-    onFinish: () => form.reset('password', 'password_confirmation'),
-  });
+  form.submit(
+    (data) =>
+      resetPassword(
+        {},
+        {
+          token: data.token,
+          email: data.email,
+          password: data.password,
+          password_confirmation: data.password_confirmation,
+        },
+      ),
+    {
+      onSuccess: () => {
+        flashStatus(trans('passwords.reset'));
+        return visit(route('login'));
+      },
+      onFinish: () => form.reset('password', 'password_confirmation'),
+    },
+  );
 };
 </script>
 

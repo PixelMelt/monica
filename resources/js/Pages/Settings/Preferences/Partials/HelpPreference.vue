@@ -27,6 +27,8 @@
 
 <script>
 import Help from '@/Shared/Help.vue';
+import { session } from '@/lib/session';
+import { updateMyPreferences } from '@/api/client';
 
 export default {
   components: {
@@ -55,11 +57,11 @@ export default {
 
   methods: {
     submit() {
-      axios
-        .post(this.data.url.store, this.form)
-        .then(() => {
+      // `StoreHelpPreference` with `! $user->help_shown`: the toggle flips the saved value.
+      updateMyPreferences({}, { help_shown: !session.user.preferences.help_shown })
+        .then((prefs) => {
           this.flash(this.$t('Changes saved'), 'success');
-          this.$page.props.auth.user.help_shown = this.form.checked;
+          session.user.preferences.help_shown = prefs.help_shown;
         })
         .catch((error) => {
           this.form.errors = error.response.data;

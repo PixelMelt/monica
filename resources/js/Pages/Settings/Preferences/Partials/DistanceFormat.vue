@@ -61,6 +61,7 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Help from '@/Shared/Help.vue';
+import { updateMyPreferences } from '@/api/client';
 
 export default {
   components: {
@@ -112,8 +113,7 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
+      updateMyPreferences({}, { distance_format: this.form.distanceFormat })
         .then(() => {
           this.flash(this.$t('Changes saved'), 'success');
           this.localDistanceFormat = this.form.distanceFormat;

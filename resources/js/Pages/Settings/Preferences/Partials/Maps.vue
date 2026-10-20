@@ -64,6 +64,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Help from '@/Shared/Help.vue';
+import { updateMyPreferences } from '@/api/client';
+import * as dto from '@/adapters/settings';
 
 export default {
   components: {
@@ -105,11 +107,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      updateMyPreferences({}, { default_map_site: this.form.value })
+        .then((prefs) => {
           this.flash(this.$t('Changes saved'), 'success');
-          this.currentMap = response.data.data.default_map_site_i18n;
+          this.currentMap = dto.maps(prefs).default_map_site_i18n;
           this.editMode = false;
           this.loadingState = null;
         })

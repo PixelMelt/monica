@@ -69,9 +69,6 @@
 
         <!-- Email notifications -->
         <emails :data="data" />
-
-        <!-- Telegram notifications -->
-        <telegram :data="data" />
       </div>
     </main>
   </layout>
@@ -81,14 +78,12 @@
 import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import Emails from '@/Pages/Settings/Notifications/Partials/Emails.vue';
-import Telegram from '@/Pages/Settings/Notifications/Partials/Telegram.vue';
 
 export default {
   components: {
     InertiaLink: Link,
     Layout,
     Emails,
-    Telegram,
   },
 
   props: {

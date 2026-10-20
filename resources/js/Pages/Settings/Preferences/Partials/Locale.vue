@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { useForm } from '@/lib/form';
 import { loadLanguageAsync, getActiveLanguage, trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
+import { updateMyPreferences } from '@/api/client';
+import * as dto from '@/adapters/settings';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Errors from '@/Shared/Form/Errors.vue';
@@ -18,23 +20,22 @@ const editMode = ref(false);
 const localLocale = ref(props.data.name);
 const form = useForm({
   locale: props.data.id,
-  errors: [],
 });
 
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form.data())
-    .then((response) => {
+  updateMyPreferences({}, { locale: form.locale })
+    .then((prefs) => {
+      const locale = dto.locale(prefs);
       flash(trans('Changes saved'), 'success');
-      localLocale.value = response.data.data.name;
+      localLocale.value = locale.name;
       editMode.value = false;
       loadingState.value = null;
 
       if (getActiveLanguage() !== form.locale) {
-        loadLanguageAsync(response.data.data.id);
-        document.getRootNode().querySelector('html').setAttribute('dir', response.data.data.dir);
+        loadLanguageAsync(locale.id);
+        document.getRootNode().querySelector('html').setAttribute('dir', locale.dir);
       }
     })
     .catch((error) => {

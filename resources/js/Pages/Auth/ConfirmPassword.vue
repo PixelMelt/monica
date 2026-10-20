@@ -1,5 +1,7 @@
 <script setup>
 import { useForm } from '@/lib/form';
+import { visit, intended } from '@/router';
+import { confirmPassword } from '@/api/client';
 import JetButton from '@/Components/Button.vue';
 import JetGuestLayout from '@/Shared/Guest.vue';
 import JetInput from '@/Components/Input.vue';
@@ -11,8 +13,9 @@ const form = useForm({
 });
 
 const submit = () => {
-  form.post(route('password.confirm'), {
-    onFinish: () => this.form.reset(),
+  form.submit((data) => confirmPassword({}, { password: data.password }), {
+    onSuccess: () => visit(intended()),
+    onFinish: () => form.reset(),
   });
 };
 </script>

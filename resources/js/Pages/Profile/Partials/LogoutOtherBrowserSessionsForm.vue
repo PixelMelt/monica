@@ -1,6 +1,8 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
 import { useForm } from '@/lib/form';
+import { logOutOtherSessions, listMySessions } from '@/api/client';
+import * as dto from '@/adapters/settings';
 import JetActionMessage from '@/Components/Jetstream/ActionMessage.vue';
 import JetActionSection from '@/Components/Jetstream/ActionSection.vue';
 import JetButton from '@/Components/Button.vue';
@@ -10,9 +12,12 @@ import JetInputError from '@/Components/InputError.vue';
 import JetSecondaryButton from '@/Components/Jetstream/SecondaryButton.vue';
 import { Computer, TabletSmartphone } from 'lucide-vue-next';
 
-defineProps({
+const props = defineProps({
   sessions: Array,
 });
+
+// The list as the server sends it again after a change (Inertia reloaded the props).
+const localSessions = ref(props.sessions);
 
 const confirmingLogout = ref(false);
 const passwordInput = useTemplateRef('passwordInput');
@@ -28,9 +33,11 @@ const confirmLogout = () => {
 };
 
 const logoutOtherBrowserSessions = () => {
-  form.delete(route('other-browser-sessions.destroy'), {
-    preserveScroll: true,
-    onSuccess: () => closeModal(),
+  form.submit((data) => logOutOtherSessions({}, { password: data.password }), {
+    onSuccess: async () => {
+      closeModal();
+      localSessions.value = (await listMySessions()).data.map(dto.session);
+    },
     onError: () => nextTick().then(() => passwordInput.value.focus()),
     onFinish: () => form.reset(),
   });
@@ -63,8 +70,8 @@ const closeModal = () => {
       </div>
 
       <!-- Other Browser Sessions -->
-      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
-        <div v-for="(session, i) in sessions" :key="i" class="flex items-center">
+      <div v-if="localSessions.length > 0" class="mt-5 space-y-6">
+        <div v-for="(session, i) in localSessions" :key="i" class="flex items-center">
           <div>
             <Computer v-if="session.agent.is_desktop" class="h-8 w-8 text-gray-500" />
             <TabletSmartphone v-else class="h-8 w-8 text-gray-500" />

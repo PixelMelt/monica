@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { SquareX } from 'lucide-vue-next';
+import { hideBeta } from '@/adapters/auth';
 
 const props = defineProps({
   beta: Boolean,
@@ -9,7 +10,7 @@ const betaRef = ref(props.beta);
 
 const closeBeta = () => {
   betaRef.value = false;
-  axios.post(route('close_beta'));
+  hideBeta();
 };
 </script>
 

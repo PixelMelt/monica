@@ -2,6 +2,8 @@
 import { ref, watch } from 'vue';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
+import { createMyToken, updateMyToken, deleteMyToken } from '@/api/client';
+import * as dto from '@/adapters/settings';
 import { flash } from '@/methods.js';
 import useClipboard from 'vue-clipboard3';
 import JetActionMessage from '@/Components/Jetstream/ActionMessage.vue';
@@ -34,6 +36,10 @@ const updateApiTokenForm = useForm({
 
 const deleteApiTokenForm = useForm({});
 
+// The token list and the new token, as Inertia reloaded them after each change.
+const localTokens = ref(props.tokens);
+const plainTextToken = ref(null);
+
 const displayingToken = ref(false);
 const managingPermissionsFor = ref(null);
 const apiTokenBeingDeleted = ref(null);
@@ -48,9 +54,10 @@ watch(
 );
 
 const createApiToken = () => {
-  createApiTokenForm.post(route('api-tokens.store'), {
-    preserveScroll: true,
-    onSuccess: () => {
+  createApiTokenForm.submit((data) => createMyToken({}, { name: data.name, abilities: data.permissions }), {
+    onSuccess: (created) => {
+      localTokens.value.push(dto.apiToken(created.token));
+      plainTextToken.value = created.plain_text_token;
       displayingToken.value = true;
       createApiTokenForm.reset();
     },
@@ -63,10 +70,12 @@ const manageApiTokenPermissions = (token) => {
 };
 
 const updateApiToken = () => {
-  updateApiTokenForm.put(route('api-tokens.update', managingPermissionsFor.value), {
-    preserveScroll: true,
-    preserveState: true,
-    onSuccess: () => (managingPermissionsFor.value = null),
+  const id = managingPermissionsFor.value.id;
+  updateApiTokenForm.submit((data) => updateMyToken({ token_id: id }, { abilities: data.permissions }), {
+    onSuccess: (token) => {
+      localTokens.value[localTokens.value.findIndex((t) => t.id === id)] = dto.apiToken(token);
+      managingPermissionsFor.value = null;
+    },
   });
 };
 
@@ -75,10 +84,15 @@ const confirmApiTokenDeletion = (token) => {
 };
 
 const deleteApiToken = () => {
-  deleteApiTokenForm.delete(route('api-tokens.destroy', apiTokenBeingDeleted.value), {
-    preserveScroll: true,
-    preserveState: true,
-    onSuccess: () => (apiTokenBeingDeleted.value = null),
+  const id = apiTokenBeingDeleted.value.id;
+  deleteApiTokenForm.submit(() => deleteMyToken({ token_id: id }), {
+    onSuccess: () => {
+      localTokens.value.splice(
+        localTokens.value.findIndex((t) => t.id === id),
+        1,
+      );
+      apiTokenBeingDeleted.value = null;
+    },
   });
 };
 
@@ -141,7 +155,7 @@ const copyToClipboard = (token) => {
       </template>
     </JetFormSection>
 
-    <div v-if="tokens.length > 0">
+    <div v-if="localTokens.length > 0">
       <!-- Manage API Tokens -->
       <div class="mt-10 sm:mt-0">
         <JetActionSection>
@@ -156,7 +170,7 @@ const copyToClipboard = (token) => {
           <!-- API Token List -->
           <template #content>
             <div class="space-y-6">
-              <div v-for="token in tokens" :key="token.id" class="flex items-center justify-between">
+              <div v-for="token in localTokens" :key="token.id" class="flex items-center justify-between">
                 <div>
                   {{ token.name }}
                 </div>
@@ -195,17 +209,17 @@ const copyToClipboard = (token) => {
           {{ $t('Please copy your new API token. For your security, it won’t be shown again.') }}
         </div>
 
-        <div v-if="$page.props.jetstream.flash.token" class="mt-4 flex">
+        <div v-if="plainTextToken" class="mt-4 flex">
           <div
             class="rounded-xs bg-gray-100 px-4 py-2 font-mono text-sm text-gray-500"
-            @click.prevent="copyToClipboard($page.props.jetstream.flash.token)">
-            {{ $page.props.jetstream.flash.token }}
+            @click.prevent="copyToClipboard(plainTextToken)">
+            {{ plainTextToken }}
           </div>
 
           <JetButton
             class="ms-3"
             :title="$t('Copy value into the clipboard')"
-            @click.prevent="copyToClipboard($page.props.jetstream.flash.token)">
+            @click.prevent="copyToClipboard(plainTextToken)">
             {{ $t('Copy') }}
           </JetButton>
 

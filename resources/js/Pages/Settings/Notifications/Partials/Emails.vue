@@ -192,6 +192,13 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
+import {
+  createNotificationChannel,
+  updateNotificationChannel,
+  deleteNotificationChannel,
+  sendNotificationChannelTest,
+} from '@/api/client';
+import * as dto from '@/adapters/settings';
 
 export default {
   components: {
@@ -264,8 +271,7 @@ export default {
     },
 
     sendTest(channel) {
-      axios
-        .post(channel.url.send_test)
+      sendNotificationChannelTest({ notification_channel_id: channel.id })
         .then(() => {
           this.flash(this.$t('The test email has been sent'), 'success');
           this.testEmailSentId = channel.id;
@@ -276,11 +282,10 @@ export default {
     },
 
     toggle(channel) {
-      axios
-        .put(channel.url.toggle)
-        .then((response) => {
+      updateNotificationChannel({ notification_channel_id: channel.id }, { active: !channel.active })
+        .then((updated) => {
           this.flash(this.$t('The channel has been updated'), 'success');
-          this.localEmails[this.localEmails.findIndex((x) => x.id === channel.id)] = response.data.data;
+          this.localEmails[this.localEmails.findIndex((x) => x.id === channel.id)] = dto.email(updated);
         })
         .catch((error) => {
           this.form.errors = error.response.data;
@@ -290,11 +295,13 @@ export default {
     store() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      // `$request->input('hours').':'.$request->input('minutes')`, as `HH:MM`.
+      const time = [this.form.hours, this.form.minutes].map((v) => String(v).padStart(2, '0')).join(':');
+
+      createNotificationChannel({}, { label: this.form.label, content: this.form.content, preferred_time: time })
+        .then((channel) => {
           this.flash(this.$t('The email has been added'), 'success');
-          this.localEmails.unshift(response.data.data);
+          this.localEmails.unshift(dto.email(channel));
           this.loadingState = null;
           this.addEmailModalShown = false;
         })
@@ -306,8 +313,7 @@ export default {
 
     destroy(channel) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(channel.url.destroy)
+        deleteNotificationChannel({ notification_channel_id: channel.id })
           .then(() => {
             this.flash(this.$t('The email address has been deleted'), 'success');
             var id = this.localEmails.findIndex((x) => x.id === channel.id);
