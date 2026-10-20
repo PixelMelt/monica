@@ -9,6 +9,7 @@ use chrono::{Datelike, Duration, NaiveDate, NaiveDateTime, Timelike};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 
 use crate::db::timestamp::Timestamp;
+use crate::domains::contact::dav::jobs::CleanSyncToken;
 use crate::domains::contact::manage_reminders::ProcessScheduledContactReminders;
 use crate::entities::{crons, failed_jobs, job_batches, logs, sessions};
 use crate::error::ApiResult;
@@ -102,6 +103,11 @@ pub fn tasks() -> Vec<Task> {
             frequency: Frequency::Minutes(1),
             run: |s| Box::pin(process_reminders(s)),
         },
+        Task {
+            command: "App\\Domains\\Contact\\Dav\\Jobs\\CleanSyncToken",
+            frequency: Frequency::Daily,
+            run: |s| Box::pin(clean_sync_tokens(s)),
+        },
         Task { command: "App\\Logging\\CleanLogs", frequency: Frequency::Daily, run: |s| Box::pin(clean_logs(s)) },
         Task { command: "storage:sweep", frequency: Frequency::Daily, run: |s| Box::pin(sweep_storage(s)) },
     ]
@@ -174,6 +180,12 @@ async fn process_reminders(state: &AppState) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// `CleanSyncToken` (J003).
+async fn clean_sync_tokens(state: &AppState) -> anyhow::Result<()> {
+    CleanSyncToken.execute(&state.db).await?;
+    Ok(())
+}
+
 /// Deletes stored bytes no `files` row points at (E009).
 async fn sweep_storage(state: &AppState) -> anyhow::Result<()> {
     let removed = state.storage.sweep(&state.db).await?;
@@ -225,6 +237,7 @@ mod tests {
                     "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
                     Frequency::Minutes(1)
                 ),
+                ("App\\Domains\\Contact\\Dav\\Jobs\\CleanSyncToken", Frequency::Daily),
                 ("App\\Logging\\CleanLogs", Frequency::Daily),
                 ("storage:sweep", Frequency::Daily),
             ]
