@@ -1,0 +1,3527 @@
+[
+    {
+        "code": "AD",
+        "names": {
+            "cat": "Andorra",
+            "deu": "Andorra",
+            "eng": "Andorra",
+            "fra": "Andorre",
+            "ita": "Andorra",
+            "jpn": "アンドラ",
+            "nld": "Andorra",
+            "por": "Andorra",
+            "rus": "Андорра",
+            "spa": "Andorra"
+        }
+    },
+    {
+        "code": "AE",
+        "names": {
+            "ara": "دولة الإمارات العربية المتحدة",
+            "deu": "Vereinigte Arabische Emirate",
+            "eng": "United Arab Emirates",
+            "fra": "Émirats arabes unis",
+            "ita": "Emirati Arabi Uniti",
+            "jpn": "アラブ首長国連邦",
+            "nld": "Verenigde Arabische Emiraten",
+            "por": "Emirados Árabes Unidos",
+            "rus": "Объединённые Арабские Эмираты",
+            "spa": "Emiratos Árabes Unidos"
+        }
+    },
+    {
+        "code": "AF",
+        "names": {
+            "deu": "Afghanistan",
+            "eng": "Afghanistan",
+            "fra": "Afghanistan",
+            "ita": "Afghanistan",
+            "jpn": "アフガニスタン",
+            "nld": "Afghanistan",
+            "por": "Afeganistão",
+            "rus": "Афганистан",
+            "spa": "Afganistán"
+        }
+    },
+    {
+        "code": "AG",
+        "names": {
+            "deu": "Antigua und Barbuda",
+            "eng": "Antigua and Barbuda",
+            "fra": "Antigua-et-Barbuda",
+            "ita": "Antigua e Barbuda",
+            "jpn": "アンティグア・バーブーダ",
+            "nld": "Antigua en Barbuda",
+            "por": "Antígua e Barbuda",
+            "rus": "Антигуа и Барбуда",
+            "spa": "Antigua y Barbuda"
+        }
+    },
+    {
+        "code": "AI",
+        "names": {
+            "deu": "Anguilla",
+            "eng": "Anguilla",
+            "fra": "Anguilla",
+            "ita": "Anguilla",
+            "jpn": "アンギラ",
+            "nld": "Anguilla",
+            "por": "Anguilla",
+            "rus": "Ангилья",
+            "spa": "Anguilla"
+        }
+    },
+    {
+        "code": "AL",
+        "names": {
+            "deu": "Albanien",
+            "eng": "Albania",
+            "fra": "Albanie",
+            "ita": "Albania",
+            "jpn": "アルバニア",
+            "nld": "Albanië",
+            "por": "Albânia",
+            "rus": "Албания",
+            "spa": "Albania"
+        }
+    },
+    {
+        "code": "AM",
+        "names": {
+            "deu": "Armenien",
+            "eng": "Armenia",
+            "fra": "Arménie",
+            "ita": "Armenia",
+            "jpn": "アルメニア",
+            "nld": "Armenië",
+            "por": "Arménia",
+            "rus": "Армения",
+            "spa": "Armenia"
+        }
+    },
+    {
+        "code": "AO",
+        "names": {
+            "deu": "Angola",
+            "eng": "Angola",
+            "fra": "Angola",
+            "ita": "Angola",
+            "jpn": "アンゴラ",
+            "nld": "Angola",
+            "por": "Angola",
+            "rus": "Ангола",
+            "spa": "Angola"
+        }
+    },
+    {
+        "code": "AQ",
+        "names": {
+            "deu": "Antarktis",
+            "eng": "Antarctica",
+            "fra": "Antarctique",
+            "ita": "Antartide",
+            "jpn": "南極",
+            "nld": "Antarctica",
+            "por": "Antártida",
+            "rus": "Антарктида",
+            "spa": "Antártida"
+        }
+    },
+    {
+        "code": "AR",
+        "names": {
+            "deu": "Argentinien",
+            "eng": "Argentina",
+            "fra": "Argentine",
+            "ita": "Argentina",
+            "jpn": "アルゼンチン",
+            "nld": "Argentinië",
+            "por": "Argentina",
+            "rus": "Аргентина",
+            "spa": "Argentina"
+        }
+    },
+    {
+        "code": "AS",
+        "names": {
+            "deu": "Amerikanisch-Samoa",
+            "eng": "American Samoa",
+            "fra": "Samoa américaines",
+            "ita": "Samoa Americane",
+            "jpn": "アメリカ領サモア",
+            "nld": "Amerikaans Samoa",
+            "por": "Samoa Americana",
+            "rus": "Американское Самоа",
+            "spa": "Samoa Americana"
+        }
+    },
+    {
+        "code": "AT",
+        "names": {
+            "deu": "Österreich",
+            "eng": "Austria",
+            "fra": "Autriche",
+            "ita": "Austria",
+            "jpn": "オーストリア",
+            "nld": "Oostenrijk",
+            "por": "Áustria",
+            "rus": "Австрия",
+            "spa": "Austria"
+        }
+    },
+    {
+        "code": "AU",
+        "names": {
+            "deu": "Australien",
+            "eng": "Australia",
+            "fra": "Australie",
+            "ita": "Australia",
+            "jpn": "オーストラリア",
+            "nld": "Australië",
+            "por": "Austrália",
+            "rus": "Австралия",
+            "spa": "Australia"
+        }
+    },
+    {
+        "code": "AW",
+        "names": {
+            "deu": "Aruba",
+            "eng": "Aruba",
+            "fra": "Aruba",
+            "ita": "Aruba",
+            "jpn": "アルバ",
+            "nld": "Aruba",
+            "por": "Aruba",
+            "rus": "Аруба",
+            "spa": "Aruba"
+        }
+    },
+    {
+        "code": "AX",
+        "names": {
+            "deu": "Åland",
+            "eng": "Åland Islands",
+            "fra": "Ahvenanmaa",
+            "ita": "Isole Aland",
+            "jpn": "オーランド諸島",
+            "nld": "Ålandeilanden",
+            "por": "Alândia",
+            "rus": "Аландские острова",
+            "spa": "Alandia",
+            "swe": "Åland"
+        }
+    },
+    {
+        "code": "AZ",
+        "names": {
+            "deu": "Aserbaidschan",
+            "eng": "Azerbaijan",
+            "fra": "Azerbaïdjan",
+            "ita": "Azerbaijan",
+            "jpn": "アゼルバイジャン",
+            "nld": "Azerbeidzjan",
+            "por": "Azerbeijão",
+            "rus": "Азербайджан",
+            "spa": "Azerbaiyán"
+        }
+    },
+    {
+        "code": "BA",
+        "names": {
+            "deu": "Bosnien und Herzegowina",
+            "eng": "Bosnia and Herzegovina",
+            "fra": "Bosnie-Herzégovine",
+            "ita": "Bosnia ed Erzegovina",
+            "jpn": "ボスニア・ヘルツェゴビナ",
+            "nld": "Bosnië en Herzegovina",
+            "por": "Bósnia e Herzegovina",
+            "rus": "Босния и Герцеговина",
+            "spa": "Bosnia y Herzegovina"
+        }
+    },
+    {
+        "code": "BB",
+        "names": {
+            "deu": "Barbados",
+            "eng": "Barbados",
+            "fra": "Barbade",
+            "ita": "Barbados",
+            "jpn": "バルバドス",
+            "nld": "Barbados",
+            "por": "Barbados",
+            "rus": "Барбадос",
+            "spa": "Barbados"
+        }
+    },
+    {
+        "code": "BD",
+        "names": {
+            "ben": "বাংলাদেশ",
+            "deu": "Bangladesch",
+            "eng": "Bangladesh",
+            "fra": "Bangladesh",
+            "ita": "Bangladesh",
+            "jpn": "バングラデシュ",
+            "nld": "Bangladesh",
+            "por": "Bangladesh",
+            "rus": "Бангладеш",
+            "spa": "Bangladesh"
+        }
+    },
+    {
+        "code": "BE",
+        "names": {
+            "deu": "Belgien",
+            "eng": "Belgium",
+            "fra": "Belgique",
+            "ita": "Belgio",
+            "jpn": "ベルギー",
+            "nld": "België",
+            "por": "Bélgica",
+            "rus": "Бельгия",
+            "spa": "Bélgica"
+        }
+    },
+    {
+        "code": "BF",
+        "names": {
+            "deu": "Burkina Faso",
+            "eng": "Burkina Faso",
+            "fra": "Burkina Faso",
+            "ita": "Burkina Faso",
+            "jpn": "ブルキナファソ",
+            "nld": "Burkina Faso",
+            "por": "Burkina Faso",
+            "rus": "Буркина-Фасо",
+            "spa": "Burkina Faso"
+        }
+    },
+    {
+        "code": "BG",
+        "names": {
+            "deu": "Bulgarien",
+            "eng": "Bulgaria",
+            "fra": "Bulgarie",
+            "ita": "Bulgaria",
+            "jpn": "ブルガリア",
+            "nld": "Bulgarije",
+            "por": "Bulgária",
+            "rus": "Болгария",
+            "spa": "Bulgaria"
+        }
+    },
+    {
+        "code": "BH",
+        "names": {
+            "ara": "‏البحرين",
+            "deu": "Bahrain",
+            "eng": "Bahrain",
+            "fra": "Bahreïn",
+            "ita": "Bahrein",
+            "jpn": "バーレーン",
+            "nld": "Bahrein",
+            "por": "Bahrein",
+            "rus": "Бахрейн",
+            "spa": "Bahrein"
+        }
+    },
+    {
+        "code": "BI",
+        "names": {
+            "deu": "Burundi",
+            "eng": "Burundi",
+            "fra": "Burundi",
+            "ita": "Burundi",
+            "jpn": "ブルンジ",
+            "nld": "Burundi",
+            "por": "Burundi",
+            "rus": "Бурунди",
+            "spa": "Burundi"
+        }
+    },
+    {
+        "code": "BJ",
+        "names": {
+            "deu": "Benin",
+            "eng": "Benin",
+            "fra": "Bénin",
+            "ita": "Benin",
+            "jpn": "ベナン",
+            "nld": "Benin",
+            "por": "Benin",
+            "rus": "Бенин",
+            "spa": "Benín"
+        }
+    },
+    {
+        "code": "BL",
+        "names": {
+            "deu": "Saint-Barthélemy",
+            "eng": "Saint Barthélemy",
+            "fra": "Saint-Barthélemy",
+            "ita": "Antille Francesi",
+            "jpn": "サン・バルテルミー",
+            "nld": "Saint Barthélemy",
+            "por": "São Bartolomeu",
+            "rus": "Сен-Бартелеми",
+            "spa": "San Bartolomé"
+        }
+    },
+    {
+        "code": "BM",
+        "names": {
+            "deu": "Bermuda",
+            "eng": "Bermuda",
+            "fra": "Bermudes",
+            "ita": "Bermuda",
+            "jpn": "バミューダ",
+            "nld": "Bermuda",
+            "por": "Bermudas",
+            "rus": "Бермудские Острова",
+            "spa": "Bermudas"
+        }
+    },
+    {
+        "code": "BN",
+        "names": {
+            "deu": "Brunei",
+            "eng": "Brunei",
+            "fra": "Brunei",
+            "ita": "Brunei",
+            "jpn": "ブルネイ・ダルサラーム",
+            "nld": "Brunei",
+            "por": "Brunei",
+            "rus": "Бруней",
+            "spa": "Brunei"
+        }
+    },
+    {
+        "code": "BO",
+        "names": {
+            "deu": "Bolivien",
+            "eng": "Bolivia",
+            "fra": "Bolivie",
+            "ita": "Bolivia",
+            "jpn": "ボリビア多民族国",
+            "nld": "Bolivia",
+            "por": "Bolívia",
+            "rus": "Боливия",
+            "spa": "Bolivia"
+        }
+    },
+    {
+        "code": "BQ",
+        "names": {
+            "eng": "Caribbean Netherlands"
+        }
+    },
+    {
+        "code": "BR",
+        "names": {
+            "deu": "Brasilien",
+            "eng": "Brazil",
+            "fra": "Brésil",
+            "ita": "Brasile",
+            "jpn": "ブラジル",
+            "nld": "Brazilië",
+            "por": "Brasil",
+            "rus": "Бразилия",
+            "spa": "Brasil"
+        }
+    },
+    {
+        "code": "BS",
+        "names": {
+            "deu": "Bahamas",
+            "eng": "Bahamas",
+            "fra": "Bahamas",
+            "ita": "Bahamas",
+            "jpn": "バハマ",
+            "nld": "Bahama’s",
+            "por": "Bahamas",
+            "rus": "Багамские Острова",
+            "spa": "Bahamas"
+        }
+    },
+    {
+        "code": "BT",
+        "names": {
+            "deu": "Bhutan",
+            "eng": "Bhutan",
+            "fra": "Bhoutan",
+            "ita": "Bhutan",
+            "jpn": "ブータン",
+            "nld": "Bhutan",
+            "por": "Butão",
+            "rus": "Бутан",
+            "spa": "Bután"
+        }
+    },
+    {
+        "code": "BV",
+        "names": {
+            "deu": "Bouvetinsel",
+            "eng": "Bouvet Island",
+            "fra": "Île Bouvet",
+            "ita": "Isola Bouvet",
+            "jpn": "ブーベ島",
+            "nld": "Bouveteiland",
+            "por": "Ilha Bouvet",
+            "rus": "Остров Буве",
+            "spa": "Isla Bouvet"
+        }
+    },
+    {
+        "code": "BW",
+        "names": {
+            "deu": "Botswana",
+            "eng": "Botswana",
+            "fra": "Botswana",
+            "ita": "Botswana",
+            "jpn": "ボツワナ",
+            "nld": "Botswana",
+            "por": "Botswana",
+            "rus": "Ботсвана",
+            "spa": "Botswana"
+        }
+    },
+    {
+        "code": "BY",
+        "names": {
+            "deu": "Belarus",
+            "eng": "Belarus",
+            "fra": "Biélorussie",
+            "ita": "Bielorussia",
+            "jpn": "ベラルーシ",
+            "nld": "Wit-Rusland",
+            "por": "Bielorússia",
+            "rus": "Белару́сь",
+            "spa": "Bielorrusia"
+        }
+    },
+    {
+        "code": "BZ",
+        "names": {
+            "deu": "Belize",
+            "eng": "Belize",
+            "fra": "Belize",
+            "ita": "Belize",
+            "jpn": "ベリーズ",
+            "nld": "Belize",
+            "por": "Belize",
+            "rus": "Белиз",
+            "spa": "Belice"
+        }
+    },
+    {
+        "code": "CA",
+        "names": {
+            "deu": "Kanada",
+            "eng": "Canada",
+            "fra": "Canada",
+            "ita": "Canada",
+            "jpn": "カナダ",
+            "nld": "Canada",
+            "por": "Canadá",
+            "rus": "Канада",
+            "spa": "Canadá"
+        }
+    },
+    {
+        "code": "CC",
+        "names": {
+            "deu": "Kokosinseln",
+            "eng": "Cocos (Keeling) Islands",
+            "fra": "Îles Cocos",
+            "ita": "Isole Cocos e Keeling",
+            "jpn": "ココス（キーリング）諸島",
+            "nld": "Cocoseilanden",
+            "por": "Ilhas Cocos (Keeling)",
+            "rus": "Кокосовые острова",
+            "spa": "Islas Cocos o Islas Keeling"
+        }
+    },
+    {
+        "code": "CD",
+        "names": {
+            "deu": "Kongo (Dem. Rep.)",
+            "eng": "DR Congo",
+            "fra": "RD Congo",
+            "ita": "Congo (Rep. Dem.)",
+            "jpn": "コンゴ民主共和国",
+            "nld": "Congo (DRC)",
+            "por": "República Democrática do Congo",
+            "rus": "Демократическая Республика Конго",
+            "spa": "Congo (Rep. Dem.)"
+        }
+    },
+    {
+        "code": "CF",
+        "names": {
+            "deu": "Zentralafrikanische Republik",
+            "eng": "Central African Republic",
+            "fra": "République centrafricaine",
+            "ita": "Repubblica Centrafricana",
+            "jpn": "中央アフリカ共和国",
+            "nld": "Centraal-Afrikaanse Republiek",
+            "por": "República Centro-Africana",
+            "rus": "Центральноафриканская Республика",
+            "spa": "República Centroafricana"
+        }
+    },
+    {
+        "code": "CG",
+        "names": {
+            "deu": "Kongo",
+            "eng": "Republic of the Congo",
+            "fra": "République du Congo",
+            "ita": "Congo",
+            "jpn": "コンゴ共和国",
+            "nld": "Congo",
+            "por": "Congo",
+            "rus": "Республика Конго",
+            "spa": "Congo"
+        }
+    },
+    {
+        "code": "CH",
+        "names": {
+            "deu": "Schweiz",
+            "eng": "Switzerland",
+            "fra": "Suisse",
+            "ita": "Svizzera",
+            "jpn": "スイス",
+            "nld": "Zwitserland",
+            "por": "Suíça",
+            "rus": "Швейцария",
+            "spa": "Suiza"
+        }
+    },
+    {
+        "code": "CI",
+        "names": {
+            "deu": "Elfenbeinküste",
+            "eng": "Ivory Coast",
+            "fra": "Côte d'Ivoire",
+            "ita": "Costa d'Avorio",
+            "jpn": "コートジボワール",
+            "nld": "Ivoorkust",
+            "por": "Costa do Marfim",
+            "rus": "Кот-д’Ивуар",
+            "spa": "Costa de Marfil"
+        }
+    },
+    {
+        "code": "CK",
+        "names": {
+            "deu": "Cookinseln",
+            "eng": "Cook Islands",
+            "fra": "Îles Cook",
+            "ita": "Isole Cook",
+            "jpn": "クック諸島",
+            "nld": "Cookeilanden",
+            "por": "Ilhas Cook",
+            "rus": "Острова Кука",
+            "spa": "Islas Cook"
+        }
+    },
+    {
+        "code": "CL",
+        "names": {
+            "deu": "Chile",
+            "eng": "Chile",
+            "fra": "Chili",
+            "ita": "Cile",
+            "jpn": "チリ",
+            "nld": "Chili",
+            "por": "Chile",
+            "rus": "Чили",
+            "spa": "Chile"
+        }
+    },
+    {
+        "code": "CM",
+        "names": {
+            "deu": "Kamerun",
+            "eng": "Cameroon",
+            "fra": "Cameroun",
+            "ita": "Camerun",
+            "jpn": "カメルーン",
+            "nld": "Kameroen",
+            "por": "Camarões",
+            "rus": "Камерун",
+            "spa": "Camerún"
+        }
+    },
+    {
+        "code": "CN",
+        "names": {
+            "deu": "China",
+            "eng": "China",
+            "fra": "Chine",
+            "ita": "Cina",
+            "jpn": "中国",
+            "nld": "China",
+            "por": "China",
+            "rus": "Китай",
+            "spa": "China"
+        }
+    },
+    {
+        "code": "CO",
+        "names": {
+            "deu": "Kolumbien",
+            "eng": "Colombia",
+            "fra": "Colombie",
+            "ita": "Colombia",
+            "jpn": "コロンビア",
+            "nld": "Colombia",
+            "por": "Colômbia",
+            "rus": "Колумбия",
+            "spa": "Colombia"
+        }
+    },
+    {
+        "code": "CR",
+        "names": {
+            "deu": "Costa Rica",
+            "eng": "Costa Rica",
+            "fra": "Costa Rica",
+            "ita": "Costa Rica",
+            "jpn": "コスタリカ",
+            "nld": "Costa Rica",
+            "por": "Costa Rica",
+            "rus": "Коста-Рика",
+            "spa": "Costa Rica"
+        }
+    },
+    {
+        "code": "CU",
+        "names": {
+            "deu": "Kuba",
+            "eng": "Cuba",
+            "fra": "Cuba",
+            "ita": "Cuba",
+            "jpn": "キューバ",
+            "nld": "Cuba",
+            "por": "Cuba",
+            "rus": "Куба",
+            "spa": "Cuba"
+        }
+    },
+    {
+        "code": "CV",
+        "names": {
+            "deu": "Kap Verde",
+            "eng": "Cape Verde",
+            "fra": "Îles du Cap-Vert",
+            "ita": "Capo Verde",
+            "jpn": "カーボベルデ",
+            "nld": "Kaapverdië",
+            "por": "Cabo Verde",
+            "rus": "Кабо-Верде",
+            "spa": "Cabo Verde"
+        }
+    },
+    {
+        "code": "CW",
+        "names": {
+            "deu": "Curaçao",
+            "eng": "Curaçao",
+            "fra": "Curaçao",
+            "nld": "Curaçao",
+            "por": "ilha da Curação",
+            "rus": "Кюрасао",
+            "spa": "Curazao"
+        }
+    },
+    {
+        "code": "CX",
+        "names": {
+            "deu": "Weihnachtsinsel",
+            "eng": "Christmas Island",
+            "fra": "Île Christmas",
+            "ita": "Isola di Natale",
+            "jpn": "クリスマス島",
+            "nld": "Christmaseiland",
+            "por": "Ilha do Natal",
+            "rus": "Остров Рождества",
+            "spa": "Isla de Navidad"
+        }
+    },
+    {
+        "code": "CY",
+        "names": {
+            "deu": "Zypern",
+            "ell": "Κύπρος",
+            "eng": "Cyprus",
+            "fra": "Chypre",
+            "ita": "Cipro",
+            "jpn": "キプロス",
+            "nld": "Cyprus",
+            "por": "Chipre",
+            "rus": "Кипр",
+            "spa": "Chipre",
+            "tur": "Kıbrıs"
+        }
+    },
+    {
+        "code": "CZ",
+        "names": {
+            "deu": "Tschechische Republik",
+            "eng": "Czech Republic",
+            "fra": "République tchèque",
+            "ita": "Repubblica Ceca",
+            "jpn": "チェコ",
+            "nld": "Tsjechië",
+            "por": "República Checa",
+            "rus": "Чехия",
+            "spa": "República Checa"
+        }
+    },
+    {
+        "code": "DE",
+        "names": {
+            "deu": "Deutschland",
+            "eng": "Germany",
+            "fra": "Allemagne",
+            "ita": "Germania",
+            "jpn": "ドイツ",
+            "nld": "Duitsland",
+            "por": "Alemanha",
+            "rus": "Германия",
+            "spa": "Alemania"
+        }
+    },
+    {
+        "code": "DJ",
+        "names": {
+            "ara": "جيبوتي‎",
+            "deu": "Dschibuti",
+            "eng": "Djibouti",
+            "fra": "Djibouti",
+            "ita": "Gibuti",
+            "jpn": "ジブチ",
+            "nld": "Djibouti",
+            "por": "Djibouti",
+            "rus": "Джибути",
+            "spa": "Djibouti"
+        }
+    },
+    {
+        "code": "DK",
+        "names": {
+            "dan": "Danmark",
+            "deu": "Dänemark",
+            "eng": "Denmark",
+            "fra": "Danemark",
+            "ita": "Danimarca",
+            "jpn": "デンマーク",
+            "nld": "Denemarken",
+            "por": "Dinamarca",
+            "rus": "Дания",
+            "spa": "Dinamarca"
+        }
+    },
+    {
+        "code": "DM",
+        "names": {
+            "deu": "Dominica",
+            "eng": "Dominica",
+            "fra": "Dominique",
+            "ita": "Dominica",
+            "jpn": "ドミニカ国",
+            "nld": "Dominica",
+            "por": "Dominica",
+            "rus": "Доминика",
+            "spa": "Dominica"
+        }
+    },
+    {
+        "code": "DO",
+        "names": {
+            "deu": "Dominikanische Republik",
+            "eng": "Dominican Republic",
+            "fra": "République dominicaine",
+            "ita": "Repubblica Dominicana",
+            "jpn": "ドミニカ共和国",
+            "nld": "Dominicaanse Republiek",
+            "por": "República Dominicana",
+            "rus": "Доминиканская Республика",
+            "spa": "República Dominicana"
+        }
+    },
+    {
+        "code": "DZ",
+        "names": {
+            "ara": "الجزائر",
+            "deu": "Algerien",
+            "eng": "Algeria",
+            "fra": "Algérie",
+            "ita": "Algeria",
+            "jpn": "アルジェリア",
+            "nld": "Algerije",
+            "por": "Argélia",
+            "rus": "Алжир",
+            "spa": "Argelia"
+        }
+    },
+    {
+        "code": "EC",
+        "names": {
+            "deu": "Ecuador",
+            "eng": "Ecuador",
+            "fra": "Équateur",
+            "ita": "Ecuador",
+            "jpn": "エクアドル",
+            "nld": "Ecuador",
+            "por": "Equador",
+            "rus": "Эквадор",
+            "spa": "Ecuador"
+        }
+    },
+    {
+        "code": "EE",
+        "names": {
+            "deu": "Estland",
+            "eng": "Estonia",
+            "fra": "Estonie",
+            "ita": "Estonia",
+            "jpn": "エストニア",
+            "nld": "Estland",
+            "por": "Estónia",
+            "rus": "Эстония",
+            "spa": "Estonia"
+        }
+    },
+    {
+        "code": "EG",
+        "names": {
+            "ara": "مصر",
+            "deu": "Ägypten",
+            "eng": "Egypt",
+            "fra": "Égypte",
+            "ita": "Egitto",
+            "jpn": "エジプト",
+            "nld": "Egypte",
+            "por": "Egito",
+            "rus": "Египет",
+            "spa": "Egipto"
+        }
+    },
+    {
+        "code": "EH",
+        "names": {
+            "deu": "Westsahara",
+            "eng": "Western Sahara",
+            "fra": "Sahara Occidental",
+            "ita": "Sahara Occidentale",
+            "jpn": "西サハラ",
+            "nld": "Westelijke Sahara",
+            "por": "Saara Ocidental",
+            "rus": "Западная Сахара",
+            "spa": "Sahara Occidental"
+        }
+    },
+    {
+        "code": "ER",
+        "names": {
+            "ara": "إرتريا‎",
+            "deu": "Eritrea",
+            "eng": "Eritrea",
+            "fra": "Érythrée",
+            "ita": "Eritrea",
+            "jpn": "エリトリア",
+            "nld": "Eritrea",
+            "por": "Eritreia",
+            "rus": "Эритрея",
+            "spa": "Eritrea"
+        }
+    },
+    {
+        "code": "ES",
+        "names": {
+            "cat": "Espanya",
+            "deu": "Spanien",
+            "eng": "Spain",
+            "fra": "Espagne",
+            "ita": "Spagna",
+            "jpn": "スペイン",
+            "nld": "Spanje",
+            "por": "Espanha",
+            "rus": "Испания",
+            "spa": "España"
+        }
+    },
+    {
+        "code": "ET",
+        "names": {
+            "deu": "Äthiopien",
+            "eng": "Ethiopia",
+            "fra": "Éthiopie",
+            "ita": "Etiopia",
+            "jpn": "エチオピア",
+            "nld": "Ethiopië",
+            "por": "Etiópia",
+            "rus": "Эфиопия",
+            "spa": "Etiopía"
+        }
+    },
+    {
+        "code": "FI",
+        "names": {
+            "deu": "Finnland",
+            "eng": "Finland",
+            "fra": "Finlande",
+            "ita": "Finlandia",
+            "jpn": "フィンランド",
+            "nld": "Finland",
+            "por": "Finlândia",
+            "rus": "Финляндия",
+            "spa": "Finlandia",
+            "swe": "Finland"
+        }
+    },
+    {
+        "code": "FJ",
+        "names": {
+            "deu": "Fidschi",
+            "eng": "Fiji",
+            "fra": "Fidji",
+            "ita": "Figi",
+            "jpn": "フィジー",
+            "nld": "Fiji",
+            "por": "Fiji",
+            "rus": "Фиджи",
+            "spa": "Fiyi"
+        }
+    },
+    {
+        "code": "FK",
+        "names": {
+            "deu": "Falklandinseln",
+            "eng": "Falkland Islands",
+            "fra": "Îles Malouines",
+            "ita": "Isole Falkland o Isole Malvine",
+            "jpn": "フォークランド（マルビナス）諸島",
+            "nld": "Falklandeilanden",
+            "por": "Ilhas Malvinas",
+            "rus": "Фолклендские острова",
+            "spa": "Islas Malvinas"
+        }
+    },
+    {
+        "code": "FM",
+        "names": {
+            "deu": "Mikronesien",
+            "eng": "Micronesia",
+            "fra": "Micronésie",
+            "ita": "Micronesia",
+            "jpn": "ミクロネシア連邦",
+            "nld": "Micronesië",
+            "por": "Micronésia",
+            "rus": "Федеративные Штаты Микронезии",
+            "spa": "Micronesia"
+        }
+    },
+    {
+        "code": "FO",
+        "names": {
+            "dan": "Færøerne",
+            "deu": "Färöer-Inseln",
+            "eng": "Faroe Islands",
+            "fra": "Îles Féroé",
+            "ita": "Isole Far Oer",
+            "jpn": "フェロー諸島",
+            "nld": "Faeröer",
+            "por": "Ilhas Faroé",
+            "rus": "Фарерские острова",
+            "spa": "Islas Faroe"
+        }
+    },
+    {
+        "code": "FR",
+        "names": {
+            "deu": "Frankreich",
+            "eng": "France",
+            "fra": "France",
+            "ita": "Francia",
+            "jpn": "フランス",
+            "nld": "Frankrijk",
+            "por": "França",
+            "rus": "Франция",
+            "spa": "Francia"
+        }
+    },
+    {
+        "code": "GA",
+        "names": {
+            "deu": "Gabun",
+            "eng": "Gabon",
+            "fra": "Gabon",
+            "ita": "Gabon",
+            "jpn": "ガボン",
+            "nld": "Gabon",
+            "por": "Gabão",
+            "rus": "Габон",
+            "spa": "Gabón"
+        }
+    },
+    {
+        "code": "GB",
+        "names": {
+            "deu": "Vereinigtes Königreich",
+            "eng": "United Kingdom",
+            "fra": "Royaume-Uni",
+            "ita": "Regno Unito",
+            "jpn": "イギリス",
+            "nld": "Verenigd Koninkrijk",
+            "por": "Reino Unido",
+            "rus": "Великобритания",
+            "spa": "Reino Unido"
+        }
+    },
+    {
+        "code": "GD",
+        "names": {
+            "deu": "Grenada",
+            "eng": "Grenada",
+            "fra": "Grenade",
+            "ita": "Grenada",
+            "jpn": "グレナダ",
+            "nld": "Grenada",
+            "por": "Granada",
+            "rus": "Гренада",
+            "spa": "Grenada"
+        }
+    },
+    {
+        "code": "GE",
+        "names": {
+            "deu": "Georgien",
+            "eng": "Georgia",
+            "fra": "Géorgie",
+            "ita": "Georgia",
+            "jpn": "グルジア",
+            "nld": "Georgië",
+            "por": "Geórgia",
+            "rus": "Грузия",
+            "spa": "Georgia"
+        }
+    },
+    {
+        "code": "GF",
+        "names": {
+            "deu": "Französisch Guyana",
+            "eng": "French Guiana",
+            "fra": "Guyane française",
+            "ita": "Guyana francese",
+            "jpn": "フランス領ギアナ",
+            "nld": "Frans-Guyana",
+            "por": "Guiana Francesa",
+            "rus": "Французская Гвиана",
+            "spa": "Guayana Francesa"
+        }
+    },
+    {
+        "code": "GG",
+        "names": {
+            "deu": "Guernsey",
+            "eng": "Guernsey",
+            "fra": "Guernesey",
+            "ita": "Guernsey",
+            "jpn": "ガーンジー",
+            "nld": "Guernsey",
+            "por": "Guernsey",
+            "rus": "Гернси",
+            "spa": "Guernsey"
+        }
+    },
+    {
+        "code": "GH",
+        "names": {
+            "deu": "Ghana",
+            "eng": "Ghana",
+            "fra": "Ghana",
+            "ita": "Ghana",
+            "jpn": "ガーナ",
+            "nld": "Ghana",
+            "por": "Gana",
+            "rus": "Гана",
+            "spa": "Ghana"
+        }
+    },
+    {
+        "code": "GI",
+        "names": {
+            "deu": "Gibraltar",
+            "eng": "Gibraltar",
+            "fra": "Gibraltar",
+            "ita": "Gibilterra",
+            "jpn": "ジブラルタル",
+            "nld": "Gibraltar",
+            "por": "Gibraltar",
+            "rus": "Гибралтар",
+            "spa": "Gibraltar"
+        }
+    },
+    {
+        "code": "GL",
+        "names": {
+            "deu": "Grönland",
+            "eng": "Greenland",
+            "fra": "Groenland",
+            "ita": "Groenlandia",
+            "jpn": "グリーンランド",
+            "nld": "Groenland",
+            "por": "Gronelândia",
+            "rus": "Гренландия",
+            "spa": "Groenlandia"
+        }
+    },
+    {
+        "code": "GM",
+        "names": {
+            "deu": "Gambia",
+            "eng": "Gambia",
+            "fra": "Gambie",
+            "ita": "Gambia",
+            "jpn": "ガンビア",
+            "nld": "Gambia",
+            "por": "Gâmbia",
+            "rus": "Гамбия",
+            "spa": "Gambia"
+        }
+    },
+    {
+        "code": "GN",
+        "names": {
+            "deu": "Guinea",
+            "eng": "Guinea",
+            "fra": "Guinée",
+            "ita": "Guinea",
+            "jpn": "ギニア",
+            "nld": "Guinee",
+            "por": "Guiné",
+            "rus": "Гвинея",
+            "spa": "Guinea"
+        }
+    },
+    {
+        "code": "GP",
+        "names": {
+            "deu": "Guadeloupe",
+            "eng": "Guadeloupe",
+            "fra": "Guadeloupe",
+            "ita": "Guadeloupa",
+            "jpn": "グアドループ",
+            "nld": "Guadeloupe",
+            "por": "Guadalupe",
+            "rus": "Гваделупа",
+            "spa": "Guadalupe"
+        }
+    },
+    {
+        "code": "GQ",
+        "names": {
+            "deu": "Äquatorialguinea",
+            "eng": "Equatorial Guinea",
+            "fra": "Guinée équatoriale",
+            "ita": "Guinea Equatoriale",
+            "jpn": "赤道ギニア",
+            "nld": "Equatoriaal-Guinea",
+            "por": "Guiné Equatorial",
+            "rus": "Экваториальная Гвинея",
+            "spa": "Guinea Ecuatorial"
+        }
+    },
+    {
+        "code": "GR",
+        "names": {
+            "deu": "Griechenland",
+            "ell": "Ελλάδα",
+            "eng": "Greece",
+            "fra": "Grèce",
+            "ita": "Grecia",
+            "jpn": "ギリシャ",
+            "nld": "Griekenland",
+            "por": "Grécia",
+            "rus": "Греция",
+            "spa": "Grecia"
+        }
+    },
+    {
+        "code": "GS",
+        "names": {
+            "deu": "Südgeorgien und die Südlichen Sandwichinseln",
+            "eng": "South Georgia",
+            "fra": "Géorgie du Sud-et-les Îles Sandwich du Sud",
+            "ita": "Georgia del Sud e Isole Sandwich Meridionali",
+            "jpn": "サウスジョージア・サウスサンドウィッチ諸島",
+            "nld": "Zuid-Georgia en Zuidelijke Sandwicheilanden",
+            "por": "Ilhas Geórgia do Sul e Sandwich do Sul",
+            "rus": "Южная Георгия и Южные Сандвичевы острова",
+            "spa": "Islas Georgias del Sur y Sandwich del Sur"
+        }
+    },
+    {
+        "code": "GT",
+        "names": {
+            "deu": "Guatemala",
+            "eng": "Guatemala",
+            "fra": "Guatemala",
+            "ita": "Guatemala",
+            "jpn": "グアテマラ",
+            "nld": "Guatemala",
+            "por": "Guatemala",
+            "rus": "Гватемала",
+            "spa": "Guatemala"
+        }
+    },
+    {
+        "code": "GU",
+        "names": {
+            "deu": "Guam",
+            "eng": "Guam",
+            "fra": "Guam",
+            "ita": "Guam",
+            "jpn": "グアム",
+            "nld": "Guam",
+            "por": "Guam",
+            "rus": "Гуам",
+            "spa": "Guam"
+        }
+    },
+    {
+        "code": "GW",
+        "names": {
+            "deu": "Guinea-Bissau",
+            "eng": "Guinea-Bissau",
+            "fra": "Guinée-Bissau",
+            "ita": "Guinea-Bissau",
+            "jpn": "ギニアビサウ",
+            "nld": "Guinee-Bissau",
+            "por": "Guiné-Bissau",
+            "rus": "Гвинея-Бисау",
+            "spa": "Guinea-Bisáu"
+        }
+    },
+    {
+        "code": "GY",
+        "names": {
+            "deu": "Guyana",
+            "eng": "Guyana",
+            "fra": "Guyana",
+            "ita": "Guyana",
+            "jpn": "ガイアナ",
+            "nld": "Guyana",
+            "por": "Guiana",
+            "rus": "Гайана",
+            "spa": "Guyana"
+        }
+    },
+    {
+        "code": "HK",
+        "names": {
+            "deu": "Hongkong",
+            "eng": "Hong Kong",
+            "fra": "Hong Kong",
+            "ita": "Hong Kong",
+            "jpn": "香港",
+            "nld": "Hongkong",
+            "por": "Hong Kong",
+            "rus": "Гонконг",
+            "spa": "Hong Kong",
+            "zho": "香港"
+        }
+    },
+    {
+        "code": "HM",
+        "names": {
+            "deu": "Heard und die McDonaldinseln",
+            "eng": "Heard Island and McDonald Islands",
+            "fra": "Îles Heard-et-MacDonald",
+            "ita": "Isole Heard e McDonald",
+            "jpn": "ハード島とマクドナルド諸島",
+            "nld": "Heard-en McDonaldeilanden",
+            "por": "Ilha Heard e Ilhas McDonald",
+            "rus": "Остров Херд и острова Макдональд",
+            "spa": "Islas Heard y McDonald"
+        }
+    },
+    {
+        "code": "HN",
+        "names": {
+            "deu": "Honduras",
+            "eng": "Honduras",
+            "fra": "Honduras",
+            "ita": "Honduras",
+            "jpn": "ホンジュラス",
+            "nld": "Honduras",
+            "por": "Honduras",
+            "rus": "Гондурас",
+            "spa": "Honduras"
+        }
+    },
+    {
+        "code": "HR",
+        "names": {
+            "deu": "Kroatien",
+            "eng": "Croatia",
+            "fra": "Croatie",
+            "ita": "Croazia",
+            "jpn": "クロアチア",
+            "nld": "Kroatië",
+            "por": "Croácia",
+            "rus": "Хорватия",
+            "spa": "Croacia"
+        }
+    },
+    {
+        "code": "HT",
+        "names": {
+            "deu": "Haiti",
+            "eng": "Haiti",
+            "fra": "Haïti",
+            "ita": "Haiti",
+            "jpn": "ハイチ",
+            "nld": "Haïti",
+            "por": "Haiti",
+            "rus": "Гаити",
+            "spa": "Haiti"
+        }
+    },
+    {
+        "code": "HU",
+        "names": {
+            "deu": "Ungarn",
+            "eng": "Hungary",
+            "fra": "Hongrie",
+            "ita": "Ungheria",
+            "jpn": "ハンガリー",
+            "nld": "Hongarije",
+            "por": "Hungria",
+            "rus": "Венгрия",
+            "spa": "Hungría"
+        }
+    },
+    {
+        "code": "ID",
+        "names": {
+            "deu": "Indonesien",
+            "eng": "Indonesia",
+            "fra": "Indonésie",
+            "ita": "Indonesia",
+            "jpn": "インドネシア",
+            "nld": "Indonesië",
+            "por": "Indonésia",
+            "rus": "Индонезия",
+            "spa": "Indonesia"
+        }
+    },
+    {
+        "code": "IE",
+        "names": {
+            "deu": "Irland",
+            "eng": "Ireland",
+            "fra": "Irlande",
+            "ita": "Irlanda",
+            "jpn": "アイルランド",
+            "nld": "Ierland",
+            "por": "Irlanda",
+            "rus": "Ирландия",
+            "spa": "Irlanda"
+        }
+    },
+    {
+        "code": "IL",
+        "names": {
+            "ara": "إسرائيل",
+            "deu": "Israel",
+            "eng": "Israel",
+            "fra": "Israël",
+            "heb": "ישראל",
+            "ita": "Israele",
+            "jpn": "イスラエル",
+            "nld": "Israël",
+            "por": "Israel",
+            "rus": "Израиль",
+            "spa": "Israel"
+        }
+    },
+    {
+        "code": "IM",
+        "names": {
+            "deu": "Insel Man",
+            "eng": "Isle of Man",
+            "fra": "Île de Man",
+            "ita": "Isola di Man",
+            "jpn": "マン島",
+            "nld": "Isle of Man",
+            "por": "Ilha de Man",
+            "rus": "Остров Мэн",
+            "spa": "Isla de Man"
+        }
+    },
+    {
+        "code": "IN",
+        "names": {
+            "deu": "Indien",
+            "eng": "India",
+            "fra": "Inde",
+            "hin": "भारत",
+            "ita": "India",
+            "jpn": "インド",
+            "nld": "India",
+            "por": "Índia",
+            "rus": "Индия",
+            "spa": "India"
+        }
+    },
+    {
+        "code": "IO",
+        "names": {
+            "deu": "Britisches Territorium im Indischen Ozean",
+            "eng": "British Indian Ocean Territory",
+            "fra": "Territoire britannique de l'océan Indien",
+            "ita": "Territorio britannico dell'oceano indiano",
+            "jpn": "イギリス領インド洋地域",
+            "nld": "Britse Gebieden in de Indische Oceaan",
+            "por": "Território Britânico do Oceano Índico",
+            "rus": "Британская территория в Индийском океане",
+            "spa": "Territorio Británico del Océano Índico"
+        }
+    },
+    {
+        "code": "IQ",
+        "names": {
+            "ara": "العراق",
+            "deu": "Irak",
+            "eng": "Iraq",
+            "fra": "Irak",
+            "ita": "Iraq",
+            "jpn": "イラク",
+            "nld": "Irak",
+            "por": "Iraque",
+            "rus": "Ирак",
+            "spa": "Irak"
+        }
+    },
+    {
+        "code": "IR",
+        "names": {
+            "deu": "Iran",
+            "eng": "Iran",
+            "fra": "Iran",
+            "jpn": "イラン・イスラム共和国",
+            "nld": "Iran",
+            "por": "Irão",
+            "rus": "Иран",
+            "spa": "Iran"
+        }
+    },
+    {
+        "code": "IS",
+        "names": {
+            "deu": "Island",
+            "eng": "Iceland",
+            "fra": "Islande",
+            "ita": "Islanda",
+            "jpn": "アイスランド",
+            "nld": "IJsland",
+            "por": "Islândia",
+            "rus": "Исландия",
+            "spa": "Islandia"
+        }
+    },
+    {
+        "code": "IT",
+        "names": {
+            "deu": "Italien",
+            "eng": "Italy",
+            "fra": "Italie",
+            "ita": "Italia",
+            "jpn": "イタリア",
+            "nld": "Italië",
+            "por": "Itália",
+            "rus": "Италия",
+            "spa": "Italia"
+        }
+    },
+    {
+        "code": "JE",
+        "names": {
+            "deu": "Jersey",
+            "eng": "Jersey",
+            "fra": "Jersey",
+            "ita": "Isola di Jersey",
+            "jpn": "ジャージー",
+            "nld": "Jersey",
+            "por": "Jersey",
+            "rus": "Джерси",
+            "spa": "Jersey"
+        }
+    },
+    {
+        "code": "JM",
+        "names": {
+            "deu": "Jamaika",
+            "eng": "Jamaica",
+            "fra": "Jamaïque",
+            "ita": "Giamaica",
+            "jpn": "ジャマイカ",
+            "nld": "Jamaica",
+            "por": "Jamaica",
+            "rus": "Ямайка",
+            "spa": "Jamaica"
+        }
+    },
+    {
+        "code": "JO",
+        "names": {
+            "ara": "الأردن",
+            "deu": "Jordanien",
+            "eng": "Jordan",
+            "fra": "Jordanie",
+            "ita": "Giordania",
+            "jpn": "ヨルダン",
+            "nld": "Jordanië",
+            "por": "Jordânia",
+            "rus": "Иордания",
+            "spa": "Jordania"
+        }
+    },
+    {
+        "code": "JP",
+        "names": {
+            "deu": "Japan",
+            "eng": "Japan",
+            "fra": "Japon",
+            "ita": "Giappone",
+            "jpn": "日本",
+            "nld": "Japan",
+            "por": "Japão",
+            "rus": "Япония",
+            "spa": "Japón"
+        }
+    },
+    {
+        "code": "KE",
+        "names": {
+            "deu": "Kenia",
+            "eng": "Kenya",
+            "fra": "Kenya",
+            "ita": "Kenya",
+            "jpn": "ケニア",
+            "nld": "Kenia",
+            "por": "Quénia",
+            "rus": "Кения",
+            "spa": "Kenia"
+        }
+    },
+    {
+        "code": "KG",
+        "names": {
+            "deu": "Kirgisistan",
+            "eng": "Kyrgyzstan",
+            "fra": "Kirghizistan",
+            "ita": "Kirghizistan",
+            "jpn": "キルギス",
+            "nld": "Kirgizië",
+            "por": "Quirguistão",
+            "rus": "Киргизия",
+            "spa": "Kirguizistán"
+        }
+    },
+    {
+        "code": "KH",
+        "names": {
+            "deu": "Kambodscha",
+            "eng": "Cambodia",
+            "fra": "Cambodge",
+            "ita": "Cambogia",
+            "jpn": "カンボジア",
+            "nld": "Cambodja",
+            "por": "Camboja",
+            "rus": "Камбоджа",
+            "spa": "Camboya"
+        }
+    },
+    {
+        "code": "KI",
+        "names": {
+            "deu": "Kiribati",
+            "eng": "Kiribati",
+            "fra": "Kiribati",
+            "ita": "Kiribati",
+            "jpn": "キリバス",
+            "nld": "Kiribati",
+            "por": "Kiribati",
+            "rus": "Кирибати",
+            "spa": "Kiribati"
+        }
+    },
+    {
+        "code": "KM",
+        "names": {
+            "ara": "القمر‎",
+            "deu": "Union der Komoren",
+            "eng": "Comoros",
+            "fra": "Comores",
+            "ita": "Comore",
+            "jpn": "コモロ",
+            "nld": "Comoren",
+            "por": "Comores",
+            "rus": "Коморы",
+            "spa": "Comoras"
+        }
+    },
+    {
+        "code": "KN",
+        "names": {
+            "deu": "Saint Christopher und Nevis",
+            "eng": "Saint Kitts and Nevis",
+            "fra": "Saint-Christophe-et-Niévès",
+            "ita": "Saint Kitts e Nevis",
+            "jpn": "セントクリストファー・ネイビス",
+            "nld": "Saint Kitts en Nevis",
+            "por": "São Cristóvão e Nevis",
+            "rus": "Сент-Китс и Невис",
+            "spa": "San Cristóbal y Nieves"
+        }
+    },
+    {
+        "code": "KP",
+        "names": {
+            "deu": "Nordkorea",
+            "eng": "North Korea",
+            "fra": "Corée du Nord",
+            "ita": "Corea del Nord",
+            "jpn": "朝鮮民主主義人民共和国",
+            "nld": "Noord-Korea",
+            "por": "Coreia do Norte",
+            "rus": "Северная Корея",
+            "spa": "Corea del Norte"
+        }
+    },
+    {
+        "code": "KR",
+        "names": {
+            "deu": "Südkorea",
+            "eng": "South Korea",
+            "fra": "Corée du Sud",
+            "ita": "Corea del Sud",
+            "jpn": "大韓民国",
+            "nld": "Zuid-Korea",
+            "por": "Coreia do Sul",
+            "rus": "Южная Корея",
+            "spa": "Corea del Sur"
+        }
+    },
+    {
+        "code": "KW",
+        "names": {
+            "ara": "الكويت",
+            "deu": "Kuwait",
+            "eng": "Kuwait",
+            "fra": "Koweït",
+            "ita": "Kuwait",
+            "jpn": "クウェート",
+            "nld": "Koeweit",
+            "por": "Kuwait",
+            "rus": "Кувейт",
+            "spa": "Kuwait"
+        }
+    },
+    {
+        "code": "KY",
+        "names": {
+            "deu": "Kaimaninseln",
+            "eng": "Cayman Islands",
+            "fra": "Îles Caïmans",
+            "ita": "Isole Cayman",
+            "jpn": "ケイマン諸島",
+            "nld": "Caymaneilanden",
+            "por": "Ilhas Caimão",
+            "rus": "Каймановы острова",
+            "spa": "Islas Caimán"
+        }
+    },
+    {
+        "code": "KZ",
+        "names": {
+            "deu": "Kasachstan",
+            "eng": "Kazakhstan",
+            "fra": "Kazakhstan",
+            "ita": "Kazakistan",
+            "jpn": "カザフスタン",
+            "nld": "Kazachstan",
+            "por": "Cazaquistão",
+            "rus": "Казахстан",
+            "spa": "Kazajistán"
+        }
+    },
+    {
+        "code": "LA",
+        "names": {
+            "deu": "Laos",
+            "eng": "Laos",
+            "fra": "Laos",
+            "ita": "Laos",
+            "jpn": "ラオス人民民主共和国",
+            "nld": "Laos",
+            "por": "Laos",
+            "rus": "Лаос",
+            "spa": "Laos"
+        }
+    },
+    {
+        "code": "LB",
+        "names": {
+            "ara": "لبنان",
+            "deu": "Libanon",
+            "eng": "Lebanon",
+            "fra": "Liban",
+            "ita": "Libano",
+            "jpn": "レバノン",
+            "nld": "Libanon",
+            "por": "Líbano",
+            "rus": "Ливан",
+            "spa": "Líbano"
+        }
+    },
+    {
+        "code": "LC",
+        "names": {
+            "deu": "Saint Lucia",
+            "eng": "Saint Lucia",
+            "fra": "Sainte-Lucie",
+            "ita": "Santa Lucia",
+            "jpn": "セントルシア",
+            "nld": "Saint Lucia",
+            "por": "Santa Lúcia",
+            "rus": "Сент-Люсия",
+            "spa": "Santa Lucía"
+        }
+    },
+    {
+        "code": "LI",
+        "names": {
+            "deu": "Liechtenstein",
+            "eng": "Liechtenstein",
+            "fra": "Liechtenstein",
+            "ita": "Liechtenstein",
+            "jpn": "リヒテンシュタイン",
+            "nld": "Liechtenstein",
+            "por": "Liechtenstein",
+            "rus": "Лихтенштейн",
+            "spa": "Liechtenstein"
+        }
+    },
+    {
+        "code": "LK",
+        "names": {
+            "deu": "Sri Lanka",
+            "eng": "Sri Lanka",
+            "fra": "Sri Lanka",
+            "ita": "Sri Lanka",
+            "jpn": "スリランカ",
+            "nld": "Sri Lanka",
+            "por": "Sri Lanka",
+            "rus": "Шри-Ланка",
+            "spa": "Sri Lanka"
+        }
+    },
+    {
+        "code": "LR",
+        "names": {
+            "deu": "Liberia",
+            "eng": "Liberia",
+            "fra": "Liberia",
+            "ita": "Liberia",
+            "jpn": "リベリア",
+            "nld": "Liberia",
+            "por": "Libéria",
+            "rus": "Либерия",
+            "spa": "Liberia"
+        }
+    },
+    {
+        "code": "LS",
+        "names": {
+            "deu": "Lesotho",
+            "eng": "Lesotho",
+            "fra": "Lesotho",
+            "ita": "Lesotho",
+            "jpn": "レソト",
+            "nld": "Lesotho",
+            "por": "Lesoto",
+            "rus": "Лесото",
+            "spa": "Lesotho"
+        }
+    },
+    {
+        "code": "LT",
+        "names": {
+            "deu": "Litauen",
+            "eng": "Lithuania",
+            "fra": "Lituanie",
+            "ita": "Lituania",
+            "jpn": "リトアニア",
+            "nld": "Litouwen",
+            "por": "Lituânia",
+            "rus": "Литва",
+            "spa": "Lituania"
+        }
+    },
+    {
+        "code": "LU",
+        "names": {
+            "deu": "Luxemburg",
+            "eng": "Luxembourg",
+            "fra": "Luxembourg",
+            "ita": "Lussemburgo",
+            "jpn": "ルクセンブルク",
+            "nld": "Luxemburg",
+            "por": "Luxemburgo",
+            "rus": "Люксембург",
+            "spa": "Luxemburgo"
+        }
+    },
+    {
+        "code": "LV",
+        "names": {
+            "deu": "Lettland",
+            "eng": "Latvia",
+            "fra": "Lettonie",
+            "ita": "Lettonia",
+            "jpn": "ラトビア",
+            "nld": "Letland",
+            "por": "Letónia",
+            "rus": "Латвия",
+            "spa": "Letonia"
+        }
+    },
+    {
+        "code": "LY",
+        "names": {
+            "ara": "‏ليبيا",
+            "deu": "Libyen",
+            "eng": "Libya",
+            "fra": "Libye",
+            "ita": "Libia",
+            "jpn": "リビア",
+            "nld": "Libië",
+            "por": "Líbia",
+            "rus": "Ливия",
+            "spa": "Libia"
+        }
+    },
+    {
+        "code": "MA",
+        "names": {
+            "ara": "المغرب",
+            "deu": "Marokko",
+            "eng": "Morocco",
+            "fra": "Maroc",
+            "ita": "Marocco",
+            "jpn": "モロッコ",
+            "nld": "Marokko",
+            "por": "Marrocos",
+            "rus": "Марокко",
+            "spa": "Marruecos"
+        }
+    },
+    {
+        "code": "MC",
+        "names": {
+            "deu": "Monaco",
+            "eng": "Monaco",
+            "fra": "Monaco",
+            "ita": "Principato di Monaco",
+            "jpn": "モナコ",
+            "nld": "Monaco",
+            "por": "Mónaco",
+            "rus": "Монако",
+            "spa": "Mónaco"
+        }
+    },
+    {
+        "code": "MD",
+        "names": {
+            "deu": "Moldawie",
+            "eng": "Moldova",
+            "fra": "Moldavie",
+            "ita": "Moldavia",
+            "jpn": "モルドバ共和国",
+            "nld": "Moldavië",
+            "por": "Moldávia",
+            "ron": "Moldova",
+            "rus": "Молдавия",
+            "spa": "Moldavia"
+        }
+    },
+    {
+        "code": "ME",
+        "names": {
+            "deu": "Montenegro",
+            "eng": "Montenegro",
+            "fra": "Monténégro",
+            "ita": "Montenegro",
+            "jpn": "モンテネグロ",
+            "nld": "Montenegro",
+            "por": "Montenegro",
+            "rus": "Черногория",
+            "spa": "Montenegro"
+        }
+    },
+    {
+        "code": "MF",
+        "names": {
+            "deu": "Saint Martin",
+            "eng": "Saint Martin",
+            "fra": "Saint-Martin",
+            "ita": "Saint Martin",
+            "jpn": "サン・マルタン（フランス領）",
+            "nld": "Saint-Martin",
+            "por": "São Martinho",
+            "rus": "Сен-Мартен",
+            "spa": "Saint Martin"
+        }
+    },
+    {
+        "code": "MG",
+        "names": {
+            "deu": "Madagaskar",
+            "eng": "Madagascar",
+            "fra": "Madagascar",
+            "ita": "Madagascar",
+            "jpn": "マダガスカル",
+            "nld": "Madagaskar",
+            "por": "Madagáscar",
+            "rus": "Мадагаскар",
+            "spa": "Madagascar"
+        }
+    },
+    {
+        "code": "MH",
+        "names": {
+            "deu": "Marshallinseln",
+            "eng": "Marshall Islands",
+            "fra": "Îles Marshall",
+            "ita": "Isole Marshall",
+            "jpn": "マーシャル諸島",
+            "nld": "Marshalleilanden",
+            "por": "Ilhas Marshall",
+            "rus": "Маршалловы Острова",
+            "spa": "Islas Marshall"
+        }
+    },
+    {
+        "code": "MK",
+        "names": {
+            "deu": "Mazedonien",
+            "eng": "Macedonia",
+            "fra": "Macédoine",
+            "ita": "Macedonia",
+            "jpn": "マケドニア旧ユーゴスラビア共和国",
+            "nld": "Macedonië",
+            "por": "Macedónia",
+            "rus": "Республика Македония",
+            "spa": "Macedonia"
+        }
+    },
+    {
+        "code": "ML",
+        "names": {
+            "deu": "Mali",
+            "eng": "Mali",
+            "fra": "Mali",
+            "ita": "Mali",
+            "jpn": "マリ",
+            "nld": "Mali",
+            "por": "Mali",
+            "rus": "Мали",
+            "spa": "Mali"
+        }
+    },
+    {
+        "code": "MM",
+        "names": {
+            "deu": "Myanmar",
+            "eng": "Myanmar",
+            "fra": "Birmanie",
+            "ita": "Birmania",
+            "jpn": "ミャンマー",
+            "nld": "Myanmar",
+            "por": "Myanmar",
+            "rus": "Мьянма",
+            "spa": "Myanmar"
+        }
+    },
+    {
+        "code": "MN",
+        "names": {
+            "deu": "Mongolei",
+            "eng": "Mongolia",
+            "fra": "Mongolie",
+            "ita": "Mongolia",
+            "jpn": "モンゴル",
+            "nld": "Mongolië",
+            "por": "Mongólia",
+            "rus": "Монголия",
+            "spa": "Mongolia"
+        }
+    },
+    {
+        "code": "MO",
+        "names": {
+            "deu": "Macao",
+            "eng": "Macau",
+            "fra": "Macao",
+            "ita": "Macao",
+            "jpn": "マカオ",
+            "nld": "Macao",
+            "por": "Macau",
+            "rus": "Макао",
+            "spa": "Macao",
+            "zho": "澳門"
+        }
+    },
+    {
+        "code": "MP",
+        "names": {
+            "deu": "Nördliche Marianen",
+            "eng": "Northern Mariana Islands",
+            "fra": "Îles Mariannes du Nord",
+            "ita": "Isole Marianne Settentrionali",
+            "jpn": "北マリアナ諸島",
+            "nld": "Noordelijke Marianeneilanden",
+            "por": "Marianas Setentrionais",
+            "rus": "Северные Марианские острова",
+            "spa": "Islas Marianas del Norte"
+        }
+    },
+    {
+        "code": "MQ",
+        "names": {
+            "deu": "Martinique",
+            "eng": "Martinique",
+            "fra": "Martinique",
+            "ita": "Martinica",
+            "jpn": "マルティニーク",
+            "nld": "Martinique",
+            "por": "Martinica",
+            "rus": "Мартиника",
+            "spa": "Martinica"
+        }
+    },
+    {
+        "code": "MR",
+        "names": {
+            "ara": "موريتانيا",
+            "deu": "Mauretanien",
+            "eng": "Mauritania",
+            "fra": "Mauritanie",
+            "ita": "Mauritania",
+            "jpn": "モーリタニア",
+            "nld": "Mauritanië",
+            "por": "Mauritânia",
+            "rus": "Мавритания",
+            "spa": "Mauritania"
+        }
+    },
+    {
+        "code": "MS",
+        "names": {
+            "deu": "Montserrat",
+            "eng": "Montserrat",
+            "fra": "Montserrat",
+            "ita": "Montserrat",
+            "jpn": "モントセラト",
+            "nld": "Montserrat",
+            "por": "Montserrat",
+            "rus": "Монтсеррат",
+            "spa": "Montserrat"
+        }
+    },
+    {
+        "code": "MT",
+        "names": {
+            "deu": "Malta",
+            "eng": "Malta",
+            "fra": "Malte",
+            "ita": "Malta",
+            "jpn": "マルタ",
+            "nld": "Malta",
+            "por": "Malta",
+            "rus": "Мальта",
+            "spa": "Malta"
+        }
+    },
+    {
+        "code": "MU",
+        "names": {
+            "deu": "Mauritius",
+            "eng": "Mauritius",
+            "fra": "Maurice",
+            "ita": "Mauritius",
+            "jpn": "モーリシャス",
+            "nld": "Mauritius",
+            "por": "Maurício",
+            "rus": "Маврикий",
+            "spa": "Mauricio"
+        }
+    },
+    {
+        "code": "MV",
+        "names": {
+            "deu": "Malediven",
+            "eng": "Maldives",
+            "fra": "Maldives",
+            "ita": "Maldive",
+            "jpn": "モルディブ",
+            "nld": "Maldiven",
+            "por": "Maldivas",
+            "rus": "Мальдивы",
+            "spa": "Maldivas"
+        }
+    },
+    {
+        "code": "MW",
+        "names": {
+            "deu": "Malawi",
+            "eng": "Malawi",
+            "fra": "Malawi",
+            "ita": "Malawi",
+            "jpn": "マラウイ",
+            "nld": "Malawi",
+            "por": "Malawi",
+            "rus": "Малави",
+            "spa": "Malawi"
+        }
+    },
+    {
+        "code": "MX",
+        "names": {
+            "deu": "Mexiko",
+            "eng": "Mexico",
+            "fra": "Mexique",
+            "ita": "Messico",
+            "jpn": "メキシコ",
+            "nld": "Mexico",
+            "por": "México",
+            "rus": "Мексика",
+            "spa": "México"
+        }
+    },
+    {
+        "code": "MY",
+        "names": {
+            "deu": "Malaysia",
+            "eng": "Malaysia",
+            "fra": "Malaisie",
+            "ita": "Malesia",
+            "jpn": "マレーシア",
+            "nld": "Maleisië",
+            "por": "Malásia",
+            "rus": "Малайзия",
+            "spa": "Malasia"
+        }
+    },
+    {
+        "code": "MZ",
+        "names": {
+            "deu": "Mosambik",
+            "eng": "Mozambique",
+            "fra": "Mozambique",
+            "ita": "Mozambico",
+            "jpn": "モザンビーク",
+            "nld": "Mozambique",
+            "por": "Moçambique",
+            "rus": "Мозамбик",
+            "spa": "Mozambique"
+        }
+    },
+    {
+        "code": "NA",
+        "names": {
+            "deu": "Namibia",
+            "eng": "Namibia",
+            "fra": "Namibie",
+            "ita": "Namibia",
+            "jpn": "ナミビア",
+            "nld": "Namibië",
+            "por": "Namíbia",
+            "rus": "Намибия",
+            "spa": "Namibia"
+        }
+    },
+    {
+        "code": "NC",
+        "names": {
+            "deu": "Neukaledonien",
+            "eng": "New Caledonia",
+            "fra": "Nouvelle-Calédonie",
+            "ita": "Nuova Caledonia",
+            "jpn": "ニューカレドニア",
+            "nld": "Nieuw-Caledonië",
+            "por": "Nova Caledónia",
+            "rus": "Новая Каледония",
+            "spa": "Nueva Caledonia"
+        }
+    },
+    {
+        "code": "NE",
+        "names": {
+            "deu": "Niger",
+            "eng": "Niger",
+            "fra": "Niger",
+            "ita": "Niger",
+            "jpn": "ニジェール",
+            "nld": "Niger",
+            "por": "Níger",
+            "rus": "Нигер",
+            "spa": "Níger"
+        }
+    },
+    {
+        "code": "NF",
+        "names": {
+            "deu": "Norfolkinsel",
+            "eng": "Norfolk Island",
+            "fra": "Île Norfolk",
+            "ita": "Isola Norfolk",
+            "jpn": "ノーフォーク島",
+            "nld": "Norfolkeiland",
+            "por": "Ilha Norfolk",
+            "rus": "Норфолк",
+            "spa": "Isla de Norfolk"
+        }
+    },
+    {
+        "code": "NG",
+        "names": {
+            "deu": "Nigeria",
+            "eng": "Nigeria",
+            "fra": "Nigéria",
+            "ita": "Nigeria",
+            "jpn": "ナイジェリア",
+            "nld": "Nigeria",
+            "por": "Nigéria",
+            "rus": "Нигерия",
+            "spa": "Nigeria"
+        }
+    },
+    {
+        "code": "NI",
+        "names": {
+            "deu": "Nicaragua",
+            "eng": "Nicaragua",
+            "fra": "Nicaragua",
+            "ita": "Nicaragua",
+            "jpn": "ニカラグア",
+            "nld": "Nicaragua",
+            "por": "Nicarágua",
+            "rus": "Никарагуа",
+            "spa": "Nicaragua"
+        }
+    },
+    {
+        "code": "NL",
+        "names": {
+            "deu": "Niederlande",
+            "eng": "Netherlands",
+            "fra": "Pays-Bas",
+            "ita": "Paesi Bassi",
+            "jpn": "オランダ",
+            "nld": "Nederland",
+            "por": "Holanda",
+            "rus": "Нидерланды",
+            "spa": "Países Bajos"
+        }
+    },
+    {
+        "code": "NO",
+        "names": {
+            "deu": "Norwegen",
+            "eng": "Norway",
+            "fra": "Norvège",
+            "ita": "Norvegia",
+            "jpn": "ノルウェー",
+            "nld": "Noorwegen",
+            "nno": "Noreg",
+            "por": "Noruega",
+            "rus": "Норвегия",
+            "spa": "Noruega"
+        }
+    },
+    {
+        "code": "NP",
+        "names": {
+            "deu": "Népal",
+            "eng": "Nepal",
+            "fra": "Népal",
+            "ita": "Nepal",
+            "jpn": "ネパール",
+            "nld": "Nepal",
+            "por": "Nepal",
+            "rus": "Непал",
+            "spa": "Nepal"
+        }
+    },
+    {
+        "code": "NR",
+        "names": {
+            "deu": "Nauru",
+            "eng": "Nauru",
+            "fra": "Nauru",
+            "ita": "Nauru",
+            "jpn": "ナウル",
+            "nld": "Nauru",
+            "por": "Nauru",
+            "rus": "Науру",
+            "spa": "Nauru"
+        }
+    },
+    {
+        "code": "NU",
+        "names": {
+            "deu": "Niue",
+            "eng": "Niue",
+            "fra": "Niue",
+            "ita": "Niue",
+            "jpn": "ニウエ",
+            "nld": "Niue",
+            "por": "Niue",
+            "rus": "Ниуэ",
+            "spa": "Niue"
+        }
+    },
+    {
+        "code": "NZ",
+        "names": {
+            "deu": "Neuseeland",
+            "eng": "New Zealand",
+            "fra": "Nouvelle-Zélande",
+            "ita": "Nuova Zelanda",
+            "jpn": "ニュージーランド",
+            "nld": "Nieuw-Zeeland",
+            "por": "Nova Zelândia",
+            "rus": "Новая Зеландия",
+            "spa": "Nueva Zelanda"
+        }
+    },
+    {
+        "code": "OM",
+        "names": {
+            "ara": "عمان",
+            "deu": "Oman",
+            "eng": "Oman",
+            "fra": "Oman",
+            "ita": "oman",
+            "jpn": "オマーン",
+            "nld": "Oman",
+            "por": "Omã",
+            "rus": "Оман",
+            "spa": "Omán"
+        }
+    },
+    {
+        "code": "PA",
+        "names": {
+            "deu": "Panama",
+            "eng": "Panama",
+            "fra": "Panama",
+            "ita": "Panama",
+            "jpn": "パナマ",
+            "nld": "Panama",
+            "por": "Panamá",
+            "rus": "Панама",
+            "spa": "Panamá"
+        }
+    },
+    {
+        "code": "PE",
+        "names": {
+            "deu": "Peru",
+            "eng": "Peru",
+            "fra": "Pérou",
+            "ita": "Perù",
+            "jpn": "ペルー",
+            "nld": "Peru",
+            "por": "Perú",
+            "rus": "Перу",
+            "spa": "Perú"
+        }
+    },
+    {
+        "code": "PF",
+        "names": {
+            "deu": "Französisch-Polynesien",
+            "eng": "French Polynesia",
+            "fra": "Polynésie française",
+            "ita": "Polinesia Francese",
+            "jpn": "フランス領ポリネシア",
+            "nld": "Frans-Polynesië",
+            "por": "Polinésia Francesa",
+            "rus": "Французская Полинезия",
+            "spa": "Polinesia Francesa"
+        }
+    },
+    {
+        "code": "PG",
+        "names": {
+            "deu": "Papua-Neuguinea",
+            "eng": "Papua New Guinea",
+            "fra": "Papouasie-Nouvelle-Guinée",
+            "ita": "Papua Nuova Guinea",
+            "jpn": "パプアニューギニア",
+            "nld": "Papoea-Nieuw-Guinea",
+            "por": "Papua Nova Guiné",
+            "rus": "Папуа — Новая Гвинея",
+            "spa": "Papúa Nueva Guinea"
+        }
+    },
+    {
+        "code": "PH",
+        "names": {
+            "deu": "Philippinen",
+            "eng": "Philippines",
+            "fra": "Philippines",
+            "ita": "Filippine",
+            "jpn": "フィリピン",
+            "nld": "Filipijnen",
+            "por": "Filipinas",
+            "rus": "Филиппины",
+            "spa": "Filipinas"
+        }
+    },
+    {
+        "code": "PK",
+        "names": {
+            "deu": "Pakistan",
+            "eng": "Pakistan",
+            "fra": "Pakistan",
+            "ita": "Pakistan",
+            "jpn": "パキスタン",
+            "nld": "Pakistan",
+            "por": "Paquistão",
+            "rus": "Пакистан",
+            "spa": "Pakistán",
+            "urd": "پاكستان"
+        }
+    },
+    {
+        "code": "PL",
+        "names": {
+            "deu": "Polen",
+            "eng": "Poland",
+            "fra": "Pologne",
+            "ita": "Polonia",
+            "jpn": "ポーランド",
+            "nld": "Polen",
+            "pol": "Polska",
+            "por": "Polónia",
+            "rus": "Польша",
+            "spa": "Polonia"
+        }
+    },
+    {
+        "code": "PM",
+        "names": {
+            "deu": "Saint-Pierre und Miquelon",
+            "eng": "Saint Pierre and Miquelon",
+            "fra": "Saint-Pierre-et-Miquelon",
+            "ita": "Saint-Pierre e Miquelon",
+            "jpn": "サンピエール島・ミクロン島",
+            "nld": "Saint Pierre en Miquelon",
+            "por": "Saint-Pierre e Miquelon",
+            "rus": "Сен-Пьер и Микелон",
+            "spa": "San Pedro y Miquelón"
+        }
+    },
+    {
+        "code": "PN",
+        "names": {
+            "deu": "Pitcairn",
+            "eng": "Pitcairn Islands",
+            "fra": "Îles Pitcairn",
+            "ita": "Isole Pitcairn",
+            "jpn": "ピトケアン",
+            "nld": "Pitcairneilanden",
+            "por": "Ilhas Pitcairn",
+            "rus": "Острова Питкэрн",
+            "spa": "Islas Pitcairn"
+        }
+    },
+    {
+        "code": "PR",
+        "names": {
+            "deu": "Puerto Rico",
+            "eng": "Puerto Rico",
+            "fra": "Porto Rico",
+            "ita": "Porto Rico",
+            "jpn": "プエルトリコ",
+            "nld": "Puerto Rico",
+            "por": "Porto Rico",
+            "rus": "Пуэрто-Рико",
+            "spa": "Puerto Rico"
+        }
+    },
+    {
+        "code": "PS",
+        "names": {
+            "ara": "فلسطين",
+            "deu": "Palästina",
+            "eng": "Palestine",
+            "fra": "Palestine",
+            "ita": "Palestina",
+            "jpn": "パレスチナ",
+            "nld": "Palestijnse gebieden",
+            "por": "Palestina",
+            "rus": "Палестина",
+            "spa": "Palestina"
+        }
+    },
+    {
+        "code": "PT",
+        "names": {
+            "deu": "Portugal",
+            "eng": "Portugal",
+            "fra": "Portugal",
+            "ita": "Portogallo",
+            "jpn": "ポルトガル",
+            "nld": "Portugal",
+            "por": "Portugal",
+            "rus": "Португалия",
+            "spa": "Portugal"
+        }
+    },
+    {
+        "code": "PW",
+        "names": {
+            "deu": "Palau",
+            "eng": "Palau",
+            "fra": "Palaos (Palau)",
+            "ita": "Palau",
+            "jpn": "パラオ",
+            "nld": "Palau",
+            "por": "Palau",
+            "rus": "Палау",
+            "spa": "Palau"
+        }
+    },
+    {
+        "code": "PY",
+        "names": {
+            "deu": "Paraguay",
+            "eng": "Paraguay",
+            "fra": "Paraguay",
+            "ita": "Paraguay",
+            "jpn": "パラグアイ",
+            "nld": "Paraguay",
+            "por": "Paraguai",
+            "rus": "Парагвай",
+            "spa": "Paraguay"
+        }
+    },
+    {
+        "code": "QA",
+        "names": {
+            "ara": "قطر",
+            "deu": "Katar",
+            "eng": "Qatar",
+            "fra": "Qatar",
+            "ita": "Qatar",
+            "jpn": "カタール",
+            "nld": "Qatar",
+            "por": "Catar",
+            "rus": "Катар",
+            "spa": "Catar"
+        }
+    },
+    {
+        "code": "RE",
+        "names": {
+            "deu": "Réunion",
+            "eng": "Réunion",
+            "fra": "La Réunion",
+            "ita": "Riunione",
+            "jpn": "レユニオン",
+            "nld": "Réunion",
+            "por": "Reunião",
+            "rus": "Реюньон",
+            "spa": "Reunión"
+        }
+    },
+    {
+        "code": "RO",
+        "names": {
+            "deu": "Rumänien",
+            "eng": "Romania",
+            "fra": "Roumanie",
+            "ita": "Romania",
+            "jpn": "ルーマニア",
+            "nld": "Roemenië",
+            "por": "Roménia",
+            "ron": "România",
+            "rus": "Румыния",
+            "spa": "Rumania"
+        }
+    },
+    {
+        "code": "RS",
+        "names": {
+            "deu": "Serbien",
+            "eng": "Serbia",
+            "fra": "Serbie",
+            "ita": "Serbia",
+            "jpn": "セルビア",
+            "nld": "Servië",
+            "por": "Sérvia",
+            "rus": "Сербия",
+            "spa": "Serbia"
+        }
+    },
+    {
+        "code": "RU",
+        "names": {
+            "deu": "Russland",
+            "eng": "Russia",
+            "fra": "Russie",
+            "ita": "Russia",
+            "jpn": "ロシア連邦",
+            "nld": "Rusland",
+            "por": "Rússia",
+            "rus": "Россия",
+            "spa": "Rusia"
+        }
+    },
+    {
+        "code": "RW",
+        "names": {
+            "deu": "Ruanda",
+            "eng": "Rwanda",
+            "fra": "Rwanda",
+            "ita": "Ruanda",
+            "jpn": "ルワンダ",
+            "nld": "Rwanda",
+            "por": "Ruanda",
+            "rus": "Руанда",
+            "spa": "Ruanda"
+        }
+    },
+    {
+        "code": "SA",
+        "names": {
+            "ara": "العربية السعودية",
+            "deu": "Saudi-Arabien",
+            "eng": "Saudi Arabia",
+            "fra": "Arabie Saoudite",
+            "ita": "Arabia Saudita",
+            "jpn": "サウジアラビア",
+            "nld": "Saoedi-Arabië",
+            "por": "Arábia Saudita",
+            "rus": "Саудовская Аравия",
+            "spa": "Arabia Saudí"
+        }
+    },
+    {
+        "code": "SB",
+        "names": {
+            "deu": "Salomonen",
+            "eng": "Solomon Islands",
+            "fra": "Îles Salomon",
+            "ita": "Isole Salomone",
+            "jpn": "ソロモン諸島",
+            "nld": "Salomonseilanden",
+            "por": "Ilhas Salomão",
+            "rus": "Соломоновы Острова",
+            "spa": "Islas Salomón"
+        }
+    },
+    {
+        "code": "SC",
+        "names": {
+            "deu": "Seychellen",
+            "eng": "Seychelles",
+            "fra": "Seychelles",
+            "ita": "Seychelles",
+            "jpn": "セーシェル",
+            "nld": "Seychellen",
+            "por": "Seicheles",
+            "rus": "Сейшельские Острова",
+            "spa": "Seychelles"
+        }
+    },
+    {
+        "code": "SD",
+        "names": {
+            "ara": "السودان",
+            "deu": "Sudan",
+            "eng": "Sudan",
+            "fra": "Soudan",
+            "ita": "Sudan",
+            "jpn": "スーダン",
+            "nld": "Soedan",
+            "por": "Sudão",
+            "rus": "Судан",
+            "spa": "Sudán"
+        }
+    },
+    {
+        "code": "SE",
+        "names": {
+            "deu": "Schweden",
+            "eng": "Sweden",
+            "fra": "Suède",
+            "ita": "Svezia",
+            "jpn": "スウェーデン",
+            "nld": "Zweden",
+            "por": "Suécia",
+            "rus": "Швеция",
+            "spa": "Suecia",
+            "swe": "Sverige"
+        }
+    },
+    {
+        "code": "SG",
+        "names": {
+            "deu": "Singapur",
+            "eng": "Singapore",
+            "fra": "Singapour",
+            "ita": "Singapore",
+            "jpn": "シンガポール",
+            "nld": "Singapore",
+            "por": "Singapura",
+            "rus": "Сингапур",
+            "spa": "Singapur"
+        }
+    },
+    {
+        "code": "SH",
+        "names": {
+            "eng": "Saint Helena"
+        }
+    },
+    {
+        "code": "SI",
+        "names": {
+            "deu": "Slowenien",
+            "eng": "Slovenia",
+            "fra": "Slovénie",
+            "ita": "Slovenia",
+            "jpn": "スロベニア",
+            "nld": "Slovenië",
+            "por": "Eslovénia",
+            "rus": "Словения",
+            "spa": "Eslovenia"
+        }
+    },
+    {
+        "code": "SJ",
+        "names": {
+            "deu": "Spitzbergen",
+            "eng": "Svalbard and Jan Mayen",
+            "fra": "Svalbard et Jan Mayen",
+            "ita": "Svalbard e Jan Mayen",
+            "jpn": "スヴァールバル諸島およびヤンマイエン島",
+            "nld": "Svalbard en Jan Mayen",
+            "por": "Ilhas Svalbard e Jan Mayen",
+            "rus": "Шпицберген и Ян-Майен",
+            "spa": "Islas Svalbard y Jan Mayen"
+        }
+    },
+    {
+        "code": "SK",
+        "names": {
+            "deu": "Slowakei",
+            "eng": "Slovakia",
+            "fra": "Slovaquie",
+            "ita": "Slovacchia",
+            "jpn": "スロバキア",
+            "nld": "Slowakije",
+            "por": "Eslováquia",
+            "rus": "Словакия",
+            "spa": "República Eslovaca"
+        }
+    },
+    {
+        "code": "SL",
+        "names": {
+            "deu": "Sierra Leone",
+            "eng": "Sierra Leone",
+            "fra": "Sierra Leone",
+            "ita": "Sierra Leone",
+            "jpn": "シエラレオネ",
+            "nld": "Sierra Leone",
+            "por": "Serra Leoa",
+            "rus": "Сьерра-Леоне",
+            "spa": "Sierra Leone"
+        }
+    },
+    {
+        "code": "SM",
+        "names": {
+            "deu": "San Marino",
+            "eng": "San Marino",
+            "fra": "Saint-Marin",
+            "ita": "San Marino",
+            "jpn": "サンマリノ",
+            "nld": "San Marino",
+            "por": "San Marino",
+            "rus": "Сан-Марино",
+            "spa": "San Marino"
+        }
+    },
+    {
+        "code": "SN",
+        "names": {
+            "deu": "Senegal",
+            "eng": "Senegal",
+            "fra": "Sénégal",
+            "ita": "Senegal",
+            "jpn": "セネガル",
+            "nld": "Senegal",
+            "por": "Senegal",
+            "rus": "Сенегал",
+            "spa": "Senegal"
+        }
+    },
+    {
+        "code": "SO",
+        "names": {
+            "ara": "الصومال‎‎",
+            "deu": "Somalia",
+            "eng": "Somalia",
+            "fra": "Somalie",
+            "ita": "Somalia",
+            "jpn": "ソマリア",
+            "nld": "Somalië",
+            "por": "Somália",
+            "rus": "Сомали",
+            "spa": "Somalia"
+        }
+    },
+    {
+        "code": "SR",
+        "names": {
+            "deu": "Suriname",
+            "eng": "Suriname",
+            "fra": "Surinam",
+            "ita": "Suriname",
+            "jpn": "スリナム",
+            "nld": "Suriname",
+            "por": "Suriname",
+            "rus": "Суринам",
+            "spa": "Surinam"
+        }
+    },
+    {
+        "code": "SS",
+        "names": {
+            "deu": "Südsudan",
+            "eng": "South Sudan",
+            "fra": "Soudan du Sud",
+            "ita": "Sudan del sud",
+            "jpn": "南スーダン",
+            "nld": "Zuid-Soedan",
+            "por": "Sudão do Sul",
+            "rus": "Южный Судан",
+            "spa": "Sudán del Sur"
+        }
+    },
+    {
+        "code": "ST",
+        "names": {
+            "deu": "São Tomé und Príncipe",
+            "eng": "São Tomé and Príncipe",
+            "fra": "São Tomé et Príncipe",
+            "ita": "São Tomé e Príncipe",
+            "jpn": "サントメ・プリンシペ",
+            "nld": "Sao Tomé en Principe",
+            "por": "São Tomé e Príncipe",
+            "rus": "Сан-Томе и Принсипи",
+            "spa": "Santo Tomé y Príncipe"
+        }
+    },
+    {
+        "code": "SV",
+        "names": {
+            "deu": "El Salvador",
+            "eng": "El Salvador",
+            "fra": "Salvador",
+            "ita": "El Salvador",
+            "jpn": "エルサルバドル",
+            "nld": "El Salvador",
+            "por": "El Salvador",
+            "rus": "Сальвадор",
+            "spa": "El Salvador"
+        }
+    },
+    {
+        "code": "SX",
+        "names": {
+            "deu": "Sint Maarten",
+            "eng": "Sint Maarten",
+            "fra": "Saint-Martin",
+            "ita": "Sint Maarten",
+            "jpn": "シント・マールテン",
+            "nld": "Sint Maarten",
+            "por": "São Martinho",
+            "rus": "Синт-Мартен",
+            "spa": "Sint Maarten"
+        }
+    },
+    {
+        "code": "SY",
+        "names": {
+            "ara": "سوريا",
+            "deu": "Syrien",
+            "eng": "Syria",
+            "fra": "Syrie",
+            "ita": "Siria",
+            "jpn": "シリア・アラブ共和国",
+            "nld": "Syrië",
+            "por": "Síria",
+            "rus": "Сирия",
+            "spa": "Siria"
+        }
+    },
+    {
+        "code": "SZ",
+        "names": {
+            "deu": "Swasiland",
+            "eng": "Swaziland",
+            "fra": "Swaziland",
+            "ita": "Swaziland",
+            "jpn": "スワジランド",
+            "nld": "Swaziland",
+            "por": "Suazilândia",
+            "rus": "Свазиленд",
+            "spa": "Suazilandia"
+        }
+    },
+    {
+        "code": "TC",
+        "names": {
+            "deu": "Turks-und Caicosinseln",
+            "eng": "Turks and Caicos Islands",
+            "fra": "Îles Turques-et-Caïques",
+            "ita": "Isole Turks e Caicos",
+            "jpn": "タークス・カイコス諸島",
+            "nld": "Turks-en Caicoseilanden",
+            "por": "Ilhas Turks e Caicos",
+            "rus": "Теркс и Кайкос",
+            "spa": "Islas Turks y Caicos"
+        }
+    },
+    {
+        "code": "TD",
+        "names": {
+            "ara": "تشاد‎",
+            "deu": "Tschad",
+            "eng": "Chad",
+            "fra": "Tchad",
+            "ita": "Ciad",
+            "jpn": "チャド",
+            "nld": "Tsjaad",
+            "por": "Chade",
+            "rus": "Чад",
+            "spa": "Chad"
+        }
+    },
+    {
+        "code": "TF",
+        "names": {
+            "deu": "Französische Süd-und Antarktisgebiete",
+            "eng": "French Southern and Antarctic Lands",
+            "fra": "Terres australes et antarctiques françaises",
+            "ita": "Territori Francesi del Sud",
+            "jpn": "フランス領南方・南極地域",
+            "nld": "Franse Gebieden in de zuidelijke Indische Oceaan",
+            "por": "Terras Austrais e Antárticas Francesas",
+            "rus": "Французские Южные и Антарктические территории",
+            "spa": "Tierras Australes y Antárticas Francesas"
+        }
+    },
+    {
+        "code": "TG",
+        "names": {
+            "deu": "Togo",
+            "eng": "Togo",
+            "fra": "Togo",
+            "ita": "Togo",
+            "jpn": "トーゴ",
+            "nld": "Togo",
+            "por": "Togo",
+            "rus": "Того",
+            "spa": "Togo"
+        }
+    },
+    {
+        "code": "TH",
+        "names": {
+            "deu": "Thailand",
+            "eng": "Thailand",
+            "fra": "Thaïlande",
+            "ita": "Tailandia",
+            "jpn": "タイ",
+            "nld": "Thailand",
+            "por": "Tailândia",
+            "rus": "Таиланд",
+            "spa": "Tailandia"
+        }
+    },
+    {
+        "code": "TJ",
+        "names": {
+            "deu": "Tadschikistan",
+            "eng": "Tajikistan",
+            "fra": "Tadjikistan",
+            "ita": "Tagikistan",
+            "jpn": "タジキスタン",
+            "nld": "Tadzjikistan",
+            "por": "Tajiquistão",
+            "rus": "Таджикистан",
+            "spa": "Tayikistán"
+        }
+    },
+    {
+        "code": "TK",
+        "names": {
+            "deu": "Tokelau",
+            "eng": "Tokelau",
+            "fra": "Tokelau",
+            "ita": "Isole Tokelau",
+            "jpn": "トケラウ",
+            "nld": "Tokelau",
+            "por": "Tokelau",
+            "rus": "Токелау",
+            "spa": "Islas Tokelau"
+        }
+    },
+    {
+        "code": "TL",
+        "names": {
+            "deu": "Timor-Leste",
+            "eng": "Timor-Leste",
+            "fra": "Timor oriental",
+            "ita": "Timor Est",
+            "jpn": "東ティモール",
+            "nld": "Oost-Timor",
+            "por": "Timor-Leste",
+            "rus": "Восточный Тимор",
+            "spa": "Timor Oriental"
+        }
+    },
+    {
+        "code": "TM",
+        "names": {
+            "deu": "Turkmenistan",
+            "eng": "Turkmenistan",
+            "fra": "Turkménistan",
+            "ita": "Turkmenistan",
+            "jpn": "トルクメニスタン",
+            "nld": "Turkmenistan",
+            "por": "Turquemenistão",
+            "rus": "Туркмения",
+            "spa": "Turkmenistán"
+        }
+    },
+    {
+        "code": "TN",
+        "names": {
+            "ara": "تونس",
+            "deu": "Tunesien",
+            "eng": "Tunisia",
+            "fra": "Tunisie",
+            "ita": "Tunisia",
+            "jpn": "チュニジア",
+            "nld": "Tunesië",
+            "por": "Tunísia",
+            "rus": "Тунис",
+            "spa": "Túnez"
+        }
+    },
+    {
+        "code": "TO",
+        "names": {
+            "deu": "Tonga",
+            "eng": "Tonga",
+            "fra": "Tonga",
+            "ita": "Tonga",
+            "jpn": "トンガ",
+            "nld": "Tonga",
+            "por": "Tonga",
+            "rus": "Тонга",
+            "spa": "Tonga"
+        }
+    },
+    {
+        "code": "TR",
+        "names": {
+            "deu": "Türkei",
+            "eng": "Turkey",
+            "fra": "Turquie",
+            "ita": "Turchia",
+            "jpn": "トルコ",
+            "nld": "Turkije",
+            "por": "Turquia",
+            "rus": "Турция",
+            "spa": "Turquía",
+            "tur": "Türkiye"
+        }
+    },
+    {
+        "code": "TT",
+        "names": {
+            "deu": "Trinidad und Tobago",
+            "eng": "Trinidad and Tobago",
+            "fra": "Trinité-et-Tobago",
+            "ita": "Trinidad e Tobago",
+            "jpn": "トリニダード・トバゴ",
+            "nld": "Trinidad en Tobago",
+            "por": "Trinidade e Tobago",
+            "rus": "Тринидад и Тобаго",
+            "spa": "Trinidad y Tobago"
+        }
+    },
+    {
+        "code": "TV",
+        "names": {
+            "deu": "Tuvalu",
+            "eng": "Tuvalu",
+            "fra": "Tuvalu",
+            "ita": "Tuvalu",
+            "jpn": "ツバル",
+            "nld": "Tuvalu",
+            "por": "Tuvalu",
+            "rus": "Тувалу",
+            "spa": "Tuvalu"
+        }
+    },
+    {
+        "code": "TW",
+        "names": {
+            "deu": "Taiwan",
+            "eng": "Taiwan",
+            "fra": "Taïwan",
+            "ita": "Taiwan",
+            "jpn": "台湾（台湾省/中華民国）",
+            "nld": "Taiwan",
+            "por": "Ilha Formosa",
+            "rus": "Тайвань",
+            "spa": "Taiwán"
+        }
+    },
+    {
+        "code": "TZ",
+        "names": {
+            "deu": "Tansania",
+            "eng": "Tanzania",
+            "fra": "Tanzanie",
+            "ita": "Tanzania",
+            "jpn": "タンザニア",
+            "nld": "Tanzania",
+            "por": "Tanzânia",
+            "rus": "Танзания",
+            "spa": "Tanzania"
+        }
+    },
+    {
+        "code": "UA",
+        "names": {
+            "deu": "Ukraine",
+            "eng": "Ukraine",
+            "fra": "Ukraine",
+            "ita": "Ucraina",
+            "jpn": "ウクライナ",
+            "nld": "Oekraïne",
+            "por": "Ucrânia",
+            "rus": "Украина",
+            "spa": "Ucrania"
+        }
+    },
+    {
+        "code": "UG",
+        "names": {
+            "deu": "Uganda",
+            "eng": "Uganda",
+            "fra": "Ouganda",
+            "ita": "Uganda",
+            "jpn": "ウガンダ",
+            "nld": "Oeganda",
+            "por": "Uganda",
+            "rus": "Уганда",
+            "spa": "Uganda"
+        }
+    },
+    {
+        "code": "UM",
+        "names": {
+            "deu": "Kleinere Inselbesitzungen der Vereinigten Staaten",
+            "eng": "United States Minor Outlying Islands",
+            "fra": "Îles mineures éloignées des États-Unis",
+            "ita": "Isole minori esterne degli Stati Uniti d'America",
+            "jpn": "合衆国領有小離島",
+            "nld": "Kleine afgelegen eilanden van de Verenigde Staten",
+            "por": "Ilhas Menores Distantes dos Estados Unidos",
+            "rus": "Внешние малые острова США",
+            "spa": "Islas Ultramarinas Menores de Estados Unidos"
+        }
+    },
+    {
+        "code": "US",
+        "names": {
+            "deu": "Vereinigte Staaten von Amerika",
+            "eng": "United States",
+            "fra": "États-Unis",
+            "ita": "Stati Uniti d'America",
+            "jpn": "アメリカ合衆国",
+            "nld": "Verenigde Staten",
+            "por": "Estados Unidos",
+            "rus": "Соединённые Штаты Америки",
+            "spa": "Estados Unidos"
+        }
+    },
+    {
+        "code": "UY",
+        "names": {
+            "deu": "Uruguay",
+            "eng": "Uruguay",
+            "fra": "Uruguay",
+            "ita": "Uruguay",
+            "jpn": "ウルグアイ",
+            "nld": "Uruguay",
+            "por": "Uruguai",
+            "rus": "Уругвай",
+            "spa": "Uruguay"
+        }
+    },
+    {
+        "code": "UZ",
+        "names": {
+            "deu": "Usbekistan",
+            "eng": "Uzbekistan",
+            "fra": "Ouzbékistan",
+            "ita": "Uzbekistan",
+            "jpn": "ウズベキスタン",
+            "nld": "Oezbekistan",
+            "por": "Uzbequistão",
+            "rus": "Узбекистан",
+            "spa": "Uzbekistán"
+        }
+    },
+    {
+        "code": "VA",
+        "names": {
+            "deu": "Vatikanstadt",
+            "eng": "Vatican City",
+            "fra": "Cité du Vatican",
+            "ita": "Vaticano",
+            "jpn": "バチカン市国",
+            "nld": "Vaticaanstad",
+            "por": "Cidade do Vaticano",
+            "rus": "Ватикан",
+            "spa": "Ciudad del Vaticano"
+        }
+    },
+    {
+        "code": "VC",
+        "names": {
+            "deu": "Saint Vincent und die Grenadinen",
+            "eng": "Saint Vincent and the Grenadines",
+            "fra": "Saint-Vincent-et-les-Grenadines",
+            "ita": "Saint Vincent e Grenadine",
+            "jpn": "セントビンセントおよびグレナディーン諸島",
+            "nld": "Saint Vincent en de Grenadines",
+            "por": "São Vincente e Granadinas",
+            "rus": "Сент-Винсент и Гренадины",
+            "spa": "San Vicente y Granadinas"
+        }
+    },
+    {
+        "code": "VE",
+        "names": {
+            "deu": "Venezuela",
+            "eng": "Venezuela",
+            "fra": "Venezuela",
+            "ita": "Venezuela",
+            "jpn": "ベネズエラ・ボリバル共和国",
+            "nld": "Venezuela",
+            "por": "Venezuela",
+            "rus": "Венесуэла",
+            "spa": "Venezuela"
+        }
+    },
+    {
+        "code": "VG",
+        "names": {
+            "deu": "Britische Jungferninseln",
+            "eng": "British Virgin Islands",
+            "fra": "Îles Vierges britanniques",
+            "ita": "Isole Vergini Britanniche",
+            "jpn": "イギリス領ヴァージン諸島",
+            "nld": "Britse Maagdeneilanden",
+            "por": "Ilhas Virgens",
+            "rus": "Британские Виргинские острова",
+            "spa": "Islas Vírgenes del Reino Unido"
+        }
+    },
+    {
+        "code": "VI",
+        "names": {
+            "deu": "Amerikanische Jungferninseln",
+            "eng": "United States Virgin Islands",
+            "fra": "Îles Vierges des États-Unis",
+            "ita": "Isole Vergini americane",
+            "jpn": "アメリカ領ヴァージン諸島",
+            "nld": "Amerikaanse Maagdeneilanden",
+            "por": "Ilhas Virgens dos Estados Unidos",
+            "rus": "Виргинские Острова",
+            "spa": "Islas Vírgenes de los Estados Unidos"
+        }
+    },
+    {
+        "code": "VN",
+        "names": {
+            "deu": "Vietnam",
+            "eng": "Vietnam",
+            "fra": "Viêt Nam",
+            "ita": "Vietnam",
+            "jpn": "ベトナム",
+            "nld": "Vietnam",
+            "por": "Vietname",
+            "rus": "Вьетнам",
+            "spa": "Vietnam",
+            "vie": "Việt Nam"
+        }
+    },
+    {
+        "code": "VU",
+        "names": {
+            "deu": "Vanuatu",
+            "eng": "Vanuatu",
+            "fra": "Vanuatu",
+            "ita": "Vanuatu",
+            "jpn": "バヌアツ",
+            "nld": "Vanuatu",
+            "por": "Vanuatu",
+            "rus": "Вануату",
+            "spa": "Vanuatu"
+        }
+    },
+    {
+        "code": "WF",
+        "names": {
+            "deu": "Wallis und Futuna",
+            "eng": "Wallis and Futuna",
+            "fra": "Wallis et Futuna",
+            "ita": "Wallis e Futuna",
+            "jpn": "ウォリス・フツナ",
+            "nld": "Wallis en Futuna",
+            "por": "Wallis e Futuna",
+            "rus": "Уоллис и Футуна",
+            "spa": "Wallis y Futuna"
+        }
+    },
+    {
+        "code": "WS",
+        "names": {
+            "deu": "Samoa",
+            "eng": "Samoa",
+            "fra": "Samoa",
+            "ita": "Samoa",
+            "jpn": "サモア",
+            "nld": "Samoa",
+            "por": "Samoa",
+            "rus": "Самоа",
+            "spa": "Samoa"
+        }
+    },
+    {
+        "code": "XK",
+        "names": {
+            "deu": "Kosovo",
+            "eng": "Kosovo",
+            "fra": "Kosovo",
+            "por": "Kosovo",
+            "rus": "Республика Косово",
+            "spa": "Kosovo"
+        }
+    },
+    {
+        "code": "YE",
+        "names": {
+            "ara": "اليَمَن",
+            "deu": "Jemen",
+            "eng": "Yemen",
+            "fra": "Yémen",
+            "ita": "Yemen",
+            "jpn": "イエメン",
+            "nld": "Jemen",
+            "por": "Iémen",
+            "rus": "Йемен",
+            "spa": "Yemen"
+        }
+    },
+    {
+        "code": "YT",
+        "names": {
+            "deu": "Mayotte",
+            "eng": "Mayotte",
+            "fra": "Mayotte",
+            "ita": "Mayotte",
+            "jpn": "マヨット",
+            "nld": "Mayotte",
+            "por": "Mayotte",
+            "rus": "Майотта",
+            "spa": "Mayotte"
+        }
+    },
+    {
+        "code": "ZA",
+        "names": {
+            "deu": "Republik Südafrika",
+            "eng": "South Africa",
+            "fra": "Afrique du Sud",
+            "ita": "Sud Africa",
+            "jpn": "南アフリカ",
+            "nld": "Zuid-Afrika",
+            "por": "África do Sul",
+            "rus": "Южно-Африканская Республика",
+            "spa": "República de Sudáfrica"
+        }
+    },
+    {
+        "code": "ZM",
+        "names": {
+            "deu": "Sambia",
+            "eng": "Zambia",
+            "fra": "Zambie",
+            "ita": "Zambia",
+            "jpn": "ザンビア",
+            "nld": "Zambia",
+            "por": "Zâmbia",
+            "rus": "Замбия",
+            "spa": "Zambia"
+        }
+    },
+    {
+        "code": "ZW",
+        "names": {
+            "deu": "Simbabwe",
+            "eng": "Zimbabwe",
+            "fra": "Zimbabwe",
+            "ita": "Zimbabwe",
+            "jpn": "ジンバブエ",
+            "nld": "Zimbabwe",
+            "por": "Zimbabwe",
+            "rus": "Зимбабве",
+            "spa": "Zimbabue"
+        }
+    }
+]
