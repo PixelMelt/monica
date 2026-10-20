@@ -340,14 +340,13 @@ impl ToggleUserNotificationChannel {
         db: &C,
         channel: &user_notification_channels::Model,
     ) -> ApiResult<()> {
-        let contact_reminders = contact_reminders::Entity::find()
-            .inner_join(contact_reminder_scheduled::Entity)
+        // F21: the PHP calls `->contactReminders->each->delete()`, which
+        // deletes the contacts' reminders themselves; only this channel's
+        // schedules should go.
+        contact_reminder_scheduled::Entity::delete_many()
             .filter(contact_reminder_scheduled::Column::UserNotificationChannelId.eq(channel.id))
-            .all(db)
+            .exec(db)
             .await?;
-        for contact_reminder in contact_reminders {
-            contact_reminders::Entity::delete_by_id(contact_reminder.id).exec(db).await?;
-        }
         Ok(())
     }
 

@@ -371,6 +371,8 @@ async fn it_toggles_the_channel_if_the_channel_was_active() {
     assert!(!row.active);
 
     assert!(scheduled(&db, &contact_reminder, &channel).await.is_none());
+    // F21: the reminder itself stays.
+    assert!(contact_reminders::Entity::find_by_id(contact_reminder.id).one(&db.conn).await.unwrap().is_some());
     db.drop().await;
 }
 

@@ -1185,6 +1185,10 @@ behaviour, so the port fixes them:
   deletes the membership.
 - **F20.** `GrantVaultAccessToUser` (R176) on an existing member inserts a
   second membership and a second contact (no unique key). The spec answers 409.
+- **F21.** `ToggleUserNotificationChannel` (R226) deletes the contact reminders
+  themselves (`->contactReminders->each->delete()`) when a channel is
+  deactivated, instead of only that channel's schedules. The port deletes the
+  schedules.
 - **F18.** `can_be_deleted` is enforced only by the UI for templates, template
   pages, post templates and sections, and contact information types; deleting
   the contact information page breaks the contact page. The spec answers 409.
