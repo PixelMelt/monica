@@ -20,6 +20,8 @@ enum Command {
     Openapi,
     /// Print a new random `APP_KEY` value.
     KeyGenerate,
+    /// Send every scheduled reminder now (not in production; `test:send-reminders`).
+    TestReminders,
     /// Print the schema of a database as JSON.
     SchemaDump {
         /// Database URL.
@@ -41,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
             {
                 std::fs::create_dir_all(dir)?;
             }
-            let db = monica::db::connect(&config.database_url).await?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
             monica::db::migrate(&db).await?;
             let bind = config.bind;
             let state = AppState::new(db, config)?;
@@ -55,6 +57,13 @@ async fn main() -> anyhow::Result<()> {
             let config = Config::from_env()?;
             let db = monica::db::connect(&config.database_url).await?;
             monica::db::migrate(&db).await?;
+        }
+        Command::TestReminders => {
+            let config = Config::from_env()?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
+            let state = AppState::new(db, config.clone())?;
+            let sent = monica::commands::test_reminders(&state, &config).await?;
+            println!("{sent} reminders sent.");
         }
         Command::Openapi => println!("{}", monica::api::openapi().to_pretty_json()?),
         Command::KeyGenerate => println!("{}", monica::config::generate_key()),
