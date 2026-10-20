@@ -55,6 +55,7 @@ const send = async (event) => {
       class="hidden"
       :multiple="multiple"
       :accept="accept ?? (imagesOnly ? IMAGE_TYPES : null)"
+      @click.stop
       @change="send" />
   </div>
 </template>

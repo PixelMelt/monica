@@ -56,7 +56,8 @@ const showEditQuickFactModal = (quickFact) => {
   editedQuickFactId.value = quickFact.id;
   form.content = quickFact.content;
 
-  nextTick().then(() => contentField.value.focus());
+  // The edit field is in a v-for: its template ref is an array.
+  nextTick().then(() => contentField.value[0].focus());
 };
 
 const get = (template) => {

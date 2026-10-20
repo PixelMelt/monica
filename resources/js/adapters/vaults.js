@@ -14,7 +14,7 @@ import {
   label as translated,
 } from '@/lib/format';
 import { addressAsString, avatar, contactCard, formatFileSize, formatImportantDate } from '@/lib/helpers';
-import { session, userName } from '@/lib/session';
+import { userName } from '@/lib/session';
 import { urls } from '@/api/client';
 import { route } from '@/router';
 
