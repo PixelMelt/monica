@@ -12,9 +12,16 @@ import { localeIetf } from './lib/session';
 
 const langs = import.meta.glob('../../lang/*.json');
 
-onApiError((error) => {
-  // A request after the session ended: log in again, then come back.
-  if (error.status === 401 && router.currentRoute.value.meta.access !== 'guest') {
+onApiError((error, op) => {
+  // A request made on a page after the session ended: log in again. (The
+  // session probe and page loaders are handled by the router's guard.)
+  const current = router.currentRoute.value;
+  if (
+    error.status === 401 &&
+    op.path !== '/me/bootstrap' &&
+    current.matched.length > 0 &&
+    !['guest', 'any'].includes(current.meta.access)
+  ) {
     router.push({ name: 'login' });
   }
 });

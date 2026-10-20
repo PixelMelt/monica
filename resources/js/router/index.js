@@ -88,7 +88,10 @@ router.beforeResolve(async (to) => {
   return true;
 });
 
-router.onError(() => progress.done());
+router.onError((error) => {
+  progress.done();
+  console.error(error);
+});
 
 /** `route(name, params)` of Ziggy, for the SPA's own pages. */
 export function route(name, params = {}) {
