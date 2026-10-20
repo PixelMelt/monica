@@ -15,7 +15,7 @@ export function home() {
   return { redirect: intended(route('vault.index')) };
 }
 
-/** `LoginController::__invoke` (minus OAuth providers and WebAuthn). */
+/** `LoginController::__invoke`: email and password sign-in. */
 export function login() {
   return {
     isSignupEnabled: session.instance.signup_enabled,
@@ -44,7 +44,7 @@ export const forgotPassword = () => ({});
 /** Fortify's `NewPasswordController::create`. */
 export const resetPassword = (to) => ({ token: to.params.token, email: to.query.email ?? null });
 
-/** `TwoFactorChallengeView` (minus WebAuthn); without a pending login, back to the login page. */
+/** `TwoFactorChallengeView`: TOTP or a recovery code; without a pending login, back to the login page. */
 export function twoFactorChallenge() {
   if (!dto.hasPendingLogin()) return { redirect: route('login') };
   return { twoFactor: true };

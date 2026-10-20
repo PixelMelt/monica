@@ -166,7 +166,7 @@ export const locale = (prefs) => ({
 
 // --- NotificationsIndexViewHelper --------------------------------------
 
-/** `NotificationsIndexViewHelper::data` (minus Telegram). */
+/** `NotificationsIndexViewHelper::data`: the email channels. */
 export const notifications = (channels) => ({
   emails: channels.filter((c) => c.type === 'email').map(email),
   url: {

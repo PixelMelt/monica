@@ -23,7 +23,7 @@ function administrator() {
   }
 }
 
-/** Jetstream's `UserProfileController::show` + `UserProfile` (minus providers and WebAuthn). */
+/** Jetstream's `UserProfileController::show` + `UserProfile`: the browser sessions and the profile features. */
 export async function profile() {
   const sessions = await listMySessions();
   return {
