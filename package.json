@@ -14,7 +14,7 @@
     "api:generate": "cargo run -q --manifest-path rust/Cargo.toml -- openapi > resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts",
     "api:draft": "python3 docs/rewrite/tools/spec.py --json resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts",
     "localize": "node scripts/localize.mjs",
-    "test:scripts": "node --test scripts/"
+    "test:scripts": "node --test scripts/*.test.mjs"
   },
   "devDependencies": {
     "@popperjs/core": "^2.11.8",

@@ -3,7 +3,6 @@
 
 use crate::db::id::Id;
 use crate::db::timestamp::Timestamp;
-use crate::db::uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 

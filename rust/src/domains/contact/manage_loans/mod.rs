@@ -116,7 +116,7 @@ impl CreateLoan {
         .insert(db)
         .await?;
 
-        attach_parties(db, loan.id, &loaners, &loanees).await?;
+        attach_parties(db, loan.id, loaners, loanees).await?;
 
         Ok(loan)
     }
@@ -303,7 +303,7 @@ impl UpdateLoan {
         // remove all the current loaners and loanees
         contact_loan::Entity::delete_many().filter(contact_loan::Column::LoanId.eq(loan.id)).exec(&txn).await?;
 
-        attach_parties(&txn, loan.id, &loaners, &loanees).await?;
+        attach_parties(&txn, loan.id, loaners, loanees).await?;
         txn.commit().await?;
 
         let mut contact: contacts::ActiveModel = checked.contact().clone().into();
