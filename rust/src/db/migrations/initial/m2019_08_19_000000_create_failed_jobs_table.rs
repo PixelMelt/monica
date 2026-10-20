@@ -2,4 +2,14 @@
 
 use crate::db::blueprint::{Engine, Schema};
 
-pub fn up(_s: &mut Schema, _e: Engine) {}
+pub fn up(s: &mut Schema, _e: Engine) {
+    s.create("failed_jobs", |t| {
+        t.id();
+        t.string("uuid").unique();
+        t.text("connection");
+        t.text("queue");
+        t.long_text("payload");
+        t.long_text("exception");
+        t.timestamp("failed_at").use_current();
+    });
+}

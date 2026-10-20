@@ -485,10 +485,11 @@ impl Blueprint {
         self.string_len("remember_token", 100).nullable();
     }
 
-    /// `$table->morphs($name)`.
+    /// `$table->morphs($name)`. `AppServiceProvider` sets
+    /// `Builder::defaultMorphKeyType('uuid')`, so the id column is a uuid.
     pub fn morphs(&mut self, name: &str) {
         self.string(&format!("{name}_type"));
-        self.unsigned_big_integer(&format!("{name}_id"));
+        self.uuid(&format!("{name}_id"));
         self.index(&[&format!("{name}_type"), &format!("{name}_id")]);
     }
 

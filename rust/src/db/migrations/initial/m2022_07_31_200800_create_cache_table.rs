@@ -2,4 +2,20 @@
 
 use crate::db::blueprint::{Engine, Schema};
 
-pub fn up(_s: &mut Schema, _e: Engine) {}
+pub fn up(s: &mut Schema, _e: Engine) {
+    s.create("cache", |t| {
+        // `string('key')->primary()`
+        t.string("key");
+        t.primary(&["key"]);
+        t.medium_text("value");
+        t.integer("expiration");
+    });
+
+    s.create("cache_locks", |t| {
+        // `string('key')->primary()`
+        t.string("key");
+        t.primary(&["key"]);
+        t.string("owner");
+        t.integer("expiration");
+    });
+}
