@@ -5,9 +5,7 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("mood_tracking_events", |t| {
         t.id();
-        t.foreign_id_for("contact_id", Key::Uuid)
-            .constrained("contacts")
-            .cascade_on_delete();
+        t.foreign_id_for("contact_id", Key::Uuid).constrained("contacts").cascade_on_delete();
         t.foreign_id_for("mood_tracking_parameter_id", Key::Int)
             .constrained("mood_tracking_parameters")
             .cascade_on_delete();

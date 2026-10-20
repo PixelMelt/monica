@@ -12,152 +12,46 @@ use serde_json::Value;
 
 /// (locale, `lang/<locale>.json`, `locales/<locale>.json`), `en` first.
 const SOURCES: &[(&str, &str, &str)] = &[
-    (
-        "en",
-        include_str!("../../lang/en.json"),
-        include_str!("../locales/en.json"),
-    ),
-    (
-        "ar",
-        include_str!("../../lang/ar.json"),
-        include_str!("../locales/ar.json"),
-    ),
-    (
-        "bn",
-        include_str!("../../lang/bn.json"),
-        include_str!("../locales/bn.json"),
-    ),
-    (
-        "ca",
-        include_str!("../../lang/ca.json"),
-        include_str!("../locales/ca.json"),
-    ),
-    (
-        "da",
-        include_str!("../../lang/da.json"),
-        include_str!("../locales/da.json"),
-    ),
-    (
-        "de",
-        include_str!("../../lang/de.json"),
-        include_str!("../locales/de.json"),
-    ),
-    (
-        "es",
-        include_str!("../../lang/es.json"),
-        include_str!("../locales/es.json"),
-    ),
-    (
-        "el",
-        include_str!("../../lang/el.json"),
-        include_str!("../locales/el.json"),
-    ),
-    (
-        "fr",
-        include_str!("../../lang/fr.json"),
-        include_str!("../locales/fr.json"),
-    ),
-    (
-        "he",
-        include_str!("../../lang/he.json"),
-        include_str!("../locales/he.json"),
-    ),
-    (
-        "hi",
-        include_str!("../../lang/hi.json"),
-        include_str!("../locales/hi.json"),
-    ),
-    (
-        "it",
-        include_str!("../../lang/it.json"),
-        include_str!("../locales/it.json"),
-    ),
-    (
-        "ja",
-        include_str!("../../lang/ja.json"),
-        include_str!("../locales/ja.json"),
-    ),
-    (
-        "ml",
-        include_str!("../../lang/ml.json"),
-        include_str!("../locales/ml.json"),
-    ),
-    (
-        "nl",
-        include_str!("../../lang/nl.json"),
-        include_str!("../locales/nl.json"),
-    ),
-    (
-        "nn",
-        include_str!("../../lang/nn.json"),
-        include_str!("../locales/nn.json"),
-    ),
-    (
-        "pa",
-        include_str!("../../lang/pa.json"),
-        include_str!("../locales/pa.json"),
-    ),
-    (
-        "pl",
-        include_str!("../../lang/pl.json"),
-        include_str!("../locales/pl.json"),
-    ),
-    (
-        "pt",
-        include_str!("../../lang/pt.json"),
-        include_str!("../locales/pt.json"),
-    ),
-    (
-        "pt_BR",
-        include_str!("../../lang/pt_BR.json"),
-        include_str!("../locales/pt_BR.json"),
-    ),
-    (
-        "ro",
-        include_str!("../../lang/ro.json"),
-        include_str!("../locales/ro.json"),
-    ),
-    (
-        "ru",
-        include_str!("../../lang/ru.json"),
-        include_str!("../locales/ru.json"),
-    ),
-    (
-        "sv",
-        include_str!("../../lang/sv.json"),
-        include_str!("../locales/sv.json"),
-    ),
-    (
-        "te",
-        include_str!("../../lang/te.json"),
-        include_str!("../locales/te.json"),
-    ),
-    (
-        "tr",
-        include_str!("../../lang/tr.json"),
-        include_str!("../locales/tr.json"),
-    ),
-    (
-        "ur",
-        include_str!("../../lang/ur.json"),
-        include_str!("../locales/ur.json"),
-    ),
-    (
-        "vi",
-        include_str!("../../lang/vi.json"),
-        include_str!("../locales/vi.json"),
-    ),
-    (
-        "zh_CN",
-        include_str!("../../lang/zh_CN.json"),
-        include_str!("../locales/zh_CN.json"),
-    ),
-    (
-        "zh_TW",
-        include_str!("../../lang/zh_TW.json"),
-        include_str!("../locales/zh_TW.json"),
-    ),
+    ("en", include_str!("../../lang/en.json"), include_str!("../locales/en.json")),
+    ("ar", include_str!("../../lang/ar.json"), include_str!("../locales/ar.json")),
+    ("bn", include_str!("../../lang/bn.json"), include_str!("../locales/bn.json")),
+    ("ca", include_str!("../../lang/ca.json"), include_str!("../locales/ca.json")),
+    ("da", include_str!("../../lang/da.json"), include_str!("../locales/da.json")),
+    ("de", include_str!("../../lang/de.json"), include_str!("../locales/de.json")),
+    ("es", include_str!("../../lang/es.json"), include_str!("../locales/es.json")),
+    ("el", include_str!("../../lang/el.json"), include_str!("../locales/el.json")),
+    ("fr", include_str!("../../lang/fr.json"), include_str!("../locales/fr.json")),
+    ("he", include_str!("../../lang/he.json"), include_str!("../locales/he.json")),
+    ("hi", include_str!("../../lang/hi.json"), include_str!("../locales/hi.json")),
+    ("it", include_str!("../../lang/it.json"), include_str!("../locales/it.json")),
+    ("ja", include_str!("../../lang/ja.json"), include_str!("../locales/ja.json")),
+    ("ml", include_str!("../../lang/ml.json"), include_str!("../locales/ml.json")),
+    ("nl", include_str!("../../lang/nl.json"), include_str!("../locales/nl.json")),
+    ("nn", include_str!("../../lang/nn.json"), include_str!("../locales/nn.json")),
+    ("pa", include_str!("../../lang/pa.json"), include_str!("../locales/pa.json")),
+    ("pl", include_str!("../../lang/pl.json"), include_str!("../locales/pl.json")),
+    ("pt", include_str!("../../lang/pt.json"), include_str!("../locales/pt.json")),
+    ("pt_BR", include_str!("../../lang/pt_BR.json"), include_str!("../locales/pt_BR.json")),
+    ("ro", include_str!("../../lang/ro.json"), include_str!("../locales/ro.json")),
+    ("ru", include_str!("../../lang/ru.json"), include_str!("../locales/ru.json")),
+    ("sv", include_str!("../../lang/sv.json"), include_str!("../locales/sv.json")),
+    ("te", include_str!("../../lang/te.json"), include_str!("../locales/te.json")),
+    ("tr", include_str!("../../lang/tr.json"), include_str!("../locales/tr.json")),
+    ("ur", include_str!("../../lang/ur.json"), include_str!("../locales/ur.json")),
+    ("vi", include_str!("../../lang/vi.json"), include_str!("../locales/vi.json")),
+    ("zh_CN", include_str!("../../lang/zh_CN.json"), include_str!("../locales/zh_CN.json")),
+    ("zh_TW", include_str!("../../lang/zh_TW.json"), include_str!("../locales/zh_TW.json")),
 ];
+
+tokio::task_local! {
+    /// The locale of the request being handled (set by the session layer).
+    pub static LOCALE: String;
+}
+
+/// The current request's locale, or `en` outside a request.
+pub fn current() -> String {
+    LOCALE.try_with(Clone::clone).unwrap_or_else(|_| "en".to_owned())
+}
 
 /// The supported locales (`config/localizer.php`), `en` first.
 pub fn locales() -> impl Iterator<Item = &'static str> {
@@ -237,9 +131,7 @@ pub fn group(locale: &str, path: &str, params: &[(&str, &str)]) -> Option<String
         }
         v.as_str().map(str::to_owned)
     };
-    lookup(locale)
-        .or_else(|| lookup("en"))
-        .map(|text| replace(&text, params))
+    lookup(locale).or_else(|| lookup("en")).map(|text| replace(&text, params))
 }
 
 /// Picks a supported locale from an `Accept-Language` header, else `en`.
@@ -252,13 +144,7 @@ pub fn negotiate(accept_language: Option<&str>) -> &'static str {
         .filter_map(|part| {
             let mut it = part.trim().split(';');
             let tag = it.next()?.trim().replace('-', "_");
-            let q = it
-                .find_map(|p| {
-                    p.trim()
-                        .strip_prefix("q=")
-                        .and_then(|q| q.parse::<f32>().ok())
-                })
-                .unwrap_or(1.0);
+            let q = it.find_map(|p| p.trim().strip_prefix("q=").and_then(|q| q.parse::<f32>().ok())).unwrap_or(1.0);
             (!tag.is_empty() && q > 0.0).then_some((q, tag))
         })
         .collect();
@@ -284,26 +170,15 @@ mod tests {
         assert_eq!(locales().count(), 29);
         for l in locales() {
             assert!(!bundles()[l].strings.is_empty(), "{l} strings");
-            assert!(
-                group(l, "validation.required", &[]).is_some(),
-                "{l} validation"
-            );
+            assert!(group(l, "validation.required", &[]).is_some(), "{l} validation");
         }
     }
 
     #[test]
     fn replaces_placeholders_like_laravel() {
+        assert_eq!(replace(":Name and :name and :NAME", &[("name", "jo")]), "Jo and jo and JO");
         assert_eq!(
-            replace(":Name and :name and :NAME", &[("name", "jo")]),
-            "Jo and jo and JO"
-        );
-        assert_eq!(
-            group(
-                "en",
-                "validation.max.string",
-                &[("attribute", "title"), ("max", "255")]
-            )
-            .unwrap(),
+            group("en", "validation.max.string", &[("attribute", "title"), ("max", "255")]).unwrap(),
             "The title field must not be greater than 255 characters."
         );
         assert_eq!(

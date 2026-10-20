@@ -94,13 +94,7 @@ pub type ApiResult<T> = Result<T, ApiError>;
 
 impl ApiError {
     pub fn new(code: Code) -> Self {
-        ApiError {
-            code,
-            title: code.default_title().to_owned(),
-            detail: None,
-            errors: Vec::new(),
-            retry_after: None,
-        }
+        ApiError { code, title: code.default_title().to_owned(), detail: None, errors: Vec::new(), retry_after: None }
     }
 
     pub fn with_title(mut self, title: impl Into<String>) -> Self {
@@ -177,10 +171,7 @@ impl IntoResponse for ApiError {
         };
         let mut res = (status, serde_json::to_vec(&body).unwrap_or_default()).into_response();
         let headers = res.headers_mut();
-        headers.insert(
-            header::CONTENT_TYPE,
-            HeaderValue::from_static("application/problem+json"),
-        );
+        headers.insert(header::CONTENT_TYPE, HeaderValue::from_static("application/problem+json"));
         if let Some(secs) = self.retry_after {
             headers.insert(header::RETRY_AFTER, HeaderValue::from(secs));
         }
@@ -204,13 +195,7 @@ impl Errors {
         });
     }
 
-    pub fn add_with(
-        &mut self,
-        field: &str,
-        code: &str,
-        message: impl Into<String>,
-        params: Map<String, Value>,
-    ) {
+    pub fn add_with(&mut self, field: &str, code: &str, message: impl Into<String>, params: Map<String, Value>) {
         self.errors.push(FieldError {
             field: field.to_owned(),
             code: code.to_owned(),
@@ -235,10 +220,6 @@ impl Errors {
 
     /// `Ok(())` if nothing failed, otherwise the 422.
     pub fn finish(self) -> ApiResult<()> {
-        if self.errors.is_empty() {
-            Ok(())
-        } else {
-            Err(self.into_error())
-        }
+        if self.errors.is_empty() { Ok(()) } else { Err(self.into_error()) }
     }
 }

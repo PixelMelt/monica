@@ -86,9 +86,7 @@ fn diff_map<T: PartialEq + std::fmt::Debug>(
     for (k, v) in a {
         match b.get(k) {
             None => out.push(format!("{table}: missing {what} {k} ({v:?})")),
-            Some(o) if o != v => {
-                out.push(format!("{table}: {what} {k}: expected {v:?}, got {o:?}"))
-            }
+            Some(o) if o != v => out.push(format!("{table}: {what} {k}: expected {v:?}, got {o:?}")),
             _ => {}
         }
     }
@@ -102,10 +100,7 @@ fn diff_map<T: PartialEq + std::fmt::Debug>(
 fn diff_table(name: &str, a: &Table, b: &Table, out: &mut Vec<String>) {
     diff_map("column", name, &a.columns, &b.columns, out);
     if a.primary_key != b.primary_key {
-        out.push(format!(
-            "{name}: primary key expected {:?}, got {:?}",
-            a.primary_key, b.primary_key
-        ));
+        out.push(format!("{name}: primary key expected {:?}, got {:?}", a.primary_key, b.primary_key));
     }
     diff_map("index", name, &a.indexes, &b.indexes, out);
     diff_map("foreign key", name, &a.foreign_keys, &b.foreign_keys, out);
@@ -156,11 +151,7 @@ fn int(row: &QueryResult, col: &str) -> Result<i64, DbErr> {
 }
 
 async fn rows<C: ConnectionTrait>(db: &C, sql: &str) -> Result<Vec<QueryResult>, DbErr> {
-    db.query_all_raw(Statement::from_string(
-        db.get_database_backend(),
-        sql.to_owned(),
-    ))
-    .await
+    db.query_all_raw(Statement::from_string(db.get_database_backend(), sql.to_owned())).await
 }
 
 /// Reads the schema of the database `db` is connected to.
@@ -179,11 +170,9 @@ fn quote_sqlite(s: &str) -> String {
 
 async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
     let mut schema = Schema::default();
-    let tables = rows(
-        db,
-        "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
-    )
-    .await?;
+    let tables =
+        rows(db, "SELECT name, sql FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+            .await?;
     for t in tables {
         let name = s(&t, "name")?;
         let create_sql = s(&t, "sql")?.to_lowercase();
@@ -191,13 +180,8 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
         let mut table = Table::default();
 
         let mut pk: Vec<(i64, String)> = Vec::new();
-        for c in rows(
-            db,
-            &format!(
-                "SELECT name, type, \"notnull\" AS nn, dflt_value, pk FROM pragma_table_info({q})"
-            ),
-        )
-        .await?
+        for c in rows(db, &format!("SELECT name, type, \"notnull\" AS nn, dflt_value, pk FROM pragma_table_info({q})"))
+            .await?
         {
             let col = s(&c, "name")?;
             let data_type = s(&c, "type")?.to_lowercase();
@@ -207,10 +191,7 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
             }
             let auto_increment = pk_pos > 0
                 && data_type == "integer"
-                && create_sql.contains(&format!(
-                    "\"{}\" integer primary key autoincrement",
-                    col.to_lowercase()
-                ));
+                && create_sql.contains(&format!("\"{}\" integer primary key autoincrement", col.to_lowercase()));
             table.columns.insert(
                 col,
                 Column {
@@ -225,26 +206,13 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
         pk.sort();
         table.primary_key = pk.into_iter().map(|(_, c)| c).collect();
 
-        for i in rows(
-            db,
-            &format!("SELECT name, \"unique\" AS uniq, origin FROM pragma_index_list({q})"),
-        )
-        .await?
-        {
+        for i in rows(db, &format!("SELECT name, \"unique\" AS uniq, origin FROM pragma_index_list({q})")).await? {
             if s(&i, "origin")? == "pk" {
                 continue;
             }
             let iname = s(&i, "name")?;
             let mut cols: Vec<(i64, String)> = Vec::new();
-            for c in rows(
-                db,
-                &format!(
-                    "SELECT seqno, name FROM pragma_index_info({})",
-                    quote_sqlite(&iname)
-                ),
-            )
-            .await?
-            {
+            for c in rows(db, &format!("SELECT seqno, name FROM pragma_index_info({})", quote_sqlite(&iname))).await? {
                 cols.push((int(&c, "seqno")?, s(&c, "name")?));
             }
             cols.sort();
@@ -332,14 +300,7 @@ async fn dump_mysql<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
         if i == "PRIMARY" {
             table.primary_key = columns;
         } else {
-            table.indexes.insert(
-                i,
-                Index {
-                    columns,
-                    unique: parts.unique,
-                    kind: parts.kind,
-                },
-            );
+            table.indexes.insert(i, Index { columns, unique: parts.unique, kind: parts.kind });
         }
     }
     let mut fks: BTreeMap<(String, String), FkParts> = BTreeMap::new();
@@ -393,8 +354,8 @@ async fn dump_postgres<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
     {
         let Some(table) = schema.tables.get_mut(&s(&c, "t")?) else { continue };
         let default = opt(&c, "dflt")?;
-        let auto_increment = default.as_deref().is_some_and(|d| d.starts_with("nextval("))
-            || !s(&c, "ident")?.is_empty();
+        let auto_increment =
+            default.as_deref().is_some_and(|d| d.starts_with("nextval(")) || !s(&c, "ident")?.is_empty();
         table.columns.insert(
             s(&c, "col")?,
             Column {
