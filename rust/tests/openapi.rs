@@ -170,7 +170,7 @@ fn kind(v: &Value) -> &'static str {
     }
 }
 
-fn json_schema<'a>(content: &'a Value) -> Option<&'a Value> {
+fn json_schema(content: &Value) -> Option<&Value> {
     content.as_object()?.iter().find(|(t, _)| t.contains("json")).map(|(_, c)| &c["schema"])
 }
 
@@ -192,7 +192,7 @@ fn generated_bodies_match_the_draft() {
             if let (Some(a), Some(b)) =
                 (json_schema(&op["responses"][&code]["content"]), json_schema(&d["responses"][&code]["content"]))
             {
-                diff(&format!("{code}"), &shape(&generated, a, 0), &shape(&draft, b, 0), &mut out);
+                diff(&code, &shape(&generated, a, 0), &shape(&draft, b, 0), &mut out);
             }
         }
         problems.extend(out.into_iter().map(|p| format!("{id}: {p}")));
