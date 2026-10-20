@@ -5,7 +5,6 @@
 **/.gitignore
 .dockerignore
 .env
-CODE_OF_CONDUCT.md
 docs/
 dist/
 node_modules/
@@ -13,4 +12,3 @@ public/build/
 rust/data/
 rust/target/
 tests/
-vendor/
