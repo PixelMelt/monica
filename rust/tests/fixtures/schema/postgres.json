@@ -1,0 +1,7036 @@
+{
+ "tables": {
+  "account_currency": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "active": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('account_currency_id_seq'::regclass)",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_currency_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "account_currency_currency_id_foreign": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "accounts": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "storage_limit_in_mb": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "0",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "address_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('address_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "address_types_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "addressbook_subscriptions": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "capabilities": {
+     "auto_increment": false,
+     "data_type": "character varying(2048)",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "current_logid": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "distant_sync_token": {
+     "auto_increment": false,
+     "data_type": "character varying(512)",
+     "default": null,
+     "nullable": true
+    },
+    "frequency": {
+     "auto_increment": false,
+     "data_type": "smallint",
+     "default": "'180'::smallint",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "last_batch": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "last_synchronized_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "password": {
+     "auto_increment": false,
+     "data_type": "character varying(2048)",
+     "default": null,
+     "nullable": false
+    },
+    "sync_token_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "sync_way": {
+     "auto_increment": false,
+     "data_type": "smallint",
+     "default": "'3'::smallint",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uri": {
+     "auto_increment": false,
+     "data_type": "character varying(2096)",
+     "default": null,
+     "nullable": false
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "username": {
+     "auto_increment": false,
+     "data_type": "character varying(1024)",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "addressbook_subscriptions_last_batch_foreign": {
+     "columns": [
+      "last_batch"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "job_batches"
+    },
+    "addressbook_subscriptions_sync_token_id_foreign": {
+     "columns": [
+      "sync_token_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "sync_tokens"
+    },
+    "addressbook_subscriptions_user_id_foreign": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "addressbook_subscriptions_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "addresses": {
+   "columns": {
+    "address_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "city": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "country": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('addresses_id_seq'::regclass)",
+     "nullable": false
+    },
+    "latitude": {
+     "auto_increment": false,
+     "data_type": "double precision",
+     "default": null,
+     "nullable": true
+    },
+    "line_1": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "line_2": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "longitude": {
+     "auto_increment": false,
+     "data_type": "double precision",
+     "default": null,
+     "nullable": true
+    },
+    "postal_code": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "province": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "addresses_address_type_id_foreign": {
+     "columns": [
+      "address_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "address_types"
+    },
+    "addresses_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "cache": {
+   "columns": {
+    "expiration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "value": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "key"
+   ]
+  },
+  "cache_locks": {
+   "columns": {
+    "expiration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "owner": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "key"
+   ]
+  },
+  "call_reason_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('call_reason_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "call_reason_types_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "call_reasons": {
+   "columns": {
+    "call_reason_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('call_reasons_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "call_reasons_call_reason_type_id_foreign": {
+     "columns": [
+      "call_reason_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "call_reason_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "calls": {
+   "columns": {
+    "answered": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "author_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "call_reason_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "called_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "duration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('calls_id_seq'::regclass)",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "who_initiated": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "calls_author_id_foreign": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "calls_call_reason_id_foreign": {
+     "columns": [
+      "call_reason_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "call_reasons"
+    },
+    "calls_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "calls_emotion_id_foreign": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "companies": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('companies_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "companies_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_address": {
+   "columns": {
+    "address_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "is_past_address": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_address_address_id_foreign": {
+     "columns": [
+      "address_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "addresses"
+    },
+    "contact_address_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_feed_items": {
+   "columns": {
+    "action": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "feedable_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "feedable_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_feed_items_id_seq'::regclass)",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_feed_items_author_id_foreign": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_feed_items_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {
+    "contact_feed_items_feedable_type_feedable_id_index": {
+     "columns": [
+      "feedable_type",
+      "feedable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_gift": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "loan_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "loanee_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "loaner_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_gift_loan_id_foreign": {
+     "columns": [
+      "loan_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "loans"
+    },
+    "contact_gift_loanee_id_foreign": {
+     "columns": [
+      "loanee_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_gift_loaner_id_foreign": {
+     "columns": [
+      "loaner_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_group": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "group_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "group_type_role_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_group_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_group_group_id_foreign": {
+     "columns": [
+      "group_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "groups"
+    },
+    "contact_group_group_type_role_id_foreign": {
+     "columns": [
+      "group_type_role_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_type_roles"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_important_date_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_important_date_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "internal_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_important_date_types_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_important_dates": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "contact_important_date_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "day": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "character varying(2096)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_important_dates_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "month": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "vcalendar": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "year": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_important_dates_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_important_dates_contact_important_date_type_id_foreign": {
+     "columns": [
+      "contact_important_date_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_important_date_types"
+    }
+   },
+   "indexes": {
+    "contact_important_dates_uuid_index": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_information": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "data": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_information_id_seq'::regclass)",
+     "nullable": false
+    },
+    "kind": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "pref": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_information_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_information_type_id_foreign": {
+     "columns": [
+      "type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_information_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_information_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_information_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "protocol": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_information_types_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_label": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "label_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_label_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_label_label_id_foreign": {
+     "columns": [
+      "label_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "labels"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_life_metric": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "life_metric_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_life_metric_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_life_metric_life_metric_id_foreign": {
+     "columns": [
+      "life_metric_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_metrics"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_loan": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "loan_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "loanee_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "loaner_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_loan_loan_id_foreign": {
+     "columns": [
+      "loan_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "loans"
+    },
+    "contact_loan_loanee_id_foreign": {
+     "columns": [
+      "loanee_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_loan_loaner_id_foreign": {
+     "columns": [
+      "loaner_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_post": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_post_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_post_post_id_foreign": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_reminder_scheduled": {
+   "columns": {
+    "contact_reminder_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_reminder_scheduled_id_seq'::regclass)",
+     "nullable": false
+    },
+    "scheduled_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "triggered_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_notification_channel_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_reminder_scheduled_contact_reminder_id_foreign": {
+     "columns": [
+      "contact_reminder_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_reminders"
+    },
+    "contact_reminder_scheduled_user_notification_channel_id_foreign": {
+     "columns": [
+      "user_notification_channel_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "user_notification_channels"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_reminders": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "day": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "frequency_number": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_reminders_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "last_triggered_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "month": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "number_times_triggered": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "0",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "year": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_reminders_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_tasks": {
+   "columns": {
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "author_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "completed": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "completed_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "character varying(2096)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "due_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('contact_tasks_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "vcalendar": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_tasks_author_id_foreign": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_tasks_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {
+    "contact_tasks_uuid_index": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_vault_user": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "is_favorite": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "number_of_views": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_vault_user_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_vault_user_user_id_foreign": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_vault_user_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contacts": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "company_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "character varying(2096)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "file_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "first_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "gender_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "job_position": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "last_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "last_updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "listed": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "maiden_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "middle_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "nickname": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "prefix": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "pronoun_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "religion_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "show_quick_facts": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "suffix": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "template_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "vcard": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contacts_company_id_foreign": {
+     "columns": [
+      "company_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "companies"
+    },
+    "contacts_file_id_foreign": {
+     "columns": [
+      "file_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "files"
+    },
+    "contacts_gender_id_foreign": {
+     "columns": [
+      "gender_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "genders"
+    },
+    "contacts_pronoun_id_foreign": {
+     "columns": [
+      "pronoun_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "pronouns"
+    },
+    "contacts_religion_id_foreign": {
+     "columns": [
+      "religion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "religions"
+    },
+    "contacts_template_id_foreign": {
+     "columns": [
+      "template_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    },
+    "contacts_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "contacts_first_name_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, first_name::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "contacts_last_name_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, last_name::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "contacts_maiden_name_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, maiden_name::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "contacts_middle_name_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, middle_name::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "contacts_nickname_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, nickname::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "contacts_vault_id_id_index": {
+     "columns": [
+      "vault_id",
+      "id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "crons": {
+   "columns": {
+    "command": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": "nextval('crons_id_seq'::regclass)",
+     "nullable": false
+    },
+    "last_run_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "crons_command_unique": {
+     "columns": [
+      "command"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "currencies": {
+   "columns": {
+    "code": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('currencies_id_seq'::regclass)",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "emotions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('emotions_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "emotions_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "failed_jobs": {
+   "columns": {
+    "connection": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "exception": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "failed_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": "CURRENT_TIMESTAMP",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('failed_jobs_id_seq'::regclass)",
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "queue": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "failed_jobs_uuid_unique": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "files": {
+   "columns": {
+    "cdn_url": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "fileable_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "fileable_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('files_id_seq'::regclass)",
+     "nullable": false
+    },
+    "mime_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "original_url": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "size": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "ufileable_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "files_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "files_fileable_type_fileable_id_index": {
+     "columns": [
+      "fileable_type",
+      "fileable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "files_fileable_type_ufileable_id_index": {
+     "columns": [
+      "fileable_type",
+      "ufileable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "genders": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('genders_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character(1)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "genders_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gift_occasions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('gift_occasions_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "gift_occasions_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gift_states": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('gift_states_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "gift_states_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gifts": {
+   "columns": {
+    "bought_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "estimated_price": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "given_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('gifts_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "received_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "gifts_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "gifts_currency_id_foreign": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "goals": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('goals_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "goals_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "group_type_roles": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "group_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('group_type_roles_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "group_type_roles_group_type_id_foreign": {
+     "columns": [
+      "group_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "group_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('group_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "group_types_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "groups": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "character varying(2096)",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "character varying(256)",
+     "default": null,
+     "nullable": true
+    },
+    "group_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('groups_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "vcard": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "groups_group_type_id_foreign": {
+     "columns": [
+      "group_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_types"
+    },
+    "groups_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "groups_name_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, name::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "job_batches": {
+   "columns": {
+    "cancelled_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "failed_job_ids": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "failed_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "finished_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "options": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "pending_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "total_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "jobs": {
+   "columns": {
+    "attempts": {
+     "auto_increment": false,
+     "data_type": "smallint",
+     "default": null,
+     "nullable": false
+    },
+    "available_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('jobs_id_seq'::regclass)",
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "queue": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "reserved_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "jobs_queue_index": {
+     "columns": [
+      "queue"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "journal_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('journal_metrics_id_seq'::regclass)",
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "journal_metrics_journal_id_foreign": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "journals": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('journals_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "journals_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "labels": {
+   "columns": {
+    "bg_color": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'bg-zinc-200'::character varying",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('labels_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "text_color": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'text-zinc-700'::character varying",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "labels_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_event_categories": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('life_event_categories_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "life_event_categories_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_event_participants": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "life_event_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "life_event_participants_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "life_event_participants_life_event_id_foreign": {
+     "columns": [
+      "life_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "life_event_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('life_event_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "life_event_category_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "life_event_types_life_event_category_id_foreign": {
+     "columns": [
+      "life_event_category_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_event_categories"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_events": {
+   "columns": {
+    "collapsed": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "costs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "distance": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "distance_unit": {
+     "auto_increment": false,
+     "data_type": "character(2)",
+     "default": null,
+     "nullable": true
+    },
+    "duration_in_minutes": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "from_place": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "happened_at": {
+     "auto_increment": false,
+     "data_type": "date",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('life_events_id_seq'::regclass)",
+     "nullable": false
+    },
+    "life_event_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "paid_by_contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "place": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "summary": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "timeline_event_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "to_place": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "life_events_currency_id_foreign": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    },
+    "life_events_emotion_id_foreign": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    },
+    "life_events_life_event_type_id_foreign": {
+     "columns": [
+      "life_event_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_event_types"
+    },
+    "life_events_paid_by_contact_id_foreign": {
+     "columns": [
+      "paid_by_contact_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "life_events_timeline_event_id_foreign": {
+     "columns": [
+      "timeline_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "timeline_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('life_metrics_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "life_metrics_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "loans": {
+   "columns": {
+    "amount_lent": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('loans_id_seq'::regclass)",
+     "nullable": false
+    },
+    "loaned_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "settled": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "settled_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "loans_currency_id_foreign": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    },
+    "loans_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "logs": {
+   "columns": {
+    "channel": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "context": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "extra": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "formatted": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "group_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('logs_id_seq'::regclass)",
+     "nullable": false
+    },
+    "level": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "level_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "loggable_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "loggable_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "logged_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "message": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "logs_channel_index": {
+     "columns": [
+      "channel"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_group_id_index": {
+     "columns": [
+      "group_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_level_index": {
+     "columns": [
+      "level"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_loggable_type_loggable_id_index": {
+     "columns": [
+      "loggable_type",
+      "loggable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_row_fields": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('module_row_fields_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "module_field_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "module_row_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "required": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_row_fields_module_row_id_foreign": {
+     "columns": [
+      "module_row_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "module_rows"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_rows": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('module_rows_id_seq'::regclass)",
+     "nullable": false
+    },
+    "module_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_rows_module_id_foreign": {
+     "columns": [
+      "module_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "modules"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_template_page": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "module_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "template_page_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_template_page_module_id_foreign": {
+     "columns": [
+      "module_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "modules"
+    },
+    "module_template_page_template_page_id_foreign": {
+     "columns": [
+      "template_page_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "template_pages"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "modules": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('modules_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "pagination": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "reserved_to_contact_information": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "modules_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "mood_tracking_events": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('mood_tracking_events_id_seq'::regclass)",
+     "nullable": false
+    },
+    "mood_tracking_parameter_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "note": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "number_of_hours_slept": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "rated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "mood_tracking_events_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "mood_tracking_events_mood_tracking_parameter_id_foreign": {
+     "columns": [
+      "mood_tracking_parameter_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "mood_tracking_parameters"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "mood_tracking_parameters": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "hex_color": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('mood_tracking_parameters_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "mood_tracking_parameters_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "notes": {
+   "columns": {
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "body": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('notes_id_seq'::regclass)",
+     "nullable": false
+    },
+    "title": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "notes_author_id_foreign": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "notes_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "notes_emotion_id_foreign": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    },
+    "notes_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "notes_body_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, body)"
+     ],
+     "kind": "gin",
+     "unique": false
+    },
+    "notes_title_fulltext": {
+     "columns": [
+      "to_tsvector('english'::regconfig, title::text)"
+     ],
+     "kind": "gin",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "password_resets": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "email": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "token": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "password_resets_email_index": {
+     "columns": [
+      "email"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": []
+  },
+  "personal_access_tokens": {
+   "columns": {
+    "abilities": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "expires_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('personal_access_tokens_id_seq'::regclass)",
+     "nullable": false
+    },
+    "last_used_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "token": {
+     "auto_increment": false,
+     "data_type": "character varying(64)",
+     "default": null,
+     "nullable": false
+    },
+    "tokenable_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "tokenable_type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "personal_access_tokens_token_unique": {
+     "columns": [
+      "token"
+     ],
+     "kind": "btree",
+     "unique": true
+    },
+    "personal_access_tokens_tokenable_type_tokenable_id_index": {
+     "columns": [
+      "tokenable_type",
+      "tokenable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pet_categories": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('pet_categories_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "pet_categories_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pets": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('pets_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "pet_category_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "pets_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "pets_pet_category_id_foreign": {
+     "columns": [
+      "pet_category_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "pet_categories"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('post_metrics_id_seq'::regclass)",
+     "nullable": false
+    },
+    "journal_metric_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "value": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "post_metrics_journal_metric_id_foreign": {
+     "columns": [
+      "journal_metric_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journal_metrics"
+    },
+    "post_metrics_post_id_foreign": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_sections": {
+   "columns": {
+    "content": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('post_sections_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_sections_post_id_foreign": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_tag": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "tag_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_tag_post_id_foreign": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    },
+    "post_tag_tag_id_foreign": {
+     "columns": [
+      "tag_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "tags"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "post_template_sections": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('post_template_sections_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "post_template_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_template_sections_post_template_id_foreign": {
+     "columns": [
+      "post_template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "post_templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_templates": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('post_templates_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_templates_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "posts": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('posts_id_seq'::regclass)",
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "published": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "slice_of_life_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "title": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "view_count": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "0",
+     "nullable": false
+    },
+    "written_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "posts_journal_id_foreign": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    },
+    "posts_slice_of_life_id_foreign": {
+     "columns": [
+      "slice_of_life_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "slice_of_lives"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pronouns": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('pronouns_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "pronouns_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "quick_facts": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "content": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('quick_facts_id_seq'::regclass)",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_quick_facts_template_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "quick_facts_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "quick_facts_vault_quick_facts_template_id_foreign": {
+     "columns": [
+      "vault_quick_facts_template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vault_quick_facts_templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationship_group_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('relationship_group_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "relationship_group_types_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationship_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('relationship_types_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_reverse_relationship": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_reverse_relationship_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "relationship_group_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "relationship_types_relationship_group_type_id_foreign": {
+     "columns": [
+      "relationship_group_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "relationship_group_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationships": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('relationships_id_seq'::regclass)",
+     "nullable": false
+    },
+    "related_contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "relationship_type_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "relationships_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "relationships_related_contact_id_foreign": {
+     "columns": [
+      "related_contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "relationships_relationship_type_id_foreign": {
+     "columns": [
+      "relationship_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "relationship_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "religions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('religions_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "religions_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "sessions": {
+   "columns": {
+    "id": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "ip_address": {
+     "auto_increment": false,
+     "data_type": "character varying(45)",
+     "default": null,
+     "nullable": true
+    },
+    "last_activity": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "user_agent": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "sessions_last_activity_index": {
+     "columns": [
+      "last_activity"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "sessions_user_id_index": {
+     "columns": [
+      "user_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "slice_of_lives": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "file_cover_image_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('slice_of_lives_id_seq'::regclass)",
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "slice_of_lives_file_cover_image_id_foreign": {
+     "columns": [
+      "file_cover_image_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "files"
+    },
+    "slice_of_lives_journal_id_foreign": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "streaks": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "goal_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "happened_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('streaks_id_seq'::regclass)",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "streaks_goal_id_foreign": {
+     "columns": [
+      "goal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "goals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "sync_tokens": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('sync_tokens_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'contacts'::character varying",
+     "nullable": false
+    },
+    "timestamp": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "sync_tokens_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "sync_tokens_user_id_foreign": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    }
+   },
+   "indexes": {
+    "sync_tokens_account_id_user_id_name_index": {
+     "columns": [
+      "account_id",
+      "user_id",
+      "name"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "tags": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('tags_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "tags_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "template_pages": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('template_pages_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "template_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "template_pages_template_id_foreign": {
+     "columns": [
+      "template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "templates": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('templates_id_seq'::regclass)",
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "templates_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "timeline_event_participants": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "timeline_event_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "timeline_event_participants_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "timeline_event_participants_timeline_event_id_foreign": {
+     "columns": [
+      "timeline_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "timeline_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "timeline_events": {
+   "columns": {
+    "collapsed": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('timeline_events_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "started_at": {
+     "auto_increment": false,
+     "data_type": "date",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "timeline_events_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_notification_channels": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "content": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "fails": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "0",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('user_notification_channels_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "preferred_time": {
+     "auto_increment": false,
+     "data_type": "time(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": true
+    },
+    "verification_token": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "verified_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_notification_sent": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "error": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('user_notification_sent_id_seq'::regclass)",
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "sent_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": false
+    },
+    "subject_line": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_notification_channel_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "user_notification_sent_user_notification_channel_id_foreign": {
+     "columns": [
+      "user_notification_channel_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "user_notification_channels"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_vault": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "permission": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "user_vault_contact_id_foreign": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "user_vault_user_id_foreign": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "user_vault_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "users": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "contact_sort_order": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'last_updated'::character varying",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "date_format": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'MMM DD, YYYY'::character varying",
+     "nullable": false
+    },
+    "default_map_site": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'open_street_maps'::character varying",
+     "nullable": false
+    },
+    "distance_format": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'mi'::character varying",
+     "nullable": false
+    },
+    "email": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "email_verified_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "first_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "help_shown": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "invitation_accepted_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "invitation_code": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "is_account_administrator": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "is_instance_administrator": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "false",
+     "nullable": false
+    },
+    "last_name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "locale": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'en'::character varying",
+     "nullable": false
+    },
+    "name_order": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'%first_name% %last_name%'::character varying",
+     "nullable": false
+    },
+    "number_format": {
+     "auto_increment": false,
+     "data_type": "character varying(8)",
+     "default": "'locale'::character varying",
+     "nullable": false
+    },
+    "password": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "remember_token": {
+     "auto_increment": false,
+     "data_type": "character varying(100)",
+     "default": null,
+     "nullable": true
+    },
+    "timezone": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_confirmed_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_recovery_codes": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_secret": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "users_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {
+    "users_email_unique": {
+     "columns": [
+      "email"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "vault_quick_facts_templates": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "bigint",
+     "default": "nextval('vault_quick_facts_templates_id_seq'::regclass)",
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_quick_facts_templates_vault_id_foreign": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "vaults": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    },
+    "default_activity_tab": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": "'activity'::character varying",
+     "nullable": false
+    },
+    "default_template_id": {
+     "auto_increment": false,
+     "data_type": "bigint",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "uuid",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "show_calendar_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_companies_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_files_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_group_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_journal_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_reports_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "show_tasks_tab": {
+     "auto_increment": false,
+     "data_type": "boolean",
+     "default": "true",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "character varying(255)",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "timestamp(0) without time zone",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "vaults_account_id_foreign": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "vaults_default_template_id_foreign": {
+     "columns": [
+      "default_template_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  }
+ }
+}

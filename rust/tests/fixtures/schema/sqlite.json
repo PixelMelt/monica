@@ -1,0 +1,6978 @@
+{
+ "tables": {
+  "account_currency": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "active": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "currency_id": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "accounts": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "storage_limit_in_mb": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'0'",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "address_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "addressbook_subscriptions": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "capabilities": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "current_logid": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "distant_sync_token": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "frequency": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'180'",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "last_batch": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "last_synchronized_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "password": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "sync_token_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "sync_way": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'3'",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uri": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "username": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "last_batch": {
+     "columns": [
+      "last_batch"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "job_batches"
+    },
+    "sync_token_id": {
+     "columns": [
+      "sync_token_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "sync_tokens"
+    },
+    "user_id": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "addresses": {
+   "columns": {
+    "address_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "city": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "country": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "latitude": {
+     "auto_increment": false,
+     "data_type": "double",
+     "default": null,
+     "nullable": true
+    },
+    "line_1": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "line_2": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "longitude": {
+     "auto_increment": false,
+     "data_type": "double",
+     "default": null,
+     "nullable": true
+    },
+    "postal_code": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "province": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "address_type_id": {
+     "columns": [
+      "address_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "address_types"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "cache": {
+   "columns": {
+    "expiration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "value": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "key"
+   ]
+  },
+  "cache_locks": {
+   "columns": {
+    "expiration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "owner": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "key"
+   ]
+  },
+  "call_reason_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "call_reasons": {
+   "columns": {
+    "call_reason_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "call_reason_type_id": {
+     "columns": [
+      "call_reason_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "call_reason_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "calls": {
+   "columns": {
+    "answered": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "author_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "call_reason_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "called_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "duration": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "who_initiated": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "author_id": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "call_reason_id": {
+     "columns": [
+      "call_reason_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "call_reasons"
+    },
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "emotion_id": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "companies": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_address": {
+   "columns": {
+    "address_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "is_past_address": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "address_id": {
+     "columns": [
+      "address_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "addresses"
+    },
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_feed_items": {
+   "columns": {
+    "action": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "feedable_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "feedable_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "author_id": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {
+    "contact_feed_items_feedable_type_feedable_id_index": {
+     "columns": [
+      "feedable_type",
+      "feedable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_gift": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "loan_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "loanee_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "loaner_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "loan_id": {
+     "columns": [
+      "loan_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "loans"
+    },
+    "loanee_id": {
+     "columns": [
+      "loanee_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "loaner_id": {
+     "columns": [
+      "loaner_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_group": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "group_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "group_type_role_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "group_id": {
+     "columns": [
+      "group_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "groups"
+    },
+    "group_type_role_id": {
+     "columns": [
+      "group_type_role_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_type_roles"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_important_date_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "internal_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_important_dates": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "contact_important_date_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "day": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "month": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "vcalendar": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "year": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "contact_important_date_type_id": {
+     "columns": [
+      "contact_important_date_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_important_date_types"
+    }
+   },
+   "indexes": {
+    "contact_important_dates_uuid_index": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_information": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "data": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "kind": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "pref": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "type_id": {
+     "columns": [
+      "type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_information_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_information_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "protocol": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_label": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "label_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "label_id": {
+     "columns": [
+      "label_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "labels"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_life_metric": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "life_metric_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "life_metric_id": {
+     "columns": [
+      "life_metric_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_metrics"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_loan": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "loan_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "loanee_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "loaner_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "loan_id": {
+     "columns": [
+      "loan_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "loans"
+    },
+    "loanee_id": {
+     "columns": [
+      "loanee_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "loaner_id": {
+     "columns": [
+      "loaner_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_post": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "post_id": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contact_reminder_scheduled": {
+   "columns": {
+    "contact_reminder_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "scheduled_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "triggered_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_notification_channel_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_reminder_id": {
+     "columns": [
+      "contact_reminder_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contact_reminders"
+    },
+    "user_notification_channel_id": {
+     "columns": [
+      "user_notification_channel_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "user_notification_channels"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_reminders": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "day": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "frequency_number": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "last_triggered_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "month": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "number_times_triggered": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'0'",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "year": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_tasks": {
+   "columns": {
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "author_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "completed": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "completed_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "due_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "vcalendar": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "author_id": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {
+    "contact_tasks_uuid_index": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "contact_vault_user": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "is_favorite": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "number_of_views": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "user_id": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "contacts": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "company_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "file_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "first_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "gender_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "job_position": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "last_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "last_updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "listed": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "maiden_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "middle_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "nickname": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "prefix": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "pronoun_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "religion_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "show_quick_facts": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "suffix": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "template_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vcard": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "company_id": {
+     "columns": [
+      "company_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "companies"
+    },
+    "file_id": {
+     "columns": [
+      "file_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "files"
+    },
+    "gender_id": {
+     "columns": [
+      "gender_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "genders"
+    },
+    "pronoun_id": {
+     "columns": [
+      "pronoun_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "pronouns"
+    },
+    "religion_id": {
+     "columns": [
+      "religion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "religions"
+    },
+    "template_id": {
+     "columns": [
+      "template_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "contacts_vault_id_id_index": {
+     "columns": [
+      "vault_id",
+      "id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "crons": {
+   "columns": {
+    "command": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "last_run_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "crons_command_unique": {
+     "columns": [
+      "command"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "currencies": {
+   "columns": {
+    "code": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "emotions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "failed_jobs": {
+   "columns": {
+    "connection": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "exception": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "failed_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": "CURRENT_TIMESTAMP",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "queue": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "failed_jobs_uuid_unique": {
+     "columns": [
+      "uuid"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "files": {
+   "columns": {
+    "cdn_url": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "fileable_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "fileable_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "mime_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "original_url": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "size": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "ufileable_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {
+    "files_fileable_type_fileable_id_index": {
+     "columns": [
+      "fileable_type",
+      "fileable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "files_fileable_type_ufileable_id_index": {
+     "columns": [
+      "fileable_type",
+      "ufileable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "genders": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gift_occasions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gift_states": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "gifts": {
+   "columns": {
+    "bought_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "estimated_price": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "given_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "received_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "currency_id": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "goals": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "group_type_roles": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "group_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "group_type_id": {
+     "columns": [
+      "group_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "group_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "groups": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "deleted_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "distant_etag": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uri": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "distant_uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "group_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vcard": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "group_type_id": {
+     "columns": [
+      "group_type_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "group_types"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "job_batches": {
+   "columns": {
+    "cancelled_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "failed_job_ids": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "failed_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "finished_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "options": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "pending_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "total_jobs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "jobs": {
+   "columns": {
+    "attempts": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "available_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "queue": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "reserved_at": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "jobs_queue_index": {
+     "columns": [
+      "queue"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "journal_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "journal_id": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "journals": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "labels": {
+   "columns": {
+    "bg_color": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'bg-zinc-200'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "text_color": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'text-zinc-700'",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_event_categories": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_event_participants": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "life_event_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "life_event_id": {
+     "columns": [
+      "life_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "life_event_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "life_event_category_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "life_event_category_id": {
+     "columns": [
+      "life_event_category_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_event_categories"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_events": {
+   "columns": {
+    "collapsed": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "costs": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "distance": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "distance_unit": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "duration_in_minutes": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "from_place": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "happened_at": {
+     "auto_increment": false,
+     "data_type": "date",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "life_event_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "paid_by_contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "place": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "summary": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "timeline_event_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "to_place": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "currency_id": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    },
+    "emotion_id": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    },
+    "life_event_type_id": {
+     "columns": [
+      "life_event_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "life_event_types"
+    },
+    "paid_by_contact_id": {
+     "columns": [
+      "paid_by_contact_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "timeline_event_id": {
+     "columns": [
+      "timeline_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "timeline_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "life_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "loans": {
+   "columns": {
+    "amount_lent": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "currency_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "loaned_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "settled": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "settled_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "currency_id": {
+     "columns": [
+      "currency_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "currencies"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "logs": {
+   "columns": {
+    "channel": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "context": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "extra": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "formatted": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "group_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "level": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "level_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "loggable_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "loggable_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "logged_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "message": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "logs_channel_index": {
+     "columns": [
+      "channel"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_group_id_index": {
+     "columns": [
+      "group_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_level_index": {
+     "columns": [
+      "level"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "logs_loggable_type_loggable_id_index": {
+     "columns": [
+      "loggable_type",
+      "loggable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_row_fields": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "module_field_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "module_row_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "required": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_row_id": {
+     "columns": [
+      "module_row_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "module_rows"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_rows": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "module_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_id": {
+     "columns": [
+      "module_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "modules"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "module_template_page": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "module_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "template_page_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "module_id": {
+     "columns": [
+      "module_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "modules"
+    },
+    "template_page_id": {
+     "columns": [
+      "template_page_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "template_pages"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "modules": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "pagination": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "reserved_to_contact_information": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "mood_tracking_events": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "mood_tracking_parameter_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "note": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "number_of_hours_slept": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "rated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "mood_tracking_parameter_id": {
+     "columns": [
+      "mood_tracking_parameter_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "mood_tracking_parameters"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "mood_tracking_parameters": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "hex_color": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "notes": {
+   "columns": {
+    "author_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "body": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "emotion_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "title": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "author_id": {
+     "columns": [
+      "author_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "emotion_id": {
+     "columns": [
+      "emotion_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "emotions"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "password_resets": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "email": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "token": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "password_resets_email_index": {
+     "columns": [
+      "email"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": []
+  },
+  "personal_access_tokens": {
+   "columns": {
+    "abilities": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "expires_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "last_used_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "token": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "tokenable_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "tokenable_type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "personal_access_tokens_token_unique": {
+     "columns": [
+      "token"
+     ],
+     "kind": "btree",
+     "unique": true
+    },
+    "personal_access_tokens_tokenable_type_tokenable_id_index": {
+     "columns": [
+      "tokenable_type",
+      "tokenable_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pet_categories": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pets": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "pet_category_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "uuid": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "pet_category_id": {
+     "columns": [
+      "pet_category_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "pet_categories"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_metrics": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "journal_metric_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "value": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "journal_metric_id": {
+     "columns": [
+      "journal_metric_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journal_metrics"
+    },
+    "post_id": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_sections": {
+   "columns": {
+    "content": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_id": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_tag": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "post_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "tag_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_id": {
+     "columns": [
+      "post_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "posts"
+    },
+    "tag_id": {
+     "columns": [
+      "tag_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "tags"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "post_template_sections": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "post_template_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "post_template_id": {
+     "columns": [
+      "post_template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "post_templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "post_templates": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "posts": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "published": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "slice_of_life_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "title": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "view_count": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'0'",
+     "nullable": false
+    },
+    "written_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "journal_id": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    },
+    "slice_of_life_id": {
+     "columns": [
+      "slice_of_life_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "slice_of_lives"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "pronouns": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "quick_facts": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "content": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_quick_facts_template_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "vault_quick_facts_template_id": {
+     "columns": [
+      "vault_quick_facts_template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vault_quick_facts_templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationship_group_types": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationship_types": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_reverse_relationship": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_reverse_relationship_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "relationship_group_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "relationship_group_type_id": {
+     "columns": [
+      "relationship_group_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "relationship_group_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "relationships": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "related_contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "relationship_type_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "related_contact_id": {
+     "columns": [
+      "related_contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "relationship_type_id": {
+     "columns": [
+      "relationship_type_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "relationship_types"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "religions": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "sessions": {
+   "columns": {
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "ip_address": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "last_activity": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "user_agent": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {
+    "sessions_last_activity_index": {
+     "columns": [
+      "last_activity"
+     ],
+     "kind": "btree",
+     "unique": false
+    },
+    "sessions_user_id_index": {
+     "columns": [
+      "user_id"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "slice_of_lives": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "file_cover_image_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "journal_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "file_cover_image_id": {
+     "columns": [
+      "file_cover_image_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "files"
+    },
+    "journal_id": {
+     "columns": [
+      "journal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "journals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "streaks": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "goal_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "happened_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "goal_id": {
+     "columns": [
+      "goal_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "goals"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "sync_tokens": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'contacts'",
+     "nullable": false
+    },
+    "timestamp": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "user_id": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    }
+   },
+   "indexes": {
+    "sync_tokens_account_id_user_id_name_index": {
+     "columns": [
+      "account_id",
+      "user_id",
+      "name"
+     ],
+     "kind": "btree",
+     "unique": false
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "tags": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "template_pages": {
+   "columns": {
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "slug": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "template_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "template_id": {
+     "columns": [
+      "template_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "templates": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "can_be_deleted": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "name_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "timeline_event_participants": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "timeline_event_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "timeline_event_id": {
+     "columns": [
+      "timeline_event_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "timeline_events"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "timeline_events": {
+   "columns": {
+    "collapsed": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "started_at": {
+     "auto_increment": false,
+     "data_type": "date",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_notification_channels": {
+   "columns": {
+    "active": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "content": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "fails": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": "'0'",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "preferred_time": {
+     "auto_increment": false,
+     "data_type": "time",
+     "default": null,
+     "nullable": true
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "verification_token": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "verified_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {},
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_notification_sent": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "error": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "payload": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "sent_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": false
+    },
+    "subject_line": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_notification_channel_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "user_notification_channel_id": {
+     "columns": [
+      "user_notification_channel_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "user_notification_channels"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "user_vault": {
+   "columns": {
+    "contact_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "permission": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "user_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "contact_id": {
+     "columns": [
+      "contact_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "contacts"
+    },
+    "user_id": {
+     "columns": [
+      "user_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "users"
+    },
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": []
+  },
+  "users": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "contact_sort_order": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'last_updated'",
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "date_format": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'MMM DD, YYYY'",
+     "nullable": false
+    },
+    "default_map_site": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'open_street_maps'",
+     "nullable": false
+    },
+    "distance_format": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'mi'",
+     "nullable": false
+    },
+    "email": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "email_verified_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "first_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "help_shown": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "invitation_accepted_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "invitation_code": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "is_account_administrator": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "is_instance_administrator": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'0'",
+     "nullable": false
+    },
+    "last_name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "locale": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'en'",
+     "nullable": false
+    },
+    "name_order": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'%first_name% %last_name%'",
+     "nullable": false
+    },
+    "number_format": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'locale'",
+     "nullable": false
+    },
+    "password": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "remember_token": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "timezone": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_confirmed_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_recovery_codes": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "two_factor_secret": {
+     "auto_increment": false,
+     "data_type": "text",
+     "default": null,
+     "nullable": true
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    }
+   },
+   "indexes": {
+    "users_email_unique": {
+     "columns": [
+      "email"
+     ],
+     "kind": "btree",
+     "unique": true
+    }
+   },
+   "primary_key": [
+    "id"
+   ]
+  },
+  "vault_quick_facts_templates": {
+   "columns": {
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": true,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "label": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "label_translation_key": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "position": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "vault_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    }
+   },
+   "foreign_keys": {
+    "vault_id": {
+     "columns": [
+      "vault_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "vaults"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  },
+  "vaults": {
+   "columns": {
+    "account_id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "created_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    },
+    "default_activity_tab": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": "'activity'",
+     "nullable": false
+    },
+    "default_template_id": {
+     "auto_increment": false,
+     "data_type": "integer",
+     "default": null,
+     "nullable": true
+    },
+    "description": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": true
+    },
+    "id": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "name": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "show_calendar_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_companies_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_files_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_group_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_journal_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_reports_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "show_tasks_tab": {
+     "auto_increment": false,
+     "data_type": "tinyint(1)",
+     "default": "'1'",
+     "nullable": false
+    },
+    "type": {
+     "auto_increment": false,
+     "data_type": "varchar",
+     "default": null,
+     "nullable": false
+    },
+    "updated_at": {
+     "auto_increment": false,
+     "data_type": "datetime",
+     "default": null,
+     "nullable": true
+    }
+   },
+   "foreign_keys": {
+    "account_id": {
+     "columns": [
+      "account_id"
+     ],
+     "on_delete": "cascade",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "accounts"
+    },
+    "default_template_id": {
+     "columns": [
+      "default_template_id"
+     ],
+     "on_delete": "set null",
+     "on_update": "no action",
+     "ref_columns": [
+      "id"
+     ],
+     "ref_table": "templates"
+    }
+   },
+   "indexes": {},
+   "primary_key": [
+    "id"
+   ]
+  }
+ }
+}
