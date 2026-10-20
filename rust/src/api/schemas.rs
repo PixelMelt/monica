@@ -129,6 +129,11 @@ pub struct UserSummary {
 
 impl UserSummary {
     pub fn new(u: &users::Model, contact: Option<contacts::Model>) -> Self {
-        UserSummary { id: u.id, first_name: u.first_name.clone(), last_name: u.last_name.clone(), contact: contact.map(Into::into) }
+        UserSummary {
+            id: u.id,
+            first_name: u.first_name.clone(),
+            last_name: u.last_name.clone(),
+            contact: contact.map(Into::into),
+        }
     }
 }

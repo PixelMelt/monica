@@ -186,7 +186,11 @@ pub async fn create_vault(
     responses((status = 200, description = "The vault.", body = Vault), (status = 404, description = "Not found.")),
     extensions(("x-permission" = json!("vault:view")), ("x-inventory" = json!(["R016", "R334"])), ("x-services" = json!([])))
 )]
-pub async fn get_vault(State(state): State<AppState>, Auth(id): Auth, Path(vault_id): Path<Uuid>) -> ApiResult<Json<Vault>> {
+pub async fn get_vault(
+    State(state): State<AppState>,
+    Auth(id): Auth,
+    Path(vault_id): Path<Uuid>,
+) -> ApiResult<Json<Vault>> {
     let a = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
     Ok(Json(Vault::new(a.vault, &a.membership)))
 }
@@ -240,8 +244,10 @@ pub async fn update_vault(
         body.show_reports_tab,
         body.show_calendar_tab,
     ];
-    let manage_fields =
-        body.name.is_some() || body.description.is_some() || body.default_template_id.is_some() || tabs.iter().any(Option::is_some);
+    let manage_fields = body.name.is_some()
+        || body.description.is_some()
+        || body.default_template_id.is_some()
+        || tabs.iter().any(Option::is_some);
     let needed = if manage_fields { VaultPermission::Manage } else { VaultPermission::View };
     let a = access::vault(&state, &id, vault_id, needed).await?;
     let (account_id, author_id) = (id.user.account_id, id.user.id);
@@ -282,7 +288,9 @@ pub async fn update_vault(
         let mut v = Validator::new();
         v.one_of("default_activity_tab", Some(&tab), &["activity", "life_events", "life_metrics"]);
         v.finish()?;
-        vault = UpdateVaultDashboardDefaultTab { account_id, author_id, vault_id, default_activity_tab: tab }.execute(&tx).await?;
+        vault = UpdateVaultDashboardDefaultTab { account_id, author_id, vault_id, default_activity_tab: tab }
+            .execute(&tx)
+            .await?;
     }
     tx.commit().await?;
     Ok(Json(Vault::new(vault, &a.membership)))
@@ -298,7 +306,11 @@ pub async fn update_vault(
     responses((status = 204, description = "Deleted."), (status = 403, description = "Not a manager."), (status = 404, description = "Not found.")),
     extensions(("x-permission" = json!("vault:manage")), ("x-inventory" = json!(["R018", "R336"])), ("x-services" = json!(["DestroyVault"])))
 )]
-pub async fn delete_vault(State(state): State<AppState>, Auth(id): Auth, Path(vault_id): Path<Uuid>) -> ApiResult<StatusCode> {
+pub async fn delete_vault(
+    State(state): State<AppState>,
+    Auth(id): Auth,
+    Path(vault_id): Path<Uuid>,
+) -> ApiResult<StatusCode> {
     access::vault(&state, &id, vault_id, VaultPermission::Manage).await?;
     let tx = state.db.begin().await?;
     DestroyVault { account_id: id.user.account_id, author_id: id.user.id, vault_id }.execute(&tx).await?;
