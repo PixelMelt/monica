@@ -21,3 +21,4 @@ pub mod text;
 #[doc(hidden)]
 pub mod testing;
 pub mod validate;
+pub mod vobject;
