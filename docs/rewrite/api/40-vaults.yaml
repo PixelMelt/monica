@@ -1,0 +1,1192 @@
+# Area C: vaults, vault members and the vault settings lists (labels, tags,
+# contact important date types, mood tracking parameters, life event
+# categories and types, quick fact templates).
+x-not-api:
+  - { id: R013, reason: "SPA page only (create vault form); submits createVault" }
+
+paths:
+  /vaults:
+    get:
+      operationId: listVaults
+      tags: [Vaults]
+      summary: List the current user's vaults, by name
+      description: |
+        Vaults of the user's account the user is a member of, sorted by name
+        (locale collation). Feeds the vault index page: each card shows up to 5
+        random contacts and the number of others.
+      x-permission: user
+      x-inventory: [R012, R332]
+      x-services: []
+      responses:
+        '200':
+          description: The user's vaults.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createVault
+      tags: [Vaults]
+      summary: Create a vault
+      description: |
+        Creates a `personal` vault with the account's first template as
+        default template, makes the user its manager with their own contact in
+        it, and seeds the default important date types (birthdate, deceased
+        date), mood tracking parameters, life event categories and types, and
+        quick fact templates.
+      x-permission: user
+      x-inventory: [R014, R333]
+      x-services: [CreateVault, CreateContactImportantDateType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaultCreate' }
+      responses:
+        '201':
+          description: The created vault.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vault' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVault
+      tags: [Vaults]
+      summary: Get a vault
+      description: Also feeds the edit vault page (R016).
+      x-permission: vault:view
+      x-inventory: [R016, R334]
+      x-services: []
+      responses:
+        '200':
+          description: The vault.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vault' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateVault
+      tags: [Vaults]
+      summary: Edit a vault, its default template, tab visibility or dashboard tab
+      description: |
+        `default_activity_tab` (the dashboard tab, shared by all members) can be
+        changed by any member; every other field needs vault:manage.
+        `default_template_id` must be a template of the account.
+      x-permission: vault:manage
+      x-field-permissions:
+        default_activity_tab: vault:view
+      x-inventory: [R017, R019, R175, R190, R335]
+      x-services: [UpdateVault, UpdateVaultDefaultTemplate, UpdateVaultTabVisibility, UpdateVaultDashboardDefaultTab]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaultUpdate' }
+      responses:
+        '200':
+          description: The updated vault.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Vault' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVault
+      tags: [Vaults]
+      summary: Delete a vault and everything in it
+      description: Deletes the vault's files from storage too (E009).
+      x-permission: vault:manage
+      x-inventory: [R018, R336]
+      x-services: [DestroyVault]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/members:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultMembers
+      tags: [Vaults]
+      summary: List the users who have access to the vault
+      x-permission: vault:manage
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Members of the vault.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultMemberList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: addVaultMember
+      tags: [Vaults]
+      summary: Give an account user access to the vault
+      description: |
+        Creates the user's own contact in the vault (with the vault's default
+        template) and schedules the vault's contact reminders for the user
+        (one-time reminders only if never triggered). Adding yourself or an
+        existing member is a 409.
+      x-permission: vault:manage
+      x-inventory: [R176]
+      x-services: [GrantVaultAccessToUser, ScheduleContactReminderForUser]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaultMemberCreate' }
+      responses:
+        '201':
+          description: The new member.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultMember' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/member-candidates:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultMemberCandidates
+      tags: [Vaults]
+      summary: List account users who could be added to the vault
+      description: Users of the account with a verified email who are not members yet.
+      x-permission: vault:manage
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Candidate users (`contact` is always null).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultMemberCandidateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/members/{user_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: user_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Uuid' }
+    patch:
+      operationId: updateVaultMember
+      tags: [Vaults]
+      summary: Change a member's permission
+      description: |
+        Also needs the author to be account administrator (ChangeVaultAccess).
+        Changing your own permission is a 409.
+      x-permission: vault:manage
+      x-inventory: [R177]
+      x-services: [ChangeVaultAccess]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaultMemberUpdate' }
+      responses:
+        '200':
+          description: The updated member.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultMember' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: removeVaultMember
+      tags: [Vaults]
+      summary: Remove a user's access to the vault
+      description: |
+        Deletes the user's own contact in the vault (which removes the
+        `user_vault` row) and the user's scheduled reminders for this vault's
+        contacts. Removing yourself is a 409.
+      x-permission: vault:manage
+      x-inventory: [R178]
+      x-services: [RemoveVaultAccess]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vaults/{vault_id}/labels:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultLabels
+      tags: [Vaults]
+      summary: List the vault's labels, by name
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Labels with `contacts_count`, sorted by name (locale collation).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LabelList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultLabel
+      tags: [Vaults]
+      summary: Create a label
+      description: |
+        Editors can create labels (the contact page creates one before
+        assigning it, R074). `slug` is derived from `name`.
+      x-permission: vault:edit
+      x-inventory: [R180]
+      x-services: [CreateLabel]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LabelCreate' }
+      responses:
+        '201':
+          description: The created label.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Label' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/labels/{label_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: label_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultLabel
+      tags: [Vaults]
+      summary: Edit a label
+      description: Recomputes `slug` when `name` changes.
+      x-permission: vault:manage
+      x-inventory: [R181]
+      x-services: [UpdateLabel]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LabelUpdate' }
+      responses:
+        '200':
+          description: The updated label.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Label' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultLabel
+      tags: [Vaults]
+      summary: Delete a label
+      description: Removes it from every contact.
+      x-permission: vault:manage
+      x-inventory: [R182]
+      x-services: [DestroyLabel]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/tags:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultTags
+      tags: [Vaults]
+      summary: List the vault's journal post tags, by name
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Tags with `posts_count`, sorted by name (locale collation).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TagList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultTag
+      tags: [Vaults]
+      summary: Create a tag
+      description: |
+        Editors can create tags (the post editor creates one before assigning
+        it, R148). `slug` is derived from `name`.
+      x-permission: vault:edit
+      x-inventory: [R184]
+      x-services: [CreateTag]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TagCreate' }
+      responses:
+        '201':
+          description: The created tag.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tag' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/tags/{tag_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: tag_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultTag
+      tags: [Vaults]
+      summary: Rename a tag
+      description: Recomputes `slug`.
+      x-permission: vault:manage
+      x-inventory: [R185]
+      x-services: [UpdateTag]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TagUpdate' }
+      responses:
+        '200':
+          description: The updated tag.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tag' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultTag
+      tags: [Vaults]
+      summary: Delete a tag
+      description: Removes it from every post.
+      x-permission: vault:manage
+      x-inventory: [R186]
+      x-services: [DestroyTag]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contact-important-date-types:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultContactImportantDateTypes
+      tags: [Vaults]
+      summary: List the vault's important date types
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Types, ordered by `id`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDateTypeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultContactImportantDateType
+      tags: [Vaults]
+      summary: Create an important date type
+      description: Created types have no `internal_type` and can be deleted.
+      x-permission: vault:manage
+      x-inventory: [R187]
+      x-services: [CreateContactImportantDateType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactImportantDateTypeCreate' }
+      responses:
+        '201':
+          description: The created type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDateType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contact-important-date-types/{contact_important_date_type_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: contact_important_date_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultContactImportantDateType
+      tags: [Vaults]
+      summary: Rename an important date type
+      x-permission: vault:manage
+      x-inventory: [R188]
+      x-services: [UpdateContactImportantDateType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactImportantDateTypeUpdate' }
+      responses:
+        '200':
+          description: The updated type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactImportantDateType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultContactImportantDateType
+      tags: [Vaults]
+      summary: Delete an important date type
+      description: |
+        409 when `can_be_deleted` is false (birthdate, deceased date). Dates of
+        this type keep existing with no type.
+      x-permission: vault:manage
+      x-inventory: [R189]
+      x-services: [DestroyContactImportantDateType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vaults/{vault_id}/mood-tracking-parameters:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultMoodTrackingParameters
+      tags: [Vaults]
+      summary: List the vault's mood tracking parameters, by position
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Parameters, ordered by `position`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoodTrackingParameterList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultMoodTrackingParameter
+      tags: [Vaults]
+      summary: Create a mood tracking parameter
+      description: Placed after the last one.
+      x-permission: vault:manage
+      x-inventory: [R191]
+      x-services: [CreateMoodTrackingParameter]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoodTrackingParameterCreate' }
+      responses:
+        '201':
+          description: The created parameter.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoodTrackingParameter' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/mood-tracking-parameters/{mood_tracking_parameter_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: mood_tracking_parameter_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultMoodTrackingParameter
+      tags: [Vaults]
+      summary: Edit or move a mood tracking parameter
+      description: Changing `position` shifts the siblings in between.
+      x-permission: vault:manage
+      x-inventory: [R192, R193]
+      x-services: [UpdateMoodTrackingParameter, UpdateMoodTrackingParameterPosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoodTrackingParameterUpdate' }
+      responses:
+        '200':
+          description: The updated parameter.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoodTrackingParameter' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultMoodTrackingParameter
+      tags: [Vaults]
+      summary: Delete a mood tracking parameter
+      description: Deletes the mood tracking events that used it.
+      x-permission: vault:manage
+      x-inventory: [R194]
+      x-services: [DestroyMoodTrackingParameter]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/life-event-categories:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultLifeEventCategories
+      tags: [Vaults]
+      summary: List the vault's life event categories with their types
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Categories by `position`, each with its types by `position`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEventCategoryList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultLifeEventCategory
+      tags: [Vaults]
+      summary: Create a life event category
+      description: Placed after the last one; `can_be_deleted` is true.
+      x-permission: vault:manage
+      x-inventory: [R195]
+      x-services: [CreateLifeEventCategory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventCategoryCreate' }
+      responses:
+        '201':
+          description: The created category (no types yet).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEventCategory' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/life-event-categories/{life_event_category_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: life_event_category_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultLifeEventCategory
+      tags: [Vaults]
+      summary: Rename or move a life event category
+      description: Changing `position` shifts the siblings in between.
+      x-permission: vault:manage
+      x-inventory: [R196, R198]
+      x-services: [UpdateLifeEventCategory, UpdateLifeEventCategoryPosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventCategoryUpdate' }
+      responses:
+        '200':
+          description: The updated category.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEventCategory' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultLifeEventCategory
+      tags: [Vaults]
+      summary: Delete a life event category
+      description: |
+        409 when `can_be_deleted` is false. Deletes its types and the life
+        events that used them.
+      x-permission: vault:manage
+      x-inventory: [R197]
+      x-services: [DestroyLifeEventCategory]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vaults/{vault_id}/life-event-categories/{life_event_category_id}/life-event-types:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: life_event_category_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: createVaultLifeEventType
+      tags: [Vaults]
+      summary: Add a life event type to a category
+      description: Placed after the category's last type; `can_be_deleted` is true.
+      x-permission: vault:manage
+      x-inventory: [R199]
+      x-services: [CreateLifeEventType]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventTypeCreate' }
+      responses:
+        '201':
+          description: The created type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEventType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/life-event-categories/{life_event_category_id}/life-event-types/{life_event_type_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: life_event_category_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+      - name: life_event_type_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultLifeEventType
+      tags: [Vaults]
+      summary: Rename or move a life event type within its category
+      description: Changing `position` shifts the siblings in between.
+      x-permission: vault:manage
+      x-inventory: [R200, R202]
+      x-services: [UpdateLifeEventType, UpdateLifeEventTypePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventTypeUpdate' }
+      responses:
+        '200':
+          description: The updated type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEventType' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultLifeEventType
+      tags: [Vaults]
+      summary: Delete a life event type
+      description: 409 when `can_be_deleted` is false. Deletes the life events of this type.
+      x-permission: vault:manage
+      x-inventory: [R201]
+      x-services: [DestroyLifeEventType]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /vaults/{vault_id}/quick-fact-templates:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultQuickFactTemplates
+      tags: [Vaults]
+      summary: List the vault's quick fact templates, by position
+      x-permission: vault:view
+      x-inventory: [R173]
+      x-services: []
+      responses:
+        '200':
+          description: Templates, ordered by `position`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFactTemplateList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultQuickFactTemplate
+      tags: [Vaults]
+      summary: Create a quick fact template
+      description: Placed after the last one.
+      x-permission: vault:manage
+      x-inventory: [R203]
+      x-services: [CreateQuickFactTemplate]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuickFactTemplateCreate' }
+      responses:
+        '201':
+          description: The created template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFactTemplate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/quick-fact-templates/{quick_fact_template_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: quick_fact_template_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultQuickFactTemplate
+      tags: [Vaults]
+      summary: Rename or move a quick fact template
+      description: Changing `position` shifts the siblings in between.
+      x-permission: vault:manage
+      x-inventory: [R204, R205]
+      x-services: [UpdateQuickFactTemplate, UpdateQuickFactTemplatePosition]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/QuickFactTemplateUpdate' }
+      responses:
+        '200':
+          description: The updated template.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QuickFactTemplate' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultQuickFactTemplate
+      tags: [Vaults]
+      summary: Delete a quick fact template
+      description: Deletes the contacts' quick facts of this template.
+      x-permission: vault:manage
+      x-inventory: [R206]
+      x-services: [DestroyQuickFactTemplate]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    VaultPermission:
+      type: integer
+      enum: [100, 200, 300]
+      description: '`user_vault.permission`: 100 manager, 200 editor, 300 viewer (lower is more).'
+    Vault:
+      type: object
+      required: [id, account_id, type, name, description, default_template_id, default_activity_tab, show_group_tab, show_tasks_tab, show_files_tab, show_journal_tab, show_companies_tab, show_reports_tab, show_calendar_tab, permission, user_contact_id, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        account_id: { $ref: '#/components/schemas/Uuid' }
+        type: { type: string, enum: [personal, family, community], description: Always `personal` today. }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        default_template_id:
+          type: [integer, 'null']
+          format: int64
+          description: Template given to new contacts; templates come from area B2's template list.
+        default_activity_tab:
+          type: string
+          enum: [activity, life_events, life_metrics]
+          description: Tab the dashboard opens on.
+        show_group_tab: { type: boolean }
+        show_tasks_tab: { type: boolean }
+        show_files_tab: { type: boolean }
+        show_journal_tab: { type: boolean }
+        show_companies_tab: { type: boolean }
+        show_reports_tab: { type: boolean }
+        show_calendar_tab: { type: boolean }
+        permission:
+          $ref: '#/components/schemas/VaultPermission'
+          description: The current user's permission (`user_vault.permission`).
+        user_contact_id:
+          $ref: '#/components/schemas/Uuid'
+          description: |
+            The current user's own contact in this vault (`user_vault.contact_id`);
+            mood tracking, life events and life metrics are recorded on it.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    VaultListItem:
+      allOf:
+        - $ref: '#/components/schemas/Vault'
+        - type: object
+          required: [contacts_count, contacts_sample]
+          properties:
+            contacts_count: { type: integer, minimum: 0, description: "Computed; all contacts of the vault, unlisted ones included." }
+            contacts_sample:
+              type: array
+              maxItems: 5
+              description: Computed; up to 5 random contacts of the vault.
+              items: { $ref: '#/components/schemas/ContactSummary' }
+    VaultList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/VaultListItem' }
+    VaultCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 255 }
+    VaultUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 255 }
+        default_template_id: { type: integer, format: int64, description: Must be a template of the account. }
+        default_activity_tab: { type: string, enum: [activity, life_events, life_metrics] }
+        show_group_tab: { type: boolean }
+        show_tasks_tab: { type: boolean }
+        show_files_tab: { type: boolean }
+        show_journal_tab: { type: boolean }
+        show_companies_tab: { type: boolean }
+        show_reports_tab: { type: boolean }
+        show_calendar_tab: { type: boolean }
+
+    VaultMember:
+      type: object
+      required: [user, permission]
+      properties:
+        user:
+          $ref: '#/components/schemas/UserSummary'
+          description: '`user.contact` is the user''s own contact in this vault.'
+        permission: { $ref: '#/components/schemas/VaultPermission' }
+    VaultMemberList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/VaultMember' }
+    VaultMemberCandidateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/UserSummary' }
+    VaultMemberCreate:
+      type: object
+      required: [user_id, permission]
+      properties:
+        user_id: { $ref: '#/components/schemas/Uuid' }
+        permission: { $ref: '#/components/schemas/VaultPermission' }
+    VaultMemberUpdate:
+      type: object
+      required: [permission]
+      properties:
+        permission: { $ref: '#/components/schemas/VaultPermission' }
+
+    Label:
+      type: object
+      required: [id, vault_id, name, slug, description, bg_color, text_color, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: [string, 'null'] }
+        bg_color: { type: string, description: 'Tailwind background class, e.g. `bg-neutral-200`.' }
+        text_color: { type: string, description: 'Tailwind text class, e.g. `text-neutral-800`.' }
+        contacts_count: { type: integer, minimum: 0, description: Computed; contacts with this label. Present in the vault label endpoints' responses. }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LabelList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Label' }
+    LabelCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        bg_color: { type: [string, 'null'], maxLength: 255, description: Defaults to `bg-neutral-200`. }
+        text_color: { type: [string, 'null'], maxLength: 255, description: Defaults to `text-neutral-800`. }
+    LabelUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        bg_color: { type: string, maxLength: 255 }
+        text_color: { type: string, maxLength: 255 }
+
+    Tag:
+      type: object
+      required: [id, vault_id, name, slug, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        slug: { type: string }
+        posts_count: { type: integer, minimum: 0, description: Computed; posts with this tag. Present in the vault tag endpoints' responses. }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    TagList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Tag' }
+    TagCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    TagUpdate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+
+    ContactImportantDateType:
+      type: object
+      required: [id, vault_id, label, internal_type, can_be_deleted, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: string, description: Stored text (the seeded ones were translated when the vault was created). }
+        internal_type:
+          type: [string, 'null']
+          enum: [birthdate, deceased_date, null]
+          description: Set on the two seeded types; drives ages and the deceased state.
+        can_be_deleted: { type: boolean }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactImportantDateTypeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactImportantDateType' }
+    ContactImportantDateTypeCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    ContactImportantDateTypeUpdate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+
+    MoodTrackingParameter:
+      type: object
+      description: |
+        Seeded rows have `label_translation_key`; the client shows `label` when
+        set, else translates the key.
+      required: [id, vault_id, label, label_translation_key, hex_color, position, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        hex_color: { type: string, description: 'Despite the name, a Tailwind background class, e.g. `bg-lime-500`.' }
+        position: { type: [integer, 'null'] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    MoodTrackingParameterList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/MoodTrackingParameter' }
+    MoodTrackingParameterCreate:
+      type: object
+      required: [label, hex_color]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        hex_color: { type: string, minLength: 1, maxLength: 255 }
+    MoodTrackingParameterUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        hex_color: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+
+    LifeEventCategory:
+      type: object
+      description: |
+        Seeded rows have `label_translation_key`; the client shows `label` when
+        set, else translates the key.
+      required: [id, vault_id, label, label_translation_key, position, can_be_deleted, life_event_types, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'] }
+        can_be_deleted: { type: boolean }
+        life_event_types:
+          type: array
+          description: Ordered by `position`.
+          items: { $ref: '#/components/schemas/LifeEventType' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LifeEventCategoryList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/LifeEventCategory' }
+    LifeEventCategoryCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    LifeEventCategoryUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+    LifeEventType:
+      type: object
+      required: [id, life_event_category_id, label, label_translation_key, position, can_be_deleted, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        life_event_category_id: { $ref: '#/components/schemas/Id' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: [integer, 'null'] }
+        can_be_deleted: { type: boolean }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LifeEventTypeCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    LifeEventTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }
+
+    QuickFactTemplate:
+      type: object
+      description: |
+        A row of `vault_quick_facts_templates`. Seeded rows have
+        `label_translation_key`; the client shows `label` when set, else
+        translates the key.
+      required: [id, vault_id, label, label_translation_key, position, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: [string, 'null'] }
+        label_translation_key: { type: [string, 'null'] }
+        position: { type: integer }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    QuickFactTemplateList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/QuickFactTemplate' }
+    QuickFactTemplateCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    QuickFactTemplateUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        position: { type: integer, minimum: 1 }

@@ -1,0 +1,1345 @@
+# Contact modules, part B (area F): relationships, pets, documents, photos,
+# tasks, calls, group membership, timeline/life events, mood tracking events.
+x-not-api:
+  - id: R095
+    reason: |
+      SPA page only (add a relationship). Its data comes from getContact,
+      listRelationshipGroupTypes, listGenders, listPronouns and the vault
+      contact search; the form posts to createContactRelationship.
+
+paths:
+  # ---------------------------------------------------------------- relationships
+  /vaults/{vault_id}/contacts/{contact_id}/relationships:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactRelationships
+      tags: [Contact modules]
+      summary: List a contact's relationships, in both directions
+      description: Relationships whose other contact is deleted are left out.
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The relationships, ordered by relationship type.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RelationshipList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactRelationship
+      tags: [Contact modules]
+      summary: Set a relationship with an existing or a new contact
+      description: |
+        Composite: with `new_contact`, the other contact is created (with a
+        `contact_created` feed item) in the same transaction as the
+        relationship, because a contact created with `listed: false` and no
+        relationship would be an invisible orphan. If the two contacts already
+        have a relationship in the same direction, its type is replaced.
+        Sets the contact's `last_updated_at`.
+      x-composite: true
+      x-permission: vault:edit
+      x-inventory: [R096]
+      x-services: [CreateContact, SetRelationship]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RelationshipCreate' }
+      responses:
+        '201':
+          description: The relationship, seen from the contact in the path.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Relationship' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/relationships/{relationship_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: relationship_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteContactRelationship
+      tags: [Contact modules]
+      summary: Remove a relationship
+      description: |
+        Today `PUT …/relationships/{id}` (R097). Removes every relationship
+        between the two contacts in both directions, then deletes either
+        contact if it is unlisted (`listed: false`). Sets the contact's
+        `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R097]
+      x-services: [UnsetRelationship]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- pets
+  /vaults/{vault_id}/contacts/{contact_id}/pets:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactPets
+      tags: [Contact modules]
+      summary: List a contact's pets
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Pets, ordered by `id`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PetList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactPet
+      tags: [Contact modules]
+      summary: Add a pet to a contact
+      description: Sets the contact's `last_updated_at` and writes a `pet_created` feed item.
+      x-permission: vault:edit
+      x-inventory: [R098]
+      x-services: [CreatePet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PetCreate' }
+      responses:
+        '201':
+          description: The created pet.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pet' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/pets/{pet_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: pet_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactPet
+      tags: [Contact modules]
+      summary: Edit a pet
+      description: Sets the contact's `last_updated_at` and writes a `pet_updated` feed item.
+      x-permission: vault:edit
+      x-inventory: [R099]
+      x-services: [UpdatePet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PetUpdate' }
+      responses:
+        '200':
+          description: The updated pet.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Pet' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactPet
+      tags: [Contact modules]
+      summary: Delete a pet
+      description: Sets the contact's `last_updated_at` and writes a `pet_destroyed` feed item.
+      x-permission: vault:edit
+      x-inventory: [R100]
+      x-services: [DestroyPet]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- documents
+  /vaults/{vault_id}/contacts/{contact_id}/documents:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactDocuments
+      tags: [Contact modules]
+      summary: List a contact's documents, newest first
+      description: The bytes are served by `GET /vaults/{vault_id}/files/{file_id}/content`.
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Files of type `document`, ordered by `created_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactDocumentList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: uploadContactDocument
+      tags: [Contact modules]
+      summary: Upload a document for a contact
+      description: |
+        Multipart upload (api-design.md §10). Stores the file as type
+        `document`, attached to the contact. Rejected with 422
+        `storage_limit_exceeded` when the account is at its storage limit
+        (X011).
+      x-permission: vault:edit
+      x-inventory: [R101]
+      x-services: [UploadFile]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/FileUpload' }
+      responses:
+        '201':
+          description: The stored file.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/documents/{document_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: document_id
+        in: path
+        required: true
+        description: A `files` id of type `document` attached to the contact.
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteContactDocument
+      tags: [Contact modules]
+      summary: Delete a document
+      description: Deletes the `files` row and the stored bytes; sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R102]
+      x-services: [DestroyFile]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- photos
+  /vaults/{vault_id}/contacts/{contact_id}/photos:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactPhotos
+      tags: [Contact modules]
+      summary: List a contact's photos, newest first
+      description: |
+        Feeds the photos page (R103, 30 per page); the contact's name there
+        comes from `getContact`. Images are served by
+        `GET /vaults/{vault_id}/files/{file_id}/content?variant=thumbnail`.
+      x-permission: vault:view
+      x-inventory: [R103]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 30 }
+      responses:
+        '200':
+          description: Files of type `photo`, ordered by `created_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactPhotoList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: uploadContactPhoto
+      tags: [Contact modules]
+      summary: Upload a photo for a contact
+      description: |
+        Multipart upload (api-design.md §10). JPEG, PNG, GIF or WebP only
+        (422 otherwise). Stores the file as type `photo`, attached to the
+        contact. Rejected with 422 `storage_limit_exceeded` when the account
+        is at its storage limit (X011).
+      x-permission: vault:edit
+      x-inventory: [R105]
+      x-services: [UploadFile]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/FileUpload' }
+      responses:
+        '201':
+          description: The stored file.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/photos/{photo_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: photo_id
+        in: path
+        required: true
+        description: A `files` id of type `photo` attached to the contact.
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getContactPhoto
+      tags: [Contact modules]
+      summary: Get one photo
+      description: Feeds the photo page (R104); the contact's name there comes from `getContact`.
+      x-permission: vault:view
+      x-inventory: [R104]
+      x-services: []
+      responses:
+        '200':
+          description: The photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteContactPhoto
+      tags: [Contact modules]
+      summary: Delete a photo
+      description: Deletes the `files` row, the stored bytes and cached thumbnails; sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R106]
+      x-services: [DestroyFile]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- tasks
+  /vaults/{vault_id}/contacts/{contact_id}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactTasks
+      tags: [Contact modules]
+      summary: List a contact's open or completed tasks
+      description: |
+        Open tasks are ordered by `id` descending; completed tasks
+        (`completed=true`, R107) by `completed_at` descending. Not paginated.
+      x-permission: vault:view
+      x-inventory: [R107]
+      x-services: []
+      parameters:
+        - name: completed
+          in: query
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: The tasks.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactTaskList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactTask
+      tags: [Contact modules]
+      summary: Add a task to a contact
+      description: Sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R108]
+      x-services: [CreateContactTask]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactTaskCreate' }
+      responses:
+        '201':
+          description: The created task.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactTask' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/tasks/{task_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: task_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactTask
+      tags: [Contact modules]
+      summary: Edit a task or mark it (un)completed
+      description: |
+        Replaces the edit (R109) and toggle (R110) routes, also used by the
+        vault task pages. When `completed` changes, `completed_at` is set to
+        the current time (also when un-completing, as today). Sets the
+        contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R109, R110]
+      x-services: [UpdateContactTask, ToggleContactTask]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactTaskUpdate' }
+      responses:
+        '200':
+          description: The updated task.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ContactTask' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactTask
+      tags: [Contact modules]
+      summary: Delete a task
+      description: Soft delete (`deleted_at`, for CalDAV sync); sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R111]
+      x-services: [DestroyContactTask]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- calls
+  /vaults/{vault_id}/contacts/{contact_id}/calls:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactCalls
+      tags: [Contact modules]
+      summary: List a contact's calls, latest first
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Calls, ordered by `called_at` descending. Not paginated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CallList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactCall
+      tags: [Contact modules]
+      summary: Log a call with a contact
+      description: Sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R112]
+      x-services: [CreateCall]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallCreate' }
+      responses:
+        '201':
+          description: The created call.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Call' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/calls/{call_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: call_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactCall
+      tags: [Contact modules]
+      summary: Edit a call
+      description: Sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R113]
+      x-services: [UpdateCall]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallUpdate' }
+      responses:
+        '200':
+          description: The updated call.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Call' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactCall
+      tags: [Contact modules]
+      summary: Delete a call
+      description: Sets the contact's `last_updated_at`.
+      x-permission: vault:edit
+      x-inventory: [R114]
+      x-services: [DestroyCall]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- group membership
+  /vaults/{vault_id}/contacts/{contact_id}/groups:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactGroups
+      tags: [Contact modules]
+      summary: List the groups a contact belongs to
+      x-permission: vault:view
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Groups, ordered by `name` (collation-aware).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GroupList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: addContactToGroup
+      tags: [Contact modules]
+      summary: Add a contact to a group, with an optional role
+      description: |
+        To add the contact to a new group, call `createVaultGroup` first
+        (R115). If the contact is already a member, its role is replaced.
+        Touches the group, sets the contact's `last_updated_at` and writes an
+        `added_to_group` feed item.
+      x-permission: vault:edit
+      x-inventory: [R115]
+      x-services: [AddContactToGroup]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ContactGroupAdd' }
+      responses:
+        '201':
+          description: The group, with its members.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Group' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/groups/{group_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - $ref: '#/components/parameters/GroupId'
+    delete:
+      operationId: removeContactFromGroup
+      tags: [Contact modules]
+      summary: Remove a contact from a group
+      description: |
+        Done synchronously (today a queued job). Touches the group, sets the
+        contact's `last_updated_at` and writes a `removed_from_group` feed
+        item.
+      x-permission: vault:edit
+      x-inventory: [R116]
+      x-services: [RemoveContactFromGroup]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- timeline and life events
+  /vaults/{vault_id}/contacts/{contact_id}/timeline-events:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactTimelineEvents
+      tags: [Contact modules]
+      summary: List the timeline events a contact takes part in
+      description: |
+        Feeds the life events module of the contact page and, for the user's
+        own contact, of the vault dashboard. 15 per page.
+      x-permission: vault:view
+      x-inventory: [R117]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+      responses:
+        '200':
+          description: Timeline events, ordered by `started_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimelineEventList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactTimelineEvent
+      tags: [Contact modules]
+      summary: Start a timeline event with its first life event
+      description: |
+        Composite: a timeline event never exists without a life event (deleting
+        the last life event deletes it), so both are created in one
+        transaction. `started_at` is the life event's `happened_at`. The
+        contact in the path is always a participant; every participant's
+        `last_updated_at` is set.
+      x-composite: true
+      x-permission: vault:edit
+      x-inventory: [R118]
+      x-services: [CreateTimelineEvent, CreateLifeEvent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimelineEventCreate' }
+      responses:
+        '201':
+          description: The created timeline event with its life event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimelineEvent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/timeline-events/{timeline_event_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - $ref: '#/components/parameters/TimelineEventId'
+    patch:
+      operationId: updateContactTimelineEvent
+      tags: [Contact modules]
+      summary: Collapse or expand a timeline event
+      x-permission: vault:edit
+      x-inventory: [R119]
+      x-services: [ToggleTimelineEvent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimelineEventUpdate' }
+      responses:
+        '200':
+          description: The updated timeline event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TimelineEvent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactTimelineEvent
+      tags: [Contact modules]
+      summary: Delete a timeline event and its life events
+      description: Deletes it for every participant.
+      x-permission: vault:edit
+      x-inventory: [R121]
+      x-services: [DestroyTimelineEvent]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/timeline-events/{timeline_event_id}/life-events:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - $ref: '#/components/parameters/TimelineEventId'
+    post:
+      operationId: createContactLifeEvent
+      tags: [Contact modules]
+      summary: Add a life event to a timeline event
+      description: |
+        The contact in the path is always a participant. Participants are also
+        added to the timeline event's participants; every participant's
+        `last_updated_at` is set.
+      x-permission: vault:edit
+      x-inventory: [R120]
+      x-services: [CreateLifeEvent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventCreate' }
+      responses:
+        '201':
+          description: The created life event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEvent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/timeline-events/{timeline_event_id}/life-events/{life_event_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - $ref: '#/components/parameters/TimelineEventId'
+      - name: life_event_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactLifeEvent
+      tags: [Contact modules]
+      summary: Edit, collapse or expand a life event
+      description: |
+        Replaces the edit (R122) and toggle (R123) routes. `participant_ids`,
+        when sent, replaces the life event's participants (the contact in the
+        path is always kept); participants are added to, never removed from,
+        the timeline event. Every participant's `last_updated_at` is set
+        when anything other than `collapsed` changes.
+      x-permission: vault:edit
+      x-inventory: [R122, R123]
+      x-services: [UpdateLifeEvent, ToggleLifeEvent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeEventUpdate' }
+      responses:
+        '200':
+          description: The updated life event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeEvent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactLifeEvent
+      tags: [Contact modules]
+      summary: Delete a life event
+      description: Deleting the timeline event's last life event also deletes the timeline event.
+      x-permission: vault:edit
+      x-inventory: [R124]
+      x-services: [DestroyLifeEvent]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- mood tracking
+  /vaults/{vault_id}/contacts/{contact_id}/mood-tracking-events:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    post:
+      operationId: createContactMoodTrackingEvent
+      tags: [Contact modules]
+      summary: Record a mood rating for a contact
+      description: |
+        Used by the vault dashboard for the user's own contact. Sets the
+        contact's `last_updated_at` and writes a `mood_tracking_event_added`
+        feed item.
+      x-permission: vault:edit
+      x-inventory: [R125]
+      x-services: [CreateMoodTrackingEvent]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/MoodTrackingEventCreate' }
+      responses:
+        '201':
+          description: The created mood tracking event.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoodTrackingEvent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+components:
+  parameters:
+    TimelineEventId:
+      name: timeline_event_id
+      in: path
+      required: true
+      description: A timeline event in the vault that the contact takes part in.
+      schema: { $ref: '#/components/schemas/Id' }
+
+  schemas:
+    # ---------------------------------------------------------------- relationships
+    Relationship:
+      type: object
+      description: |
+        A `relationships` row involving the contact in the path, on either
+        side. `contact_id` has the role `relationship_type.name` and
+        `related_contact_id` the role `relationship_type.name_reverse_relationship`,
+        so the label shown next to `other_contact` is
+        `name_reverse_relationship` when `contact_id` is the path contact, else
+        `name`.
+      required: [id, relationship_type_id, contact_id, related_contact_id, relationship_type, other_contact, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        relationship_type_id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        related_contact_id: { $ref: '#/components/schemas/Uuid' }
+        relationship_type: { $ref: '#/components/schemas/RelationshipType' }
+        other_contact:
+          description: |
+            The side that isn't the path contact. Unlisted contacts
+            (`listed: false`) have no contact page.
+          allOf:
+            - $ref: '#/components/schemas/ContactSummary'
+            - type: object
+              required: [age]
+              properties:
+                age:
+                  type: [integer, 'null']
+                  description: Computed from the contact's birthdate important date; null when unknown.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    RelationshipList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Relationship' }
+    RelationshipCreate:
+      type: object
+      description: Exactly one of `other_contact_id` and `new_contact`.
+      required: [relationship_type_id]
+      oneOf:
+        - required: [other_contact_id]
+        - required: [new_contact]
+      properties:
+        relationship_type_id: { type: integer, format: int64, description: One of the account's relationship types. }
+        direction:
+          type: string
+          enum: [forward, reverse]
+          default: forward
+          description: |
+            `forward`: the path contact becomes `contact_id` (role
+            `relationship_type.name`) and the other contact
+            `related_contact_id`. `reverse` swaps them.
+        other_contact_id: { $ref: '#/components/schemas/Uuid' }
+        new_contact: { $ref: '#/components/schemas/RelationshipNewContact' }
+    RelationshipNewContact:
+      type: object
+      description: A contact created for the relationship (`CreateContact`, no template). All names may be null ("I don't know the name").
+      required: [listed]
+      properties:
+        first_name: { type: [string, 'null'], maxLength: 255 }
+        last_name: { type: [string, 'null'], maxLength: 255 }
+        middle_name: { type: [string, 'null'], maxLength: 255 }
+        nickname: { type: [string, 'null'], maxLength: 255 }
+        maiden_name: { type: [string, 'null'], maxLength: 255 }
+        gender_id: { type: [integer, 'null'], format: int64, description: One of the account's genders. }
+        pronoun_id: { type: [integer, 'null'], format: int64, description: One of the account's pronouns. }
+        listed: { type: boolean, description: '"Create a contact entry for this person": false hides the contact from lists.' }
+
+    # ---------------------------------------------------------------- pets
+    Pet:
+      type: object
+      required: [id, contact_id, name, pet_category, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: [string, 'null'] }
+        pet_category: { $ref: '#/components/schemas/PetCategory' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    PetList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Pet' }
+    PetCreate:
+      type: object
+      required: [pet_category_id]
+      properties:
+        pet_category_id: { type: integer, format: int64, description: One of the account's pet categories. }
+        name: { type: [string, 'null'], maxLength: 255 }
+    PetUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        pet_category_id: { type: integer, format: int64 }
+        name: { type: [string, 'null'], maxLength: 255 }
+
+    # ---------------------------------------------------------------- documents and photos
+    ContactDocumentList:
+      type: object
+      required: [data, can_upload_file]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/File' }
+        can_upload_file:
+          type: boolean
+          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
+    ContactPhotoList:
+      type: object
+      required: [data, meta, can_upload_file]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/File' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+        can_upload_file:
+          type: boolean
+          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
+
+    # ---------------------------------------------------------------- tasks
+    ContactTask:
+      type: object
+      required: [id, contact_id, author_id, author_name, label, description, completed, completed_at, due_at, is_late, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        author_id: { type: [string, 'null'], format: uuid, description: Null when the author was deleted. }
+        author_name: { type: string }
+        label: { type: string }
+        description: { type: [string, 'null'], description: Markdown, as stored. }
+        completed: { type: boolean }
+        completed_at:
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        due_at:
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        is_late:
+          type: boolean
+          description: Computed - `due_at` (midnight UTC) is in the past, so a task due today is late; false without `due_at`.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    ContactTaskList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ContactTask' }
+    ContactTaskCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        due_at:
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+    ContactTaskUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        due_at:
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        completed: { type: boolean }
+
+    # ---------------------------------------------------------------- calls
+    Call:
+      type: object
+      required: [id, contact_id, author_id, author_name, called_at, duration, type, description, answered, who_initiated, call_reason, emotion, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        author_id: { type: [string, 'null'], format: uuid, description: Null when the author was deleted. }
+        author_name: { type: string }
+        called_at: { $ref: '#/components/schemas/Date' }
+        duration: { type: [integer, 'null'], description: As entered; today's UI doesn't set it. }
+        type: { type: string, enum: [audio, video] }
+        description: { type: [string, 'null'] }
+        answered: { type: boolean }
+        who_initiated: { type: string, enum: [me, contact] }
+        call_reason:
+          oneOf:
+            - $ref: '#/components/schemas/CallReason'
+            - type: 'null'
+        emotion:
+          oneOf:
+            - $ref: '#/components/schemas/Emotion'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    CallList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Call' }
+    CallCreate:
+      type: object
+      required: [called_at, type, who_initiated]
+      properties:
+        called_at: { $ref: '#/components/schemas/Date' }
+        duration: { type: [integer, 'null'] }
+        type: { type: string, enum: [audio, video] }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        answered: { type: boolean, default: true }
+        who_initiated: { type: string, enum: [me, contact] }
+        call_reason_id: { type: [integer, 'null'], format: int64, description: One of the account's call reasons. }
+        emotion_id: { type: [integer, 'null'], format: int64, description: One of the account's emotions. }
+    CallUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        called_at: { $ref: '#/components/schemas/Date' }
+        duration: { type: [integer, 'null'] }
+        type: { type: string, enum: [audio, video] }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        answered: { type: boolean }
+        who_initiated: { type: string, enum: [me, contact] }
+        call_reason_id: { type: [integer, 'null'], format: int64 }
+        emotion_id: { type: [integer, 'null'], format: int64 }
+
+    # ---------------------------------------------------------------- group membership
+    ContactGroupAdd:
+      type: object
+      required: [group_id]
+      properties:
+        group_id: { type: integer, format: int64, description: A group in the vault. }
+        group_type_role_id:
+          type: [integer, 'null']
+          format: int64
+          description: A role of one of the account's group types (the UI offers the group type's roles).
+
+    # ---------------------------------------------------------------- timeline and life events
+    TimelineEvent:
+      type: object
+      required: [id, vault_id, label, started_at, collapsed, first_happened_at, last_happened_at, life_events, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: [string, 'null'] }
+        started_at: { $ref: '#/components/schemas/Date' }
+        collapsed: { type: boolean }
+        first_happened_at:
+          description: Computed - earliest `happened_at` of its life events (the start of the range the UI shows).
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        last_happened_at:
+          description: Computed - latest `happened_at` of its life events.
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        life_events:
+          type: array
+          description: In creation order.
+          items: { $ref: '#/components/schemas/LifeEvent' }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    TimelineEventList:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/TimelineEvent' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+    TimelineEventCreate:
+      type: object
+      required: [life_event]
+      properties:
+        label: { type: [string, 'null'], maxLength: 255 }
+        life_event: { $ref: '#/components/schemas/LifeEventCreate' }
+    TimelineEventUpdate:
+      type: object
+      required: [collapsed]
+      properties:
+        collapsed: { type: boolean }
+    LifeEvent:
+      type: object
+      required: [id, timeline_event_id, life_event_type, life_event_category, emotion_id, happened_at, collapsed, summary, description, costs, currency_id, paid_by_contact_id, duration_in_minutes, distance, distance_unit, from_place, to_place, place, participants, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        timeline_event_id: { $ref: '#/components/schemas/Id' }
+        life_event_type: { $ref: '#/components/schemas/LifeEventType' }
+        life_event_category:
+          type: object
+          description: The category of `life_event_type`.
+          required: [id, label, label_translation_key]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            label: { type: [string, 'null'] }
+            label_translation_key: { type: [string, 'null'] }
+        emotion_id: { type: [integer, 'null'], format: int64, description: Not set by any service today. }
+        happened_at: { $ref: '#/components/schemas/Date' }
+        collapsed: { type: boolean }
+        summary: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        costs: { type: [integer, 'null'], description: In the minor unit of `currency_id`. }
+        currency_id: { type: [integer, 'null'], format: int64 }
+        paid_by_contact_id: { type: [string, 'null'], format: uuid }
+        duration_in_minutes: { type: [integer, 'null'] }
+        distance: { type: [integer, 'null'] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        from_place: { type: [string, 'null'] }
+        to_place: { type: [string, 'null'] }
+        place: { type: [string, 'null'] }
+        participants:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ContactSummary'
+              - type: object
+                required: [age]
+                properties:
+                  age:
+                    type: [integer, 'null']
+                    description: Computed from the contact's birthdate important date; null when unknown.
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LifeEventCreate:
+      type: object
+      required: [life_event_type_id, happened_at]
+      properties:
+        life_event_type_id: { type: integer, format: int64, description: A type of one of the vault's life event categories. }
+        happened_at: { $ref: '#/components/schemas/Date' }
+        summary: { type: [string, 'null'], maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        costs: { type: [integer, 'null'] }
+        currency_id: { type: [integer, 'null'], format: int64, description: One of the account's currencies. }
+        paid_by_contact_id: { type: [string, 'null'], format: uuid, description: A contact in the vault. }
+        duration_in_minutes: { type: [integer, 'null'] }
+        distance: { type: [integer, 'null'] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        from_place: { type: [string, 'null'], maxLength: 255 }
+        to_place: { type: [string, 'null'], maxLength: 255 }
+        place: { type: [string, 'null'], maxLength: 255 }
+        participant_ids:
+          type: array
+          default: []
+          description: Contacts in the vault; the contact in the path is added if missing.
+          items: { $ref: '#/components/schemas/Uuid' }
+    LifeEventUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        life_event_type_id: { type: integer, format: int64 }
+        happened_at: { $ref: '#/components/schemas/Date' }
+        summary: { type: [string, 'null'], maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+        costs: { type: [integer, 'null'] }
+        currency_id: { type: [integer, 'null'], format: int64 }
+        paid_by_contact_id: { type: [string, 'null'], format: uuid }
+        duration_in_minutes: { type: [integer, 'null'] }
+        distance: { type: [integer, 'null'] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        from_place: { type: [string, 'null'], maxLength: 255 }
+        to_place: { type: [string, 'null'], maxLength: 255 }
+        place: { type: [string, 'null'], maxLength: 255 }
+        participant_ids:
+          type: array
+          items: { $ref: '#/components/schemas/Uuid' }
+        collapsed: { type: boolean }
+
+    # ---------------------------------------------------------------- mood tracking
+    MoodTrackingEvent:
+      type: object
+      required: [id, contact_id, mood_tracking_parameter, rated_at, note, number_of_hours_slept, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        mood_tracking_parameter: { $ref: '#/components/schemas/MoodTrackingParameter' }
+        rated_at: { $ref: '#/components/schemas/Date' }
+        note: { type: [string, 'null'] }
+        number_of_hours_slept: { type: [integer, 'null'] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    MoodTrackingEventCreate:
+      type: object
+      required: [mood_tracking_parameter_id, rated_at]
+      properties:
+        mood_tracking_parameter_id: { type: integer, format: int64, description: One of the vault's mood tracking parameters. }
+        rated_at: { $ref: '#/components/schemas/Date' }
+        note: { type: [string, 'null'], maxLength: 65535 }
+        number_of_hours_slept: { type: [integer, 'null'] }
+
+    # ---------------------------------------------------------------- contact page modules (api-design.md §12)
+    RelationshipsModule:
+      type: object
+      description: |
+        Module `relationships`. Every relationship group type of the account,
+        in order, with the contact's relationships whose type is in it (the
+        UI hides empty groups). "Add a relationship" opens the R095 page.
+      required: [relationship_group_types, number_of_defined_relations]
+      properties:
+        relationship_group_types:
+          type: array
+          items:
+            type: object
+            required: [relationship_group_type, relationships]
+            properties:
+              relationship_group_type: { $ref: '#/components/schemas/RelationshipGroupType' }
+              relationships:
+                type: array
+                items: { $ref: '#/components/schemas/Relationship' }
+        number_of_defined_relations: { type: integer, minimum: 0 }
+    PetsModule:
+      type: object
+      description: Module `pets`. The category pick-list comes from `listPetCategories`.
+      required: [pets]
+      properties:
+        pets:
+          type: array
+          items: { $ref: '#/components/schemas/Pet' }
+    DocumentsModule:
+      type: object
+      description: Module `documents`. All documents, newest first.
+      required: [documents, can_upload_file]
+      properties:
+        documents:
+          type: array
+          items: { $ref: '#/components/schemas/File' }
+        can_upload_file:
+          type: boolean
+          description: Computed (X011), as in `ContactDocumentList`.
+    PhotosModule:
+      type: object
+      description: Module `photos`. The 6 newest photos; "View all" opens the photos page (`listContactPhotos`).
+      required: [photos, can_upload_file]
+      properties:
+        photos:
+          type: array
+          maxItems: 6
+          items: { $ref: '#/components/schemas/File' }
+        can_upload_file:
+          type: boolean
+          description: Computed (X011), as in `ContactPhotoList`.
+    TasksModule:
+      type: object
+      description: |
+        Module `tasks`. Open tasks, newest first; completed ones are loaded on
+        demand with `listContactTasks?completed=true`.
+      required: [tasks, completed_tasks_count]
+      properties:
+        tasks:
+          type: array
+          items: { $ref: '#/components/schemas/ContactTask' }
+        completed_tasks_count: { type: integer, minimum: 0 }
+    CallsModule:
+      type: object
+      description: |
+        Module `calls`. All calls, latest first. The reason pick-list comes
+        from `listCallReasonTypes`, the emotions from `listEmotions`.
+      required: [calls]
+      properties:
+        calls:
+          type: array
+          items: { $ref: '#/components/schemas/Call' }
+    GroupsModule:
+      type: object
+      description: Module `groups`. Group types and their roles come from `listGroupTypes`.
+      required: [groups, available_groups]
+      properties:
+        groups:
+          type: array
+          description: The contact's groups, ordered by `name`.
+          items: { $ref: '#/components/schemas/Group' }
+        available_groups:
+          type: array
+          description: Computed - the vault's other groups (the contact isn't a member), ordered by `name`.
+          items:
+            type: object
+            required: [id, name, group_type_id]
+            properties:
+              id: { $ref: '#/components/schemas/Id' }
+              name: { type: string }
+              group_type_id: { type: [integer, 'null'], format: int64 }
+    LifeEventsModule:
+      type: object
+      description: |
+        Module `life_events`: the first page of `listContactTimelineEvents`.
+        Categories and types for the form come from
+        `listVaultLifeEventCategories`; the form's default date is today in
+        the user's timezone, computed by the client.
+      required: [timeline_events, meta]
+      properties:
+        timeline_events:
+          type: array
+          items: { $ref: '#/components/schemas/TimelineEvent' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }

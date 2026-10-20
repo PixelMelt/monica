@@ -1,0 +1,1177 @@
+# Journals, posts, slices of life and journal metrics (area G).
+x-not-api:
+  - { id: R132, reason: "SPA page only (create journal form); it needs no data beyond GET /me/bootstrap" }
+
+paths:
+  # ---------------------------------------------------------------- journals
+  /vaults/{vault_id}/journals:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listJournals
+      tags: [Journals]
+      summary: List the vault's journals, by name
+      description: Not paginated. Sorted by `name` with the request locale's collation.
+      x-permission: vault:view
+      x-inventory: [R131]
+      x-services: []
+      responses:
+        '200':
+          description: The journals.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JournalList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createJournal
+      tags: [Journals]
+      summary: Create a journal
+      x-permission: vault:edit
+      x-inventory: [R133]
+      x-services: [CreateJournal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JournalCreate' }
+      responses:
+        '201':
+          description: The created journal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Journal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    get:
+      operationId: getJournal
+      tags: [Journals]
+      summary: Get a journal
+      description: |
+        Feeds the journal edit page (R137) and the journal header of the
+        "choose a post template" page (R140, templates from `listPostTemplates`),
+        the photos, slices and metrics pages.
+      x-permission: vault:view
+      x-inventory: [R137, R140]
+      x-services: []
+      responses:
+        '200':
+          description: The journal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Journal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateJournal
+      tags: [Journals]
+      summary: Edit a journal's name or description
+      x-permission: vault:edit
+      x-inventory: [R138]
+      x-services: [UpdateJournal]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JournalUpdate' }
+      responses:
+        '200':
+          description: The updated journal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Journal' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteJournal
+      tags: [Journals]
+      summary: Delete a journal
+      description: |
+        Its posts (with sections, tags, contacts and metrics), slices of life and
+        journal metrics go with it by cascade. As today, the `files` rows of the
+        posts' photos and of slice covers are not deleted.
+      x-permission: vault:edit
+      x-inventory: [R139]
+      x-services: [DestroyJournal]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/overview:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    get:
+      operationId: getJournalOverview
+      tags: [Journals]
+      summary: Journal page aggregate for one year
+      description: |
+        Everything the journal page shows (api-design.md §12): the journal, the
+        posts of `year` grouped by month, the years that have posts, the tags
+        used in the journal and its slices of life. The month heat-map colour is
+        derived by the client from `months[].post_count`.
+      x-permission: vault:view
+      x-inventory: [R134, R136]
+      x-services: []
+      parameters:
+        - name: year
+          in: query
+          description: Defaults to the current year (UTC), as R134 does today.
+          schema: { type: integer, minimum: 1, maximum: 9999 }
+      responses:
+        '200':
+          description: The overview.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JournalOverview' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/photos:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    get:
+      operationId: listJournalPhotos
+      tags: [Journals]
+      summary: List every photo of the journal's posts
+      description: |
+        Not paginated, as the page shows them all today. Ordered by the post's
+        `written_at` descending, then by file id. The journal header comes from
+        `getJournal`.
+      x-permission: vault:view
+      x-inventory: [R135]
+      x-services: []
+      responses:
+        '200':
+          description: The photos.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JournalPhotoList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- posts
+  /vaults/{vault_id}/journals/{journal_id}/posts:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    post:
+      operationId: createJournalPost
+      tags: [Journals]
+      summary: Create a post from a post template
+      description: |
+        Replaces today's `GET posts/template/{template}`. Creates an unpublished
+        draft with one empty section per template section (same `position`;
+        `label` copied from the template section, translated in the request
+        locale when it only has a translation key). The client then opens the
+        edit page.
+      x-permission: vault:edit
+      x-inventory: [R141]
+      x-services: [CreatePost]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostCreate' }
+      responses:
+        '201':
+          description: The created post.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    get:
+      operationId: getJournalPost
+      tags: [Journals]
+      summary: Get a post with everything its show and edit pages need
+      description: |
+        Has no side effect; the show page also calls `recordJournalPostView`.
+        The edit page additionally uses `listJournalSlices`, `listVaultTags`
+        and the account's storage usage.
+      x-permission: vault:view
+      x-inventory: [R142, R143]
+      x-services: []
+      responses:
+        '200':
+          description: The post.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateJournalPost
+      tags: [Journals]
+      summary: Edit a post's title, date or section contents
+      description: |
+        The edit page autosaves through this call. Mentioned contacts are
+        changed with `addJournalPostContact` / `removeJournalPostContact`, tags,
+        slice and metrics with their own endpoints. The response carries the
+        recomputed `word_count` and `time_to_read_in_minute`.
+      x-permission: vault:edit
+      x-inventory: [R144]
+      x-services: [UpdatePost]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostUpdate' }
+      responses:
+        '200':
+          description: The updated post.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Post' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteJournalPost
+      tags: [Journals]
+      summary: Delete a post
+      description: Also deletes the post's photo files (bytes included, api-design.md §10).
+      x-permission: vault:edit
+      x-inventory: [R147]
+      x-services: [DestroyPost]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/view:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    post:
+      operationId: recordJournalPostView
+      tags: [Journals]
+      summary: Count one read of a post
+      description: |
+        Increments `view_count`. Today R142 does this on every show-page load;
+        the SPA calls it when it opens the show page (not the edit page).
+      x-permission: vault:view
+      x-inventory: [R142]
+      x-services: [IncrementPostReadCounter]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/contacts/{contact_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+      - $ref: '#/components/parameters/ContactId'
+    put:
+      operationId: addJournalPostContact
+      tags: [Journals]
+      summary: Mention a contact in a post
+      description: |
+        Idempotent. When the contact wasn't mentioned yet, writes an
+        `added_to_post` feed item on the contact and sets its `last_updated_at`
+        (X012, X013). The contact must be in the vault.
+      x-permission: vault:edit
+      x-inventory: [R144]
+      x-services: [AddContactToPost]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeJournalPostContact
+      tags: [Journals]
+      summary: Stop mentioning a contact in a post
+      description: |
+        Writes a `removed_from_post` feed item on the contact and sets its
+        `last_updated_at`. 404 when the contact isn't mentioned in the post.
+      x-permission: vault:edit
+      x-inventory: [R144]
+      x-services: [RemoveContactFromPost]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/photos:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    post:
+      operationId: uploadJournalPostPhoto
+      tags: [Journals]
+      summary: Upload a photo to a post
+      description: |
+        Multipart upload (api-design.md §10). Stores a `files` row of type
+        `photo` attached to the post. JPEG, PNG, GIF or WebP only.
+      x-permission: vault:edit
+      x-inventory: [R145]
+      x-services: [UploadFile, AddPhotoToPost]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/FileUpload' }
+      responses:
+        '201':
+          description: The stored photo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/photos/{file_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+      - name: file_id
+        in: path
+        required: true
+        description: Id of the photo's `files` row.
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteJournalPostPhoto
+      tags: [Journals]
+      summary: Delete a post photo
+      description: Deletes the file and its bytes. 404 unless the file is a photo of this post.
+      x-permission: vault:edit
+      x-inventory: [R146]
+      x-services: [DestroyFile]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/tags:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    post:
+      operationId: createJournalPostTag
+      tags: [Journals]
+      summary: Create a vault tag and assign it to the post
+      description: |
+        Always creates a new tag in the vault (as today; the page only offers
+        this when no existing tag matches the search). Composite because a vault
+        editor may create tags here, while the vault settings tag endpoint needs
+        `vault:manage`.
+      x-composite: true
+      x-permission: vault:edit
+      x-inventory: [R148]
+      x-services: [CreateTag, AssignTag]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostTagCreate' }
+      responses:
+        '201':
+          description: The created tag, now assigned to the post.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tag' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/tags/{tag_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+      - name: tag_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    put:
+      operationId: assignJournalPostTag
+      tags: [Journals]
+      summary: Assign an existing vault tag to the post
+      description: Idempotent. The tag must belong to the vault.
+      x-permission: vault:edit
+      x-inventory: [R149]
+      x-services: [AssignTag]
+      responses:
+        '200':
+          description: The assigned tag.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tag' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeJournalPostTag
+      tags: [Journals]
+      summary: Remove a tag from the post
+      description: The tag itself stays in the vault.
+      x-permission: vault:edit
+      x-inventory: [R150]
+      x-services: [RemoveTag]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/slice:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    put:
+      operationId: setJournalPostSlice
+      tags: [Journals]
+      summary: Put the post in a slice of life
+      description: Replaces any previous slice. The slice must belong to the journal.
+      x-permission: vault:edit
+      x-inventory: [R151]
+      x-services: [AddPostToSliceOfLife]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostSliceSet' }
+      responses:
+        '200':
+          description: The slice of life the post is now in.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLife' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: clearJournalPostSlice
+      tags: [Journals]
+      summary: Take the post out of its slice of life
+      description: Sets `slice_of_life_id` to null; no-op when it already is.
+      x-permission: vault:edit
+      x-inventory: [R152]
+      x-services: [RemovePostFromSliceOfLife]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/metrics:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+    post:
+      operationId: createJournalPostMetric
+      tags: [Journals]
+      summary: Record a value of a journal metric on the post
+      x-permission: vault:edit
+      x-inventory: [R153]
+      x-services: [CreatePostMetric]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostMetricCreate' }
+      responses:
+        '201':
+          description: The created post metric.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostMetric' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/posts/{post_id}/metrics/{post_metric_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - $ref: '#/components/parameters/PostId'
+      - name: post_metric_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteJournalPostMetric
+      tags: [Journals]
+      summary: Delete a post metric value
+      x-permission: vault:edit
+      x-inventory: [R154]
+      x-services: [DestroyPostMetric]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- slices of life
+  /vaults/{vault_id}/journals/{journal_id}/slices:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    get:
+      operationId: listJournalSlices
+      tags: [Journals]
+      summary: List the journal's slices of life, by name
+      description: |
+        Not paginated. Sorted by `name` with the request locale's collation.
+        Also the slice picker of the post edit page.
+      x-permission: vault:view
+      x-inventory: [R155]
+      x-services: []
+      responses:
+        '200':
+          description: The slices of life.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLifeList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createJournalSlice
+      tags: [Journals]
+      summary: Create a slice of life
+      x-permission: vault:edit
+      x-inventory: [R156]
+      x-services: [CreateSliceOfLife]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SliceOfLifeCreate' }
+      responses:
+        '201':
+          description: The created slice of life.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLife' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/slices/{slice_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - name: slice_id
+        in: path
+        required: true
+        description: A slice of life of the journal; any other id is a 404 (inventory F1).
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getJournalSlice
+      tags: [Journals]
+      summary: Get a slice of life with its posts and the contacts they mention
+      description: Feeds the slice page (R157) and its edit form (R158).
+      x-permission: vault:view
+      x-inventory: [R157, R158]
+      x-services: []
+      responses:
+        '200':
+          description: The slice of life.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLifeDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateJournalSlice
+      tags: [Journals]
+      summary: Edit a slice of life's name or description
+      x-permission: vault:edit
+      x-inventory: [R159]
+      x-services: [UpdateSliceOfLife]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SliceOfLifeUpdate' }
+      responses:
+        '200':
+          description: The updated slice of life.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLife' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteJournalSlice
+      tags: [Journals]
+      summary: Delete a slice of life
+      description: |
+        Its posts stay in the journal with `slice_of_life_id` set to null. As
+        today, the cover image's `files` row is not deleted.
+      x-permission: vault:edit
+      x-inventory: [R162]
+      x-services: [DestroySliceOfLife]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/journals/{journal_id}/slices/{slice_id}/cover:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - name: slice_id
+        in: path
+        required: true
+        description: A slice of life of the journal; any other id is a 404 (inventory F1).
+        schema: { $ref: '#/components/schemas/Id' }
+    put:
+      operationId: setJournalSliceCover
+      tags: [Journals]
+      summary: Upload a slice of life's cover image
+      description: |
+        Multipart upload (api-design.md §10); JPEG, PNG, GIF or WebP. Stores a
+        `files` row of type `photo` and sets `file_cover_image_id`. As today, a
+        previous cover's file is kept.
+      x-permission: vault:edit
+      x-inventory: [R160]
+      x-services: [UploadFile, SetSliceOfLifeCoverImage]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/FileUpload' }
+      responses:
+        '200':
+          description: The slice of life with its new cover.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SliceOfLife' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteJournalSliceCover
+      tags: [Journals]
+      summary: Remove a slice of life's cover image
+      description: Deletes the cover file (and its bytes) and clears `file_cover_image_id`.
+      x-permission: vault:edit
+      x-inventory: [R161]
+      x-services: [RemoveSliceOfLifeCoverImage]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- journal metrics
+  /vaults/{vault_id}/journals/{journal_id}/metrics:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+    get:
+      operationId: listJournalMetrics
+      tags: [Journals]
+      summary: List the journal's metrics, by label
+      description: Not paginated. Sorted by `label` with the request locale's collation.
+      x-permission: vault:view
+      x-inventory: [R163]
+      x-services: []
+      responses:
+        '200':
+          description: The journal metrics.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JournalMetricList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createJournalMetric
+      tags: [Journals]
+      summary: Create a journal metric
+      x-permission: vault:edit
+      x-inventory: [R164]
+      x-services: [CreateJournalMetric]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JournalMetricCreate' }
+      responses:
+        '201':
+          description: The created journal metric.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/JournalMetric' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/journals/{journal_id}/metrics/{journal_metric_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/JournalId'
+      - name: journal_metric_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteJournalMetric
+      tags: [Journals]
+      summary: Delete a journal metric
+      description: Its values on every post (`post_metrics`) are deleted by cascade.
+      x-permission: vault:edit
+      x-inventory: [R165]
+      x-services: [DestroyJournalMetric]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    # ---------------------------------------------------------------- read models
+    Journal:
+      type: object
+      required: [id, vault_id, name, description, last_post_written_at, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        last_post_written_at:
+          description: Computed. `written_at` of the journal's latest post; null when it has none.
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    JournalList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Journal' }
+    JournalOverview:
+      type: object
+      description: The journal page for one year (api-design.md §12).
+      required: [journal, year, months, years, tags, slices]
+      properties:
+        journal: { $ref: '#/components/schemas/Journal' }
+        year: { type: integer, description: The year shown. }
+        months:
+          type: array
+          description: Always 12 entries, December first.
+          minItems: 12
+          maxItems: 12
+          items:
+            type: object
+            required: [month, post_count, posts]
+            properties:
+              month: { type: integer, minimum: 1, maximum: 12 }
+              post_count: { type: integer, minimum: 0 }
+              posts:
+                type: array
+                description: Posts written that month, `written_at` descending.
+                items: { $ref: '#/components/schemas/PostSummary' }
+        years:
+          type: array
+          description: Every year with at least one post in the journal, descending.
+          items:
+            type: object
+            required: [year, post_count]
+            properties:
+              year: { type: integer }
+              post_count: { type: integer, minimum: 1 }
+        tags:
+          type: array
+          description: Tags assigned to at least one post of the journal, by name.
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Tag'
+              - type: object
+                required: [post_count]
+                properties:
+                  post_count:
+                    type: integer
+                    description: Computed. Number of posts with this tag in the whole vault, as today.
+        slices:
+          type: array
+          description: All slices of life of the journal, by id.
+          items: { $ref: '#/components/schemas/SliceOfLife' }
+    PostSummary:
+      type: object
+      description: |
+        A post in a list: the journal page, a slice of life page, the contact
+        page's posts module and the calendar.
+      required: [id, journal, slice_of_life_id, title, published, written_at, excerpt, first_photo, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        journal:
+          type: object
+          required: [id, name]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            name: { type: string }
+        slice_of_life_id: { type: [integer, 'null'], format: int64 }
+        title:
+          type: [string, 'null']
+          description: Null when untitled (the client shows its "Undefined" label).
+        published: { type: boolean }
+        written_at: { $ref: '#/components/schemas/Date' }
+        excerpt:
+          type: [string, 'null']
+          description: |
+            Computed. The first section (by position) with content, cut to 200
+            characters with `...` appended when cut (as `Str::limit`); null
+            when no section has content. Markdown, unrendered.
+        first_photo:
+          description: Computed. The post's first photo (lowest id), or null.
+          oneOf:
+            - $ref: '#/components/schemas/File'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    Post:
+      type: object
+      description: A post with everything its show and edit pages display.
+      required:
+        - id
+        - journal
+        - slice_of_life
+        - title
+        - published
+        - written_at
+        - view_count
+        - word_count
+        - time_to_read_in_minute
+        - sections
+        - tags
+        - contacts
+        - photos
+        - metrics
+        - mood_tracking_events
+        - previous_post
+        - next_post
+        - created_at
+        - updated_at
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        journal:
+          type: object
+          required: [id, name]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            name: { type: string }
+        slice_of_life:
+          oneOf:
+            - $ref: '#/components/schemas/SliceOfLife'
+            - type: 'null'
+        title:
+          type: [string, 'null']
+          description: Null when untitled (the client shows its "Undefined" label).
+        published: { type: boolean }
+        written_at:
+          description: The column is a datetime; the API uses its date.
+          $ref: '#/components/schemas/Date'
+        view_count: { type: integer, minimum: 0 }
+        word_count:
+          type: integer
+          minimum: 0
+          description: Computed. Words in all section contents.
+        time_to_read_in_minute:
+          type: integer
+          minimum: 1
+          description: Computed. `max(1, round(word_count / 200))`.
+        sections:
+          type: array
+          description: All sections, by `position`. The show page hides those whose `content` is null.
+          items: { $ref: '#/components/schemas/PostSection' }
+        tags:
+          type: array
+          description: The post's tags, by name.
+          items: { $ref: '#/components/schemas/Tag' }
+        contacts:
+          type: array
+          description: Contacts mentioned in the post.
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        photos:
+          type: array
+          description: The post's photos, by id.
+          items: { $ref: '#/components/schemas/File' }
+        metrics:
+          type: array
+          description: One entry per metric of the journal (by id), with this post's values.
+          items:
+            type: object
+            required: [journal_metric, total, post_metrics]
+            properties:
+              journal_metric: { $ref: '#/components/schemas/JournalMetric' }
+              total: { type: integer, description: 'Computed. Sum of the values in `post_metrics`.' }
+              post_metrics:
+                type: array
+                items: { $ref: '#/components/schemas/PostMetric' }
+        mood_tracking_events:
+          description: |
+            Computed, per requesting user: the mood tracking events of the
+            user's own contact in this vault rated on `written_at`'s date. Null
+            when the user has no contact in the vault.
+          oneOf:
+            - type: array
+              items: { $ref: '#/components/schemas/MoodTrackingEvent' }
+            - type: 'null'
+        previous_post:
+          description: Computed. The latest post of the journal written on an earlier day, or null.
+          oneOf:
+            - $ref: '#/components/schemas/PostNeighbour'
+            - type: 'null'
+        next_post:
+          description: Computed. The earliest post of the journal written on a later day, or null.
+          oneOf:
+            - $ref: '#/components/schemas/PostNeighbour'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    PostNeighbour:
+      type: object
+      description: The previous or next post, for the show page's navigation.
+      required: [id, title, written_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        title: { type: [string, 'null'] }
+        written_at: { $ref: '#/components/schemas/Date' }
+    PostSection:
+      type: object
+      required: [id, post_id, position, label, content, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        post_id: { $ref: '#/components/schemas/Id' }
+        position: { type: integer }
+        label: { type: string, description: Copied from the post template section when the post was created. }
+        content: { type: [string, 'null'], description: Markdown, as stored. }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    PostMetric:
+      type: object
+      required: [id, post_id, journal_metric_id, value, label, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        post_id: { $ref: '#/components/schemas/Id' }
+        journal_metric_id: { $ref: '#/components/schemas/Id' }
+        value: { type: integer }
+        label: { type: [string, 'null'] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    JournalMetric:
+      type: object
+      required: [id, journal_id, label, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        journal_id: { $ref: '#/components/schemas/Id' }
+        label: { type: string }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    JournalMetricList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/JournalMetric' }
+    SliceOfLife:
+      type: object
+      required: [id, journal_id, name, description, file_cover_image_id, oldest_post_written_at, newest_post_written_at, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        journal_id: { $ref: '#/components/schemas/Id' }
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        file_cover_image_id:
+          type: [integer, 'null']
+          format: int64
+          description: Cover image, served by GET /vaults/{vault_id}/files/{file_id}/content.
+        oldest_post_written_at:
+          description: Computed. Earliest `written_at` of the slice's posts (today's `date_range` start).
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        newest_post_written_at:
+          description: Computed. Latest `written_at` of the slice's posts (today's `date_range` end).
+          oneOf:
+            - $ref: '#/components/schemas/Date'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    SliceOfLifeDetail:
+      allOf:
+        - $ref: '#/components/schemas/SliceOfLife'
+        - type: object
+          required: [journal, posts, contacts]
+          properties:
+            journal:
+              type: object
+              required: [id, name]
+              properties:
+                id: { $ref: '#/components/schemas/Id' }
+                name: { type: string }
+            posts:
+              type: array
+              description: The slice's posts, `written_at` descending.
+              items: { $ref: '#/components/schemas/PostSummary' }
+            contacts:
+              type: array
+              description: Computed. Distinct contacts mentioned in those posts.
+              items: { $ref: '#/components/schemas/ContactSummary' }
+    SliceOfLifeList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/SliceOfLife' }
+    JournalPhoto:
+      allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          required: [post_id]
+          properties:
+            post_id: { $ref: '#/components/schemas/Id', description: The post the photo belongs to. }
+    JournalPhotoList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/JournalPhoto' }
+
+    # ---------------------------------------------------------------- bodies
+    JournalCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+    JournalUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 65535 }
+    PostCreate:
+      type: object
+      required: [post_template_id]
+      properties:
+        post_template_id:
+          type: integer
+          format: int64
+          description: One of the account's post templates (`listPostTemplates`); otherwise 422.
+        title: { type: [string, 'null'], maxLength: 255, default: null }
+        written_at:
+          description: Defaults to today (UTC).
+          $ref: '#/components/schemas/Date'
+        published: { type: boolean, default: false }
+    PostUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        title: { type: [string, 'null'], maxLength: 255 }
+        written_at: { $ref: '#/components/schemas/Date' }
+        sections:
+          type: array
+          description: |
+            Section contents to change; sections not listed are unchanged. Each
+            `id` must be a section of this post (422 otherwise).
+          items:
+            type: object
+            required: [id, content]
+            properties:
+              id: { $ref: '#/components/schemas/Id' }
+              content: { type: [string, 'null'], maxLength: 65535, description: Markdown. }
+    PostTagCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    PostSliceSet:
+      type: object
+      required: [slice_of_life_id]
+      properties:
+        slice_of_life_id:
+          type: integer
+          format: int64
+          description: A slice of life of the same journal; otherwise 422.
+    PostMetricCreate:
+      type: object
+      required: [journal_metric_id, value]
+      properties:
+        journal_metric_id:
+          type: integer
+          format: int64
+          description: A metric of the post's journal; otherwise 422.
+        value: { type: integer }
+        label: { type: [string, 'null'], maxLength: 255 }
+    SliceOfLifeCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+    SliceOfLifeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        description: { type: [string, 'null'], maxLength: 255 }
+    JournalMetricCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }

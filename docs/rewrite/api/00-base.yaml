@@ -1,0 +1,290 @@
+openapi: 3.1.0
+info:
+  title: Monica API
+  version: 1.0.0-draft
+  description: |
+    The single HTTP API of Monica, used by the web SPA and other clients.
+    Conventions are in docs/rewrite/api-design.md. Every operation carries
+    `x-permission`, `x-inventory` (rows of docs/rewrite/inventory.md it covers)
+    and `x-services` (PHP services it ports).
+  license:
+    name: AGPL-3.0-or-later
+    identifier: AGPL-3.0-or-later
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+  - bearerToken: []
+tags:
+  - name: Auth
+  - name: Me
+  - name: Account
+  - name: Vaults
+  - name: Contacts
+  - name: Contact modules
+  - name: Groups
+  - name: Journals
+  - name: Files
+  - name: Reference
+
+# Inventory rows that are ported but have no /api/v1 operation, with the reason.
+x-not-api:
+  - { id: R001, reason: "SPA route `/`: the SPA redirects to login, the only vault, or the vault list using GET /me/bootstrap" }
+  - { id: R003, reason: "served outside the API: 301 /.well-known/carddav -> /dav" }
+  - { id: R004, reason: "served outside the API: 301 /.well-known/caldav -> /dav" }
+  - { id: R005, reason: "served outside the API: 301 /.well-known/security.txt -> /security.txt" }
+  - { id: V004, reason: "SPA page only (forgot password form)" }
+  - { id: V006, reason: "SPA page only (reset password form)" }
+  - { id: V010, reason: "SPA page only (verify email notice)" }
+  - { id: V015, reason: "SPA page only (confirm password form)" }
+  - { id: V018, reason: "SPA page only (2FA challenge form)" }
+  - { id: V027, reason: "SPA page only; the markdown is a static asset of the SPA" }
+  - { id: V028, reason: "SPA page only; the markdown is a static asset of the SPA" }
+  - { id: V038, reason: "CardDAV/CalDAV at /dav, see api-design.md §11" }
+  - { id: V039, reason: "health check at /up, outside the API" }
+
+paths: {}
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: monica_session
+      description: |
+        Browser session. Unsafe methods also need the `X-XSRF-TOKEN` header
+        equal to the `XSRF-TOKEN` cookie (api-design.md §7.2).
+    bearerToken:
+      type: http
+      scheme: bearer
+      description: Personal access token with abilities `read` and/or `write`.
+
+  parameters:
+    VaultId:
+      name: vault_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    ContactId:
+      name: contact_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Uuid' }
+    JournalId:
+      name: journal_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    PostId:
+      name: post_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+    Page:
+      name: page
+      in: query
+      schema: { type: integer, minimum: 1, default: 1 }
+    PerPage:
+      name: per_page
+      in: query
+      description: Page size. The default is set per endpoint; the maximum is 100.
+      schema: { type: integer, minimum: 1, maximum: 100 }
+    Query:
+      name: q
+      in: query
+      description: Search text (LIKE match on the searchable columns).
+      schema: { type: string, maxLength: 255 }
+
+  responses:
+    NoContent:
+      description: Done; no body.
+    BadRequest:
+      description: Malformed request.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Unauthenticated:
+      description: No valid session or token (`unauthenticated`).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Forbidden:
+      description: |
+        `forbidden`, `csrf_token_mismatch`, `email_not_verified`,
+        `token_ability_missing`, `password_confirmation_required` or
+        `signup_disabled`.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotFound:
+      description: Doesn't exist or isn't visible to the user (`not_found`).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Conflict:
+      description: State or uniqueness conflict (`conflict`).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    PayloadTooLarge:
+      description: Upload above the per-file limit (`payload_too_large`).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    ValidationFailed:
+      description: |
+        `validation_failed` (with `errors`), `storage_limit_exceeded` or
+        `vault_user_limit_reached`.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Too many requests (`rate_limited`); see `Retry-After`.
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    Id:
+      type: integer
+      format: int64
+      minimum: 1
+    Uuid:
+      type: string
+      format: uuid
+    Timestamp:
+      type: string
+      format: date-time
+      description: RFC 3339, UTC, `Z` suffix.
+      examples: ['2025-08-09T22:32:20Z']
+    Date:
+      type: string
+      format: date
+      examples: ['2025-08-09']
+    Problem:
+      type: object
+      required: [type, status, code, title]
+      properties:
+        type: { type: string, default: about:blank }
+        status: { type: integer }
+        code:
+          type: string
+          enum:
+            - bad_request
+            - unauthenticated
+            - csrf_token_mismatch
+            - email_not_verified
+            - forbidden
+            - token_ability_missing
+            - password_confirmation_required
+            - signup_disabled
+            - not_found
+            - conflict
+            - payload_too_large
+            - validation_failed
+            - storage_limit_exceeded
+            - vault_user_limit_reached
+            - rate_limited
+            - internal_error
+        title: { type: string, description: Human-readable, in the request locale. }
+        detail: { type: string }
+        errors:
+          type: array
+          items: { $ref: '#/components/schemas/FieldError' }
+    FieldError:
+      type: object
+      required: [field, code, message]
+      properties:
+        field: { type: string, description: JSON path into the request body. }
+        code: { type: string, description: 'Rule that failed: required, max, min, uuid, exists, enum, format, unique, …' }
+        message: { type: string }
+        params: { type: object, additionalProperties: true }
+    PaginationMeta:
+      type: object
+      required: [page, per_page, total, last_page]
+      properties:
+        page: { type: integer, minimum: 1 }
+        per_page: { type: integer, minimum: 1 }
+        total: { type: integer, minimum: 0 }
+        last_page: { type: integer, minimum: 1 }
+    PartialDate:
+      type: object
+      description: A date where any part may be unknown.
+      required: [day, month, year]
+      properties:
+        day: { type: [integer, 'null'], minimum: 1, maximum: 31 }
+        month: { type: [integer, 'null'], minimum: 1, maximum: 12 }
+        year: { type: [integer, 'null'] }
+    ContactSummary:
+      type: object
+      description: |
+        Enough to show a contact anywhere: the client builds the display name
+        from the user's `name_order` and fetches the avatar from
+        GET /vaults/{vault_id}/contacts/{contact_id}/avatar.
+      required: [id, vault_id, first_name, middle_name, last_name, nickname, maiden_name, prefix, suffix, avatar_file_id, listed]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        first_name: { type: [string, 'null'] }
+        middle_name: { type: [string, 'null'] }
+        last_name: { type: [string, 'null'] }
+        nickname: { type: [string, 'null'] }
+        maiden_name: { type: [string, 'null'] }
+        prefix: { type: [string, 'null'] }
+        suffix: { type: [string, 'null'] }
+        avatar_file_id: { type: [integer, 'null'], format: int64 }
+        listed: { type: boolean, description: False for contacts hidden from lists (e.g. created via a relationship). }
+    UserSummary:
+      type: object
+      description: |
+        A user as other users see them. `contact` is the user's own contact in
+        the vault of the response, when there is one (today
+        `UserHelper::getInformationAboutContact`).
+      required: [id, first_name, last_name, contact]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        first_name: { type: [string, 'null'] }
+        last_name: { type: [string, 'null'] }
+        contact:
+          oneOf:
+            - $ref: '#/components/schemas/ContactSummary'
+            - type: 'null'
+    File:
+      type: object
+      required: [id, uuid, name, mime_type, size, type, created_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        uuid: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        mime_type: { type: string }
+        size: { type: integer, description: Bytes. }
+        type: { type: string, enum: [photo, document, avatar] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+    FileUpload:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          description: The file. Its part's filename becomes `name`.
+    TranslatableName:
+      type: object
+      description: |
+        Seeded rows keep a translation key; user-created rows have a name. The
+        client shows `name` when set, else translates `name_translation_key`.
+      required: [name, name_translation_key]
+      properties:
+        name: { type: [string, 'null'] }
+        name_translation_key: { type: [string, 'null'] }
+    Emotion:
+      allOf:
+        - $ref: '#/components/schemas/TranslatableName'
+        - type: object
+          required: [id, type]
+          properties:
+            id: { $ref: '#/components/schemas/Id' }
+            type: { type: string, enum: [positive, neutral, negative] }

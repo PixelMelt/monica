@@ -1,0 +1,156 @@
+# Contact notes. Worked example of the fragment conventions (api-design.md §13).
+paths:
+  /vaults/{vault_id}/contacts/{contact_id}/notes:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    get:
+      operationId: listContactNotes
+      tags: [Contact modules]
+      summary: List a contact's notes, newest first
+      description: |
+        Feeds the notes page (R065, 10 per page) and the notes module of the
+        contact page, which shows the first 3 (`per_page=3`).
+      x-permission: vault:view
+      x-inventory: [R065]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
+      responses:
+        '200':
+          description: Notes, ordered by `created_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/NoteList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createContactNote
+      tags: [Contact modules]
+      summary: Add a note to a contact
+      description: |
+        Also sets the contact's `last_updated_at` and writes a
+        `note_created` feed item (X012, X013).
+      x-permission: vault:edit
+      x-inventory: [R066]
+      x-services: [CreateNote]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoteCreate' }
+      responses:
+        '201':
+          description: The created note.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Note' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/notes/{note_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+      - name: note_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateContactNote
+      tags: [Contact modules]
+      summary: Edit a note
+      x-permission: vault:edit
+      x-inventory: [R067]
+      x-services: [UpdateNote]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/NoteUpdate' }
+      responses:
+        '200':
+          description: The updated note.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Note' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteContactNote
+      tags: [Contact modules]
+      summary: Delete a note
+      x-permission: vault:edit
+      x-inventory: [R068]
+      x-services: [DestroyNote]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    Note:
+      type: object
+      required: [id, contact_id, title, body, emotion, author, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        contact_id: { $ref: '#/components/schemas/Uuid' }
+        title: { type: [string, 'null'] }
+        body: { type: string, description: Markdown, as stored. }
+        emotion:
+          description: Emotions come from `listEmotions`.
+          oneOf:
+            - $ref: '#/components/schemas/Emotion'
+            - type: 'null'
+        author:
+          description: Null when the author was deleted.
+          oneOf:
+            - $ref: '#/components/schemas/UserSummary'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    NoteList:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/Note' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+    NoteCreate:
+      type: object
+      required: [body]
+      properties:
+        title: { type: [string, 'null'], maxLength: 255 }
+        body: { type: string, minLength: 1, maxLength: 65535 }
+        emotion_id: { type: [integer, 'null'], format: int64, description: Must be one of the account's emotions. }
+    NoteUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        title: { type: [string, 'null'], maxLength: 255 }
+        body: { type: string, minLength: 1, maxLength: 65535 }
+        emotion_id: { type: [integer, 'null'], format: int64 }
+    NotesModule:
+      type: object
+      description: |
+        Notes block of the contact page (`ModuleNotesViewHelper`). The emotions
+        of the note form come from `listEmotions`.
+      required: [notes, total]
+      properties:
+        notes:
+          type: array
+          maxItems: 3
+          description: The 3 newest notes, as `listContactNotes?per_page=3`.
+          items: { $ref: '#/components/schemas/Note' }
+        total: { type: integer, minimum: 0, description: Computed number of notes of the contact. }

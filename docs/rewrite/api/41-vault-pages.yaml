@@ -1,0 +1,1196 @@
+# Area C: vault pages. Dashboard, feed, reminders, tasks, calendar, reports,
+# life metrics, files, companies, search and CardDAV address book
+# subscriptions.
+x-not-api:
+  - { id: R026, reason: "SPA page only (reports index: links to the report pages)" }
+
+paths:
+  /vaults/{vault_id}/dashboard:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultDashboard
+      tags: [Vaults]
+      summary: Everything the vault dashboard shows (aggregate)
+      description: |
+        Aggregate read (api-design.md §12). The activity tab's feed is paged
+        separately with listVaultFeed. Life events, life metrics and mood
+        tracking are those of the user's own contact in the vault.
+      x-permission: vault:view
+      x-inventory: [R015]
+      x-services: []
+      responses:
+        '200':
+          description: The dashboard data.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultDashboard' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/feed:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultFeed
+      tags: [Vaults]
+      summary: Feed of every contact of the vault, newest first
+      description: The dashboard's activity tab, 15 per page.
+      x-permission: vault:view
+      x-inventory: [R024]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 15 }
+      responses:
+        '200':
+          description: Feed items ordered by `created_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FeedItemList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/reminders:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultReminders
+      tags: [Vaults]
+      summary: Reminders scheduled in the next 12 months, by month
+      description: |
+        Untriggered `contact_reminder_scheduled` rows of the vault members'
+        notification channels for the vault's contacts, scheduled up to 365
+        days from now, grouped into 12 months starting with the current one.
+        A reminder sent to several channels appears once per month.
+      x-permission: vault:view
+      x-inventory: [R023]
+      x-services: []
+      responses:
+        '200':
+          description: 12 months, in order.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultReminderList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/tasks:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultTasks
+      tags: [Vaults]
+      summary: Uncompleted tasks of the vault, grouped by contact
+      description: |
+        Contacts with at least one uncompleted task, sorted by last name
+        (locale collation); each contact's tasks by `due_at` ascending.
+        Completing a task is updateContactTask.
+      x-permission: vault:view
+      x-inventory: [R025]
+      x-services: []
+      responses:
+        '200':
+          description: Tasks grouped by contact.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultTaskList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/calendar/{year}/{month}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: year
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 9999 }
+      - name: month
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 12 }
+    get:
+      operationId: getVaultCalendarMonth
+      tags: [Vaults]
+      summary: Month grid of the vault calendar (aggregate)
+      description: |
+        Aggregate read (api-design.md §12). The calendar page opens on the
+        current month (R020); the client computes previous/next months.
+      x-permission: vault:view
+      x-inventory: [R020, R021]
+      x-services: []
+      responses:
+        '200':
+          description: The month grid.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CalendarMonth' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/calendar/{year}/{month}/{day}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: year
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 9999 }
+      - name: month
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 12 }
+      - name: day
+        in: path
+        required: true
+        schema: { type: integer, minimum: 1, maximum: 31 }
+    get:
+      operationId: getVaultCalendarDay
+      tags: [Vaults]
+      summary: One day of the vault calendar
+      description: The same data as that day's cell of the month grid; `is_in_month` is true.
+      x-permission: vault:view
+      x-inventory: [R022]
+      x-services: []
+      responses:
+        '200':
+          description: The day.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CalendarDay' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/reports/addresses:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultAddressReport
+      tags: [Vaults]
+      summary: Cities and countries of the vault's addresses
+      description: |
+        Distinct non-null `city` and `country` values, compared
+        case-insensitively, with the number of contacts living there. The
+        client upper-cases the first letter as today.
+      x-permission: vault:view
+      x-inventory: [R027]
+      x-services: []
+      responses:
+        '200':
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressReport' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/reports/addresses/by-city:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultCityAddressReport
+      tags: [Vaults]
+      summary: Addresses in one city, with their contacts
+      description: |
+        Addresses whose `city` matches case-insensitively. The Wikipedia panel
+        of today's page is not part of this response (open question Q1).
+      x-permission: vault:view
+      x-inventory: [R028]
+      x-services: []
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 255 }
+      responses:
+        '200':
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressPlaceReport' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/reports/addresses/by-country:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultCountryAddressReport
+      tags: [Vaults]
+      summary: Addresses in one country, with their contacts
+      description: |
+        Addresses whose `country` matches case-insensitively. The Wikipedia
+        panel of today's page is not part of this response (open question Q1).
+      x-permission: vault:view
+      x-inventory: [R029]
+      x-services: []
+      parameters:
+        - name: country
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 255 }
+      responses:
+        '200':
+          description: The report.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressPlaceReport' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/reports/mood-tracking-events:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultMoodTrackingReport
+      tags: [Vaults]
+      summary: The user's mood for every day of a year
+      description: Mood tracking events of the user's own contact in the vault.
+      x-permission: vault:view
+      x-inventory: [R030]
+      x-services: []
+      parameters:
+        - name: year
+          in: query
+          description: Defaults to the current year.
+          schema: { type: integer, minimum: 1, maximum: 9999 }
+      responses:
+        '200':
+          description: 12 months of days.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MoodTrackingReport' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/reports/important-dates:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: getVaultImportantDateReport
+      tags: [Vaults]
+      summary: Important dates of the next 12 months, by month
+      description: |
+        Every important date of the vault's contacts whose `month` falls in
+        each of the 12 months starting with the current one (dates recur
+        yearly), ordered by month then day.
+      x-permission: vault:view
+      x-inventory: [R031]
+      x-services: []
+      responses:
+        '200':
+          description: 12 months, in order.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ImportantDateReport' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/life-metrics:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultLifeMetrics
+      tags: [Vaults]
+      summary: The vault's life metrics with the user's counts
+      description: Same objects as the dashboard's `life_metrics`, for any year.
+      x-permission: vault:view
+      x-inventory: [R015]
+      x-services: []
+      parameters:
+        - name: year
+          in: query
+          description: Year of `months`; defaults to the current year.
+          schema: { type: integer, minimum: 1, maximum: 9999 }
+      responses:
+        '200':
+          description: Life metrics, ordered by `id`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeMetricList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    post:
+      operationId: createVaultLifeMetric
+      tags: [Vaults]
+      summary: Track a new life metric
+      x-permission: vault:edit
+      x-inventory: [R032]
+      x-services: [CreateLifeMetric]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeMetricCreate' }
+      responses:
+        '201':
+          description: The created metric (counts are zero).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeMetric' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/life-metrics/{life_metric_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: life_metric_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    patch:
+      operationId: updateVaultLifeMetric
+      tags: [Vaults]
+      summary: Rename a life metric
+      x-permission: vault:edit
+      x-inventory: [R033]
+      x-services: [UpdateLifeMetric]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LifeMetricUpdate' }
+      responses:
+        '200':
+          description: The updated metric, with the current year's counts.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeMetric' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultLifeMetric
+      tags: [Vaults]
+      summary: Delete a life metric and all its recorded events
+      x-permission: vault:edit
+      x-inventory: [R035]
+      x-services: [DestroyLifeMetric]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/life-metrics/{life_metric_id}/increment:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: life_metric_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    post:
+      operationId: incrementVaultLifeMetric
+      tags: [Vaults]
+      summary: Record one event of a life metric now
+      description: Adds a `contact_life_metric` row for the user's own contact in the vault.
+      x-permission: vault:edit
+      x-inventory: [R034]
+      x-services: [IncrementLifeMetric]
+      responses:
+        '200':
+          description: The metric with updated counts for the current year.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LifeMetric' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/files:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultFiles
+      tags: [Files]
+      summary: List the vault's files, newest first
+      description: |
+        Feeds the files page and its photos/documents/avatars tabs. `counts`
+        is the number of files of each type in the vault, whatever the filter.
+        Uploads go to the owning resource (api-design.md §10).
+      x-permission: vault:view
+      x-inventory: [R166, R167, R168, R169]
+      x-services: []
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string, enum: [photo, document, avatar] }
+        - $ref: '#/components/parameters/Page'
+        - name: per_page
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        '200':
+          description: Files ordered by `created_at` descending.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VaultFileList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/files/{file_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: file_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    delete:
+      operationId: deleteVaultFile
+      tags: [Files]
+      summary: Delete a file
+      description: |
+        Deletes the stored bytes and cached variants (E009). When the file
+        belongs to a contact, sets the contact's `last_updated_at` (X013).
+      x-permission: vault:edit
+      x-inventory: [R170, E009]
+      x-services: [DestroyFile]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/files/{file_id}/content:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: file_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Id' }
+    get:
+      operationId: getVaultFileContent
+      tags: [Files]
+      summary: Download a file's bytes
+      description: |
+        Serves the stored file (api-design.md §10). `thumbnail` is a 300×300
+        centre crop of an image, generated on first request and cached on
+        disk. Range requests are supported for `original`; `If-None-Match`
+        with the current ETag gives 304.
+      x-permission: vault:view
+      x-inventory: [X020]
+      x-services: []
+      parameters:
+        - name: variant
+          in: query
+          schema: { type: string, enum: [original, thumbnail], default: original }
+        - name: Range
+          in: header
+          description: Byte range (`original` only).
+          schema: { type: string }
+        - name: If-None-Match
+          in: header
+          schema: { type: string }
+      responses:
+        '200':
+          description: The bytes. `Content-Type` is the file's `mime_type` (JPEG or PNG for thumbnails).
+          headers:
+            Content-Length: { schema: { type: integer } }
+            ETag: { schema: { type: string } }
+            Cache-Control:
+              description: '`private, max-age=31536000, immutable`'
+              schema: { type: string }
+            Content-Disposition:
+              description: '`inline` for images, `attachment` (with the file name) for documents.'
+              schema: { type: string }
+            Accept-Ranges:
+              schema: { type: string, enum: [bytes] }
+          content:
+            '*/*':
+              schema: { type: string, contentMediaType: application/octet-stream }
+        '206':
+          description: The requested byte range of the original.
+          headers:
+            Content-Range: { schema: { type: string } }
+            Content-Length: { schema: { type: integer } }
+            ETag: { schema: { type: string } }
+          content:
+            '*/*':
+              schema: { type: string, contentMediaType: application/octet-stream }
+        '304':
+          description: Not modified (ETag matched).
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '416':
+          description: Range not satisfiable.
+          headers:
+            Content-Range: { schema: { type: string } }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/companies:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultCompanies
+      tags: [Vaults]
+      summary: List the vault's companies with their contacts, by name
+      description: |
+        Feeds the companies page and the company picker of the contact's job
+        information form (R091), which marks the contact's `company_id`.
+      x-permission: vault:view
+      x-inventory: [R171, R091]
+      x-services: []
+      responses:
+        '200':
+          description: Companies sorted by name (locale collation).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CompanyList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultCompany
+      tags: [Vaults]
+      summary: Create a company
+      description: |
+        The job information form calls this before setting the contact's job
+        when the user types a new company name (R092 chained CreateCompany with
+        `type` = `company`).
+      x-permission: vault:edit
+      x-inventory: []
+      x-services: [CreateCompany]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompanyCreate' }
+      responses:
+        '201':
+          description: The created company.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Company' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/search:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: searchVault
+      tags: [Vaults]
+      summary: Search the vault's contacts, notes and groups
+      description: |
+        LIKE match (X019) on contact first/last/middle name, nickname and
+        maiden name; note title and body; group name. Without `q` every list is
+        empty. The page only searches from 3 characters.
+      x-permission: vault:view
+      x-inventory: [R207, R208]
+      x-services: []
+      parameters:
+        - $ref: '#/components/parameters/Query'
+      responses:
+        '200':
+          description: Matches of each kind.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SearchResults' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/address-book-subscriptions:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+    get:
+      operationId: listVaultAddressBookSubscriptions
+      tags: [Vaults]
+      summary: List the vault's CardDAV address book subscriptions
+      description: Remote address books synchronized into this vault (I003).
+      x-permission: vault:manage
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: Subscriptions, ordered by `created_at`.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressBookSubscriptionList' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createVaultAddressBookSubscription
+      tags: [Vaults]
+      summary: Subscribe the vault to a remote CardDAV address book
+      description: |
+        Replaces the `monica:newaddressbooksubscription` command. The server
+        discovers the address book at `base_uri` with the credentials (DNS SRV
+        and well-known lookup, capabilities), stores the subscription for the
+        current user, then queues a forced first sync (J009). Discovery
+        failure is a 422 on `base_uri`.
+      x-permission: vault:manage
+      x-inventory: [K003]
+      x-services: [CreateAddressBookSubscription]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressBookSubscriptionCreate' }
+      responses:
+        '201':
+          description: The created subscription.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressBookSubscription' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /vaults/{vault_id}/address-book-subscriptions/{subscription_id}:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: subscription_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Uuid' }
+    get:
+      operationId: getVaultAddressBookSubscription
+      tags: [Vaults]
+      summary: Get an address book subscription
+      x-permission: vault:manage
+      x-inventory: []
+      x-services: []
+      responses:
+        '200':
+          description: The subscription.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressBookSubscription' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateVaultAddressBookSubscription
+      tags: [Vaults]
+      summary: Change a subscription's credentials, direction, frequency or state
+      description: An inactive subscription is skipped by the hourly sync (J002).
+      x-permission: vault:manage
+      x-inventory: []
+      x-services: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressBookSubscriptionUpdate' }
+      responses:
+        '200':
+          description: The updated subscription.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AddressBookSubscription' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      operationId: deleteVaultAddressBookSubscription
+      tags: [Vaults]
+      summary: Delete a subscription
+      description: Contacts already imported stay in the vault.
+      x-permission: vault:manage
+      x-inventory: []
+      x-services: []
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/address-book-subscriptions/{subscription_id}/sync:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - name: subscription_id
+        in: path
+        required: true
+        schema: { $ref: '#/components/schemas/Uuid' }
+    post:
+      operationId: syncVaultAddressBookSubscription
+      tags: [Vaults]
+      summary: Queue a synchronization now
+      description: |
+        Queues SynchronizeAddressBooks (J009) on the high queue, as the
+        `monica:updateaddressbooksubscription` command does. `force` runs a
+        full sync instead of sync-collection.
+      x-permission: vault:manage
+      x-inventory: [K007]
+      x-services: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                force: { type: boolean, default: false }
+      responses:
+        '202':
+          description: Queued; no body.
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+components:
+  schemas:
+    VaultDashboard:
+      type: object
+      required: [default_activity_tab, favorites, last_updated_contacts, upcoming_reminders, due_tasks, mood_tracking_parameters, current_date, life_events, life_metrics]
+      properties:
+        default_activity_tab: { type: string, enum: [activity, life_events, life_metrics] }
+        favorites:
+          type: array
+          description: Contacts the current user marked favorite in this vault.
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        last_updated_contacts:
+          type: array
+          maxItems: 5
+          description: The 5 contacts with the latest `last_updated_at`.
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        upcoming_reminders:
+          type: array
+          description: |
+            Untriggered reminders of the vault's contacts scheduled up to 30 days
+            from now (past untriggered ones included), by `scheduled_at`, one
+            per reminder.
+          items: { $ref: '#/components/schemas/UpcomingReminder' }
+        due_tasks:
+          type: array
+          description: |
+            Uncompleted tasks of the vault's contacts due within 30 days
+            (overdue included) or without a due date, by `due_at` (no date
+            first). Completing one is updateContactTask.
+          items: { $ref: '#/components/schemas/VaultTask' }
+        mood_tracking_parameters:
+          type: array
+          description: For the mood form, by `position`. The form posts createContactMoodTrackingEvent on `Vault.user_contact_id`.
+          items: { $ref: '#/components/schemas/MoodTrackingParameter' }
+        current_date:
+          $ref: '#/components/schemas/Date'
+          description: Today in the user's timezone (default date of the mood form).
+        life_events:
+          $ref: '#/components/schemas/LifeEventsModule'
+          description: The life events module of the user's own contact in the vault.
+        life_metrics:
+          type: array
+          description: The current year's life metrics, as listVaultLifeMetrics.
+          items: { $ref: '#/components/schemas/LifeMetric' }
+    UpcomingReminder:
+      type: object
+      description: One scheduled occurrence of a contact reminder.
+      required: [contact_reminder_id, label, scheduled_at, contact]
+      properties:
+        contact_reminder_id: { $ref: '#/components/schemas/Id' }
+        label: { type: string }
+        scheduled_at: { $ref: '#/components/schemas/Timestamp' }
+        contact: { $ref: '#/components/schemas/ContactSummary' }
+    VaultReminderList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          minItems: 12
+          maxItems: 12
+          items:
+            type: object
+            required: [year, month, reminders]
+            properties:
+              year: { type: integer }
+              month: { type: integer, minimum: 1, maximum: 12 }
+              reminders:
+                type: array
+                description: By `scheduled_at`.
+                items: { $ref: '#/components/schemas/UpcomingReminder' }
+
+    VaultTask:
+      description: A contact task shown outside the contact page, with its contact.
+      allOf:
+        - $ref: '#/components/schemas/ContactTask'
+        - type: object
+          required: [contact]
+          properties:
+            contact: { $ref: '#/components/schemas/ContactSummary' }
+    VaultTaskList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            required: [contact, tasks]
+            properties:
+              contact: { $ref: '#/components/schemas/ContactSummary' }
+              tasks:
+                type: array
+                items: { $ref: '#/components/schemas/VaultTask' }
+
+    CalendarMonth:
+      type: object
+      required: [year, month, weeks]
+      properties:
+        year: { type: integer }
+        month: { type: integer, minimum: 1, maximum: 12 }
+        weeks:
+          type: array
+          description: |
+            Weeks from the Monday on or before the 1st to the Sunday on or
+            after the last day; each week has 7 days.
+          items:
+            type: array
+            minItems: 7
+            maxItems: 7
+            items: { $ref: '#/components/schemas/CalendarDay' }
+    CalendarDay:
+      type: object
+      required: [date, is_today, is_in_month, important_dates, mood_tracking_events, posts]
+      properties:
+        date: { $ref: '#/components/schemas/Date' }
+        is_today: { type: boolean, description: Computed in the user's timezone. }
+        is_in_month: { type: boolean, description: False for the days of the previous/next month that fill the first/last week. }
+        important_dates:
+          type: array
+          description: |
+            Important dates of the vault's contacts on this day and month (any
+            year), at most one per contact.
+          items: { $ref: '#/components/schemas/CalendarImportantDate' }
+        mood_tracking_events:
+          type: array
+          description: Mood events of the user's own contact rated on this day.
+          items: { $ref: '#/components/schemas/MoodTrackingEvent' }
+        posts:
+          type: array
+          description: Posts of the vault's journals written on this day.
+          items: { $ref: '#/components/schemas/PostSummary' }
+    CalendarImportantDate:
+      allOf:
+        - $ref: '#/components/schemas/ContactImportantDate'
+        - type: object
+          required: [contact]
+          properties:
+            contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+
+    AddressReport:
+      type: object
+      required: [cities, countries]
+      properties:
+        cities:
+          type: array
+          items:
+            type: object
+            required: [city, contacts_count]
+            properties:
+              city: { type: string, description: The stored spelling of the first address found. }
+              contacts_count: { type: integer, minimum: 0, description: Computed; contacts with an address in this city. }
+        countries:
+          type: array
+          items:
+            type: object
+            required: [country, contacts_count]
+            properties:
+              country: { type: string, description: The stored spelling of the first address found. }
+              contacts_count: { type: integer, minimum: 0, description: Computed; contacts with an address in this country. }
+    AddressPlaceReport:
+      type: object
+      required: [name, addresses]
+      properties:
+        name: { type: string, description: The requested city or country. }
+        addresses:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Address'
+              - type: object
+                required: [contacts]
+                properties:
+                  contacts:
+                    type: array
+                    items: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+    MoodTrackingReport:
+      type: object
+      required: [year, months]
+      properties:
+        year: { type: integer }
+        months:
+          type: array
+          minItems: 12
+          maxItems: 12
+          items:
+            type: object
+            required: [month, days]
+            properties:
+              month: { type: integer, minimum: 1, maximum: 12 }
+              days:
+                type: array
+                description: Every day of the month.
+                items:
+                  type: object
+                  required: [day, mood_tracking_event]
+                  properties:
+                    day: { type: integer, minimum: 1, maximum: 31 }
+                    mood_tracking_event:
+                      description: The latest event rated that day, if any.
+                      oneOf:
+                        - type: object
+                          required: [id, mood_tracking_parameter_id, hex_color]
+                          properties:
+                            id: { $ref: '#/components/schemas/Id' }
+                            mood_tracking_parameter_id: { $ref: '#/components/schemas/Id' }
+                            hex_color: { type: string, description: The parameter's Tailwind class. }
+                        - type: 'null'
+    ImportantDateReport:
+      type: object
+      required: [months]
+      properties:
+        months:
+          type: array
+          minItems: 12
+          maxItems: 12
+          items:
+            type: object
+            required: [year, month, important_dates]
+            properties:
+              year: { type: integer }
+              month: { type: integer, minimum: 1, maximum: 12 }
+              important_dates:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/ContactImportantDate'
+                    - type: object
+                      required: [contact]
+                      properties:
+                        contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+
+    LifeMetric:
+      type: object
+      description: |
+        A vault life metric with the counts of the current user's own contact
+        (`contact_life_metric` rows; an event's time is the row's `created_at`).
+      required: [id, vault_id, label, stats, years, year, months, max_number_of_events, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        label: { type: string }
+        stats:
+          type: object
+          description: Computed; events in the current week, month and year.
+          required: [weekly_events, monthly_events, yearly_events]
+          properties:
+            weekly_events: { type: integer, minimum: 0 }
+            monthly_events: { type: integer, minimum: 0 }
+            yearly_events: { type: integer, minimum: 0 }
+        years:
+          type: array
+          description: Computed; years with at least one event, descending.
+          items: { type: integer }
+        year: { type: integer, description: Year that `months` covers. }
+        months:
+          type: array
+          minItems: 12
+          maxItems: 12
+          description: Computed; events per month of `year`.
+          items:
+            type: object
+            required: [month, events]
+            properties:
+              month: { type: integer, minimum: 1, maximum: 12 }
+              events: { type: integer, minimum: 0 }
+        max_number_of_events: { type: integer, minimum: 0, description: "Computed; the largest `months[].events` (graph scale)." }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    LifeMetricList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/LifeMetric' }
+    LifeMetricCreate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+    LifeMetricUpdate:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 255 }
+
+    VaultFile:
+      allOf:
+        - $ref: '#/components/schemas/File'
+        - type: object
+          required: [contact]
+          properties:
+            contact:
+              description: The contact the file belongs to (photo, document or avatar), else null.
+              oneOf:
+                - $ref: '#/components/schemas/ContactSummary'
+                - type: 'null'
+    VaultFileList:
+      type: object
+      required: [data, meta, counts]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/VaultFile' }
+        meta: { $ref: '#/components/schemas/PaginationMeta' }
+        counts:
+          type: object
+          description: Computed; files in the vault by type, ignoring `type`.
+          required: [all, photo, document, avatar]
+          properties:
+            all: { type: integer, minimum: 0 }
+            photo: { type: integer, minimum: 0 }
+            document: { type: integer, minimum: 0 }
+            avatar: { type: integer, minimum: 0 }
+
+    Company:
+      type: object
+      required: [id, vault_id, name, type, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Id' }
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        name: { type: string }
+        type: { type: [string, 'null'], enum: [company, organization, association, null] }
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    CompanyList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Company'
+              - type: object
+                required: [contacts]
+                properties:
+                  contacts:
+                    type: array
+                    description: Contacts whose `company_id` is this company.
+                    items: { $ref: '#/components/schemas/ContactSummary' }
+    CompanyCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        type: { type: [string, 'null'], enum: [company, organization, association, null] }
+
+    SearchResults:
+      type: object
+      required: [contacts, notes, groups]
+      properties:
+        contacts:
+          type: array
+          items: { $ref: '#/components/schemas/ContactSummary' }
+        notes:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/Note'
+              - type: object
+                required: [contact]
+                properties:
+                  contact: { $ref: '#/components/schemas/ContactSummary' }
+        groups:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            properties:
+              id: { $ref: '#/components/schemas/Id' }
+              name: { type: string }
+
+    AddressBookSubscription:
+      type: object
+      description: A row of `addressbook_subscriptions`. The password is never returned.
+      required: [id, user_id, vault_id, uri, username, active, sync_way, capabilities, frequency, last_synchronized_at, created_at, updated_at]
+      properties:
+        id: { $ref: '#/components/schemas/Uuid' }
+        user_id:
+          $ref: '#/components/schemas/Uuid'
+          description: The user the sync acts as (the creator).
+        vault_id: { $ref: '#/components/schemas/Uuid' }
+        uri: { type: string, maxLength: 2096, description: The discovered address book URL. }
+        username: { type: string, maxLength: 1024 }
+        active: { type: boolean }
+        sync_way:
+          type: integer
+          enum: [1, 2, 3]
+          description: Bit mask; 1 push local changes, 2 get remote changes, 3 both.
+        capabilities:
+          type: object
+          description: What the remote server supports, found at discovery.
+          properties:
+            addressbookMultiget: { type: boolean }
+            addressbookQuery: { type: boolean }
+            syncCollection: { type: boolean }
+            addressData:
+              type: object
+              properties:
+                content-type: { type: string }
+                version: { type: string }
+        frequency: { type: integer, description: Minutes between automatic syncs. }
+        last_synchronized_at:
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        created_at: { $ref: '#/components/schemas/Timestamp' }
+        updated_at: { $ref: '#/components/schemas/Timestamp' }
+    AddressBookSubscriptionList:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/AddressBookSubscription' }
+    AddressBookSubscriptionCreate:
+      type: object
+      required: [base_uri, username, password]
+      properties:
+        base_uri: { type: string, format: uri, maxLength: 2096, description: The server or address book URL to discover from. }
+        username: { type: string, minLength: 1, maxLength: 1024 }
+        password: { type: string, minLength: 1, writeOnly: true, description: Stored encrypted. }
+        sync_way: { type: integer, enum: [1, 2, 3], default: 3 }
+    AddressBookSubscriptionUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        username: { type: string, minLength: 1, maxLength: 1024 }
+        password: { type: string, minLength: 1, writeOnly: true }
+        active: { type: boolean }
+        sync_way: { type: integer, enum: [1, 2, 3] }
+        frequency: { type: integer, minimum: 1, maximum: 32767 }
