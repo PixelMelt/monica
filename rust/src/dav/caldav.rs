@@ -919,10 +919,6 @@ fn date_time(property: &Property) -> DavResult<NaiveDateTime> {
     Ok(instant(&dt))
 }
 
-fn has_time(property: &Property) -> bool {
-    !property.param("VALUE").and_then(vobject::Parameter::get_value).unwrap_or_default().eq_ignore_ascii_case("DATE")
-}
-
 /// `DateTimeParser::parseDuration($duration)` as seconds.
 fn parse_duration(value: &str) -> DavResult<Duration> {
     let invalid =
@@ -984,7 +980,7 @@ fn vevent_in_time_range(event: &Component, start: NaiveDateTime, end: NaiveDateT
         date_time(dtend)?
     } else if let Some(duration) = event.property("DURATION") {
         effective_start + parse_duration(&duration.to_string())?
-    } else if !has_time(dtstart) {
+    } else if !dtstart.has_time() {
         effective_start + Duration::days(1)
     } else {
         effective_start
@@ -1128,7 +1124,7 @@ fn vjournal_in_time_range(journal: &Component, start: NaiveDateTime, end: NaiveD
     };
     let dtstart = date_time(property)?;
     let mut effective_end = dtstart;
-    if !has_time(property) {
+    if !property.has_time() {
         effective_end += Duration::days(1);
     }
     Ok(start <= effective_end && end > dtstart)

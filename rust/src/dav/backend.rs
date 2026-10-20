@@ -23,7 +23,7 @@ use crate::domains::contact::dav::manage_contact::card_dav_get_object;
 use crate::domains::contact::dav::manage_contact_important_dates::cal_dav_dates_get_object;
 use crate::domains::contact::dav::manage_tasks::cal_dav_tasks_get_object;
 use crate::domains::contact::dav::services::{ExportVCalendar, ExportVCard, GetEtag, ReadVObject};
-use crate::domains::contact::dav::{VCalendarResource, VCardResource};
+use crate::domains::contact::dav::{VCalendarResource, VCardResource, php_empty};
 use crate::domains::contact::manage_contact::DestroyContact;
 use crate::domains::contact::manage_contact_important_dates::DestroyContactImportantDate;
 use crate::domains::contact::manage_groups::DestroyGroup;
@@ -43,13 +43,8 @@ pub struct Ctx<'a> {
     pub user: users::Model,
 }
 
-/// PHP's `empty()` on a string.
-fn php_empty(value: &str) -> bool {
-    value.is_empty() || value == "0"
-}
-
 /// PHP's `(int)` on a string: its leading integer.
-fn php_intval(value: &str) -> i64 {
+pub(super) fn php_intval(value: &str) -> i64 {
     let s = value.trim_start();
     let (sign, digits) = match s.strip_prefix('-') {
         Some(rest) => (-1, rest),
@@ -284,7 +279,7 @@ impl DavResource {
         }
     }
 
-    fn id(&self) -> String {
+    pub fn id(&self) -> String {
         match self {
             DavResource::Contact(m) => m.id.to_string(),
             DavResource::Group(m) => m.id.to_string(),
@@ -663,13 +658,12 @@ fn timestamp(resource: &DavResource) -> DavResult<i64> {
 
 /// `CardDAVBackend::prepareCard($resource)`.
 pub async fn prepare_card(ctx: &Ctx<'_>, resource: &DavResource) -> DavResult<CardData> {
-    let vcard = match resource {
+    let mut carddata = match resource {
         DavResource::Contact(c) => c.vcard.clone(),
         DavResource::Group(g) => g.vcard.clone(),
         _ => None,
     };
     let result = async {
-        let mut carddata = vcard.clone();
         let mut timestamp_ = None;
         if let Some(data) = carddata.as_deref().filter(|d| !php_empty(d)) {
             timestamp_ = rev(data)?;
@@ -696,7 +690,7 @@ pub async fn prepare_card(ctx: &Ctx<'_>, resource: &DavResource) -> DavResult<Ca
         Ok(CardData {
             contact_id: resource.id(),
             uri: encode_uri(&CARD, resource),
-            carddata: carddata.unwrap_or_default(),
+            carddata: carddata.clone().unwrap_or_default(),
             etag,
             distant_etag: vcard_resource(resource).distant_etag().map(str::to_owned),
             lastmodified: timestamp(resource)?,
@@ -705,7 +699,14 @@ pub async fn prepare_card(ctx: &Ctx<'_>, resource: &DavResource) -> DavResult<Ca
     .await;
 
     result.inspect_err(|e: &DavError| {
-        tracing::error!(carddata = vcard, id = resource.id(), "CardDAVBackend prepareCard: {}", e.message);
+        // `Log::channel('database')`
+        tracing::error!(
+            target: crate::logging::TARGET,
+            carddata,
+            id = resource.id(),
+            "CardDAVBackend prepareCard: {}",
+            e.message
+        );
     })
 }
 
@@ -747,7 +748,7 @@ pub async fn card_get_object(ctx: &Ctx<'_>, collection_id: &str, uri: &str) -> D
 }
 
 /// `CardDAVBackend::getObjects($collectionId)`: the active contacts, then the groups.
-async fn card_get_objects(ctx: &Ctx<'_>, collection_id: Option<&str>) -> DavResult<Vec<DavResource>> {
+pub async fn card_get_objects(ctx: &Ctx<'_>, collection_id: Option<&str>) -> DavResult<Vec<DavResource>> {
     let vaults = vaults(ctx, collection_id, VaultPermission::View).await?;
 
     let mut result = Vec::new();

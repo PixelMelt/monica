@@ -1,13 +1,13 @@
 //! The parts of `sabre/vobject` that the CardDAV and CalDAV plugins use and
 //! [`crate::vobject`] doesn't port: `VCardConverter` and `Node::validate()`
-//! (with the property classes' `getValueType()`, which they need: the class
-//! tables of `Document::$propertyMap` / `$valueMap` are private to
-//! [`crate::vobject`], so the ones those two read are repeated here).
+//! (with the property classes' `getValueType()`, which they need).
 
 use base64::Engine;
 
+use super::backend::php_intval;
 use super::server::{DavError, DavResult};
-use crate::vobject::{self, Component, Document, DocumentType, Input, Kind, Node, Parameter, Property};
+use crate::domains::contact::dav::php_empty;
+use crate::vobject::{self, Class, Component, Document, DocumentType, Input, Kind, Node, Parameter, Property};
 
 /// `Node::REPAIR`.
 pub const REPAIR: u32 = 1;
@@ -16,126 +16,10 @@ pub const PROFILE_CARDDAV: u32 = 2;
 /// `Node::PROFILE_CALDAV`.
 pub const PROFILE_CALDAV: u32 = 4;
 
-/// A property class, as far as these functions tell them apart.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Class {
-    Binary,
-    Boolean,
-    FlatText,
-    Float,
-    Integer,
-    Text,
-    Time,
-    Unknown,
-    Uri,
-    UtcOffset,
-    VCardDate,
-    VCardDateTime,
-    VCardDateAndOrTime,
-    LanguageTag,
-    PhoneNumber,
-    TimeStamp,
-    CalAddress,
-    ICalDate,
-    ICalDateTime,
-    Duration,
-    Period,
-    Recur,
-}
-
 impl Class {
-    /// Extends `Property\Text`.
-    fn is_text(self) -> bool {
-        matches!(
-            self,
-            Class::Text
-                | Class::FlatText
-                | Class::Unknown
-                | Class::Uri
-                | Class::UtcOffset
-                | Class::Time
-                | Class::CalAddress
-                | Class::PhoneNumber
-                | Class::TimeStamp
-        )
-    }
-
     /// Extends `Property\VCard\DateAndOrTime`.
     fn is_date_and_or_time(self) -> bool {
         matches!(self, Class::VCardDate | Class::VCardDateTime | Class::VCardDateAndOrTime)
-    }
-}
-
-/// `getClassNameForPropertyValue()`.
-fn class_for_value(kind: Kind, value: &str) -> Option<Class> {
-    Some(match (kind, value.to_ascii_uppercase().as_str()) {
-        (_, "BINARY") => Class::Binary,
-        (_, "BOOLEAN") => Class::Boolean,
-        (Kind::VCard, "CONTENT-ID") => Class::FlatText,
-        (Kind::VCard, "DATE") => Class::VCardDate,
-        (Kind::VCard, "DATE-TIME") => Class::VCardDateTime,
-        (Kind::VCard, "DATE-AND-OR-TIME") => Class::VCardDateAndOrTime,
-        (_, "FLOAT") => Class::Float,
-        (_, "INTEGER") => Class::Integer,
-        (Kind::VCard, "LANGUAGE-TAG") => Class::LanguageTag,
-        (Kind::VCard, "PHONE-NUMBER") => Class::PhoneNumber,
-        (Kind::VCard, "TIMESTAMP") => Class::TimeStamp,
-        (_, "TEXT") => Class::Text,
-        (_, "TIME") => Class::Time,
-        (_, "UNKNOWN") => Class::Unknown,
-        (_, "URI") => Class::Uri,
-        (Kind::VCard, "URL") => Class::Uri,
-        (_, "UTC-OFFSET") => Class::UtcOffset,
-        (Kind::VCalendar, "CAL-ADDRESS") => Class::CalAddress,
-        (Kind::VCalendar, "DATE") => Class::ICalDate,
-        (Kind::VCalendar, "DATE-TIME") => Class::ICalDateTime,
-        (Kind::VCalendar, "DURATION") => Class::Duration,
-        (Kind::VCalendar, "PERIOD") => Class::Period,
-        (Kind::VCalendar, "RECUR") => Class::Recur,
-        _ => return None,
-    })
-}
-
-/// `getClassNameForPropertyName()`.
-fn class_for_name(kind: Kind, name: &str, document_type: DocumentType) -> Class {
-    match kind {
-        Kind::VCard => {
-            let class = match name {
-                "N" | "ADR" | "ORG" | "TZ" | "CATEGORIES" | "NICKNAME" | "CLIENTPIDMAP" | "GENDER" => Class::Text,
-                "FN" | "LABEL" | "TEL" | "EMAIL" | "MAILER" | "GEO" | "TITLE" | "ROLE" | "NOTE" | "SOUND" | "UID"
-                | "VERSION" | "KEY" | "SORT-STRING" | "PRODID" | "CLASS" | "XML" | "KIND" | "BIRTHPLACE"
-                | "DEATHPLACE" | "EXPERTISE" | "HOBBY" | "INTEREST" | "ORG-DIRECTORY" => Class::FlatText,
-                "PHOTO" | "LOGO" => Class::Binary,
-                "BDAY" | "ANNIVERSARY" | "DEATHDATE" => Class::VCardDateAndOrTime,
-                "REV" => Class::TimeStamp,
-                "URL" | "FBURL" | "CAPURI" | "CALURI" | "CALADRURI" | "IMPP" | "SOURCE" | "MEMBER" | "RELATED" => {
-                    Class::Uri
-                }
-                "LANG" => Class::LanguageTag,
-                _ => Class::Unknown,
-            };
-            // In vCard 4, BINARY no longer exists, and we need URI instead.
-            if class == Class::Binary && document_type == DocumentType::VCard40 { Class::Uri } else { class }
-        }
-        Kind::VCalendar => match name {
-            "CALSCALE" | "METHOD" | "PRODID" | "VERSION" | "CLASS" | "COMMENT" | "DESCRIPTION" | "LOCATION"
-            | "STATUS" | "SUMMARY" | "TRANSP" | "TZID" | "TZNAME" | "CONTACT" | "RELATED-TO" | "UID" | "ACTION" => {
-                Class::FlatText
-            }
-            "ATTACH" | "TZURL" | "URL" => Class::Uri,
-            "CATEGORIES" | "RESOURCES" | "REQUEST-STATUS" | "ALARM-AGENT" | "PROXIMITY" | "BUSYTYPE" => Class::Text,
-            "GEO" => Class::Float,
-            "PERCENT-COMPLETE" | "PRIORITY" | "REPEAT" | "SEQUENCE" => Class::Integer,
-            "COMPLETED" | "DTEND" | "DUE" | "DTSTART" | "RECURRENCE-ID" | "EXDATE" | "RDATE" | "CREATED"
-            | "DTSTAMP" | "LAST-MODIFIED" | "ACKNOWLEDGED" => Class::ICalDateTime,
-            "DURATION" | "TRIGGER" => Class::Duration,
-            "FREEBUSY" => Class::Period,
-            "TZOFFSETFROM" | "TZOFFSETTO" => Class::UtcOffset,
-            "ATTENDEE" | "ORGANIZER" => Class::CalAddress,
-            "RRULE" | "EXRULE" => Class::Recur,
-            "DEFAULT-ALARM" => Class::Boolean,
-            _ => Class::Unknown,
-        },
     }
 }
 
@@ -144,13 +28,8 @@ fn class_of(doc: &Document, property: &Property) -> Class {
     property
         .param("VALUE")
         .and_then(|v| v.get_value())
-        .and_then(|v| class_for_value(doc.kind, &v))
-        .unwrap_or_else(|| class_for_name(doc.kind, &property.name, doc.document_type()))
-}
-
-/// `ICalendar\DateTime::hasTime()`.
-fn has_time(property: &Property) -> bool {
-    !property.param("VALUE").and_then(Parameter::get_value).unwrap_or_default().eq_ignore_ascii_case("DATE")
+        .and_then(|v| doc.kind.class_for_value(&v))
+        .unwrap_or_else(|| doc.kind.class_for_name(&property.name, doc.document_type()))
 }
 
 /// `getValueType()` of a class (`has_time` for the iCalendar dates).
@@ -166,8 +45,8 @@ fn value_type(class: Class, has_time: bool) -> &'static str {
         Class::TimeStamp => "TIMESTAMP",
         Class::Binary => "BINARY",
         Class::Boolean => "BOOLEAN",
-        Class::Float => "FLOAT",
-        Class::Integer => "INTEGER",
+        Class::FloatValue => "FLOAT",
+        Class::IntegerValue => "INTEGER",
         Class::VCardDate => "DATE",
         Class::VCardDateTime => "DATE-TIME",
         Class::VCardDateAndOrTime => "DATE-AND-OR-TIME",
@@ -187,12 +66,7 @@ fn value_type(class: Class, has_time: bool) -> &'static str {
 
 /// `$property->getValueType()`.
 pub fn property_value_type(doc: &Document, property: &Property) -> &'static str {
-    value_type(class_of(doc, property), has_time(property))
-}
-
-/// PHP's `empty()` on a string.
-fn php_empty(value: &str) -> bool {
-    value.is_empty() || value == "0"
+    value_type(class_of(doc, property), property.has_time())
 }
 
 fn internal(e: vobject::Error) -> DavError {
@@ -223,8 +97,8 @@ impl NewProperty {
     /// `$output->createProperty($name, $value, [], $valueType)`.
     fn create(target: DocumentType, name: &str, value: NewValue, value_type: Option<&str>) -> NewProperty {
         let class = value_type
-            .and_then(|v| class_for_value(Kind::VCard, v))
-            .unwrap_or_else(|| class_for_name(Kind::VCard, name, target));
+            .and_then(|v| Kind::VCard.class_for_value(v))
+            .unwrap_or_else(|| Kind::VCard.class_for_name(name, target));
         NewProperty { group: None, name: name.to_owned(), class, value, parameters: Vec::new() }
     }
 
@@ -606,7 +480,7 @@ fn convert_property(
     //
     // We can do that by instantiating a empty property with that name, and
     // seeing if the default valueType is identical to the current one.
-    let temp_class = class_for_name(Kind::VCard, &new_property.name, target_version);
+    let temp_class = Kind::VCard.class_for_name(&new_property.name, target_version);
     let new_type = value_type(new_property.class, true);
     if value_type(temp_class, true) != new_type {
         new_property.set_parameter("VALUE", new_type);
@@ -959,22 +833,6 @@ fn validation_rules(kind: Kind, name: &str, parent_has_method: bool) -> Vec<(&'s
     }
 }
 
-/// `getDefaults()` of a component.
-fn defaults(kind: Kind, name: &str) -> Vec<(&'static str, String)> {
-    let uid = || format!("sabre-vobject-{}", uuid::Uuid::new_v4());
-    let prodid = || format!("-//Sabre//Sabre VObject {}//EN", vobject::VERSION);
-    match (kind, name) {
-        (Kind::VCard, _) => vec![("VERSION", "4.0".to_owned()), ("PRODID", prodid()), ("UID", uid())],
-        (Kind::VCalendar, "VCALENDAR") => {
-            vec![("VERSION", "2.0".to_owned()), ("PRODID", prodid()), ("CALSCALE", "GREGORIAN".to_owned())]
-        }
-        (Kind::VCalendar, "VEVENT" | "VTODO" | "VJOURNAL") => {
-            vec![("UID", uid()), ("DTSTAMP", chrono::Utc::now().format("%Y%m%dT%H%M%SZ").to_string())]
-        }
-        _ => Vec::new(),
-    }
-}
-
 /// `Document::validate($options)`: the messages, with the repairs made.
 pub fn validate(doc: &mut Document, options: u32) -> DavResult<Vec<Message>> {
     match doc.kind {
@@ -1130,7 +988,7 @@ fn validate_component(
     parent_has_method: bool,
 ) -> DavResult<Vec<Message>> {
     let rules = validation_rules(ctx.kind, &component.name, parent_has_method);
-    let defaults = defaults(ctx.kind, &component.name);
+    let defaults = ctx.kind.defaults(&component.name);
 
     let mut property_counters: Vec<(String, usize)> = Vec::new();
     let mut messages = Vec::new();
@@ -1184,10 +1042,9 @@ fn validate_component(
                 if count(prop_name) != Some(1) {
                     let mut repaired = false;
                     if options & REPAIR != 0
-                        && let Some((_, value)) = defaults.iter().find(|(n, _)| *n == prop_name)
+                        && let Some((_, value)) = defaults.iter().find(|(n, _)| n == prop_name)
                     {
-                        let property =
-                            ctx.create_property(prop_name, value.clone().into(), Vec::new()).map_err(internal)?;
+                        let property = ctx.create_property(prop_name, value.clone(), Vec::new()).map_err(internal)?;
                         component.add(Node::Property(property));
                         repaired = true;
                     }
@@ -1296,17 +1153,6 @@ fn is_numeric(value: &str) -> bool {
         !e.is_empty() && e.bytes().all(|b| b.is_ascii_digit())
     });
     mantissa_ok && exponent_ok
-}
-
-/// `(int)` of a numeric string.
-fn php_intval(value: &str) -> i64 {
-    let s = value.trim_start();
-    let (sign, rest) = match s.strip_prefix('-') {
-        Some(r) => (-1, r),
-        None => (1, s.strip_prefix('+').unwrap_or(s)),
-    };
-    let end = rest.find(|c: char| !c.is_ascii_digit()).unwrap_or(rest.len());
-    rest[..end].parse::<i64>().map(|n| sign * n).unwrap_or(0)
 }
 
 /// `Property::validate($options)` and the overrides of `Text`,
@@ -1426,7 +1272,7 @@ fn validate_property(ctx: &Document, property: &mut Property, options: u32) -> D
 
     // ICalendar\DateTime::validate()
     if matches!(class, Class::ICalDate | Class::ICalDateTime) {
-        let value_type = value_type(class, has_time(property));
+        let value_type = value_type(class, property.has_time());
         for value in property.get_parts() {
             let value = value.unwrap_or_default();
             let parsed = match value_type {

@@ -9,6 +9,7 @@ use super::{
 };
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
+use crate::domains::base::VaultPermission;
 use crate::domains::contact::manage_contact::{CreateContact, UpdateContact};
 use crate::domains::contact::manage_contact_addresses::{AssociateAddressToContact, RemoveAddressFromContact};
 use crate::domains::contact::manage_labels::{AssignLabel, RemoveLabel};
@@ -787,6 +788,7 @@ pub async fn card_dav_get_object<C: ConnectionTrait>(
     // `vaults($collectionId)->first()`, else NotEnoughPermissionException (not found).
     let member = user_vault::Entity::find()
         .filter(user_vault::Column::UserId.eq(author.id))
+        .filter(user_vault::Column::Permission.lte(VaultPermission::View as i32))
         .filter(user_vault::Column::VaultId.eq(collection_id))
         .one(db)
         .await?;

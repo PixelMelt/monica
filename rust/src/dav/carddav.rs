@@ -2,6 +2,7 @@
 //! addressbook-query reports, vCard validation and conversion) and
 //! `Sabre\CardDAV\VCFExportPlugin`.
 
+use super::backend::php_intval;
 use super::http::{negotiate_content_type, resolve};
 use super::nodes::Node;
 use super::props::PropValue;
@@ -553,17 +554,6 @@ impl Server<'_> {
 
         Ok(true)
     }
-}
-
-/// `(int)` of a string.
-fn php_intval(value: &str) -> i64 {
-    let s = value.trim_start();
-    let (sign, rest) = match s.strip_prefix('-') {
-        Some(r) => (-1, r),
-        None => (1, s.strip_prefix('+').unwrap_or(s)),
-    };
-    let end = rest.find(|c: char| !c.is_ascii_digit()).unwrap_or(rest.len());
-    rest[..end].parse::<i64>().map(|n| sign * n).unwrap_or(0)
 }
 
 /// `validateFilters($vcardData, $filters, $test)`.

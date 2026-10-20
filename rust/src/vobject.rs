@@ -165,7 +165,7 @@ impl DateTime {
 
 /// The property classes of `$propertyMap` / `$valueMap`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Class {
+pub enum Class {
     Binary,
     Boolean,
     FlatText,
@@ -192,7 +192,7 @@ enum Class {
 
 impl Class {
     /// Extends `Property\Text`.
-    fn is_text(self) -> bool {
+    pub fn is_text(self) -> bool {
         matches!(
             self,
             Class::Text
@@ -248,12 +248,12 @@ impl Kind {
     }
 
     /// `getDefaults()` of the component class.
-    fn defaults(self, name: &str) -> Vec<(String, Input)> {
+    pub fn defaults(self, name: &str) -> Vec<(String, Input)> {
         let uid = || Input::Text(format!("sabre-vobject-{}", uuid::Uuid::new_v4()));
         let prodid = || Input::Text(format!("-//Sabre//Sabre VObject {VERSION}//EN"));
         let now = || Input::Text(chrono::Utc::now().format("%Y%m%dT%H%M%SZ").to_string());
         match (self, name) {
-            (Kind::VCard, "VCARD") => {
+            (Kind::VCard, _) => {
                 vec![("VERSION".into(), "4.0".into()), ("PRODID".into(), prodid()), ("UID".into(), uid())]
             }
             (Kind::VCalendar, "VCALENDAR") => vec![
@@ -269,7 +269,7 @@ impl Kind {
     }
 
     /// `getClassNameForPropertyValue()`.
-    fn class_for_value(self, value: &str) -> Option<Class> {
+    pub fn class_for_value(self, value: &str) -> Option<Class> {
         let value = value.to_ascii_uppercase();
         Some(match (self, value.as_str()) {
             (_, "BINARY") => Class::Binary,
@@ -300,7 +300,7 @@ impl Kind {
     }
 
     /// `getClassNameForPropertyName()` (`Unknown` when not in `$propertyMap`).
-    fn class_for_name(self, name: &str, document_type: DocumentType) -> Class {
+    pub fn class_for_name(self, name: &str, document_type: DocumentType) -> Class {
         match self {
             Kind::VCard => {
                 let class = match name {
@@ -1034,7 +1034,7 @@ impl Property {
     }
 
     /// `ICalendar\DateTime::hasTime()`.
-    fn has_time(&self) -> bool {
+    pub fn has_time(&self) -> bool {
         !self.param("VALUE").map(Parameter::to_string).unwrap_or_default().eq_ignore_ascii_case("DATE")
     }
 

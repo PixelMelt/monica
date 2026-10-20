@@ -1,11 +1,12 @@
 //! `app/Domains/Contact/DavClient/Services`.
 
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ConnectionTrait, EntityTrait};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ConnectionTrait, DatabaseConnection, EntityTrait};
 
 use super::dav::DavClient;
 use super::utils::{AddressBookData, AddressBookGetter, AddressBookSynchronizer};
-use super::{Exception, user};
+use super::{Exception, user, with_user};
 use crate::config::Config;
+use crate::dav::backend::{self, CARD};
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, Checked, VaultPermission, check};
 use crate::entities::addressbook_subscriptions;
@@ -101,7 +102,7 @@ pub struct SynchronizeAddressBook {
 
 impl SynchronizeAddressBook {
     /// The id of the batch that ran, `None` for an inactive subscription.
-    pub async fn execute<C: ConnectionTrait>(self, db: &C, config: &Config) -> Result<Option<String>, Exception> {
+    pub async fn execute(self, db: &DatabaseConnection, config: &Config) -> Result<Option<String>, Exception> {
         let subscription = self.validate(db).await?;
 
         let force = self.force.unwrap_or(false);
@@ -124,8 +125,8 @@ impl SynchronizeAddressBook {
 }
 
 /// `SynchronizeAddressBook::synchronize()`.
-async fn synchronize<C: ConnectionTrait>(
-    db: &C,
+async fn synchronize(
+    db: &DatabaseConnection,
     config: &Config,
     subscription: addressbook_subscriptions::Model,
     force: bool,
@@ -144,22 +145,24 @@ pub struct UpdateSubscriptionLocalSyncToken {
 }
 
 impl UpdateSubscriptionLocalSyncToken {
-    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
+    pub async fn execute(self, db: &DatabaseConnection, config: &Config) -> Result<(), Exception> {
         let subscription = addressbook_subscriptions::Entity::find_by_id(self.addressbook_subscription_id)
             .one(db)
             .await?
             .ok_or_else(ApiError::not_found)?;
 
-        update_sync_token(db, subscription).await
+        update_sync_token(db, config, subscription).await
     }
 }
 
 /// Update the synctoken.
-async fn update_sync_token<C: ConnectionTrait>(
-    db: &C,
+async fn update_sync_token(
+    db: &DatabaseConnection,
+    config: &Config,
     subscription: addressbook_subscriptions::Model,
-) -> ApiResult<()> {
-    let token = super::get_current_sync_token(db, &user(db, &subscription).await?, subscription.vault_id).await?;
+) -> Result<(), Exception> {
+    let ctx = with_user(db, config, &user(db, &subscription).await?);
+    let token = backend::get_current_sync_token(&ctx, &CARD, Some(&subscription.vault_id.to_string())).await?;
 
     if let Some(token) = token {
         let mut am: addressbook_subscriptions::ActiveModel = subscription.into();

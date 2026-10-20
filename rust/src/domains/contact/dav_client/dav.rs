@@ -13,8 +13,7 @@ use reqwest::header::{self, HeaderMap, HeaderValue};
 use super::Exception;
 use crate::config::{Config, Environment};
 
-/// `Sabre\CardDAV\Plugin::NS_CARDDAV`.
-pub const NS_CARDDAV: &str = "urn:ietf:params:xml:ns:carddav";
+pub use crate::dav::xml::NS_CARDDAV;
 
 /// `Illuminate\Http\Client\Response`.
 #[derive(Debug, Clone)]

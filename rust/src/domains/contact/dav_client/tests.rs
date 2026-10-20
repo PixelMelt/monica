@@ -29,10 +29,10 @@ use super::utils::{
 use super::{Exception, WAY_BOTH, get_client};
 use crate::config::Config;
 use crate::crypto::random_string;
+use crate::dav::backend::{self, Ctx, DavResource};
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
 use crate::domains::base::VaultPermission;
-use crate::domains::contact::dav::VCardResource;
 use crate::entities::{addressbook_subscriptions, contacts, genders, job_batches, sync_tokens, users, vaults};
 use crate::testing::{TestDb, factory};
 
@@ -576,7 +576,7 @@ async fn it_delete_card_contact() {
     let contact =
         contact_with(&db, subscription.vault_id, CONTACT_ID, |c| c.first_name = Set(Some("Test".into()))).await;
 
-    DeleteLocalVCard::new(subscription, contact.id.to_string()).handle(&db.conn).await.unwrap();
+    DeleteLocalVCard::new(subscription, contact.id.to_string()).handle(&db.conn, &config()).await.unwrap();
 
     let contact = contacts::Entity::find_by_id(contact.id).one(&db.conn).await.unwrap().unwrap();
     assert!(contact.deleted_at.is_some());
@@ -976,7 +976,10 @@ async fn update_subscription_local_sync_token_it_update_token() {
     let name = format!("contacts-{}", subscription.vault_id);
     let token = sync_token(&db, &subscription, &name, Timestamp(crate::db::now().0 - chrono::Duration::days(1))).await;
 
-    UpdateSubscriptionLocalSyncToken { addressbook_subscription_id: subscription.id }.execute(&db.conn).await.unwrap();
+    UpdateSubscriptionLocalSyncToken { addressbook_subscription_id: subscription.id }
+        .execute(&db.conn, &config())
+        .await
+        .unwrap();
 
     let subscription = fresh(&db, &subscription).await;
 
@@ -989,7 +992,10 @@ async fn update_subscription_local_sync_token_it_wont_update_null_token() {
     let db = TestDb::migrated().await;
     let subscription = subscription(&db).await;
 
-    UpdateSubscriptionLocalSyncToken { addressbook_subscription_id: subscription.id }.execute(&db.conn).await.unwrap();
+    UpdateSubscriptionLocalSyncToken { addressbook_subscription_id: subscription.id }
+        .execute(&db.conn, &config())
+        .await
+        .unwrap();
 
     let subscription = fresh(&db, &subscription).await;
 
@@ -1229,13 +1235,14 @@ async fn address_book_synchronizer_it_forcesync_changes_added_local_contact() {
     let synchronizer = synchronizer(&db, subscription.clone()).await;
     let dist_contacts = synchronizer.get_all_contacts_etag().await.unwrap();
     let user = user_of(&db, &subscription).await;
-    let local_contacts = super::get_objects(&db.conn, &user, subscription.vault_id).await.unwrap();
+    let ctx = Ctx { db: &db.conn, config: &config(), user };
+    let local_contacts = backend::card_get_objects(&ctx, Some(&subscription.vault_id.to_string())).await.unwrap();
 
     let local_ids: Vec<Uuid> = local_contacts
         .iter()
         .filter_map(|c| match c {
-            VCardResource::Contact(c) => Some(c.id),
-            VCardResource::Group(_) => None,
+            DavResource::Contact(c) => Some(c.id),
+            _ => None,
         })
         .collect();
     assert!(local_ids.contains(&contact.id));
@@ -1444,7 +1451,7 @@ async fn prepare_jobs_contact_push_missed_it_push_contacts_missed() {
             &config(),
             &LocalChanges::default(),
             &[ContactDto::Contact { uri: "uuid6".into(), etag: Some(etag) }],
-            &[VCardResource::Contact(Box::new(contact))],
+            &[DavResource::Contact(contact)],
         )
         .await
         .unwrap();
