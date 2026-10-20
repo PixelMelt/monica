@@ -49,10 +49,7 @@ async fn uuid_and_id_keys_round_trip() {
 
     let row = db
         .conn
-        .query_one_raw(q(
-            &sql("select id, storage_limit_in_mb from accounts where id = ?"),
-            vec![account.into()],
-        ))
+        .query_one_raw(q(&sql("select id, storage_limit_in_mb from accounts where id = ?"), vec![account.into()]))
         .await
         .unwrap()
         .expect("account found by uuid");
@@ -60,10 +57,7 @@ async fn uuid_and_id_keys_round_trip() {
 
     let row = db
         .conn
-        .query_one_raw(q(
-            &sql("select id, account_id from templates where account_id = ?"),
-            vec![account.into()],
-        ))
+        .query_one_raw(q(&sql("select id, account_id from templates where account_id = ?"), vec![account.into()]))
         .await
         .unwrap()
         .expect("template found by account uuid");
@@ -72,10 +66,7 @@ async fn uuid_and_id_keys_round_trip() {
 
     let row = db
         .conn
-        .query_one_raw(q(
-            &sql("select name from templates where id = ?"),
-            vec![id.into()],
-        ))
+        .query_one_raw(q(&sql("select name from templates where id = ?"), vec![id.into()]))
         .await
         .unwrap()
         .expect("template found by id");

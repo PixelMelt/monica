@@ -5,9 +5,7 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("contact_reminders", |t| {
         t.id();
-        t.foreign_id_for("contact_id", Key::Uuid)
-            .constrained("contacts")
-            .cascade_on_delete();
+        t.foreign_id_for("contact_id", Key::Uuid).constrained("contacts").cascade_on_delete();
         t.string("label");
         t.integer("day").nullable();
         t.integer("month").nullable();
@@ -39,9 +37,7 @@ pub fn up(s: &mut Schema, _e: Engine) {
         t.foreign_id_for("user_notification_channel_id", Key::Int)
             .constrained("user_notification_channels")
             .cascade_on_delete();
-        t.foreign_id_for("contact_reminder_id", Key::Int)
-            .constrained("contact_reminders")
-            .cascade_on_delete();
+        t.foreign_id_for("contact_reminder_id", Key::Int).constrained("contact_reminders").cascade_on_delete();
         t.datetime("scheduled_at");
         t.datetime("triggered_at").nullable();
         t.timestamps();

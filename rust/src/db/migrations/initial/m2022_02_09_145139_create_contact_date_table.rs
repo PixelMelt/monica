@@ -5,9 +5,7 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("contact_important_date_types", |t| {
         t.id();
-        t.foreign_id_for("vault_id", Key::Uuid)
-            .constrained("vaults")
-            .cascade_on_delete();
+        t.foreign_id_for("vault_id", Key::Uuid).constrained("vaults").cascade_on_delete();
         t.string("label");
         t.string("internal_type").nullable();
         t.boolean("can_be_deleted").default(true);
@@ -16,9 +14,7 @@ pub fn up(s: &mut Schema, _e: Engine) {
 
     s.create("contact_important_dates", |t| {
         t.id();
-        t.foreign_id_for("contact_id", Key::Uuid)
-            .constrained("contacts")
-            .cascade_on_delete();
+        t.foreign_id_for("contact_id", Key::Uuid).constrained("contacts").cascade_on_delete();
         t.foreign_id_for("contact_important_date_type_id", Key::Int)
             .nullable()
             .constrained("contact_important_date_types")

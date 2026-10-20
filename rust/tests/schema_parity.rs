@@ -22,18 +22,10 @@ fn fixture(e: Engine) -> Schema {
 #[tokio::test]
 async fn migrations_build_the_laravel_schema() {
     let db = TestDb::migrated().await;
-    let got = schema_dump::dump(&db.conn)
-        .await
-        .unwrap()
-        .without(&["seaql_migrations"]);
+    let got = schema_dump::dump(&db.conn).await.unwrap().without(&["seaql_migrations"]);
     let diff = fixture(db.engine).diff(&got);
     db.drop().await;
-    assert!(
-        diff.is_empty(),
-        "{} differences:\n{}",
-        diff.len(),
-        diff.join("\n")
-    );
+    assert!(diff.is_empty(), "{} differences:\n{}", diff.len(), diff.join("\n"));
 }
 
 #[tokio::test]
@@ -47,18 +39,10 @@ async fn migrations_seed_the_currencies() {
         ))
         .await
         .unwrap();
-    let got: Vec<(Id, String)> = rows
-        .iter()
-        .map(|r| {
-            (
-                r.try_get::<Id>("", "id").unwrap(),
-                r.try_get::<String>("", "code").unwrap(),
-            )
-        })
-        .collect();
+    let got: Vec<(Id, String)> =
+        rows.iter().map(|r| (r.try_get::<Id>("", "id").unwrap(), r.try_get::<String>("", "code").unwrap())).collect();
     db.drop().await;
-    let expected: Vec<String> =
-        serde_json::from_str(include_str!("fixtures/currencies.json")).unwrap();
+    let expected: Vec<String> = serde_json::from_str(include_str!("fixtures/currencies.json")).unwrap();
     assert_eq!(got.len(), expected.len());
     for (i, (id, code)) in got.iter().enumerate() {
         assert_eq!(*id, Id(i as i64 + 1));

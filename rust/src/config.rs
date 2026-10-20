@@ -18,13 +18,7 @@ pub enum Environment {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MailTransport {
     /// SMTP; `encryption` is `tls` (STARTTLS), `ssl` (implicit TLS) or none.
-    Smtp {
-        host: String,
-        port: u16,
-        username: Option<String>,
-        password: Option<String>,
-        encryption: Option<String>,
-    },
+    Smtp { host: String, port: u16, username: Option<String>, password: Option<String>, encryption: Option<String> },
     /// Write messages to the log (development).
     Log,
     /// Keep messages in memory (tests read them back).
@@ -82,30 +76,21 @@ fn flag(name: &str, default: bool) -> anyhow::Result<bool> {
 fn number<T: std::str::FromStr>(name: &str, default: T) -> anyhow::Result<T> {
     match var(name) {
         None => Ok(default),
-        Some(v) => v
-            .parse()
-            .map_err(|_| anyhow!("{name} must be a number, got {v:?}")),
+        Some(v) => v.parse().map_err(|_| anyhow!("{name} must be a number, got {v:?}")),
     }
 }
 
 /// Decodes an `APP_KEY` value.
 pub fn parse_key(raw: &str) -> anyhow::Result<[u8; 32]> {
     let b64 = raw.strip_prefix("base64:").unwrap_or(raw);
-    let bytes = base64::engine::general_purpose::STANDARD
-        .decode(b64)
-        .context("APP_KEY is not valid base64")?;
-    bytes
-        .try_into()
-        .map_err(|_| anyhow!("APP_KEY must decode to 32 bytes"))
+    let bytes = base64::engine::general_purpose::STANDARD.decode(b64).context("APP_KEY is not valid base64")?;
+    bytes.try_into().map_err(|_| anyhow!("APP_KEY must decode to 32 bytes"))
 }
 
 /// A new random `APP_KEY` value.
 pub fn generate_key() -> String {
     let key: [u8; 32] = rand::random();
-    format!(
-        "base64:{}",
-        base64::engine::general_purpose::STANDARD.encode(key)
-    )
+    format!("base64:{}", base64::engine::general_purpose::STANDARD.encode(key))
 }
 
 impl Config {
@@ -118,21 +103,11 @@ impl Config {
             Some("testing") => Environment::Testing,
             Some(v) => bail!("APP_ENV must be production, local or testing, got {v:?}"),
         };
-        let url = var("APP_URL")
-            .unwrap_or_else(|| "http://localhost:8080".into())
-            .trim_end_matches('/')
-            .to_owned();
-        let key = parse_key(
-            &var("APP_KEY")
-                .context("APP_KEY is not set; generate one with `monica key-generate`")?,
-        )?;
+        let url = var("APP_URL").unwrap_or_else(|| "http://localhost:8080".into()).trim_end_matches('/').to_owned();
+        let key = parse_key(&var("APP_KEY").context("APP_KEY is not set; generate one with `monica key-generate`")?)?;
         let data_dir = PathBuf::from(var("DATA_DIR").unwrap_or_else(|| "data".into()));
-        let database_url = var("DATABASE_URL").unwrap_or_else(|| {
-            format!(
-                "sqlite://{}?mode=rwc",
-                data_dir.join("monica.sqlite").display()
-            )
-        });
+        let database_url = var("DATABASE_URL")
+            .unwrap_or_else(|| format!("sqlite://{}?mode=rwc", data_dir.join("monica.sqlite").display()));
         let mail = match var("MAIL_MAILER").as_deref() {
             None | Some("smtp") => match var("MAIL_HOST") {
                 Some(host) => MailTransport::Smtp {
@@ -153,10 +128,7 @@ impl Config {
             secure_cookies: flag("SESSION_SECURE_COOKIE", url.starts_with("https://"))?,
             url,
             key,
-            bind: var("BIND")
-                .unwrap_or_else(|| "0.0.0.0:8080".into())
-                .parse()
-                .context("BIND must be host:port")?,
+            bind: var("BIND").unwrap_or_else(|| "0.0.0.0:8080".into()).parse().context("BIND must be host:port")?,
             database_url,
             data_dir,
             spa_dir: var("SPA_DIR").map(PathBuf::from),

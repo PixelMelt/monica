@@ -5,13 +5,8 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("contact_tasks", |t| {
         t.id();
-        t.foreign_id_for("contact_id", Key::Uuid)
-            .constrained("contacts")
-            .cascade_on_delete();
-        t.foreign_id_for("author_id", Key::Uuid)
-            .nullable()
-            .constrained("users")
-            .null_on_delete();
+        t.foreign_id_for("contact_id", Key::Uuid).constrained("contacts").cascade_on_delete();
+        t.foreign_id_for("author_id", Key::Uuid).nullable().constrained("users").null_on_delete();
         t.string("author_name");
         t.string("label");
         t.text("description").nullable();

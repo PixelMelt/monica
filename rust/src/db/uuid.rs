@@ -14,10 +14,7 @@ use std::str::FromStr;
 use std::sync::atomic::{AtomicU8, Ordering};
 
 use sea_orm::sea_query::{ArrayType, ColumnType, Nullable, ValueType, ValueTypeErr};
-use sea_orm::{
-    ColIdx, DbBackend, DbErr, IntoActiveValue, QueryResult, TryFromU64, TryGetError, TryGetable,
-    Value,
-};
+use sea_orm::{ColIdx, DbBackend, DbErr, IntoActiveValue, QueryResult, TryFromU64, TryGetError, TryGetable, Value};
 use serde::{Deserialize, Serialize};
 
 static POSTGRES: AtomicU8 = AtomicU8::new(0);
@@ -64,20 +61,14 @@ impl FromStr for Uuid {
 
 impl From<Uuid> for Value {
     fn from(u: Uuid) -> Self {
-        if postgres() {
-            Value::Uuid(Some(u.0))
-        } else {
-            Value::String(Some(u.to_string()))
-        }
+        if postgres() { Value::Uuid(Some(u.0)) } else { Value::String(Some(u.to_string())) }
     }
 }
 
 impl TryGetable for Uuid {
     fn try_get_by<I: ColIdx>(res: &QueryResult, idx: I) -> Result<Self, TryGetError> {
         match String::try_get_by(res, idx) {
-            Ok(s) => s
-                .parse()
-                .map_err(|e: uuid::Error| TryGetError::DbErr(DbErr::Type(e.to_string()))),
+            Ok(s) => s.parse().map_err(|e: uuid::Error| TryGetError::DbErr(DbErr::Type(e.to_string()))),
             Err(TryGetError::Null(col)) => Err(TryGetError::Null(col)),
             Err(text) => uuid::Uuid::try_get_by(res, idx).map(Uuid).map_err(|_| text),
         }
@@ -108,11 +99,7 @@ impl ValueType for Uuid {
 
 impl Nullable for Uuid {
     fn null() -> Value {
-        if postgres() {
-            Value::Uuid(None)
-        } else {
-            Value::String(None)
-        }
+        if postgres() { Value::Uuid(None) } else { Value::String(None) }
     }
 }
 

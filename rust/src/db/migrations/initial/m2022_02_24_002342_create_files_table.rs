@@ -8,9 +8,7 @@ use crate::db::blueprint::{Engine, Key, Schema};
 pub fn up(s: &mut Schema, _e: Engine) {
     s.create("files", |t| {
         t.id();
-        t.foreign_id_for("vault_id", Key::Uuid)
-            .constrained("vaults")
-            .cascade_on_delete();
+        t.foreign_id_for("vault_id", Key::Uuid).constrained("vaults").cascade_on_delete();
 
         t.nullable_numeric_morphs("fileable");
         t.uuid("ufileable_id").nullable();
