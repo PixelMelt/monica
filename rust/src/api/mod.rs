@@ -1,13 +1,28 @@
 //! The `/api/v1` operations and the OpenAPI document generated from them.
 
 pub mod account;
+pub mod address_books;
 pub mod auth;
+pub mod base;
+pub mod contact_modules_a;
+pub mod contact_modules_b;
+pub mod contact_notes;
+pub mod contact_page;
+pub mod contacts;
+pub mod groups;
 pub mod instance;
+pub mod journals;
 pub mod me;
 pub mod notification_channels;
 pub mod paging;
+pub mod personalize;
+pub mod reference;
 pub mod schemas;
+pub mod templates;
+pub mod vault_pages;
+pub mod vault_settings;
 pub mod vaults;
+pub mod views;
 
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, HttpAuthScheme, HttpBuilder, SecurityScheme};
 use utoipa::{Modify, OpenApi};
@@ -107,6 +122,19 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(vaults::list_vault_members, vaults::add_vault_member))
         .routes(routes!(vaults::list_vault_member_candidates))
         .routes(routes!(vaults::update_vault_member, vaults::remove_vault_member))
+        .merge(contact_modules_a::routes())
+        .merge(contact_modules_b::routes())
+        .merge(contact_notes::routes())
+        .merge(contacts::routes())
+        .merge(contact_page::routes())
+        .merge(address_books::routes())
+        .merge(groups::routes())
+        .merge(journals::routes())
+        .merge(personalize::routes())
+        .merge(reference::routes())
+        .merge(templates::routes())
+        .merge(vault_pages::routes())
+        .merge(vault_settings::routes())
 }
 
 /// The OpenAPI document of the API.

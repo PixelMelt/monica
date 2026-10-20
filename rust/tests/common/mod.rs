@@ -105,6 +105,46 @@ impl TestApp {
         body: Option<Value>,
         headers: &[(&str, &str)],
     ) -> TestResponse {
+        let body = body.map(|b| (String::from("application/json"), b.to_string().into_bytes()));
+        self.send(method, path, body, headers).await
+    }
+
+    /// Sends a `multipart/form-data` body with one `file` part (uploads).
+    pub async fn upload(
+        &mut self,
+        method: Method,
+        path: &str,
+        file_name: &str,
+        content_type: &str,
+        bytes: &[u8],
+    ) -> TestResponse {
+        let boundary = "----monica-test-boundary";
+        let mut body = format!(
+            "--{boundary}\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{file_name}\"\r\nContent-Type: {content_type}\r\n\r\n"
+        )
+        .into_bytes();
+        body.extend_from_slice(bytes);
+        body.extend_from_slice(format!("\r\n--{boundary}--\r\n").as_bytes());
+        self.send(method, path, Some((format!("multipart/form-data; boundary={boundary}"), body)), &[]).await
+    }
+
+    /// Logs `email` in with the factory password, in a fresh browser session.
+    pub async fn login(&mut self, email: &str) {
+        self.clear_cookies();
+        self.use_cookies();
+        self.get("/auth/csrf").await.assert(204);
+        self.post("/auth/login", serde_json::json!({"email": email, "password": monica::testing::factory::PASSWORD}))
+            .await
+            .assert(200);
+    }
+
+    async fn send(
+        &mut self,
+        method: Method,
+        path: &str,
+        body: Option<(String, Vec<u8>)>,
+        headers: &[(&str, &str)],
+    ) -> TestResponse {
         let uri = if path.starts_with("/api/")
             || !path.starts_with('/')
             || path.starts_with("/up")
@@ -132,7 +172,7 @@ impl TestApp {
             req = req.header(*k, *v);
         }
         let req = match body {
-            Some(b) => req.header(header::CONTENT_TYPE, "application/json").body(Body::from(b.to_string())).unwrap(),
+            Some((content_type, b)) => req.header(header::CONTENT_TYPE, content_type).body(Body::from(b)).unwrap(),
             None => req.body(Body::empty()).unwrap(),
         };
         let res = self.router.clone().oneshot(req).await.unwrap();
