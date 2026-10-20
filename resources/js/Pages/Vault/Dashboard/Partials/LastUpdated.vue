@@ -9,7 +9,7 @@
         {{ $t('Last updated') }}
       </span>
 
-      <help :url="$page.props.help_links.last_updated_contacts" :top="'4px'" />
+      <help :url="helpLinks.last_updated_contacts" :top="'4px'" />
     </h3>
     <div v-for="contact in data" :key="contact.id" class="mb-2 flex items-center text-sm">
       <avatar :data="contact.avatar" :class="'me-2 h-5 w-5 rounded-full'" />
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Help from '@/Shared/Help.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { History } from 'lucide-vue-next';

@@ -8,7 +8,7 @@
           {{ $t('How should we display distance values') }}
         </span>
 
-        <help :url="$page.props.help_links.settings_preferences_numerical_format" :top="'5px'" />
+        <help :url="helpLinks.settings_preferences_numerical_format" :top="'5px'" />
       </h3>
       <pretty-button v-if="!editMode" :text="$t('Edit')" @click="enableEditMode" />
     </div>

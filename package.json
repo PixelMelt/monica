@@ -10,7 +10,9 @@
     "postinstall": "husky install",
     "test": "php artisan migrate:fresh --database=testing && php artisan db:seed --database=testing && vendor/bin/phpunit && vendor/bin/phpstan && vendor/bin/psalm",
     "docker:build": "docker build --cache-from monica-next -t monica-next -f scripts/docker/Dockerfile . && docker image prune -f",
-    "docker:run": "docker run --name monica -p 8080:80 monica-next"
+    "docker:run": "docker run --name monica -p 8080:80 monica-next",
+    "api:generate": "cargo run -q --manifest-path rust/Cargo.toml -- openapi > resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts",
+    "api:draft": "python3 docs/rewrite/tools/spec.py --json resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts"
   },
   "devDependencies": {
     "@inertiajs/vue3": "^2.0.17",
@@ -27,6 +29,7 @@
     "ant-design-vue": "^4.2.6",
     "axios": "^1.11.0",
     "charts.css": "^1.2.0",
+    "dayjs": "1.11.13",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.4.0",
@@ -38,6 +41,7 @@
     "lodash": "^4.17.21",
     "lucide-vue-next": "^0.539.0",
     "mitt": "^3.0.1",
+    "openapi-typescript": "7.8.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "sass": "^1.90.0",
@@ -49,6 +53,7 @@
     "vue": "^3.5.18",
     "vue-clipboard3": "^2.0.0",
     "vue-eslint-parser": "^10.2.0",
+    "vue-router": "4.5.1",
     "vuedraggable": "^4.1.0",
     "ziggy-js": "2.5.3"
   },

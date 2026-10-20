@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import Loading from '@/Shared/Loading.vue';
 import HoverMenu from '@/Shared/HoverMenu.vue';
 import Errors from '@/Shared/Form/Errors.vue';

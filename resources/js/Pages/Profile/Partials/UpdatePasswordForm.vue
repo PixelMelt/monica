@@ -1,6 +1,6 @@
 <script setup>
 import { useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import JetActionMessage from '@/Components/Jetstream/ActionMessage.vue';
 import JetButton from '@/Components/Button.vue';
 import JetFormSection from '@/Components/Jetstream/FormSection.vue';

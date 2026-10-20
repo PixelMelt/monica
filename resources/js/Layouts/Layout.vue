@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Link, Head, router } from '@inertiajs/vue3';
+import { useRouter } from 'vue-router';
+import Link from '@/router/Link.vue';
+import Head from '@/router/Head.vue';
+import { logOut } from '@/api/client';
 import Toaster from '@/Shared/Toaster.vue';
 import FooterLayout from '@/Layouts/FooterLayout.vue';
 import ChevronIcon from '@/Shared/Icons/ChevronIcon.vue';
@@ -15,6 +18,7 @@ const props = defineProps({
   layoutData: Object,
 });
 
+const router = useRouter();
 const checked = ref(isDark());
 
 onMounted(() => {
@@ -25,9 +29,12 @@ onMounted(() => {
 });
 
 const goToSearchPage = () => {
-  router.visit(props.layoutData.vault.url.search, {
-    data: { searchTerm: '' },
-  });
+  router.push({ path: props.layoutData.vault.url.search, query: { searchTerm: '' } });
+};
+
+const logout = async () => {
+  await logOut();
+  router.push({ name: 'login' });
 };
 
 const toggleStyle = () => {
@@ -91,16 +98,12 @@ const toggleStyle = () => {
 
             <span class="text-sm dark:text-sky-400">{{ $t('Settings') }}</span>
           </Link>
-          <Link
-            class="relative flex items-center gap-1 cursor-pointer"
-            method="post"
-            :href="route('logout')"
-            as="button">
+          <button type="button" class="relative flex items-center gap-1 cursor-pointer" @click="logout">
             <LogOut
               class="h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-900 dark:text-gray-600 dark:hover:text-gray-100" />
 
             <span class="text-sm dark:text-sky-400">{{ $t('Logout') }}</span>
-          </Link>
+          </button>
         </div>
       </nav>
 
@@ -154,11 +157,7 @@ const toggleStyle = () => {
             </Link>
 
             <!-- logout -->
-            <Link
-              class="border border-gray-200 rounded-lg bg-white px-2 py-1"
-              method="post"
-              :href="route('logout')"
-              as="button">
+            <button type="button" class="border border-gray-200 rounded-lg bg-white px-2 py-1" @click="logout">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-4 w-4"
@@ -171,7 +170,7 @@ const toggleStyle = () => {
                   stroke-width="2"
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -204,67 +203,67 @@ const toggleStyle = () => {
             {
               url: layoutData.vault.url.dashboard,
               title: $t('Dashboard'),
-              selected: $page.component === 'Vault/Dashboard/Index',
+              selected: $route.meta.component === 'Vault/Dashboard/Index',
             },
             {
               url: layoutData.vault.url.contacts,
               title: $t('Contacts'),
-              selected: $page.component.startsWith('Vault/Contact'),
+              selected: $route.meta.component.startsWith('Vault/Contact'),
             },
             layoutData.vault.visibility.show_calendar_tab
               ? {
                   url: layoutData.vault.url.calendar,
                   title: $t('Calendar'),
-                  selected: $page.component.startsWith('Vault/Calendar'),
+                  selected: $route.meta.component.startsWith('Vault/Calendar'),
                 }
               : null,
             layoutData.vault.visibility.show_journal_tab
               ? {
                   url: layoutData.vault.url.journals,
                   title: $t('Journals'),
-                  selected: $page.component.startsWith('Vault/Journal'),
+                  selected: $route.meta.component.startsWith('Vault/Journal'),
                 }
               : null,
             layoutData.vault.visibility.show_group_tab
               ? {
                   url: layoutData.vault.url.groups,
                   title: $t('Groups'),
-                  selected: $page.component.startsWith('Vault/Group'),
+                  selected: $route.meta.component.startsWith('Vault/Group'),
                 }
               : null,
             layoutData.vault.visibility.show_companies_tab
               ? {
                   url: layoutData.vault.url.companies,
                   title: $t('Companies'),
-                  selected: $page.component.startsWith('Vault/Companies'),
+                  selected: $route.meta.component.startsWith('Vault/Companies'),
                 }
               : null,
             layoutData.vault.visibility.show_tasks_tab
               ? {
                   url: layoutData.vault.url.tasks,
                   title: $t('Tasks'),
-                  selected: $page.component.startsWith('Vault/Dashboard/Task'),
+                  selected: $route.meta.component.startsWith('Vault/Dashboard/Task'),
                 }
               : null,
             layoutData.vault.visibility.show_reports_tab
               ? {
                   url: layoutData.vault.url.reports,
                   title: $t('Reports'),
-                  selected: $page.component.startsWith('Vault/Reports'),
+                  selected: $route.meta.component.startsWith('Vault/Reports'),
                 }
               : null,
             layoutData.vault.visibility.show_files_tab
               ? {
                   url: layoutData.vault.url.files,
                   title: $t('Files'),
-                  selected: $page.component.startsWith('Vault/Files'),
+                  selected: $route.meta.component.startsWith('Vault/Files'),
                 }
               : null,
             layoutData.vault.permission.at_least_editor
               ? {
                   url: layoutData.vault.url.settings,
                   title: $t('Vault settings'),
-                  selected: $page.component.startsWith('Vault/Settings'),
+                  selected: $route.meta.component.startsWith('Vault/Settings'),
                 }
               : null,
           ].filter((f) => f !== null)

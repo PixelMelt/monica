@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Tooltip as ATooltip } from 'ant-design-vue';
 import Layout from '@/Layouts/Layout.vue';
 import ContactCard from '@/Shared/ContactCard.vue';

@@ -41,7 +41,7 @@
             <h1 class="mb-1 flex justify-center text-2xl font-medium">
               <span>{{ $t('Edit a vault') }}</span>
 
-              <help :url="$page.props.help_links.vault_create" :top="'9px'" :class="'ms-2'" />
+              <help :url="helpLinks.vault_create" :top="'9px'" :class="'ms-2'" />
             </h1>
             <p class="text-center text-sm">
               {{ $t('Vaults contain all your contacts data.') }}
@@ -84,7 +84,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import PrimaryButton from '@/Shared/Form/PrimaryButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';

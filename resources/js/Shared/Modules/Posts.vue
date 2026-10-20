@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import ClockIcon from '@/Shared/Icons/ClockIcon.vue';
 import { PenTool } from 'lucide-vue-next';
 

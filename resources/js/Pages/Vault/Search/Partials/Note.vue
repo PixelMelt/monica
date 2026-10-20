@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 
 const props = defineProps({
   data: Object,

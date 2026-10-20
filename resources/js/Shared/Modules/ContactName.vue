@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Tooltip as ATooltip } from 'ant-design-vue';
 import StarIcon from '@/Shared/Icons/StarIcon.vue';
 import { Pencil } from 'lucide-vue-next';

@@ -1,5 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { nextTick, ref, useTemplateRef } from 'vue';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
@@ -156,7 +156,7 @@ defineExpose({
             v-model.string="form.date"
             class="inline-block h-full"
             :masks="masks"
-            :locale="$page.props.auth.user?.locale_ietf"
+            :locale="localeIetf()"
             :is-dark="isDark()"
             :update-on-input="false">
             <template #default="{ inputValue, inputEvents }">

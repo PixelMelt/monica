@@ -1,38 +1,31 @@
 import './bootstrap';
 import '../css/app.css';
 
-import { createSSRApp, h } from 'vue';
-import { createInertiaApp } from '@inertiajs/vue3';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { ZiggyVue } from 'ziggy-js';
+import { createApp } from 'vue';
 import { i18nVue } from 'laravel-vue-i18n';
-import { sentry } from './sentry';
+import App from './App.vue';
+import router, { route } from './router';
 import methods from './methods';
+import { onApiError } from './api/runtime';
+import { helpLinks } from './lib/help';
+import { localeIetf } from './lib/session';
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Monica';
+const langs = import.meta.glob('../../lang/*.json');
 
-createInertiaApp({
-  title: (title) => `${title} - ${appName}`,
-  resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
-  progress: {
-    color: '#4B5563',
-  },
-  setup({ el, App, props, plugin }) {
-    return createSSRApp({
-      mounted() {
-        this.$nextTick().then(() => {
-          sentry.setContext(this);
-        });
-      },
-      render: () => h(App, props),
-    })
-      .use(plugin)
-      .use(ZiggyVue, window.Ziggy)
-      .use(i18nVue, {
-        resolve: (lang) => resolvePageComponent(`../../lang/${lang}.json`, import.meta.glob('../../lang/*.json')),
-      })
-      .use(sentry, props.initialPage.props.sentry)
-      .mixin({ methods: { route: window.route, ...methods } })
-      .mount(el);
-  },
+onApiError((error) => {
+  // A request after the session ended: log in again, then come back.
+  if (error.status === 401 && router.currentRoute.value.meta.access !== 'guest') {
+    router.push({ name: 'login' });
+  }
 });
+
+const app = createApp(App);
+app.config.globalProperties.helpLinks = helpLinks;
+
+app
+  .use(router)
+  .use(i18nVue, {
+    resolve: (lang) => langs[`../../lang/${lang}.json`]?.() ?? Promise.resolve({ default: {} }),
+  })
+  .mixin({ methods: { route, localeIetf, ...methods } })
+  .mount('#app');

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods';
 import Layout from '@/Layouts/Layout.vue';

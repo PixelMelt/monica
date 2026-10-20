@@ -1,5 +1,5 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 
 const props = defineProps({
   data: Object,

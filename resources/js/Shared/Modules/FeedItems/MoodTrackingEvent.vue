@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import MoonIcon from '@/Shared/Icons/MoonIcon.vue';
 import CalendarIcon from '@/Shared/Icons/CalendarIcon.vue';

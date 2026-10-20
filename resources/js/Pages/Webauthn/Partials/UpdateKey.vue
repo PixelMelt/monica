@@ -1,6 +1,6 @@
 <script setup>
 import { watch, nextTick, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import JetLabel from '@/Components/Label.vue';
 import JetInput from '@/Components/Input.vue';
 import JetInputError from '@/Components/InputError.vue';

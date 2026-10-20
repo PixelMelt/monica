@@ -39,7 +39,7 @@
             <h1 class="mb-4 flex justify-center text-2xl font-medium">
               <span>{{ $t('Cancel your account') }}</span>
 
-              <help :url="$page.props.help_links.settings_account_deletion" :top="'9px'" :class="'ms-3'" />
+              <help :url="helpLinks.settings_account_deletion" :top="'9px'" :class="'ms-3'" />
             </h1>
             <p class="mb-2">{{ $t('Thanks for giving Monica a try.') }}</p>
             <p class="mb-2">{{ $t('Once you cancel,') }}</p>
@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';

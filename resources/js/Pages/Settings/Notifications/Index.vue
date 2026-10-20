@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import Emails from '@/Pages/Settings/Notifications/Partials/Emails.vue';
 import Telegram from '@/Pages/Settings/Notifications/Partials/Telegram.vue';

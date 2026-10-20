@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { LayoutList } from 'lucide-vue-next';
 defineProps({

@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import Uploadcare from '@/Components/Uploadcare.vue';
 import { FileImage } from 'lucide-vue-next';
