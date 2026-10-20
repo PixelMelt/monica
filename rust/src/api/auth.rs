@@ -4,7 +4,7 @@
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::http::header::HeaderMap;
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -395,4 +395,70 @@ pub async fn get_password_confirmation_status(
     session: Session,
 ) -> Json<PasswordConfirmationStatus> {
     Json(PasswordConfirmationStatus { confirmed: session.password_recently_confirmed() })
+}
+
+#[derive(Deserialize, ToSchema)]
+pub struct Registration {
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: Option<String>,
+    pub password: Option<String>,
+    pub password_confirmation: Option<String>,
+    /// The terms of service and privacy policy are accepted.
+    pub terms: Option<bool>,
+}
+
+#[utoipa::path(
+    post,
+    path = "/auth/register",
+    operation_id = "registerUser",
+    tag = "Auth",
+    summary = "Create an account and its first user",
+    security(()),
+    request_body = Registration,
+    responses(
+        (status = 201, description = "The new user, logged in.", body = CurrentUser),
+        (status = 403, description = "`signup_disabled` or `csrf_token_mismatch`."),
+        (status = 422, description = "Validation failed."),
+    ),
+    extensions(("x-permission" = json!("public")), ("x-inventory" = json!(["V009"])), ("x-services" = json!(["CreateNewUser", "CreateAccount", "SetupAccount"])))
+)]
+pub async fn register_user(
+    State(state): State<AppState>,
+    session: Session,
+    Json(body): Json<Registration>,
+) -> ApiResult<(StatusCode, Json<CurrentUser>)> {
+    if !super::instance::signup_enabled(&state).await? {
+        return Err(ApiError::new(crate::error::Code::SignupDisabled));
+    }
+    // CreateNewUser's rules; CreateAccount checks the rest again.
+    let first_name = clean(body.first_name);
+    let last_name = clean(body.last_name);
+    let email = clean(body.email);
+    let mut v = Validator::new();
+    v.required("first_name", &first_name);
+    v.required("last_name", &last_name);
+    v.required("email", &email);
+    if v.required("password", &body.password) && body.password_confirmation.as_deref() != body.password.as_deref() {
+        v.fail("password", "confirmed", &[]);
+    }
+    if body.terms != Some(true) {
+        v.fail("terms", "accepted", &[]);
+    }
+    v.finish()?;
+
+    let tx = state.db.begin().await?;
+    let user = crate::domains::settings::create_account::CreateAccount {
+        first_name: first_name.unwrap(),
+        last_name: last_name.unwrap(),
+        email: email.unwrap(),
+        password: body.password,
+        storage_limit_in_mb: state.config.default_storage_limit_mb,
+    }
+    .execute(&tx, &state.mailer, &state.config)
+    .await?;
+    tx.commit().await?;
+    let user = verification::send(&state.db, &state.mailer, &state.config, user).await?;
+    session.login(user.id, false);
+    Ok((StatusCode::CREATED, Json(user.into())))
 }

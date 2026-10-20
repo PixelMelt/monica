@@ -63,6 +63,7 @@ pub fn router() -> OpenApiRouter<AppState> {
     OpenApiRouter::with_openapi(ApiDoc::openapi())
         .routes(routes!(instance::get_instance))
         .routes(routes!(auth::get_csrf_cookie))
+        .routes(routes!(auth::register_user))
         .routes(routes!(auth::log_in))
         .routes(routes!(auth::complete_two_factor_challenge))
         .routes(routes!(auth::log_out))

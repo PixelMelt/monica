@@ -213,3 +213,91 @@ async fn changes_password_and_lists_sessions() {
     app.get("/me").await.assert(200);
     app.finish().await;
 }
+
+#[tokio::test]
+async fn bootstraps_the_layout() {
+    let mut app = TestApp::new().await;
+    let user = factory::user(&app.state.db, None).await;
+    login(&mut app, &user.email, factory::PASSWORD).await.assert(200);
+    app.post("/vaults", json!({"name": "Zeta"})).await.assert(201);
+    app.post("/vaults", json!({"name": "alpha"})).await.assert(201);
+    let b = app.get("/me/bootstrap").await.assert(200).json();
+    assert_eq!(b["user"]["id"], user.id.to_string());
+    let names: Vec<&str> = b["vaults"].as_array().unwrap().iter().map(|v| v["name"].as_str().unwrap()).collect();
+    assert_eq!(names, ["alpha", "Zeta"]);
+    assert_eq!(b["vaults"][0]["permission"], 100);
+    assert_eq!(b["instance"]["locales"].as_array().unwrap().len(), 29);
+    app.finish().await;
+}
+
+#[tokio::test]
+async fn logs_out_other_sessions() {
+    let mut app = TestApp::new().await;
+    let user = factory::user(&app.state.db, None).await;
+    login(&mut app, &user.email, factory::PASSWORD).await.assert(200);
+    let mut other_browser = std::collections::HashMap::new();
+    app.swap_cookies(&mut other_browser);
+    login(&mut app, &user.email, factory::PASSWORD).await.assert(200);
+    assert_eq!(app.get("/me/sessions").await.json()["data"].as_array().unwrap().len(), 2);
+
+    app.post("/me/sessions/log-out-others", json!({"password": "wrong"})).await.assert(422);
+    app.post("/me/sessions/log-out-others", json!({})).await.assert(403);
+    app.post("/me/sessions/log-out-others", json!({"password": factory::PASSWORD})).await.assert(204);
+    assert_eq!(app.get("/me/sessions").await.json()["data"].as_array().unwrap().len(), 1);
+    app.swap_cookies(&mut other_browser);
+    app.get("/me").await.assert(401);
+    app.finish().await;
+}
+
+#[tokio::test]
+async fn registers_a_new_account() {
+    let mut app = TestApp::new().await;
+    app.get("/auth/csrf").await.assert(204);
+    let body = |email: &str| {
+        json!({"first_name": "Ann", "last_name": "Smith", "email": email, "password": "abcd",
+               "password_confirmation": "abcd", "terms": true})
+    };
+    let mut no_terms = body("ann@example.com");
+    no_terms["terms"] = json!(false);
+    let res = app.post("/auth/register", no_terms).await.assert(422);
+    assert_eq!(res.json()["errors"][0]["field"], "terms");
+
+    let me = app.post("/auth/register", body("ann@example.com")).await.assert(201).json();
+    assert_eq!(me["is_account_administrator"], true);
+    assert!(me["email_verified_at"].is_null());
+    assert_eq!(me["preferences"]["timezone"], "UTC");
+    // Logged in but unverified: only the verification flow and /me work.
+    app.get("/me").await.assert(200);
+    assert_eq!(app.get("/vaults").await.assert(403).code(), "email_not_verified");
+    let mail = app.state.mailer.sent().pop().unwrap();
+    assert_eq!((mail.to.as_str(), mail.subject.as_str()), ("ann@example.com", "Verify Email Address"));
+
+    // The account was set up (SetupAccount): its default notification channel exists.
+    let account_id: monica::db::uuid::Uuid = me["account_id"].as_str().unwrap().parse().unwrap();
+    let users = monica::entities::users::Entity::find().all(&app.state.db).await.unwrap();
+    assert_eq!(users.len(), 1);
+    let genders = monica::entities::genders::Entity::find().all(&app.state.db).await.unwrap();
+    assert!(genders.iter().any(|g| g.account_id == account_id));
+
+    app.post("/auth/logout", json!({})).await.assert(204);
+    app.get("/auth/csrf").await.assert(204);
+    assert_eq!(
+        app.post("/auth/register", body("ann@example.com")).await.assert(422).json()["errors"][0]["code"],
+        "unique"
+    );
+    app.finish().await;
+}
+
+#[tokio::test]
+async fn signup_can_be_disabled_after_the_first_account() {
+    let mut app = TestApp::with_config(|c| c.disable_signup = true).await;
+    app.get("/auth/csrf").await.assert(204);
+    assert_eq!(app.get("/instance").await.json()["signup_enabled"], true, "the first account may always register");
+    let body = |email: &str| json!({"first_name": "A", "last_name": "B", "email": email, "password": "abcd", "password_confirmation": "abcd", "terms": true});
+    app.post("/auth/register", body("first@example.com")).await.assert(201);
+    app.post("/auth/logout", json!({})).await.assert(204);
+    app.get("/auth/csrf").await.assert(204);
+    assert_eq!(app.get("/instance").await.json()["signup_enabled"], false);
+    assert_eq!(app.post("/auth/register", body("second@example.com")).await.assert(403).code(), "signup_disabled");
+    app.finish().await;
+}

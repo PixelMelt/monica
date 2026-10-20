@@ -91,6 +91,7 @@ impl FromRequestParts<AppState> for Session {
 
 /// Sensitive actions (api-design.md §7.4): a cookie session that confirmed
 /// the password in the last 3 hours, or the current `password` in the body.
+/// A wrong password is a 422 on `password`; none at all is a 403.
 pub fn require_password_confirmation(id: &Identity, session: &Session, password: Option<&str>) -> Result<(), ApiError> {
     if id.credential == Credential::Session && session.password_recently_confirmed() {
         return Ok(());
@@ -98,6 +99,10 @@ pub fn require_password_confirmation(id: &Identity, session: &Session, password:
     match (password, id.user.password.as_deref()) {
         (_, None) => Ok(()),
         (Some(p), Some(hash)) if crate::password::verify(p, hash) => Ok(()),
-        _ => Err(ApiError::new(Code::PasswordConfirmationRequired)),
+        (Some(_), Some(_)) => {
+            let msg = crate::i18n::group(&crate::i18n::current(), "auth.password", &[]).unwrap_or_default();
+            Err(ApiError::field("password", "password", msg))
+        }
+        (None, Some(_)) => Err(ApiError::new(Code::PasswordConfirmationRequired)),
     }
 }

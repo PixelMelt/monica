@@ -33,7 +33,10 @@ async fn creates_reads_updates_and_deletes_a_vault() {
     assert_eq!(list["data"][0]["contacts_count"], 1, "the user's own contact");
 
     let v = app
-        .patch(&format!("/vaults/{id}"), json!({"name": "Family", "show_files_tab": false, "default_activity_tab": "life_events"}))
+        .patch(
+            &format!("/vaults/{id}"),
+            json!({"name": "Family", "show_files_tab": false, "default_activity_tab": "life_events"}),
+        )
         .await
         .assert(200)
         .json();
