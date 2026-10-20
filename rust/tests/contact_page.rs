@@ -17,10 +17,10 @@ async fn world() -> (TestApp, users::Model, String, String, String) {
     let mut app = TestApp::new().await;
     let user = factory::create_administrator(&app.state.db).await;
     SetupAccount { account_id: user.account_id, author_id: user.id }
-        .execute(&app.state.db, &app.state.mailer, &app.state.config)
+        .execute(&app.state.db)
         .await
         .expect("setup account");
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let v = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     let vault = v["id"].as_str().unwrap().to_owned();
     let own = v["user_contact_id"].as_str().unwrap().to_owned();
@@ -39,7 +39,6 @@ async fn shows_the_header_the_tabs_and_the_first_tab() {
 
     assert_eq!(page["contact"]["first_name"], "Ada");
     assert_eq!(page["is_current_user_contact"], false);
-    assert_eq!(page["can_upload_file"], true);
     // The default template's contact information page, in position order.
     assert_eq!(
         types(&page["header_modules"]),
@@ -142,9 +141,9 @@ async fn viewers_see_the_page_and_strangers_dont() {
     factory::set_permission_in_vault(&app.state.db, &viewer, VaultPermission::View, &vault_model).await;
     let stranger = factory::create_user(&app.state.db).await;
 
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     app.get(&format!("/vaults/{vault}/contacts/{contact}/page")).await.assert(200);
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.get(&format!("/vaults/{vault}/contacts/{contact}/page")).await.assert(404);
     app.finish().await;
 }

@@ -7,18 +7,18 @@ use monica::domains::base::VaultPermission;
 use monica::testing::factory;
 use serde_json::json;
 
-async fn login(app: &mut TestApp, email: &str) {
+async fn login(app: &mut TestApp, username: &str) {
     app.clear_cookies();
     app.use_cookies();
     app.get("/auth/csrf").await.assert(204);
-    app.post("/auth/login", json!({"email": email, "password": factory::PASSWORD})).await.assert(200);
+    app.post("/auth/login", json!({"username": username, "password": factory::PASSWORD})).await.assert(200);
 }
 
 #[tokio::test]
 async fn creates_reads_updates_and_deletes_a_vault() {
     let mut app = TestApp::new().await;
     let user = factory::user(&app.state.db, None).await;
-    login(&mut app, &user.email).await;
+    login(&mut app, &user.username).await;
 
     app.post("/vaults", json!({"name": "  "})).await.assert(422);
     let vault = app.post("/vaults", json!({"name": "Friends", "description": "people"})).await.assert(201).json();
@@ -64,7 +64,7 @@ async fn viewers_can_only_change_the_dashboard_tab_and_strangers_see_nothing() {
     factory::set_permission_in_vault(&app.state.db, &viewer, VaultPermission::View, &vault).await;
     let path = format!("/vaults/{}", vault.id);
 
-    login(&mut app, &viewer.email).await;
+    login(&mut app, &viewer.username).await;
     assert_eq!(app.get(&path).await.assert(200).json()["permission"], 300);
     app.patch(&path, json!({"default_activity_tab": "life_metrics"})).await.assert(200);
     let res = app.patch(&path, json!({"name": "Mine now"})).await.assert(403);
@@ -72,7 +72,7 @@ async fn viewers_can_only_change_the_dashboard_tab_and_strangers_see_nothing() {
     app.delete(&path).await.assert(403);
     app.get(&format!("{path}/members")).await.assert(403);
 
-    login(&mut app, &stranger.email).await;
+    login(&mut app, &stranger.username).await;
     app.get(&path).await.assert(404);
     app.patch(&path, json!({"default_activity_tab": "activity"})).await.assert(404);
     app.finish().await;
@@ -85,7 +85,7 @@ async fn manages_members() {
     let other = factory::user(&app.state.db, Some(manager.account_id)).await;
     let vault = factory::create_vault_user(&app.state.db, &manager, VaultPermission::Manage).await;
     let base = format!("/vaults/{}/members", vault.id);
-    login(&mut app, &manager.email).await;
+    login(&mut app, &manager.username).await;
 
     let candidates = app.get(&format!("/vaults/{}/member-candidates", vault.id)).await.assert(200).json();
     assert_eq!(candidates["data"].as_array().unwrap().len(), 1);
@@ -105,7 +105,7 @@ async fn manages_members() {
     app.delete(&format!("{base}/{}", other.id)).await.assert(204);
     assert_eq!(app.get(&base).await.json()["data"].as_array().unwrap().len(), 1);
     // F19: the removed user has no access left.
-    login(&mut app, &other.email).await;
+    login(&mut app, &other.username).await;
     app.get(&format!("/vaults/{}", vault.id)).await.assert(404);
     app.finish().await;
 }

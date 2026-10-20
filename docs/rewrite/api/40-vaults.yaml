@@ -170,7 +170,7 @@ paths:
       operationId: listVaultMemberCandidates
       tags: [Vaults]
       summary: List account users who could be added to the vault
-      description: Users of the account with a verified email who are not members yet.
+      description: Users of the account who are not members of the vault yet.
       x-permission: vault:manage
       x-inventory: [R173]
       x-services: []

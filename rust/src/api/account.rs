@@ -1,4 +1,4 @@
-//! `/account` (the account, its storage and users) and `/invitations`.
+//! `/account`: the account and its users.
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
@@ -7,13 +7,11 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 use super::auth::PasswordConfirmation;
-use super::schemas::CurrentUser;
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
-use crate::domains::settings::cancel_account::CancelAccount;
-use crate::domains::settings::manage_storage;
 use crate::domains::settings::manage_users::{
-    AcceptInvitation, DestroyUser, GiveAdministratorPrivilege, InviteUser, RemoveAdministratorPrivilege,
+    CreateUser, DestroyUser, GiveAdministratorPrivilege, RemoveAdministratorPrivilege, normalize_username,
+    validate_username,
 };
 use crate::entities::{accounts, users};
 use crate::error::{ApiError, ApiResult};
@@ -28,16 +26,10 @@ use crate::validate::{Validator, clean};
 pub struct Account {
     #[schema(value_type = uuid::Uuid)]
     pub id: Uuid,
-    /// 0 means unlimited (X011).
-    pub storage_limit_in_mb: i32,
     #[schema(value_type = String, format = DateTime)]
     pub created_at: Timestamp,
     #[schema(value_type = String, format = DateTime)]
     pub updated_at: Timestamp,
-}
-
-async fn account_of(state: &AppState, id: &Identity) -> ApiResult<accounts::Model> {
-    accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)
 }
 
 #[utoipa::path(
@@ -50,87 +42,11 @@ async fn account_of(state: &AppState, id: &Identity) -> ApiResult<accounts::Mode
     extensions(("x-permission" = json!("account:member")), ("x-inventory" = json!([])), ("x-services" = json!([])))
 )]
 pub async fn get_account(State(state): State<AppState>, Auth(id): Auth) -> ApiResult<Json<Account>> {
-    let a = account_of(&state, &id).await?;
+    let a = accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
     Ok(Json(Account {
         id: a.id,
-        storage_limit_in_mb: a.storage_limit_in_mb,
         created_at: a.created_at.unwrap_or_else(crate::db::now),
         updated_at: a.updated_at.unwrap_or_else(crate::db::now),
-    }))
-}
-
-#[utoipa::path(
-    delete,
-    path = "/account",
-    operation_id = "cancelAccount",
-    tag = "Account",
-    summary = "Delete the account and everything in it",
-    request_body = PasswordConfirmation,
-    responses(
-        (status = 202, description = "Deleted."),
-        (status = 403, description = "Not an administrator, or `password_confirmation_required`."),
-        (status = 422, description = "Wrong password."),
-    ),
-    extensions(("x-permission" = json!("account:admin")), ("x-inventory" = json!(["R326"])), ("x-services" = json!(["CancelAccount"])))
-)]
-pub async fn cancel_account(
-    State(state): State<AppState>,
-    Auth(id): Auth,
-    session: Session,
-    Json(body): Json<PasswordConfirmation>,
-) -> ApiResult<StatusCode> {
-    access::administrator(&id)?;
-    require_password_confirmation(&id, &session, body.password.as_deref())?;
-    let tx = state.db.begin().await?;
-    CancelAccount { account_id: id.user.account_id, author_id: id.user.id }.execute(&tx).await?;
-    tx.commit().await?;
-    session.destroy();
-    Ok(StatusCode::ACCEPTED)
-}
-
-#[derive(Serialize, ToSchema)]
-pub struct StorageTypeUsage {
-    /// Number of files of this type.
-    pub count: u64,
-    /// Bytes.
-    pub size: u64,
-}
-
-impl From<manage_storage::TypeUsage> for StorageTypeUsage {
-    fn from(t: manage_storage::TypeUsage) -> Self {
-        StorageTypeUsage { count: t.count, size: t.size }
-    }
-}
-
-/// Bytes summed over the files of all the account's vaults.
-#[derive(Serialize, ToSchema)]
-pub struct StorageUsage {
-    /// 0 means unlimited.
-    pub storage_limit_in_mb: i32,
-    pub total_size: u64,
-    pub photo: StorageTypeUsage,
-    pub document: StorageTypeUsage,
-    pub avatar: StorageTypeUsage,
-}
-
-#[utoipa::path(
-    get,
-    path = "/account/storage",
-    operation_id = "getAccountStorage",
-    tag = "Account",
-    summary = "Storage used by the account",
-    responses((status = 200, description = "The usage.", body = StorageUsage)),
-    extensions(("x-permission" = json!("account:member")), ("x-inventory" = json!(["R324"])), ("x-services" = json!([])))
-)]
-pub async fn get_account_storage(State(state): State<AppState>, Auth(id): Auth) -> ApiResult<Json<StorageUsage>> {
-    let a = account_of(&state, &id).await?;
-    let u = manage_storage::usage(&state.db, a.id).await?;
-    Ok(Json(StorageUsage {
-        storage_limit_in_mb: a.storage_limit_in_mb,
-        total_size: u.total_size(),
-        photo: u.photo.into(),
-        document: u.document.into(),
-        avatar: u.avatar.into(),
     }))
 }
 
@@ -140,16 +56,10 @@ pub async fn get_account_storage(State(state): State<AppState>, Auth(id): Auth) 
 pub struct AccountUser {
     #[schema(value_type = uuid::Uuid)]
     pub id: Uuid,
-    pub email: String,
+    pub username: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub is_account_administrator: bool,
-    #[schema(value_type = Option<String>, format = DateTime)]
-    pub email_verified_at: Option<Timestamp>,
-    #[schema(value_type = Option<String>, format = DateTime)]
-    pub invitation_accepted_at: Option<Timestamp>,
-    /// Invited and not accepted yet.
-    pub is_invitation_pending: bool,
     #[schema(value_type = String, format = DateTime)]
     pub created_at: Timestamp,
     #[schema(value_type = String, format = DateTime)]
@@ -159,14 +69,11 @@ pub struct AccountUser {
 impl From<users::Model> for AccountUser {
     fn from(u: users::Model) -> Self {
         AccountUser {
-            is_invitation_pending: u.invitation_code.is_some() && u.invitation_accepted_at.is_none(),
             id: u.id,
-            email: u.email,
+            username: u.username,
             first_name: u.first_name,
             last_name: u.last_name,
             is_account_administrator: u.is_account_administrator,
-            email_verified_at: u.email_verified_at,
-            invitation_accepted_at: u.invitation_accepted_at,
             created_at: u.created_at.unwrap_or_else(crate::db::now),
             updated_at: u.updated_at.unwrap_or_else(crate::db::now),
         }
@@ -191,7 +98,7 @@ async fn account_user(state: &AppState, id: &Identity, user_id: Uuid) -> ApiResu
     path = "/account/users",
     operation_id = "listAccountUsers",
     tag = "Account",
-    summary = "The account's users, invited ones included",
+    summary = "The account's users",
     responses((status = 200, description = "By creation date.", body = AccountUserList)),
     extensions(("x-permission" = json!("account:member")), ("x-inventory" = json!(["R229", "R330"])), ("x-services" = json!([])))
 )]
@@ -199,15 +106,20 @@ pub async fn list_account_users(State(state): State<AppState>, Auth(id): Auth) -
     let rows = users::Entity::find()
         .filter(users::Column::AccountId.eq(id.user.account_id))
         .order_by_asc(users::Column::CreatedAt)
-        .order_by_asc(users::Column::Email)
+        .order_by_asc(users::Column::Username)
         .all(&state.db)
         .await?;
     Ok(Json(AccountUserList { data: rows.into_iter().map(Into::into).collect() }))
 }
 
 #[derive(Deserialize, ToSchema)]
-pub struct AccountUserInvite {
-    pub email: Option<String>,
+pub struct AccountUserCreate {
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub username: Option<String>,
+    /// The user's first password; they can change it in their profile.
+    pub password: Option<String>,
+    pub password_confirmation: Option<String>,
     #[serde(default)]
     pub is_account_administrator: bool,
 }
@@ -215,32 +127,46 @@ pub struct AccountUserInvite {
 #[utoipa::path(
     post,
     path = "/account/users",
-    operation_id = "inviteAccountUser",
+    operation_id = "createAccountUser",
     tag = "Account",
-    summary = "Invite someone to the account",
-    request_body = AccountUserInvite,
-    responses((status = 201, description = "The invited user.", body = AccountUser), (status = 422, description = "Validation failed.")),
-    extensions(("x-permission" = json!("account:admin")), ("x-inventory" = json!(["R231"])), ("x-services" = json!(["InviteUser"])))
+    summary = "Add a user, with a username and a first password",
+    request_body = AccountUserCreate,
+    responses((status = 201, description = "The new user.", body = AccountUser), (status = 422, description = "Validation failed.")),
+    extensions(("x-permission" = json!("account:admin")), ("x-inventory" = json!(["R231"])), ("x-services" = json!(["CreateUser"])))
 )]
-pub async fn invite_account_user(
+pub async fn create_account_user(
     State(state): State<AppState>,
     Auth(id): Auth,
-    Json(body): Json<AccountUserInvite>,
+    Json(body): Json<AccountUserCreate>,
 ) -> ApiResult<(StatusCode, Json<AccountUser>)> {
     access::administrator(&id)?;
-    let email = clean(body.email);
+    let first_name = clean(body.first_name);
+    let last_name = clean(body.last_name);
     let mut v = Validator::new();
-    if v.required("email", &email) {
-        v.email("email", email.as_deref());
+    v.required("first_name", &first_name);
+    v.required("last_name", &last_name);
+    let username = normalize_username(body.username.as_deref().unwrap_or_default());
+    validate_username(&state.db, &mut v, &username, None).await?;
+    if v.required("password", &body.password) {
+        crate::password::validate(
+            &mut v,
+            "password",
+            body.password.as_deref().unwrap_or_default(),
+            state.config.is_production(),
+            Some(body.password_confirmation.as_deref()),
+        );
     }
     v.finish()?;
-    let user = InviteUser {
+    let user = CreateUser {
         account_id: id.user.account_id,
         author_id: id.user.id,
-        email: email.unwrap(),
+        first_name: first_name.unwrap(),
+        last_name: last_name.unwrap(),
+        username,
+        password: body.password.unwrap(),
         is_administrator: body.is_account_administrator,
     }
-    .execute(&state.db, &state.mailer, &state.config)
+    .execute(&state.db)
     .await?;
     Ok((StatusCode::CREATED, Json(user.into())))
 }
@@ -332,98 +258,4 @@ pub async fn delete_account_user(
     DestroyUser { account_id: id.user.account_id, author_id: id.user.id, user_id }.execute(&tx).await?;
     tx.commit().await?;
     Ok(StatusCode::NO_CONTENT)
-}
-
-// ---------------------------------------------------------------- invitations
-
-#[derive(Serialize, ToSchema)]
-pub struct Invitation {
-    #[schema(value_type = uuid::Uuid)]
-    pub invitation_code: Uuid,
-    pub email: String,
-}
-
-async fn invited(state: &AppState, code: Uuid) -> ApiResult<users::Model> {
-    users::Entity::find()
-        .filter(users::Column::InvitationCode.eq(code.to_string()))
-        .filter(users::Column::InvitationAcceptedAt.is_null())
-        .one(&state.db)
-        .await?
-        .ok_or_else(ApiError::not_found)
-}
-
-#[utoipa::path(
-    get,
-    path = "/invitations/{invitation_code}",
-    operation_id = "getInvitation",
-    tag = "Auth",
-    summary = "A pending invitation",
-    security(()),
-    params(("invitation_code" = uuid::Uuid, Path)),
-    responses((status = 200, description = "The invitation.", body = Invitation), (status = 404, description = "Unknown or already accepted.")),
-    extensions(("x-permission" = json!("public")), ("x-inventory" = json!(["R009"])), ("x-services" = json!([])))
-)]
-pub async fn get_invitation(State(state): State<AppState>, Path(code): Path<Uuid>) -> ApiResult<Json<Invitation>> {
-    let user = invited(&state, code).await?;
-    Ok(Json(Invitation { invitation_code: code, email: user.email }))
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct InvitationAccept {
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub password: Option<String>,
-    pub password_confirmation: Option<String>,
-}
-
-#[utoipa::path(
-    post,
-    path = "/invitations/{invitation_code}/accept",
-    operation_id = "acceptInvitation",
-    tag = "Auth",
-    summary = "Accept an invitation and log in",
-    security(()),
-    params(("invitation_code" = uuid::Uuid, Path)),
-    request_body = InvitationAccept,
-    responses(
-        (status = 200, description = "The new user, logged in.", body = CurrentUser),
-        (status = 404, description = "Unknown or already accepted."),
-        (status = 422, description = "Validation failed."),
-    ),
-    extensions(("x-permission" = json!("public")), ("x-inventory" = json!(["R010"])), ("x-services" = json!(["AcceptInvitation", "CreateUserNotificationChannel"])))
-)]
-pub async fn accept_invitation(
-    State(state): State<AppState>,
-    session: Session,
-    Path(code): Path<Uuid>,
-    Json(body): Json<InvitationAccept>,
-) -> ApiResult<Json<CurrentUser>> {
-    invited(&state, code).await?;
-    let first_name = clean(body.first_name);
-    let last_name = clean(body.last_name);
-    let mut v = Validator::new();
-    v.required("first_name", &first_name);
-    v.required("last_name", &last_name);
-    if v.required("password", &body.password) {
-        crate::password::validate(
-            &mut v,
-            "password",
-            body.password.as_deref().unwrap_or_default(),
-            state.config.is_production(),
-            Some(body.password_confirmation.as_deref()),
-        );
-    }
-    v.finish()?;
-    let tx = state.db.begin().await?;
-    let user = AcceptInvitation {
-        invitation_code: code,
-        first_name: first_name.unwrap(),
-        last_name: last_name.unwrap(),
-        password: body.password.unwrap(),
-    }
-    .execute(&tx, &state.mailer, &state.config)
-    .await?;
-    tx.commit().await?;
-    session.login(user.id, false);
-    Ok(Json(user.into()))
 }

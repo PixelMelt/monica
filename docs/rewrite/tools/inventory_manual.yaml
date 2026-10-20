@@ -44,7 +44,6 @@ J013: src/domains/contact/dav/tests
 J014: src/domains/settings/create_account/tests.rs
 J015: src/domains/settings/manage_notification_channels/tests.rs
 J017: src/domains/contact/manage_groups/tests.rs
-J018: src/domains/settings/cancel_account/tests.rs
 
 # --- Console commands ----------------------------------------------------
 K001: tests/cli.rs
@@ -56,7 +55,7 @@ K006: src/dummy.rs
 K007: src/domains/contact/dav_client/tests.rs
 K008: ../scripts/localize.test.mjs
 K011: tests/schema_parity.rs
-K012: src/domains/settings/cancel_account/tests.rs
+K012: src/domains/contact/manage_contact/tests.rs
 K013: src/scheduler.rs
 
 # --- Events, mail, notifications -----------------------------------------
@@ -276,7 +275,7 @@ C483: tests/dav.rs
 C484: tests/auth.rs
 C485: tests/auth.rs
 C487: src/domains/settings/manage_genders/tests.rs
-C488: src/domains/settings/cancel_account/tests.rs
+C488: src/domains/contact/manage_contact/tests.rs
 C490: tests/value_types.rs
 C491: tests/http_basics.rs
 

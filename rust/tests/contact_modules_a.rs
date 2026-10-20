@@ -33,7 +33,7 @@ impl World {
     async fn new() -> World {
         let mut app = TestApp::new().await;
         let user = factory::user(&app.state.db, None).await;
-        app.login(&user.email).await;
+        app.login(&user.username).await;
         let v = app.post("/vaults", json!({"name": "Friends"})).await.assert(201).json();
         let vault_id: Uuid = v["id"].as_str().unwrap().parse().unwrap();
         let vault = vaults::Entity::find_by_id(vault_id).one(&app.state.db).await.unwrap().unwrap();
@@ -61,13 +61,13 @@ impl World {
     async fn login_viewer(&mut self) {
         let viewer = factory::user(&self.app.state.db, Some(self.user.account_id)).await;
         factory::set_permission_in_vault(&self.app.state.db, &viewer, VaultPermission::View, &self.vault).await;
-        self.app.login(&viewer.email).await;
+        self.app.login(&viewer.username).await;
     }
 
     /// Logs in a user of another account.
     async fn login_stranger(&mut self) {
         let stranger = factory::user(&self.app.state.db, None).await;
-        self.app.login(&stranger.email).await;
+        self.app.login(&stranger.username).await;
     }
 
     /// A vault of another account, with a contact.
@@ -389,7 +389,7 @@ async fn manages_goals_and_streaks() {
     w.app.get(&goal_path).await.assert(404);
     w.app.put(&streak(today), json!({})).await.assert(404);
 
-    w.app.login(&w.user.email.clone()).await;
+    w.app.login(&w.user.username.clone()).await;
     w.app.delete(&goal_path).await.assert(204);
     w.app.get(&goal_path).await.assert(404);
     assert_eq!(count().await, 0, "the streaks go with the goal");
@@ -477,7 +477,7 @@ async fn manages_reminders() {
         user_id: Set(Some(w.user.id)),
         r#type: Set("email".into()),
         label: Set(Some("Mail".into())),
-        content: Set(w.user.email.clone()),
+        content: Set(w.user.username.clone()),
         active: Set(true),
         fails: Set(0),
         verified_at: Set(Some(monica::db::now())),

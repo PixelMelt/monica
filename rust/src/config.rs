@@ -26,20 +26,10 @@ impl Environment {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum MailTransport {
-    /// SMTP; `encryption` is `tls` (STARTTLS), `ssl` (implicit TLS) or none.
-    Smtp { host: String, port: u16, username: Option<String>, password: Option<String>, encryption: Option<String> },
-    /// Write messages to the log (development).
-    Log,
-    /// Keep messages in memory (tests read them back).
-    Memory,
-}
-
 #[derive(Debug, Clone)]
 pub struct Config {
     pub env: Environment,
-    /// `APP_URL`, without a trailing slash. Used for links in emails.
+    /// `APP_URL`, without a trailing slash.
     pub url: String,
     /// `APP_KEY`: 32 bytes, base64 (optionally prefixed `base64:`). Signs
     /// URLs and encrypts 2FA secrets.
@@ -52,23 +42,14 @@ pub struct Config {
     pub spa_dir: Option<PathBuf>,
     /// `APP_LOCALE`.
     pub locale: String,
-    /// `APP_DISABLE_SIGNUP` (X007).
-    pub disable_signup: bool,
-    /// `APP_SHOW_DELETION_NOTICE` (X008).
-    pub show_deletion_notice: bool,
-    /// `DEFAULT_STORAGE_LIMIT`, megabytes per account (X011).
-    pub default_storage_limit_mb: i32,
     /// `MAX_UPLOAD_SIZE`, megabytes per file.
     pub max_upload_size_mb: u64,
-    /// `ENABLE_ACCOUNT_DELETION` (V032).
-    pub enable_account_deletion: bool,
     /// `SESSION_LIFETIME`, minutes of inactivity.
     pub session_lifetime_minutes: i64,
     /// `SESSION_SECURE_COOKIE`; defaults to whether `APP_URL` is https.
     pub secure_cookies: bool,
-    pub mail: MailTransport,
-    /// `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`.
-    pub mail_from: (String, String),
+    /// `PUSHOVER_API_URL`: the Pushover API reminders are sent through.
+    pub pushover_api_url: String,
     /// `WIKIPEDIA_URL`: the API the city and country reports read summaries
     /// from (`{lang}` is the request's language); empty disables it (Q1).
     pub wikipedia_url: Option<String>,
@@ -122,21 +103,6 @@ impl Config {
         let data_dir = PathBuf::from(var("DATA_DIR").unwrap_or_else(|| "data".into()));
         let database_url = var("DATABASE_URL")
             .unwrap_or_else(|| format!("sqlite://{}?mode=rwc", data_dir.join("monica.sqlite").display()));
-        let mail = match var("MAIL_MAILER").as_deref() {
-            None | Some("smtp") => match var("MAIL_HOST") {
-                Some(host) => MailTransport::Smtp {
-                    host,
-                    port: number("MAIL_PORT", 587)?,
-                    username: var("MAIL_USERNAME"),
-                    password: var("MAIL_PASSWORD"),
-                    encryption: var("MAIL_ENCRYPTION").filter(|e| e != "null"),
-                },
-                None => MailTransport::Log,
-            },
-            Some("log") => MailTransport::Log,
-            Some("memory" | "array") => MailTransport::Memory,
-            Some(v) => bail!("MAIL_MAILER must be smtp, log or memory, got {v:?}"),
-        };
         Ok(Config {
             env,
             secure_cookies: flag("SESSION_SECURE_COOKIE", url.starts_with("https://"))?,
@@ -147,17 +113,9 @@ impl Config {
             data_dir,
             spa_dir: var("SPA_DIR").map(PathBuf::from),
             locale: var("APP_LOCALE").unwrap_or_else(|| "en".into()),
-            disable_signup: flag("APP_DISABLE_SIGNUP", false)?,
-            show_deletion_notice: flag("APP_SHOW_DELETION_NOTICE", false)?,
-            default_storage_limit_mb: number("DEFAULT_STORAGE_LIMIT", 50)?,
             max_upload_size_mb: number("MAX_UPLOAD_SIZE", 10)?,
-            enable_account_deletion: flag("ENABLE_ACCOUNT_DELETION", false)?,
             session_lifetime_minutes: number("SESSION_LIFETIME", 120)?,
-            mail,
-            mail_from: (
-                var("MAIL_FROM_ADDRESS").unwrap_or_else(|| "hello@example.com".into()),
-                var("MAIL_FROM_NAME").unwrap_or_else(|| "Monica".into()),
-            ),
+            pushover_api_url: var("PUSHOVER_API_URL").unwrap_or_else(|| crate::pushover::API_URL.into()),
             wikipedia_url: match std::env::var("WIKIPEDIA_URL").ok() {
                 Some(url) if url.trim().is_empty() => None,
                 Some(url) => Some(url),
@@ -166,7 +124,7 @@ impl Config {
         })
     }
 
-    /// A configuration for tests: SQLite or the given URL, in-memory mail.
+    /// A configuration for tests: SQLite or the given URL.
     pub fn for_tests(database_url: &str, data_dir: PathBuf) -> Config {
         Config {
             env: Environment::Testing,
@@ -177,15 +135,11 @@ impl Config {
             data_dir,
             spa_dir: None,
             locale: "en".into(),
-            disable_signup: false,
-            show_deletion_notice: false,
-            default_storage_limit_mb: 50,
             max_upload_size_mb: 10,
-            enable_account_deletion: false,
             session_lifetime_minutes: 120,
             secure_cookies: false,
-            mail: MailTransport::Memory,
-            mail_from: ("hello@example.com".into(), "Monica".into()),
+            // Nothing listens on port 1: tests that send start a fake Pushover.
+            pushover_api_url: "http://127.0.0.1:1".into(),
             wikipedia_url: None,
         }
     }

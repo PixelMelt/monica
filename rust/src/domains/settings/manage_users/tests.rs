@@ -7,11 +7,6 @@ use crate::entities::contacts;
 use crate::error::Code;
 use crate::testing::{TestDb, factory};
 
-fn mail() -> (Mailer, Config) {
-    let config = Config::for_tests("", std::env::temp_dir());
-    (Mailer::new(&config).expect("mailer"), config)
-}
-
 async fn row(db: &TestDb, user: &users::Model) -> Option<users::Model> {
     users::Entity::find_by_id(user.id).one(&db.conn).await.unwrap()
 }
@@ -21,89 +16,6 @@ async fn administrator_in(db: &TestDb, account_id: Uuid) -> users::Model {
     let mut user: users::ActiveModel = factory::user(&db.conn, Some(account_id)).await.into();
     user.is_account_administrator = Set(true);
     user.update(&db.conn).await.unwrap()
-}
-
-// ---- AcceptInvitationTest
-
-/// `User::factory()->create(['invitation_code' => (string) Str::uuid()])`,
-/// accepted when `accepted`.
-async fn invited_user(db: &TestDb, accepted: bool) -> users::Model {
-    let mut user: users::ActiveModel = factory::user(&db.conn, None).await.into();
-    user.invitation_code = Set(Some(uuid::Uuid::new_v4().to_string()));
-    if accepted {
-        user.invitation_accepted_at = Set(Some(crate::db::now()));
-    }
-    user.update(&db.conn).await.unwrap()
-}
-
-async fn accept_invitation(db: &TestDb, user: &users::Model) -> ApiResult<()> {
-    let (mailer, config) = mail();
-    let before = crate::db::now();
-    let user = AcceptInvitation {
-        invitation_code: user.invitation_code.as_deref().unwrap().parse().unwrap(),
-        first_name: "James".into(),
-        last_name: "Bond".into(),
-        password: "password".into(),
-    }
-    .execute(&db.conn, &mailer, &config)
-    .await?;
-    let after = crate::db::now();
-
-    let row = row(db, &user).await.unwrap();
-    assert!(!row.is_account_administrator);
-    assert_eq!(row.first_name.as_deref(), Some("James"));
-    assert_eq!(row.last_name.as_deref(), Some("Bond"));
-    for at in [row.invitation_accepted_at.unwrap(), row.email_verified_at.unwrap()] {
-        assert!(before <= at && at <= after);
-    }
-
-    let channel = user_notification_channels::Entity::find()
-        .filter(user_notification_channels::Column::UserId.eq(user.id))
-        .one(&db.conn)
-        .await
-        .unwrap()
-        .unwrap();
-    assert_eq!(channel.label.as_deref(), Some("Email address"));
-    assert_eq!(channel.r#type, "email");
-    assert_eq!(channel.content, row.email);
-    assert!(channel.active);
-    Ok(())
-}
-
-#[tokio::test]
-async fn it_accepts_the_invitation_from_another_user() {
-    let db = TestDb::migrated().await;
-    let user = invited_user(&db, false).await;
-    accept_invitation(&db, &user).await.unwrap();
-    db.drop().await;
-}
-
-// accept_fails_if_user_doesnt_have_a_valid_invitation_code: `invitation_code`
-// is a `Uuid`, so the code "123" can't be passed.
-
-#[tokio::test]
-async fn accept_fails_if_user_has_already_accepted_invitation() {
-    let db = TestDb::migrated().await;
-    let user = invited_user(&db, true).await;
-    assert_eq!(accept_invitation(&db, &user).await.unwrap_err().code, Code::NotFound);
-    db.drop().await;
-}
-
-#[tokio::test]
-async fn accept_fails_if_wrong_parameters_are_given() {
-    let db = TestDb::migrated().await;
-    let (mailer, config) = mail();
-    let err = AcceptInvitation {
-        invitation_code: Uuid::new(),
-        first_name: String::new(),
-        last_name: "Bond".into(),
-        password: "password".into(),
-    }
-    .execute(&db.conn, &mailer, &config)
-    .await
-    .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
-    db.drop().await;
 }
 
 // ---- DestroyUserTest
@@ -255,77 +167,68 @@ async fn give_fails_if_user_is_not_account_administrator() {
 
 // give_fails_if_wrong_parameters_are_given: every field is typed, no invalid input can be built.
 
-// ---- InviteUserTest
+// ---- CreateUser (in place of InviteUserTest)
 
-async fn invite(db: &TestDb, account_id: Uuid, author: &users::Model) -> ApiResult<()> {
-    let (mailer, config) = mail();
-    let new_user =
-        InviteUser { account_id, author_id: author.id, email: "admin@admin.com".into(), is_administrator: true }
-            .execute(&db.conn, &mailer, &config)
-            .await?;
-
-    let row = row(db, &new_user).await.unwrap();
-    assert_eq!(row.email, "admin@admin.com");
-    assert!(row.is_account_administrator);
-
-    let sent = mailer.sent();
-    assert_eq!(sent.len(), 1);
-    assert_eq!(sent[0].to, "admin@admin.com");
-    assert!(sent[0].text.contains(&format!("http://localhost/invitation/{}", row.invitation_code.unwrap())));
-    Ok(())
+async fn create(db: &TestDb, account_id: Uuid, author: &users::Model, username: &str) -> ApiResult<users::Model> {
+    CreateUser {
+        account_id,
+        author_id: author.id,
+        first_name: "Ann".into(),
+        last_name: "Smith".into(),
+        username: username.into(),
+        password: "abcd".into(),
+        is_administrator: true,
+    }
+    .execute(&db.conn)
+    .await
 }
 
 #[tokio::test]
-async fn it_invites_another_user() {
+async fn it_creates_another_user() {
     let db = TestDb::migrated().await;
     let author = factory::create_administrator(&db.conn).await;
-    invite(&db, author.account_id, &author).await.unwrap();
+    let new_user = create(&db, author.account_id, &author, " Ann.Smith ").await.unwrap();
+
+    let row = row(&db, &new_user).await.unwrap();
+    assert_eq!(row.username, "ann.smith");
+    assert_eq!(row.account_id, author.account_id);
+    assert!(row.is_account_administrator);
+    assert!(crate::password::verify("abcd", row.password.as_deref().unwrap()));
+    assert!(row.invitation_code.is_none());
     db.drop().await;
 }
 
 #[tokio::test]
-async fn invite_fails_if_user_doesnt_belong_to_account() {
+async fn create_fails_if_user_doesnt_belong_to_account() {
     let db = TestDb::migrated().await;
     let author = factory::create_administrator(&db.conn).await;
     let account = factory::account(&db.conn).await;
-    assert_eq!(invite(&db, account.id, &author).await.unwrap_err().code, Code::NotFound);
+    assert_eq!(create(&db, account.id, &author, "ann").await.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
 #[tokio::test]
-async fn invite_fails_if_email_is_already_taken() {
-    let db = TestDb::migrated().await;
-    let author = factory::create_administrator(&db.conn).await;
-    let mut taken: users::ActiveModel = factory::create_user(&db.conn).await.into();
-    taken.email = Set("admin@admin.com".into());
-    taken.update(&db.conn).await.unwrap();
-    assert_eq!(invite(&db, author.account_id, &author).await.unwrap_err().code, Code::ValidationFailed);
-    db.drop().await;
-}
-
-#[tokio::test]
-async fn invite_fails_if_user_is_not_account_administrator() {
+async fn create_fails_if_user_is_not_account_administrator() {
     let db = TestDb::migrated().await;
     let author = factory::create_user(&db.conn).await;
-    assert_eq!(invite(&db, author.account_id, &author).await.unwrap_err().code, Code::Forbidden);
+    assert_eq!(create(&db, author.account_id, &author, "ann").await.unwrap_err().code, Code::Forbidden);
     db.drop().await;
 }
 
+/// Usernames: unique ignoring case, no whitespace or `:`, at most 255
+/// characters, required.
 #[tokio::test]
-async fn invite_fails_if_wrong_parameters_are_given() {
+async fn create_fails_for_a_taken_or_malformed_username() {
     let db = TestDb::migrated().await;
     let author = factory::create_administrator(&db.conn).await;
-    let (mailer, config) = mail();
-    let err = InviteUser {
-        account_id: author.account_id,
-        author_id: author.id,
-        email: String::new(),
-        is_administrator: true,
+    let failure = |e: crate::error::ApiError| (e.code, e.errors[0].field.clone(), e.errors[0].code.clone());
+    let taken = author.username.to_uppercase();
+    for (username, rule) in [(taken.as_str(), "unique"), ("ann smith", "regex"), ("ann:x", "regex"), ("", "required")] {
+        let err = create(&db, author.account_id, &author, username).await.unwrap_err();
+        assert_eq!(failure(err), (Code::ValidationFailed, "username".into(), rule.into()), "{username:?}");
     }
-    .execute(&db.conn, &mailer, &config)
-    .await
-    .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    let long = "a".repeat(256);
+    assert_eq!(failure(create(&db, author.account_id, &author, &long).await.unwrap_err()).2, "max");
     db.drop().await;
 }
 

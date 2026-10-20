@@ -28,7 +28,7 @@ async fn world() -> World {
     let user = factory::user(&app.state.db, None).await;
     let vault = factory::create_vault_user(&app.state.db, &user, VaultPermission::Edit).await;
     let template = post_template(&app, user.account_id).await;
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     World { app, user, vault, template }
 }
 
@@ -192,7 +192,6 @@ async fn writes_posts_from_templates() {
         assert_eq!(p[empty], json!([]), "{empty}");
     }
     assert!(p["slice_of_life"].is_null() && p["previous_post"].is_null() && p["next_post"].is_null());
-    assert_eq!(p["can_upload_file"], true);
 
     let post = w.post(&journal, "2024-03-05").await;
     let path = post.0.clone();
@@ -257,12 +256,12 @@ async fn writes_posts_from_templates() {
     let viewer = factory::user(&w.app.state.db, Some(w.user.account_id)).await;
     factory::set_permission_in_vault(&w.app.state.db, &viewer, VaultPermission::View, &w.vault).await;
     w.app.post(&format!("{path}/view"), json!({})).await.assert(204);
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.post(&format!("{path}/view"), json!({})).await.assert(204);
     assert_eq!(w.app.get(&path).await.assert(200).json()["view_count"], 2);
     assert_eq!(w.app.get(&path).await.json()["view_count"], 2);
     w.app.post(&format!("{other_journal}/posts/{}/view", post.1["id"]), json!({})).await.assert(404);
-    w.app.login(&w.user.email).await;
+    w.app.login(&w.user.username).await;
 
     w.app.delete(&path).await.assert(204);
     w.app.get(&path).await.assert(404);
@@ -446,7 +445,6 @@ async fn slices_of_life_and_metrics() {
     let d = w.app.get(&spring_path).await.assert(200).json();
     assert_eq!(d["name"], "Spring");
     assert_eq!(d["journal"]["name"], "Diary");
-    assert_eq!(d["can_upload_file"], true);
     assert_eq!(titles(&d["posts"]), ["Post of 2024-05-01", "Post of 2024-03-05"]);
     let contacts: Vec<String> =
         d["contacts"].as_array().unwrap().iter().map(|c| c["id"].as_str().unwrap().to_owned()).collect();
@@ -730,7 +728,7 @@ async fn viewers_only_read_and_strangers_see_nothing() {
 
     let viewer = factory::user(&w.app.state.db, Some(w.user.account_id)).await;
     factory::set_permission_in_vault(&w.app.state.db, &viewer, VaultPermission::View, &w.vault).await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     for path in &reads {
         w.app.get(path).await.assert(200);
     }
@@ -743,7 +741,7 @@ async fn viewers_only_read_and_strangers_see_nothing() {
     w.app.upload(Method::PUT, &format!("{s}/cover"), "a.png", "image/png", &png()).await.assert(403);
 
     let stranger = factory::user(&w.app.state.db, None).await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     for path in &reads {
         w.app.get(path).await.assert(404);
     }

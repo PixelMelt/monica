@@ -24,7 +24,7 @@ fn check_ability(parts: &Parts, id: &Identity) -> Result<(), ApiError> {
     Ok(())
 }
 
-/// An authenticated user with a verified email (most endpoints).
+/// An authenticated user.
 pub struct Auth(pub Identity);
 
 impl FromRequestParts<AppState> for Auth {
@@ -33,29 +33,12 @@ impl FromRequestParts<AppState> for Auth {
     async fn from_request_parts(parts: &mut Parts, _: &AppState) -> Result<Self, Self::Rejection> {
         let id = identity(parts).ok_or_else(ApiError::unauthenticated)?;
         check_ability(parts, &id)?;
-        if id.user.email_verified_at.is_none() {
-            return Err(ApiError::new(Code::EmailNotVerified));
-        }
         Ok(Auth(id))
     }
 }
 
-/// An authenticated user, verified or not (bootstrap, email verification,
-/// logout).
-pub struct AuthUnverified(pub Identity);
-
-impl FromRequestParts<AppState> for AuthUnverified {
-    type Rejection = ApiError;
-
-    async fn from_request_parts(parts: &mut Parts, _: &AppState) -> Result<Self, Self::Rejection> {
-        let id = identity(parts).ok_or_else(ApiError::unauthenticated)?;
-        check_ability(parts, &id)?;
-        Ok(AuthUnverified(id))
-    }
-}
-
-/// An authenticated user with a verified email, through a cookie session
-/// only: token management, so a token can't mint or widen tokens.
+/// An authenticated user through a cookie session only: token management,
+/// so a token can't mint or widen tokens.
 pub struct SessionAuth(pub Identity);
 
 impl FromRequestParts<AppState> for SessionAuth {

@@ -5,7 +5,6 @@ mod tests;
 
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 
-use crate::config::Config;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, check};
 use crate::domains::settings::manage_address_types::CreateAddressType;
@@ -13,7 +12,6 @@ use crate::domains::settings::manage_call_reasons::{CreateCallReason, CreateCall
 use crate::domains::settings::manage_contact_information_types::CreateContactInformationType;
 use crate::domains::settings::manage_genders::CreateGender;
 use crate::domains::settings::manage_group_types::{CreateGroupType, CreateGroupTypeRole};
-use crate::domains::settings::manage_notification_channels::{CreateUserNotificationChannel, TYPE_EMAIL};
 use crate::domains::settings::manage_pet_categories::CreatePetCategory;
 use crate::domains::settings::manage_post_templates::{CreatePostTemplate, CreatePostTemplateSection};
 use crate::domains::settings::manage_pronouns::CreatePronoun;
@@ -21,13 +19,13 @@ use crate::domains::settings::manage_relationship_types::CreateRelationshipGroup
 use crate::domains::settings::manage_templates::{
     AssociateModuleToTemplatePage, CreateModule, CreateTemplate, CreateTemplatePage,
 };
+use crate::domains::settings::manage_users::{normalize_username, validate_username};
 use crate::entities::{
     account_currency, accounts, contact_information_types, currencies, emotions, gift_occasions, gift_states,
-    relationship_types, religions, template_pages, templates, user_notification_channels, users,
+    relationship_types, religions, template_pages, templates, users,
 };
 use crate::error::{ApiError, ApiResult};
 use crate::i18n;
-use crate::mail::Mailer;
 use crate::validate::Validator;
 
 /// `Module` constants.
@@ -96,23 +94,16 @@ const SOCIAL_PROTOCOLS: [(&str, &str); 11] = [
     ("GitHub", "X-SOCIAL-PROFILE"),
 ];
 
-/// `CreateAccount`.
+/// `CreateAccount`. The password's rules are checked by the caller.
 pub struct CreateAccount {
     pub first_name: String,
     pub last_name: String,
-    pub email: String,
+    pub username: String,
     pub password: Option<String>,
-    /// `config('monica.default_storage_limit_in_mb')`.
-    pub storage_limit_in_mb: i32,
 }
 
 impl CreateAccount {
-    pub async fn execute<C: ConnectionTrait>(
-        self,
-        db: &C,
-        mailer: &Mailer,
-        config: &Config,
-    ) -> ApiResult<users::Model> {
+    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<users::Model> {
         let mut v = Validator::new();
         for (field, value) in [("first_name", &self.first_name), ("last_name", &self.last_name)] {
             if value.trim().is_empty() {
@@ -120,30 +111,16 @@ impl CreateAccount {
             }
             v.max_len(field, Some(value), 255);
         }
-        if self.email.trim().is_empty() {
-            v.fail("email", "required", &[]);
-        } else {
-            if users::Entity::find().filter(users::Column::Email.eq(&self.email)).one(db).await?.is_some() {
-                v.fail("email", "unique", &[]);
-            }
-            v.email("email", Some(&self.email));
-            v.max_len("email", Some(&self.email), 255);
-        }
-        if let Some(password) = self.password.as_deref().filter(|p| !p.trim().is_empty()) {
-            crate::password::validate(&mut v, "password", password, config.is_production(), None);
-        }
+        validate_username(db, &mut v, &normalize_username(&self.username), None).await?;
         v.finish()?;
 
-        let account = accounts::ActiveModel {
-            id: Set(Uuid::new()),
-            storage_limit_in_mb: Set(self.storage_limit_in_mb),
-            ..Default::default()
-        }
-        .insert(db)
-        .await?;
+        // `storage_limit_in_mb` 0: no limit.
+        let account = accounts::ActiveModel { id: Set(Uuid::new()), storage_limit_in_mb: Set(0), ..Default::default() }
+            .insert(db)
+            .await?;
 
         let user = self.add_first_user(db, &account).await?;
-        Self::setup_account(db, mailer, config, &account, &user).await?;
+        Self::setup_account(db, &account, &user).await?;
         Ok(user)
     }
 
@@ -153,7 +130,7 @@ impl CreateAccount {
             account_id: Set(account.id),
             first_name: Set(Some(self.first_name.clone())),
             last_name: Set(Some(self.last_name.clone())),
-            email: Set(self.email.clone()),
+            username: Set(normalize_username(&self.username)),
             password: Set(self.password.as_deref().map(crate::password::hash)),
             locale: Set(i18n::current()),
             is_account_administrator: Set(true),
@@ -166,12 +143,10 @@ impl CreateAccount {
 
     async fn setup_account<C: ConnectionTrait>(
         db: &C,
-        mailer: &Mailer,
-        config: &Config,
         account: &accounts::Model,
         user: &users::Model,
     ) -> ApiResult<()> {
-        SetupAccount { account_id: account.id, author_id: user.id }.execute(db, mailer, config).await
+        SetupAccount { account_id: account.id, author_id: user.id }.execute(db).await
     }
 }
 
@@ -182,13 +157,12 @@ pub struct SetupAccount {
 }
 
 impl SetupAccount {
-    pub async fn execute<C: ConnectionTrait>(self, db: &C, mailer: &Mailer, config: &Config) -> ApiResult<()> {
+    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
         let author = check(db, &Check { account_id: self.account_id, author_id: self.author_id, ..Default::default() })
             .await?
             .author;
 
         populate_currencies(db, &author).await?;
-        add_notification_channel(db, mailer, config, &author).await?;
         let template = add_template(db, &author).await?;
         add_template_page_contact_information(db, &author, &template).await?;
         add_template_page_feed(db, &author, &template).await?;
@@ -212,32 +186,6 @@ async fn populate_currencies<C: ConnectionTrait>(db: &C, author: &users::Model) 
         .insert(db)
         .await?;
     }
-    Ok(())
-}
-
-/// Add the first notification channel based on the email address of the user.
-async fn add_notification_channel<C: ConnectionTrait>(
-    db: &C,
-    mailer: &Mailer,
-    config: &Config,
-    author: &users::Model,
-) -> ApiResult<()> {
-    let channel = CreateUserNotificationChannel {
-        account_id: author.account_id,
-        author_id: author.id,
-        label: "Email address".into(),
-        r#type: TYPE_EMAIL.into(),
-        content: author.email.clone(),
-        verify_email: Some(false),
-        preferred_time: Some("09:00".into()),
-    }
-    .execute(db, mailer, config)
-    .await?;
-
-    let mut channel: user_notification_channels::ActiveModel = channel.into();
-    channel.verified_at = Set(Some(crate::db::now()));
-    channel.active = Set(true);
-    channel.update(db).await?;
     Ok(())
 }
 

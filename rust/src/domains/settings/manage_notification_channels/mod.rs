@@ -1,4 +1,5 @@
-//! `app/Domains/Settings/ManageNotificationChannels/Services` and `Jobs`.
+//! `app/Domains/Settings/ManageNotificationChannels/Services`, with
+//! Pushover in place of email and Telegram.
 
 #[cfg(test)]
 mod tests;
@@ -9,7 +10,6 @@ use sea_orm::{
     RelationTrait,
 };
 
-use crate::config::Config;
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, check};
@@ -17,102 +17,77 @@ use crate::entities::{
     contact_reminder_scheduled, contact_reminders, contacts, user_notification_channels, user_notification_sent, users,
     vaults,
 };
-use crate::error::{ApiError, ApiResult};
+use crate::error::{ApiError, ApiResult, Code};
 use crate::i18n;
-use crate::mail::{Email, Mailer};
+use crate::pushover::{self, Credentials, Message, Pushover};
 use crate::validate::Validator;
 
-/// `UserNotificationChannel::TYPE_EMAIL`.
-pub const TYPE_EMAIL: &str = "email";
+/// The type of a Pushover channel.
+pub const TYPE_PUSHOVER: &str = "pushover";
 
-/// `CreateUserNotificationChannel`.
+/// `CreateUserNotificationChannel` for Pushover: the keys are checked with
+/// Pushover, so the channel is verified and active from the start and its
+/// reminders are scheduled.
 pub struct CreateUserNotificationChannel {
     pub account_id: Uuid,
     pub author_id: Uuid,
     pub label: String,
-    pub r#type: String,
-    pub content: String,
-    pub verify_email: Option<bool>,
-    pub preferred_time: Option<String>,
+    pub credentials: Credentials,
+    pub preferred_time: String,
 }
 
 impl CreateUserNotificationChannel {
     pub async fn execute<C: ConnectionTrait>(
         self,
         db: &C,
-        mailer: &Mailer,
-        config: &Config,
+        pushover: &Pushover,
     ) -> ApiResult<user_notification_channels::Model> {
-        self.validate(db).await?;
+        self.validate(db, pushover).await?;
         let channel = self.create(db).await?;
-        self.verify_channel(mailer, config, &channel).await?;
-        Ok(channel)
+        ScheduleAllContactRemindersForNotificationChannel {
+            account_id: self.account_id,
+            author_id: self.author_id,
+            user_notification_channel_id: channel.id,
+        }
+        .execute(db)
+        .await
     }
 
-    async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<()> {
+    async fn validate<C: ConnectionTrait>(&self, db: &C, pushover: &Pushover) -> ApiResult<()> {
         let mut v = Validator::new();
-        for (field, value, max) in
-            [("label", &self.label, 255), ("type", &self.r#type, 255), ("content", &self.content, 65535)]
-        {
+        for (field, value) in [
+            ("label", &self.label),
+            ("user_key", &self.credentials.user_key),
+            ("app_token", &self.credentials.app_token),
+        ] {
             if value.trim().is_empty() {
                 v.fail(field, "required", &[]);
             }
-            v.max_len(field, Some(value), max);
+            v.max_len(field, Some(value), 255);
         }
         v.finish()?;
         check(db, &Check { account_id: self.account_id, author_id: self.author_id, ..Default::default() }).await?;
 
-        let exists = user_notification_channels::Entity::find()
-            .filter(user_notification_channels::Column::Content.eq(&self.content))
-            .one(db)
-            .await?
-            .is_some();
-
-        if exists {
-            return Err(ApiError::field(
-                "content",
-                "unique",
-                i18n::t(&i18n::current(), "The email is already taken. Please choose another one.", &[]),
-            ));
-        }
-        Ok(())
+        pushover.validate(&self.credentials).await.map_err(|e| ApiError::field("user_key", "pushover", failure(&e)))
     }
 
     async fn create<C: ConnectionTrait>(&self, db: &C) -> ApiResult<user_notification_channels::Model> {
-        let preferred_time = match self.preferred_time.as_deref() {
-            None => None,
-            Some(t) => Some(
-                NaiveTime::parse_from_str(t, "%H:%M:%S")
-                    .or_else(|_| NaiveTime::parse_from_str(t, "%H:%M"))
-                    .map_err(|_| ApiError::internal(format!("could not parse preferred_time {t:?}")))?,
-            ),
-        };
-        let channel = user_notification_channels::ActiveModel {
+        let t = &self.preferred_time;
+        let preferred_time = NaiveTime::parse_from_str(t, "%H:%M:%S")
+            .or_else(|_| NaiveTime::parse_from_str(t, "%H:%M"))
+            .map_err(|_| ApiError::internal(format!("could not parse preferred_time {t:?}")))?;
+        Ok(user_notification_channels::ActiveModel {
             user_id: Set(Some(self.author_id)),
             label: Set(Some(self.label.clone())),
-            r#type: Set(self.r#type.clone()),
-            content: Set(self.content.clone()),
-            preferred_time: Set(preferred_time),
+            r#type: Set(TYPE_PUSHOVER.into()),
+            content: Set(self.credentials.to_content()),
+            preferred_time: Set(Some(preferred_time)),
+            active: Set(true),
+            verified_at: Set(Some(crate::db::now())),
             ..Default::default()
         }
         .insert(db)
-        .await?;
-
-        let mut channel: user_notification_channels::ActiveModel = channel.into();
-        channel.verification_token = Set(Some(uuid::Uuid::new_v4().to_string()));
-        Ok(channel.update(db).await?)
-    }
-
-    async fn verify_channel(
-        &self,
-        mailer: &Mailer,
-        config: &Config,
-        channel: &user_notification_channels::Model,
-    ) -> ApiResult<()> {
-        if self.r#type == TYPE_EMAIL && self.verify_email == Some(true) {
-            SendVerificationEmailChannel { channel: channel.clone() }.handle(mailer, config).await?;
-        }
-        Ok(())
+        .await?)
     }
 }
 
@@ -225,68 +200,44 @@ impl ScheduleAllContactRemindersForNotificationChannel {
     }
 }
 
-/// `SendTestEmail`.
-pub struct SendTestEmail {
+/// `SendTestEmail`, through Pushover.
+pub struct SendTestNotification {
     pub account_id: Uuid,
     pub author_id: Uuid,
     pub user_notification_channel_id: Id,
 }
 
-impl SendTestEmail {
+impl SendTestNotification {
     pub async fn execute<C: ConnectionTrait>(
         self,
         db: &C,
-        mailer: &Mailer,
+        pushover: &Pushover,
     ) -> ApiResult<user_notification_channels::Model> {
-        let channel = self.validate(db).await?;
-        Self::send(mailer, &channel).await?;
-        Self::log(db, &channel).await?;
-        Ok(channel)
-    }
-
-    async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<user_notification_channels::Model> {
         let checked =
             check(db, &Check { account_id: self.account_id, author_id: self.author_id, ..Default::default() }).await?;
-
         let channel = find(db, &checked.author, self.user_notification_channel_id).await?;
+        let credentials = Credentials::from_content(&channel.content).map_err(ApiError::internal)?;
 
-        if channel.r#type != TYPE_EMAIL {
-            return Err(ApiError::conflict("Only email can be sent."));
-        }
-        Ok(channel)
-    }
-
-    async fn send(mailer: &Mailer, channel: &user_notification_channels::Model) -> ApiResult<()> {
-        let l = i18n::current();
-        let (text, html) = Mailer::render(
-            &[
-                i18n::t(&l, "This is a test email", &[]),
-                i18n::t(
-                    &l,
-                    "This email is a test email to check if Monica can send an email to this email address.",
-                    &[],
-                ),
-                i18n::t(&l, "So… it works 😼", &[]),
-            ],
-            None,
-            &[i18n::t(&l, "Have a great day,", &[]), "Monica".into()],
+        let name = format!(
+            "{} {}",
+            checked.author.first_name.as_deref().unwrap_or_default(),
+            checked.author.last_name.as_deref().unwrap_or_default()
         );
-        mailer
-            .send(Email { to: channel.content.clone(), subject: i18n::t(&l, "Test email for Monica", &[]), text, html })
+        let text = i18n::t(&i18n::current(), "This is a test notification for :name", &[("name", name.trim())]);
+        pushover
+            .send(&credentials, &Message { title: None, message: text.clone() })
             .await
-            .map_err(ApiError::internal)
-    }
+            .map_err(|e| ApiError::new(Code::NotificationFailed).with_detail(failure(&e)))?;
 
-    async fn log<C: ConnectionTrait>(db: &C, channel: &user_notification_channels::Model) -> ApiResult<()> {
         user_notification_sent::ActiveModel {
             user_notification_channel_id: Set(channel.id),
             sent_at: Set(crate::db::now()),
-            subject_line: Set(i18n::t(&i18n::current(), "Test email for Monica", &[])),
+            subject_line: Set(text),
             ..Default::default()
         }
         .insert(db)
         .await?;
-        Ok(())
+        Ok(channel)
     }
 }
 
@@ -366,104 +317,12 @@ impl ToggleUserNotificationChannel {
     }
 }
 
-/// `VerifyUserNotificationChannelEmailAddress`.
-pub struct VerifyUserNotificationChannelEmailAddress {
-    pub account_id: Uuid,
-    pub author_id: Uuid,
-    pub user_notification_channel_id: Id,
-    pub uuid: Uuid,
-}
-
-impl VerifyUserNotificationChannelEmailAddress {
-    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<user_notification_channels::Model> {
-        let channel = self.validate(db).await?;
-        let channel = Self::verify(db, channel).await?;
-        self.rescheduled_reminders(db, &channel).await?;
-        Ok(channel)
-    }
-
-    async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<user_notification_channels::Model> {
-        let checked =
-            check(db, &Check { account_id: self.account_id, author_id: self.author_id, ..Default::default() }).await?;
-
-        let channel = find(db, &checked.author, self.user_notification_channel_id).await?;
-
-        if channel.verification_token.as_deref() != Some(self.uuid.to_string().as_str()) {
-            let mut v = Validator::new();
-            v.fail("uuid", "in", &[]);
-            v.finish()?;
-        }
-        Ok(channel)
-    }
-
-    async fn verify<C: ConnectionTrait>(
-        db: &C,
-        channel: user_notification_channels::Model,
-    ) -> ApiResult<user_notification_channels::Model> {
-        let mut channel: user_notification_channels::ActiveModel = channel.into();
-        channel.verified_at = Set(Some(crate::db::now()));
-        Ok(channel.update(db).await?)
-    }
-
-    async fn rescheduled_reminders<C: ConnectionTrait>(
-        &self,
-        db: &C,
-        channel: &user_notification_channels::Model,
-    ) -> ApiResult<()> {
-        ScheduleAllContactRemindersForNotificationChannel {
-            account_id: self.account_id,
-            author_id: self.author_id,
-            user_notification_channel_id: channel.id,
-        }
-        .execute(db)
-        .await?;
-        Ok(())
-    }
-}
-
-/// `Jobs/SendVerificationEmailChannel`.
-pub struct SendVerificationEmailChannel {
-    pub channel: user_notification_channels::Model,
-}
-
-impl SendVerificationEmailChannel {
-    pub async fn handle(self, mailer: &Mailer, config: &Config) -> ApiResult<()> {
-        if self.channel.r#type != TYPE_EMAIL {
-            return Ok(());
-        }
-
-        let l = i18n::current();
-        let token = self
-            .channel
-            .verification_token
-            .as_deref()
-            .ok_or_else(|| ApiError::internal("missing verification_token"))?;
-        let url = format!("{}/settings/notifications/{}/verify/{token}", config.url, self.channel.id);
-        let (text, html) = Mailer::render(
-            &[
-                i18n::t(&l, "Please verify your email address", &[]),
-                i18n::t(
-                    &l,
-                    "You’ve been invited to use this email address in Monica, an open source personal CRM, so we can use it to send you notifications.",
-                    &[],
-                ),
-            ],
-            Some((&i18n::t(&l, "Verify this email address", &[]), &url)),
-            &[
-                i18n::t(&l, "If you’ve received this invitation by mistake, please discard it.", &[]),
-                i18n::t(&l, "Thanks,", &[]),
-                "Monica".into(),
-            ],
-        );
-        mailer
-            .send(Email {
-                to: self.channel.content.clone(),
-                subject: i18n::t(&l, "Please validate your email address", &[]),
-                text,
-                html,
-            })
-            .await
-            .map_err(ApiError::internal)
+/// Why Pushover didn't take a request, for the user.
+fn failure(e: &pushover::Error) -> String {
+    let l = i18n::current();
+    match e {
+        pushover::Error::Rejected(errors) => i18n::t(&l, "Pushover refused these keys: :errors", &[("errors", errors)]),
+        pushover::Error::Unreachable(_) => i18n::t(&l, "Pushover could not be reached. Try again later.", &[]),
     }
 }
 

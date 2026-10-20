@@ -1,24 +1,42 @@
-//! Preferences, notification channels, account users, invitations and
-//! account cancellation over HTTP.
+//! Profile and preferences, Pushover notification channels and account
+//! users over HTTP.
 
 mod common;
 
 use common::TestApp;
 use monica::testing::factory;
+use monica::testing::pushover::FakePushover;
 use serde_json::json;
 
-async fn login(app: &mut TestApp, email: &str, password: &str) {
+async fn login(app: &mut TestApp, username: &str, password: &str) {
     app.clear_cookies();
     app.use_cookies();
     app.get("/auth/csrf").await.assert(204);
-    app.post("/auth/login", json!({"email": email, "password": password})).await.assert(200);
+    app.post("/auth/login", json!({"username": username, "password": password})).await.assert(200);
+}
+
+#[tokio::test]
+async fn changes_name_and_username() {
+    let mut app = TestApp::new().await;
+    let user = factory::user(&app.state.db, None).await;
+    let other = factory::user(&app.state.db, None).await;
+    login(&mut app, &user.username, factory::PASSWORD).await;
+
+    let res = app.patch("/me", json!({"username": other.username.to_uppercase()})).await.assert(422);
+    assert_eq!(res.json()["errors"][0]["code"], "unique");
+    app.patch("/me", json!({"username": "with:colon"})).await.assert(422);
+    let me = app.patch("/me", json!({"first_name": "Rossy", "username": "Rossy"})).await.assert(200).json();
+    assert_eq!((me["first_name"].as_str(), me["username"].as_str()), (Some("Rossy"), Some("rossy")));
+    assert!(me.get("email").is_none());
+    login(&mut app, "rossy", factory::PASSWORD).await;
+    app.finish().await;
 }
 
 #[tokio::test]
 async fn updates_preferences() {
     let mut app = TestApp::new().await;
     let user = factory::user(&app.state.db, None).await;
-    login(&mut app, &user.email, factory::PASSWORD).await;
+    login(&mut app, &user.username, factory::PASSWORD).await;
 
     let p = app
         .patch(
@@ -47,80 +65,85 @@ async fn updates_preferences() {
 }
 
 #[tokio::test]
-async fn manages_notification_channels() {
-    let mut app = TestApp::new().await;
+async fn manages_pushover_channels() {
+    let pushover = FakePushover::start().await;
+    let mut app = TestApp::with_config(|c| c.pushover_api_url = pushover.url()).await;
     let user = factory::user(&app.state.db, None).await;
-    login(&mut app, &user.email, factory::PASSWORD).await;
+    login(&mut app, &user.username, factory::PASSWORD).await;
+    let base = "/me/notification-channels";
 
-    app.post("/me/notification-channels", json!({"label": "Work", "content": "nope", "preferred_time": "25:00"}))
-        .await
-        .assert(422);
-    let c = app
-        .post(
-            "/me/notification-channels",
-            json!({"label": "Work", "content": "work@example.com", "preferred_time": "08:30"}),
-        )
-        .await
-        .assert(201)
-        .json();
+    let res = app.post(base, json!({"label": "Phone", "preferred_time": "25:00"})).await.assert(422).json();
+    let fields: Vec<&str> = res["errors"].as_array().unwrap().iter().map(|e| e["field"].as_str().unwrap()).collect();
+    assert_eq!(fields, ["user_key", "app_token", "preferred_time"]);
+    let keys = |user_key: &str| json!({"label": "Phone", "user_key": user_key, "app_token": "a-monica", "preferred_time": "08:30"});
+    let res = app.post(base, keys("u-invalid")).await.assert(422).json();
+    assert_eq!(res["errors"][0]["field"], "user_key");
+    assert_eq!(res["errors"][0]["message"], "Pushover refused these keys: user key is invalid");
+
+    // Checked with Pushover, so verified and on at once; the token never comes back.
+    let c = app.post(base, keys("u-phone")).await.assert(201).json();
     let id = c["id"].as_i64().unwrap();
-    assert_eq!(c["active"], false);
-    assert!(c["verified_at"].is_null());
-    assert_eq!(c["preferred_time"], "08:30");
-
-    let mail = app.state.mailer.sent().pop().unwrap();
-    assert_eq!(mail.to, "work@example.com");
-    let token = mail.text.split(&format!("/settings/notifications/{id}/verify/")).nth(1).unwrap()[..36].to_owned();
-    app.post(&format!("/me/notification-channels/{id}/verify"), json!({"token": uuid::Uuid::new_v4()}))
-        .await
-        .assert(422);
-    let c =
-        app.post(&format!("/me/notification-channels/{id}/verify"), json!({"token": token})).await.assert(200).json();
-    assert!(c["verified_at"].is_string());
-
-    let c = app.patch(&format!("/me/notification-channels/{id}"), json!({"active": true})).await.assert(200).json();
+    assert_eq!((c["type"].as_str(), c["user_key"].as_str()), (Some("pushover"), Some("u-phone")));
     assert_eq!(c["active"], true);
-    app.post(&format!("/me/notification-channels/{id}/test"), json!({})).await.assert(204);
-    let logs = app.get(&format!("/me/notification-channels/{id}/logs")).await.assert(200).json();
-    assert_eq!(logs["meta"]["total"], 1);
-    assert_eq!(logs["data"].as_array().unwrap().len(), 1);
-    assert_eq!(app.get("/me/notification-channels").await.json()["data"].as_array().unwrap().len(), 1);
+    assert!(c["verified_at"].is_string());
+    assert_eq!(c["preferred_time"], "08:30");
+    assert!(!c.to_string().contains("a-monica"));
+    assert!(!app.get(base).await.json().to_string().contains("a-monica"));
+    app.post(&format!("{base}/{id}/verify"), json!({"token": uuid::Uuid::new_v4()})).await.assert(404);
 
-    app.delete(&format!("/me/notification-channels/{id}")).await.assert(204);
-    app.get(&format!("/me/notification-channels/{id}")).await.assert(404);
+    let c = app.patch(&format!("{base}/{id}"), json!({"active": false})).await.assert(200).json();
+    assert_eq!(c["active"], false);
+    app.patch(&format!("{base}/{id}"), json!({"active": true})).await.assert(200);
+
+    app.post(&format!("{base}/{id}/test"), json!({})).await.assert(204);
+    let sent = pushover.sent();
+    assert_eq!(sent.len(), 1);
+    assert_eq!((sent[0]["token"].as_str(), sent[0]["user"].as_str()), ("a-monica", "u-phone"));
+    let name = format!("{} {}", user.first_name.unwrap(), user.last_name.unwrap());
+    assert_eq!(sent[0]["message"], format!("This is a test notification for {name}"));
+    let logs = app.get(&format!("{base}/{id}/logs")).await.assert(200).json();
+    assert_eq!(logs["meta"]["total"], 1);
+    assert_eq!(logs["data"][0]["subject_line"], format!("This is a test notification for {name}"));
+
+    pushover.go_down();
+    let res = app.post(&format!("{base}/{id}/test"), json!({})).await.assert(502);
+    assert_eq!(res.code(), "notification_failed");
+    assert_eq!(res.json()["detail"], "Pushover could not be reached. Try again later.");
+
+    app.delete(&format!("{base}/{id}")).await.assert(204);
+    app.get(&format!("{base}/{id}")).await.assert(404);
     app.finish().await;
 }
 
+/// No email invitations: an administrator gives a new user a username and
+/// a first password.
 #[tokio::test]
-async fn invites_users_who_accept_and_log_in() {
+async fn administrators_create_users() {
     let mut app = TestApp::new().await;
     let admin = factory::create_administrator(&app.state.db).await;
-    login(&mut app, &admin.email, factory::PASSWORD).await;
+    login(&mut app, &admin.username, factory::PASSWORD).await;
 
-    let invited = app
-        .post("/account/users", json!({"email": "new@example.com", "is_account_administrator": true}))
-        .await
-        .assert(201)
-        .json();
-    assert_eq!(invited["is_invitation_pending"], true);
-    app.post("/account/users", json!({"email": "new@example.com"})).await.assert(422);
-    assert_eq!(app.get("/account/users").await.json()["data"].as_array().unwrap().len(), 2);
+    let body = json!({"first_name": "New", "last_name": "Person", "username": "New.Person", "password": "abcd",
+                      "password_confirmation": "abcd", "is_account_administrator": true});
+    let res = app.post("/account/users", json!({"username": "x"})).await.assert(422).json();
+    let fields: Vec<&str> = res["errors"].as_array().unwrap().iter().map(|e| e["field"].as_str().unwrap()).collect();
+    assert_eq!(fields, ["first_name", "last_name", "password"]);
+    let created = app.post("/account/users", body.clone()).await.assert(201).json();
+    assert_eq!(created["username"], "new.person");
+    assert_eq!(created["is_account_administrator"], true);
+    assert!(created.get("email").is_none() && created.get("is_invitation_pending").is_none());
+    assert_eq!(app.post("/account/users", body).await.assert(422).json()["errors"][0]["code"], "unique");
+    let users = app.get("/account/users").await.json()["data"].clone();
+    assert_eq!(users.as_array().unwrap().len(), 2);
 
-    let mail = app.state.mailer.sent().pop().unwrap();
-    assert_eq!(mail.to, "new@example.com");
-    let code = mail.text.split("/invitation/").nth(1).unwrap()[..36].to_owned();
-
+    login(&mut app, "new.person", "abcd").await;
+    let me = app.get("/me").await.assert(200).json();
+    assert_eq!(
+        (me["first_name"].as_str(), me["account_id"].as_str()),
+        (Some("New"), Some(admin.account_id.to_string().as_str()))
+    );
     app.clear_cookies();
-    assert_eq!(app.get(&format!("/invitations/{code}")).await.assert(200).json()["email"], "new@example.com");
     app.get(&format!("/invitations/{}", uuid::Uuid::new_v4())).await.assert(404);
-    app.get("/auth/csrf").await.assert(204);
-    let body = json!({"first_name": "New", "last_name": "Person", "password": "abcd", "password_confirmation": "abcd"});
-    let me = app.post(&format!("/invitations/{code}/accept"), body.clone()).await.assert(200).json();
-    assert_eq!(me["email"], "new@example.com");
-    assert!(me["email_verified_at"].is_string());
-    assert_eq!(me["is_account_administrator"], true, "Q5: invited as administrator");
-    assert_eq!(app.get("/me").await.assert(200).json()["first_name"], "New");
-    app.post(&format!("/invitations/{code}/accept"), body).await.assert(404);
     app.finish().await;
 }
 
@@ -131,12 +154,12 @@ async fn administrators_manage_users() {
     let member = factory::user(&app.state.db, Some(admin.account_id)).await;
     let outsider = factory::user(&app.state.db, None).await;
 
-    login(&mut app, &member.email, factory::PASSWORD).await;
+    login(&mut app, &member.username, factory::PASSWORD).await;
     app.get("/account/users").await.assert(200);
-    app.post("/account/users", json!({"email": "x@example.com"})).await.assert(403);
+    app.post("/account/users", json!({"username": "x"})).await.assert(403);
     app.patch(&format!("/account/users/{}", member.id), json!({"is_account_administrator": true})).await.assert(403);
 
-    login(&mut app, &admin.email, factory::PASSWORD).await;
+    login(&mut app, &admin.username, factory::PASSWORD).await;
     app.get(&format!("/account/users/{}", outsider.id)).await.assert(404);
     let u = app
         .patch(&format!("/account/users/{}", member.id), json!({"is_account_administrator": true}))
@@ -153,43 +176,20 @@ async fn administrators_manage_users() {
     app.get(&path).await.assert(404);
     let own = format!("/account/users/{}", admin.id);
     app.request(axum::http::Method::DELETE, &own, Some(json!({"password": factory::PASSWORD}))).await.assert(409);
-
-    let storage = app.get("/account/storage").await.assert(200).json();
-    assert_eq!(storage["total_size"], 0);
-    assert_eq!(storage["storage_limit_in_mb"], 10);
     app.finish().await;
 }
 
+/// No storage quota and no account cancellation on a single-user install.
 #[tokio::test]
-async fn cancels_the_account() {
+async fn storage_and_cancellation_are_gone() {
     let mut app = TestApp::new().await;
     let admin = factory::create_administrator(&app.state.db).await;
-    login(&mut app, &admin.email, factory::PASSWORD).await;
-    app.post("/vaults", json!({"name": "Mine"})).await.assert(201);
-
-    app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": "nope"}))).await.assert(422);
-    app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": factory::PASSWORD}))).await.assert(202);
-    app.get("/me").await.assert(401);
-    app.get("/auth/csrf").await.assert(204);
-    app.post("/auth/login", json!({"email": admin.email, "password": factory::PASSWORD})).await.assert(422);
-    app.finish().await;
-}
-
-#[tokio::test]
-async fn self_deletion_is_off_by_default() {
-    let mut app = TestApp::new().await;
-    let user = factory::user(&app.state.db, None).await;
-    login(&mut app, &user.email, factory::PASSWORD).await;
-    app.request(axum::http::Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(404);
-    app.finish().await;
-
-    let mut app = TestApp::with_config(|c| c.enable_account_deletion = true).await;
-    let admin = factory::create_administrator(&app.state.db).await;
-    login(&mut app, &admin.email, factory::PASSWORD).await;
-    app.request(axum::http::Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(409);
-    let user = factory::user(&app.state.db, Some(admin.account_id)).await;
-    login(&mut app, &user.email, factory::PASSWORD).await;
-    app.request(axum::http::Method::DELETE, "/me", Some(json!({"password": factory::PASSWORD}))).await.assert(204);
-    app.get("/me").await.assert(401);
+    login(&mut app, &admin.username, factory::PASSWORD).await;
+    let account = app.get("/account").await.assert(200).json();
+    assert_eq!(account["id"], admin.account_id.to_string());
+    assert!(account.get("storage_limit_in_mb").is_none());
+    app.get("/account/storage").await.assert(404);
+    app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": factory::PASSWORD}))).await.assert(405);
+    app.get("/me").await.assert(200);
     app.finish().await;
 }

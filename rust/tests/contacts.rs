@@ -40,10 +40,10 @@ async fn world_with(config: impl FnOnce(&mut monica::config::Config)) -> World {
     let mut app = TestApp::with_config(config).await;
     let user = factory::create_administrator(&app.state.db).await;
     SetupAccount { account_id: user.account_id, author_id: user.id }
-        .execute(&app.state.db, &app.state.mailer, &app.state.config)
+        .execute(&app.state.db)
         .await
         .expect("setup account");
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let v = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     World {
         vault: v["id"].as_str().unwrap().to_owned(),
@@ -79,7 +79,7 @@ impl World {
     }
 
     async fn login_back(&mut self) {
-        let email = self.user.email.clone();
+        let email = self.user.username.clone();
         self.app.login(&email).await;
     }
 
@@ -255,7 +255,7 @@ async fn viewers_read_contacts_and_strangers_see_nothing() {
     let viewer = w.member(VaultPermission::View).await;
     let stranger = factory::create_user(&w.app.state.db).await;
 
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.get(&path).await.assert(200);
     w.app.get(&w.path("/contacts")).await.assert(200);
     assert_eq!(w.app.post(&w.path("/contacts"), json!({"first_name": "No"})).await.assert(403).code(), "forbidden");
@@ -263,7 +263,7 @@ async fn viewers_read_contacts_and_strangers_see_nothing() {
     w.app.delete(&path).await.assert(403);
     w.app.post(&format!("{path}/move"), json!({"other_vault_id": w.vault})).await.assert(403);
 
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.app.get(&w.path("/contacts")).await.assert(404);
     w.app.post(&w.path("/contacts"), json!({"first_name": "No"})).await.assert(404);
@@ -417,7 +417,7 @@ async fn counts_views_for_the_most_consulted_contacts() {
 
     // Viewers count their own views; deleted contacts drop out.
     let viewer = w.member(VaultPermission::View).await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.post(&view(&made[0]), json!({})).await.assert(204);
     assert_eq!(ids(&w.app.get(&w.path("/contacts/most-consulted")).await.assert(200).json()), v(&[&made[0]]));
     w.app.post(&view(&Uuid::new().to_string()), json!({})).await.assert(404);
@@ -513,7 +513,7 @@ async fn serves_uploads_and_removes_avatars() {
     assert_ne!(res.headers["etag"].to_str().unwrap(), etag, "a new upload, a new ETag");
 
     let viewer = w.member(VaultPermission::View).await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.get(&avatar).await.assert(200);
     w.app.upload(Method::PUT, &avatar, "me.png", "image/png", &png(10, 10, 0)).await.assert(403);
     w.app.delete(&avatar).await.assert(403);
@@ -607,7 +607,7 @@ async fn manages_quick_facts() {
     w.app.delete(&elsewhere).await.assert(404);
 
     let viewer = w.member(VaultPermission::View).await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     assert_eq!(w.app.get(&base).await.assert(200).json()["data"].as_array().unwrap().len(), 2);
     w.app.post(&base, json!({"vault_quick_facts_template_id": hobbies, "content": "No"})).await.assert(403);
     w.app.patch(&fact, json!({"content": "No"})).await.assert(403);
@@ -723,10 +723,10 @@ async fn lists_the_feed_with_its_objects() {
     assert!(list["data"][6]["author"].is_null());
 
     let viewer = w.member(VaultPermission::View).await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.get(&feed).await.assert(200);
     let stranger = factory::create_user(&db).await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&feed).await.assert(404);
     w.login_back().await;
     w.app.get(&w.path(&format!("/contacts/{}/feed", Uuid::new()))).await.assert(404);
@@ -1054,7 +1054,7 @@ async fn refuses_large_avatars_and_unknown_contacts() {
     w.app.get(&w.path(&format!("/contacts/{missing}/quick-facts"))).await.assert(404);
     w.app.post(&w.path(&format!("/contacts/{missing}/quick-facts")), json!({"content": "x"})).await.assert(404);
     let stranger = factory::create_user(&w.app.state.db).await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.post(&w.path(&format!("/contacts/{c}/view")), json!({})).await.assert(404);
     w.app.get(&avatar).await.assert(404);
     w.app.finish().await;

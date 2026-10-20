@@ -1,6 +1,7 @@
-//! The Rust migrations build the same schema as `database/migrations`.
-//! The fixtures are `monica schema-dump` of databases migrated by Laravel
-//! (`php artisan migrate`), minus the tables of removed features.
+//! The Rust migrations build the same schema as `database/migrations`, then
+//! change what `m20261020_000001_usernames` changes. The fixtures are
+//! `monica schema-dump` of databases migrated by Laravel (`php artisan
+//! migrate`), minus the tables of removed features.
 
 mod common;
 
@@ -19,11 +20,25 @@ fn fixture(e: Engine) -> Schema {
     serde_json::from_str(json).unwrap()
 }
 
+/// `m20261020_000001_usernames`: `users.email` and its unique index become
+/// a nullable `username` of the same type, and `email_verified_at` goes.
+fn with_usernames(mut schema: Schema) -> Schema {
+    let users = schema.tables.get_mut("users").unwrap();
+    let mut username = users.columns.remove("email").unwrap();
+    username.nullable = true;
+    users.columns.insert("username".into(), username);
+    users.columns.remove("email_verified_at").unwrap();
+    let mut index = users.indexes.remove("users_email_unique").unwrap();
+    index.columns = vec!["username".into()];
+    users.indexes.insert("users_username_unique".into(), index);
+    schema
+}
+
 #[tokio::test]
 async fn migrations_build_the_laravel_schema() {
     let db = TestDb::migrated().await;
     let got = schema_dump::dump(&db.conn).await.unwrap().without(&["seaql_migrations"]);
-    let diff = fixture(db.engine).diff(&got);
+    let diff = with_usernames(fixture(db.engine)).diff(&got);
     db.drop().await;
     assert!(diff.is_empty(), "{} differences:\n{}", diff.len(), diff.join("\n"));
 }

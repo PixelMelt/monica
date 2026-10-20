@@ -1,13 +1,7 @@
-# Auth (A): instance info, CSRF priming, register, login, 2FA challenge, logout,
-# email verification, password reset, password confirmation (api-design.md §7),
-# invitations.
-
-x-not-api:
-  - id: R002
-    reason: >-
-      The beta banner's dismissed state is per-browser UI state. The SPA keeps
-      it in localStorage (today a `beta` cookie set by this route); the server
-      never reads it.
+# Auth (A): instance info, CSRF priming, first-run setup, login, 2FA
+# challenge, logout and password confirmation (api-design.md §7). There is no
+# email: no verification, no password reset link (`monica reset-password`),
+# no invitations (an administrator creates users).
 
 paths:
   # ---------------------------------------------------------------- instance
@@ -17,8 +11,8 @@ paths:
       tags: [Auth]
       summary: Public information about this instance
       description: |
-        Feeds the login and register pages (V001, V008) and the footer. The
-        login wallpaper (D008) and help links (D009) are SPA assets.
+        Feeds the login and first-run setup pages (V001, V008) and the footer.
+        The login wallpaper (D008) and help links (D009) are SPA assets.
       x-permission: public
       security: []
       x-inventory: [V001, V008]
@@ -51,16 +45,16 @@ paths:
     post:
       operationId: registerUser
       tags: [Auth]
-      summary: Sign up, creating a new account
+      summary: 'First run: create the account and its first user'
       description: |
-        Creates an account with this user as its administrator (locale = the
-        request locale, timezone `UTC`), queues the account setup (J014),
-        sends the verification email (E005) and starts a session.
-        `403 signup_disabled` when signup is off (X007).
+        Only while no user exists (`setup_required` in GET /instance): creates
+        the account with this user as its administrator (locale = the request
+        locale, timezone `UTC`), sets it up (J014) and starts a session. After
+        that, `403 signup_disabled`; an administrator adds other users.
       x-permission: public
       security: []
       x-inventory: [V009]
-      x-services: [CreateNewUser, CreateAccount]
+      x-services: [CreateNewUser, CreateAccount, SetupAccount]
       requestBody:
         required: true
         content:
@@ -80,12 +74,13 @@ paths:
     post:
       operationId: logIn
       tags: [Auth]
-      summary: Log in with email and password
+      summary: Log in with username and password
       description: |
         Without confirmed 2FA, starts the session (new session id) and returns
         the user. With confirmed 2FA, the session only holds a pending login
-        (user id, `remember`) until POST /auth/two-factor-challenge. Wrong
-        credentials: 422 on `email`. 5 attempts per minute per email and IP.
+        (user id, `remember`) until POST /auth/two-factor-challenge. Usernames
+        ignore case. Wrong credentials: 422 on `username`. 5 attempts per
+        minute per username and IP.
       x-permission: public
       security: []
       x-inventory: [V002]
@@ -142,8 +137,7 @@ paths:
       summary: Log out
       description: |
         Ends the cookie session and rotates the CSRF token. Bearer clients
-        revoke their token with DELETE /me/tokens/{token_id} instead. No
-        verified email needed.
+        revoke their token with DELETE /me/tokens/{token_id} instead.
       x-permission: user
       x-inventory: [V003]
       x-services: []
@@ -151,100 +145,6 @@ paths:
         '204': { $ref: '#/components/responses/NoContent' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
-
-  # ---------------------------------------------------------------- email verification
-  /auth/email/verify:
-    post:
-      operationId: verifyEmail
-      tags: [Auth]
-      summary: Verify the email address from the emailed link
-      description: |
-        The link opens the SPA at `/email/verify/{id}/{hash}?expires=&signature=`,
-        which posts those values. The server checks the signature and expiry,
-        that `id` is the logged-in user and `hash` is the SHA-1 of their email,
-        then sets `email_verified_at` (no change if already set). Bad link: 403.
-        No verified email needed. 6 per minute.
-      x-permission: user
-      x-inventory: [V011]
-      x-services: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/EmailVerification' }
-      responses:
-        '204': { $ref: '#/components/responses/NoContent' }
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-
-  /auth/email/verification-notification:
-    post:
-      operationId: sendEmailVerification
-      tags: [Auth]
-      summary: Send the verification email again
-      description: |
-        Sends E005 unless the email is already verified. As today, when the
-        mailer is SMTP without credentials the user is marked verified instead
-        of being sent an email. No verified email needed. 6 per minute.
-      x-permission: user
-      x-inventory: [V012]
-      x-services: []
-      responses:
-        '204': { $ref: '#/components/responses/NoContent' }
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-
-  # ---------------------------------------------------------------- password reset
-  /auth/forgot-password:
-    post:
-      operationId: requestPasswordReset
-      tags: [Auth]
-      summary: Email a password reset link
-      description: |
-        Sends E006, whose link opens the SPA at `/reset-password/{token}?email=`.
-        As today, an unknown email is a 422 on `email`, and so is a new request
-        for the same user within 60 seconds.
-      x-permission: public
-      security: []
-      x-inventory: [V005]
-      x-services: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PasswordResetLinkRequest' }
-      responses:
-        '204': { $ref: '#/components/responses/NoContent' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-        '429': { $ref: '#/components/responses/RateLimited' }
-
-  /auth/reset-password:
-    post:
-      operationId: resetPassword
-      tags: [Auth]
-      summary: Set a new password with a reset token
-      description: |
-        Tokens expire after 60 minutes; a bad or expired token is a 422 on
-        `email`. Deletes the token and ends the user's existing sessions.
-        Doesn't log in.
-      x-permission: public
-      security: []
-      x-inventory: [V007]
-      x-services: [ResetUserPassword, CompletePasswordReset]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PasswordReset' }
-      responses:
-        '204': { $ref: '#/components/responses/NoContent' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-        '429': { $ref: '#/components/responses/RateLimited' }
 
   # ---------------------------------------------------------------- password confirmation
   /auth/confirm-password:
@@ -255,8 +155,7 @@ paths:
       description: |
         Records the confirmation time in the cookie session; sensitive actions
         pass for 3 hours after it (api-design.md §7.4). Wrong password: 422 on
-        `password`. A user without a password always passes. No verified
-        email needed.
+        `password`. A user without a password always passes.
       x-permission: user
       x-inventory: [V017]
       x-services: []
@@ -278,7 +177,7 @@ paths:
       summary: Whether the session confirmed the password recently
       description: |
         Used by the SPA's `ConfirmsPassword` component before a sensitive
-        action. No verified email needed.
+        action.
       x-permission: user
       x-inventory: [V016]
       x-services: []
@@ -296,68 +195,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
-  # ---------------------------------------------------------------- invitations
-  /invitations/{invitation_code}:
-    parameters:
-      - $ref: '#/components/parameters/InvitationCode'
-    get:
-      operationId: getInvitation
-      tags: [Auth]
-      summary: Check an invitation before showing the accept form
-      description: |
-        404 when no user has this code or it was already accepted (today the
-        page redirects to `/`).
-      x-permission: public
-      security: []
-      x-inventory: [R009]
-      x-services: []
-      responses:
-        '200':
-          description: The pending invitation.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/Invitation' }
-        '404': { $ref: '#/components/responses/NotFound' }
-
-  /invitations/{invitation_code}/accept:
-    parameters:
-      - $ref: '#/components/parameters/InvitationCode'
-    post:
-      operationId: acceptInvitation
-      tags: [Auth]
-      summary: Accept an invitation and log in
-      description: |
-        Sets the invited user's names and password, `invitation_accepted_at`,
-        `email_verified_at`, timezone `UTC` and `is_account_administrator =
-        false` (as today), creates a verified, active email notification
-        channel for their email at 09:00, then starts a session.
-      x-permission: public
-      security: []
-      x-inventory: [R010]
-      x-services: [AcceptInvitation, CreateUserNotificationChannel]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/InvitationAccept' }
-      responses:
-        '200':
-          description: The user, now logged in.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/CurrentUser' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-
 components:
-  parameters:
-    InvitationCode:
-      name: invitation_code
-      in: path
-      required: true
-      schema: { $ref: '#/components/schemas/Uuid' }
-
   schemas:
     LocaleCode:
       type: string
@@ -374,16 +212,13 @@ components:
         dir: { type: string, enum: [ltr, rtl] }
     Instance:
       type: object
-      required: [signup_enabled, show_deletion_notice, locale, default_locale, locales, version, commit, features]
+      required: [setup_required, locale, default_locale, locales, version, commit]
       properties:
-        signup_enabled:
+        setup_required:
           type: boolean
           description: |
-            False when `APP_DISABLE_SIGNUP` is set and at least one account
-            exists; the first user can always sign up (X007).
-        show_deletion_notice:
-          type: boolean
-          description: The login page warns that the instance and its data will be deleted (`APP_SHOW_DELETION_NOTICE`, X008).
+            No user exists yet: the first visitor creates the account
+            (POST /auth/register); sign-up is closed after that.
         locale:
           $ref: '#/components/schemas/LocaleCode'
           description: |
@@ -398,30 +233,14 @@ components:
         commit:
           type: [string, 'null']
           description: Full commit hash of the build; the footer shows the first 7 characters and links to the repository.
-        features:
-          type: object
-          required: [account_deletion]
-          properties:
-            account_deletion:
-              type: boolean
-              description: DELETE /me is enabled (server flag, off by default, V032).
-    Invitation:
-      type: object
-      required: [invitation_code, email]
-      properties:
-        invitation_code: { $ref: '#/components/schemas/Uuid' }
-        email:
-          type: string
-          format: email
-          description: The invited address; the user logs in with it after accepting.
-    InvitationAccept:
-      type: object
-      required: [first_name, last_name, password, password_confirmation]
-      properties:
-        first_name: { type: string, minLength: 1, maxLength: 255 }
-        last_name: { type: string, minLength: 1, maxLength: 255 }
-        password: { $ref: '#/components/schemas/NewPassword' }
-        password_confirmation: { type: string, description: Must equal `password`. }
+    Username:
+      type: string
+      minLength: 1
+      maxLength: 255
+      pattern: '^[^\s:]+$'
+      description: |
+        What a user signs in with. Kept trimmed and in lower case; unique; no
+        whitespace or `:` (CardDAV clients send `username:token`).
     NewPassword:
       type: string
       minLength: 4
@@ -431,22 +250,18 @@ components:
         lower case, numbers and symbols; otherwise at least 4.
     Registration:
       type: object
-      required: [first_name, last_name, email, password, password_confirmation, terms]
+      required: [first_name, last_name, username, password, password_confirmation]
       properties:
         first_name: { type: string, minLength: 1, maxLength: 255 }
         last_name: { type: string, minLength: 1, maxLength: 255 }
-        email: { type: string, format: email, maxLength: 255, description: Unique across users. }
+        username: { $ref: '#/components/schemas/Username' }
         password: { $ref: '#/components/schemas/NewPassword' }
         password_confirmation: { type: string, description: Must equal `password`. }
-        terms:
-          type: boolean
-          const: true
-          description: Accepts the terms of service and privacy policy.
     LoginCredentials:
       type: object
-      required: [email, password]
+      required: [username, password]
       properties:
-        email: { type: string }
+        username: { type: string }
         password: { type: string }
         remember:
           type: boolean
@@ -470,27 +285,6 @@ components:
       properties:
         code: { type: string, pattern: '^[0-9]{6}$', description: TOTP code. }
         recovery_code: { type: string }
-    EmailVerification:
-      type: object
-      required: [id, hash, expires, signature]
-      properties:
-        id: { $ref: '#/components/schemas/Uuid' }
-        hash: { type: string, description: SHA-1 of the email the link was sent to. }
-        expires: { type: integer, description: Unix time the link expires (60 minutes after sending). }
-        signature: { type: string }
-    PasswordResetLinkRequest:
-      type: object
-      required: [email]
-      properties:
-        email: { type: string, format: email }
-    PasswordReset:
-      type: object
-      required: [token, email, password, password_confirmation]
-      properties:
-        token: { type: string }
-        email: { type: string, format: email }
-        password: { $ref: '#/components/schemas/NewPassword' }
-        password_confirmation: { type: string, description: Must equal `password`. }
     PasswordConfirmation:
       type: object
       required: [password]

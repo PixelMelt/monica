@@ -35,8 +35,8 @@ use crate::domains::contact::manage_quick_facts::{
     CreateQuickFact, DestroyQuickFact, ToggleQuickFactModule, UpdateQuickFact,
 };
 use crate::entities::{
-    accounts, address_types, addresses, contact_feed_items, contact_information, contact_information_types,
-    contact_label, contact_post, contact_vault_user, contacts, files, genders, goals, labels, mood_tracking_events,
+    address_types, addresses, contact_feed_items, contact_information, contact_information_types, contact_label,
+    contact_post, contact_vault_user, contacts, files, genders, goals, labels, mood_tracking_events,
     mood_tracking_parameters, notes, pet_categories, pets, posts, pronouns, quick_facts, relationship_group_types,
     relationship_types, relationships, streaks, templates, vault_quick_facts_templates, vaults,
 };
@@ -1409,9 +1409,7 @@ pub async fn set_contact_avatar(
 ) -> ApiResult<Json<File>> {
     access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::Edit).await?;
     let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
-    let account =
-        accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
-    let upload = crate::http::files::receive(&state, &account, multipart, Accept::Images).await?;
+    let upload = crate::http::files::receive(&state, multipart, Accept::Images).await?;
     let previous = avatar_file(&state.db, &contact).await?;
     let key = state.storage.put(vault_id, &upload.bytes).await.map_err(ApiError::internal)?;
     let stored = async {

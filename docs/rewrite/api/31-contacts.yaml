@@ -714,15 +714,12 @@ components:
     ContactPage:
       type: object
       description: Data of the contact page (Vault/Contact/Show), api-design.md §12.
-      required: [contact, is_current_user_contact, can_upload_file, header_modules, groups, quick_fact_templates, quick_facts, template_pages, active_template_page_id, modules]
+      required: [contact, is_current_user_contact, header_modules, groups, quick_fact_templates, quick_facts, template_pages, active_template_page_id, modules]
       properties:
         contact: { $ref: '#/components/schemas/Contact' }
         is_current_user_contact:
           type: boolean
           description: 'Computed: this is the current user''s own contact in the vault (the page hides archive and delete for it).'
-        can_upload_file:
-          type: boolean
-          description: 'Computed: the account is below its storage limit (X011).'
         header_modules:
           type: array
           description: |

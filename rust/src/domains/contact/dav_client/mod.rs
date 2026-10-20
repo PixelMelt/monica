@@ -158,8 +158,8 @@ fn share_context(subscription: &addressbook_subscriptions::Model) -> tracing::Sp
 /// The options of `monica:newaddressbooksubscription`.
 #[derive(Debug, Clone, Default)]
 pub struct NewAddressBookSubscriptionOptions {
-    /// `--email`: Monica account to add subscription to.
-    pub email: Option<String>,
+    /// `--username`: Monica user to add subscription to.
+    pub username: Option<String>,
     /// `--vaultId`: Id of the vault to add subscription to.
     pub vault_id: Option<String>,
     /// `--url`: CardDAV url of the address book.
@@ -179,7 +179,7 @@ pub struct NewAddressBookSubscriptionOptions {
 pub async fn new_address_book_subscription(state: &AppState, options: NewAddressBookSubscriptionOptions) -> i32 {
     let db = &state.db;
     let config = &state.config;
-    let Some(user) = command_user(db, options.email.as_deref()).await else {
+    let Some(user) = command_user(db, options.username.as_deref()).await else {
         return 1;
     };
     let Some(vault) = command_vault(db, options.vault_id.as_deref()).await else {
@@ -243,14 +243,15 @@ pub async fn new_address_book_subscription(state: &AppState, options: NewAddress
 }
 
 /// `NewAddressBookSubscription::user()`.
-async fn command_user<C: ConnectionTrait>(db: &C, email: Option<&str>) -> Option<users::Model> {
-    let Some(email) = email else {
-        eprintln!("Please provide an email address");
+async fn command_user<C: ConnectionTrait>(db: &C, username: Option<&str>) -> Option<users::Model> {
+    let Some(username) = username else {
+        eprintln!("Please provide a username");
 
         return None;
     };
 
-    match users::Entity::find().filter(users::Column::Email.eq(email)).one(db).await {
+    let username = crate::domains::settings::manage_users::normalize_username(username);
+    match users::Entity::find().filter(users::Column::Username.eq(username)).one(db).await {
         Ok(Some(user)) => Some(user),
         _ => {
             eprintln!("Could not find user");

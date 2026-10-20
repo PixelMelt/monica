@@ -381,7 +381,7 @@ pub async fn list_vault_members(
     tag = "Vaults",
     summary = "Account users who could be added",
     params(("vault_id" = uuid::Uuid, Path)),
-    responses((status = 200, description = "Verified users of the account who aren't members.", body = VaultMemberCandidateList)),
+    responses((status = 200, description = "Users of the account who aren't members.", body = VaultMemberCandidateList)),
     extensions(("x-permission" = json!("vault:manage")), ("x-inventory" = json!(["R173"])), ("x-services" = json!([])))
 )]
 pub async fn list_vault_member_candidates(
@@ -397,11 +397,7 @@ pub async fn list_vault_member_candidates(
         .into_iter()
         .map(|m| m.user_id)
         .collect();
-    let users = users::Entity::find()
-        .filter(users::Column::AccountId.eq(id.user.account_id))
-        .filter(users::Column::EmailVerifiedAt.is_not_null())
-        .all(&state.db)
-        .await?;
+    let users = users::Entity::find().filter(users::Column::AccountId.eq(id.user.account_id)).all(&state.db).await?;
     let data = users.iter().filter(|u| !members.contains(&u.id)).map(|u| UserSummary::new(u, None)).collect();
     Ok(Json(VaultMemberCandidateList { data }))
 }

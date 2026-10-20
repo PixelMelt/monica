@@ -12,9 +12,6 @@ pub struct Model {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub password: Option<String>,
-    #[sea_orm(unique)]
-    pub email: String,
-    pub email_verified_at: Option<Timestamp>,
     pub name_order: String,
     pub date_format: String,
     pub timezone: Option<String>,
@@ -36,6 +33,9 @@ pub struct Model {
     pub two_factor_confirmed_at: Option<Timestamp>,
     pub contact_sort_order: String,
     pub is_instance_administrator: bool,
+    /// What the user signs in with (`m20261020_000001_usernames`).
+    #[sea_orm(unique)]
+    pub username: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

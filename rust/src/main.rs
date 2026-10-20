@@ -38,9 +38,9 @@ enum Command {
     /// Add a CardDAV address book subscription to a vault
     /// (`monica:newaddressbooksubscription`).
     NewAddressBookSubscription {
-        /// Monica account to add subscription to.
+        /// Monica user to add subscription to.
         #[arg(long)]
-        email: Option<String>,
+        username: Option<String>,
         /// Id of the vault to add subscription to.
         #[arg(long = "vaultId")]
         vault_id: Option<String>,
@@ -69,6 +69,14 @@ enum Command {
         /// Force a full sync.
         #[arg(long)]
         force: bool,
+    },
+    /// Give a user a new random password (printed) and end their sessions.
+    ResetPassword {
+        /// The user's username.
+        username: String,
+        /// Also turn two-factor authentication off.
+        #[arg(long)]
+        disable_two_factor: bool,
     },
     /// Print the schema of a database as JSON.
     SchemaDump {
@@ -118,7 +126,6 @@ async fn main() -> anyhow::Result<()> {
         Command::Dummy { migrate, force } => {
             let config = Config::from_env()?;
             let db = monica::commands::wait_for_db(&config.database_url).await?;
-            let mailer = monica::mail::Mailer::new(&config)?;
             let confirmed = force || {
                 println!("Are you sure you want to proceed? This will delete ALL data in your environment.");
                 println!("Are you sure you want to run this command? (yes/no) [no]");
@@ -130,14 +137,14 @@ async fn main() -> anyhow::Result<()> {
                 println!("Command cancelled.");
                 return Ok(());
             }
-            monica::dummy::setup_dummy_account(&db, &config, &mailer, !migrate, true).await?;
+            monica::dummy::setup_dummy_account(&db, &config, !migrate, true).await?;
         }
-        Command::NewAddressBookSubscription { email, vault_id, url, login, password, pushonly, getonly } => {
+        Command::NewAddressBookSubscription { username, vault_id, url, login, password, pushonly, getonly } => {
             let config = Config::from_env()?;
             let db = monica::commands::wait_for_db(&config.database_url).await?;
             let state = AppState::new(db, config)?;
             let options = monica::domains::contact::dav_client::NewAddressBookSubscriptionOptions {
-                email,
+                username,
                 vault_id,
                 url,
                 login,
@@ -154,6 +161,13 @@ async fn main() -> anyhow::Result<()> {
             let state = AppState::new(db, config)?;
             monica::domains::contact::dav_client::update_address_book_subscription(&state, &subscription_id, force)
                 .await?;
+        }
+        Command::ResetPassword { username, disable_two_factor } => {
+            let config = Config::from_env()?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
+            let state = AppState::new(db, config)?;
+            let password = monica::commands::reset_password(&state, &username, disable_two_factor).await?;
+            println!("{password}");
         }
         Command::Openapi => println!("{}", monica::api::openapi().to_pretty_json()?),
         Command::KeyGenerate => println!("{}", monica::config::generate_key()),

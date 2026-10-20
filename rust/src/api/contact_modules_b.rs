@@ -55,11 +55,11 @@ use crate::domains::contact::manage_relationships::{SetRelationship, UnsetRelati
 use crate::domains::contact::manage_tasks::{
     CreateContactTask, DestroyContactTask, ToggleContactTask, UpdateContactTask,
 };
-use crate::domains::settings::manage_storage::{self, TYPE_DOCUMENT, TYPE_PHOTO};
+use crate::domains::settings::manage_storage::{TYPE_DOCUMENT, TYPE_PHOTO};
 use crate::entities::{
-    account_currency, accounts, call_reason_types, call_reasons, calls, contact_group, contact_tasks, contacts,
-    emotions, files, genders, group_type_roles, group_types, groups, life_event_categories, life_event_participants,
-    life_event_types, life_events, mood_tracking_parameters, pet_categories, pets, pronouns, relationship_group_types,
+    account_currency, call_reason_types, call_reasons, calls, contact_group, contact_tasks, contacts, emotions, files,
+    genders, group_type_roles, group_types, groups, life_event_categories, life_event_participants, life_event_types,
+    life_events, mood_tracking_parameters, pet_categories, pets, pronouns, relationship_group_types,
     relationship_types, relationships, timeline_event_participants, timeline_events,
 };
 use crate::error::ApiError;
@@ -170,16 +170,12 @@ pub struct PetUpdate {
 #[derive(Serialize, ToSchema)]
 pub struct ContactDocumentList {
     pub data: Vec<File>,
-    /// Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
-    pub can_upload_file: bool,
 }
 
 #[derive(Serialize, ToSchema)]
 pub struct ContactPhotoList {
     pub data: Vec<File>,
     pub meta: PaginationMeta,
-    /// Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
-    pub can_upload_file: bool,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -488,16 +484,12 @@ pub struct PetsModule {
 #[derive(Serialize, ToSchema)]
 pub struct DocumentsModule {
     pub documents: Vec<File>,
-    /// Computed (X011), as in `ContactDocumentList`.
-    pub can_upload_file: bool,
 }
 
 /// Module `photos`. The 6 newest photos; "View all" opens the photos page (`listContactPhotos`).
 #[derive(Serialize, ToSchema)]
 pub struct PhotosModule {
     pub photos: Vec<File>,
-    /// Computed (X011), as in `ContactPhotoList`.
-    pub can_upload_file: bool,
 }
 
 /// Module `tasks`. Open tasks, newest first; completed ones are loaded on
@@ -874,11 +866,10 @@ pub async fn list_contact_documents(
     Auth(id): Auth,
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
 ) -> ApiResult<Json<ContactDocumentList>> {
-    let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
     let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
     let data = contact_files(contact.id, TYPE_DOCUMENT).all(&state.db).await?.into_iter().map(File::from).collect();
-    let can_upload_file = can_upload(&state, access.vault.account_id).await?;
-    Ok(Json(ContactDocumentList { data, can_upload_file }))
+    Ok(Json(ContactDocumentList { data }))
 }
 
 #[utoipa::path(
@@ -948,15 +939,11 @@ pub async fn list_contact_photos(
     Path((vault_id, contact_id)): Path<(Uuid, Uuid)>,
     Query(query): Query<ListContactPhotosQuery>,
 ) -> ApiResult<Json<ContactPhotoList>> {
-    let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
+    access::vault(&state, &id, vault_id, VaultPermission::View).await?;
     let contact = contact_in_vault(&state.db, vault_id, contact_id).await?;
     let q = page_query(query.page, query.per_page);
     let (rows, meta) = paginate(&state.db, contact_files(contact.id, TYPE_PHOTO), &q, 30).await?;
-    Ok(Json(ContactPhotoList {
-        data: rows.into_iter().map(File::from).collect(),
-        meta,
-        can_upload_file: can_upload(&state, access.vault.account_id).await?,
-    }))
+    Ok(Json(ContactPhotoList { data: rows.into_iter().map(File::from).collect(), meta }))
 }
 
 #[utoipa::path(
@@ -1885,14 +1872,14 @@ pub async fn pets_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<Pet
 pub async fn documents_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<DocumentsModule> {
     let documents =
         contact_files(ctx.contact.id, TYPE_DOCUMENT).all(&state.db).await?.into_iter().map(File::from).collect();
-    Ok(DocumentsModule { documents, can_upload_file: can_upload(state, ctx.vault.account_id).await? })
+    Ok(DocumentsModule { documents })
 }
 
 /// Module `photos` (`ModulePhotosViewHelper::data`): the 6 newest photos.
 pub async fn photos_module(state: &AppState, ctx: &ModuleContext) -> ApiResult<PhotosModule> {
     let photos =
         contact_files(ctx.contact.id, TYPE_PHOTO).limit(6).all(&state.db).await?.into_iter().map(File::from).collect();
-    Ok(PhotosModule { photos, can_upload_file: can_upload(state, ctx.vault.account_id).await? })
+    Ok(PhotosModule { photos })
 }
 
 /// Module `tasks` (`ModuleContactTasksViewHelper::data`).
@@ -2289,12 +2276,6 @@ async fn contact_file<C: ConnectionTrait>(
         .ok_or_else(ApiError::not_found)
 }
 
-/// `StorageHelper::canUploadFile` of the account.
-async fn can_upload(state: &AppState, account_id: Uuid) -> ApiResult<bool> {
-    let account = accounts::Entity::find_by_id(account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
-    manage_storage::can_upload_file(&state.db, &account).await
-}
-
 /// Receives the `file` part, stores its bytes and writes its `files` row
 /// (`UploadFile`), attached to the contact (`$contact->files()->save($file)`).
 async fn store_file(
@@ -2305,9 +2286,7 @@ async fn store_file(
     accept: Accept,
     r#type: &str,
 ) -> ApiResult<files::Model> {
-    let account =
-        accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)?;
-    let upload = receive(state, &account, multipart, accept).await?;
+    let upload = receive(state, multipart, accept).await?;
     let key = state.storage.put(contact.vault_id, &upload.bytes).await.map_err(ApiError::internal)?;
     let saved = save_file(state, id, contact, &upload, &key, r#type).await;
     if saved.is_err() {

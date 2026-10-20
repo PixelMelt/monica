@@ -1,19 +1,28 @@
-//! `tests/Unit/Domains/Settings/ManageNotificationChannels/{Services,Jobs}`.
+//! `tests/Unit/Domains/Settings/ManageNotificationChannels/{Services,Jobs}`,
+//! for Pushover channels.
 
 use chrono::{Datelike, NaiveDate, NaiveDateTime, NaiveTime};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter};
 
 use super::*;
+use crate::config::Config;
 use crate::crypto::random_string;
 use crate::domains::base::VaultPermission;
 use crate::error::Code;
+use crate::testing::pushover::FakePushover;
 use crate::testing::{TestDb, factory};
 
-const UUID: &str = "21f74a1a-a157-11ec-b909-0242ac120002";
+/// A fake Pushover and a client of it.
+async fn pushover() -> (FakePushover, Pushover) {
+    let fake = FakePushover::start().await;
+    let mut config = Config::for_tests("", std::env::temp_dir());
+    config.pushover_api_url = fake.url();
+    let client = Pushover::new(&config);
+    (fake, client)
+}
 
-fn mail() -> (Mailer, Config) {
-    let config = Config::for_tests("", std::env::temp_dir());
-    (Mailer::new(&config).expect("mailer"), config)
+fn credentials(user_key: &str) -> Credentials {
+    Credentials { user_key: user_key.into(), app_token: "a-monica".into() }
 }
 
 /// `UserNotificationChannel::factory()` for `user_id` (a new user when
@@ -25,9 +34,9 @@ async fn user_notification_channel(db: &TestDb, user_id: Option<Uuid>) -> user_n
     };
     user_notification_channels::ActiveModel {
         user_id: Set(Some(user_id)),
-        r#type: Set(TYPE_EMAIL.into()),
+        r#type: Set(TYPE_PUSHOVER.into()),
         label: Set(Some(random_string(8))),
-        content: Set("admin@admin.com".into()),
+        content: Set(credentials("u-admin").to_content()),
         active: Set(true),
         fails: Set(0),
         verified_at: Set(None),
@@ -95,88 +104,90 @@ async fn row(db: &TestDb, channel: &user_notification_channels::Model) -> Option
 
 // ---- CreateUserNotificationChannelTest
 
-async fn create_channel(db: &TestDb, author: &users::Model, account_id: Uuid, channel_type: &str) -> ApiResult<()> {
-    let (mailer, config) = mail();
+async fn create_channel(
+    db: &TestDb,
+    pushover: &Pushover,
+    author: &users::Model,
+    account_id: Uuid,
+    user_key: &str,
+) -> ApiResult<user_notification_channels::Model> {
     let channel = CreateUserNotificationChannel {
         account_id,
         author_id: author.id,
         label: "label".into(),
-        r#type: channel_type.into(),
-        content: "admin@admin.com".into(),
-        verify_email: Some(true),
-        preferred_time: Some("09:00".into()),
+        credentials: credentials(user_key),
+        preferred_time: "09:00".into(),
     }
-    .execute(&db.conn, &mailer, &config)
+    .execute(&db.conn, pushover)
     .await?;
 
     let row = row(db, &channel).await.unwrap();
     assert_eq!(row.user_id, Some(author.id));
     assert_eq!(row.label.as_deref(), Some("label"));
-    assert_eq!(row.r#type, channel_type);
-    assert_eq!(row.content, "admin@admin.com");
-
-    if channel_type == TYPE_EMAIL {
-        let sent = mailer.sent();
-        assert_eq!(sent.len(), 1);
-        assert_eq!(sent[0].to, "admin@admin.com");
-    }
-    Ok(())
+    assert_eq!(row.r#type, TYPE_PUSHOVER);
+    assert_eq!(Credentials::from_content(&row.content).unwrap(), credentials(user_key));
+    Ok(row)
 }
 
+/// Pushover checked the keys: the channel is verified, active, and its
+/// reminders are scheduled.
 #[tokio::test]
 async fn it_creates_the_channel() {
     let db = TestDb::migrated().await;
+    let (_fake, pushover) = pushover().await;
     let ross = factory::create_user(&db.conn).await;
-    create_channel(&db, &ross, ross.account_id, "slack").await.unwrap();
-    db.drop().await;
-}
-
-#[tokio::test]
-async fn it_creates_the_channel_with_email() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_user(&db.conn).await;
-    create_channel(&db, &ross, ross.account_id, "email").await.unwrap();
+    let contact_reminder = reminder_in_new_vault(&db, &ross, 2000).await;
+    let channel = create_channel(&db, &pushover, &ross, ross.account_id, "u-ross").await.unwrap();
+    assert!(channel.active && channel.verified_at.is_some());
+    assert_eq!(scheduled(&db, &contact_reminder, &channel).await.unwrap().scheduled_at.0, next_october_second(9));
     db.drop().await;
 }
 
 #[tokio::test]
 async fn create_fails_if_wrong_parameters_are_given() {
     let db = TestDb::migrated().await;
+    let (_fake, pushover) = pushover().await;
     let ross = factory::create_user(&db.conn).await;
-    let (mailer, config) = mail();
     let err = CreateUserNotificationChannel {
         account_id: ross.account_id,
         author_id: ross.id,
         label: String::new(),
-        r#type: "email".into(),
-        content: "admin@admin.com".into(),
-        verify_email: None,
-        preferred_time: None,
+        credentials: credentials(""),
+        preferred_time: "09:00".into(),
     }
-    .execute(&db.conn, &mailer, &config)
+    .execute(&db.conn, &pushover)
     .await
     .unwrap_err();
     assert_eq!(err.code, Code::ValidationFailed);
+    let fields: Vec<&str> = err.errors.iter().map(|e| e.field.as_str()).collect();
+    assert_eq!(fields, ["label", "user_key"]);
     db.drop().await;
 }
 
 #[tokio::test]
 async fn create_fails_if_user_doesnt_belong_to_account() {
     let db = TestDb::migrated().await;
+    let (_fake, pushover) = pushover().await;
     let ross = factory::create_administrator(&db.conn).await;
     let account = factory::create_account(&db.conn).await;
-    assert_eq!(create_channel(&db, &ross, account.id, "slack").await.unwrap_err().code, Code::NotFound);
+    let err = create_channel(&db, &pushover, &ross, account.id, "u-ross").await.unwrap_err();
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 
 #[tokio::test]
-async fn create_fails_if_email_already_exists_in_the_account() {
+async fn create_fails_if_pushover_refuses_the_keys_or_cant_be_reached() {
     let db = TestDb::migrated().await;
-    let ross = factory::create_administrator(&db.conn).await;
-    let mut other = user_notification_channel(&db, None).await;
-    other.content = Set("admin@admin.com".into());
-    other.insert(&db.conn).await.unwrap();
-    assert_eq!(create_channel(&db, &ross, ross.account_id, "email").await.unwrap_err().code, Code::ValidationFailed);
+    let (fake, pushover) = pushover().await;
+    let ross = factory::create_user(&db.conn).await;
+    let err = create_channel(&db, &pushover, &ross, ross.account_id, "u-invalid").await.unwrap_err();
+    assert_eq!((err.code, err.errors[0].field.as_str()), (Code::ValidationFailed, "user_key"));
+    assert_eq!(err.errors[0].message, "Pushover refused these keys: user key is invalid");
+
+    fake.go_down();
+    let err = create_channel(&db, &pushover, &ross, ross.account_id, "u-ross").await.unwrap_err();
+    assert_eq!(err.errors[0].message, "Pushover could not be reached. Try again later.");
+    assert!(user_notification_channels::Entity::find().one(&db.conn).await.unwrap().is_none());
     db.drop().await;
 }
 
@@ -257,69 +268,73 @@ async fn it_schedules_reminders() {
     db.drop().await;
 }
 
-// ---- SendTestEmailTest
+// ---- SendTestEmailTest, through Pushover
 
-async fn send_test_email(
+async fn send_test(
     db: &TestDb,
+    pushover: &Pushover,
     author: &users::Model,
     channel: &user_notification_channels::Model,
 ) -> ApiResult<()> {
-    let (mailer, _) = mail();
-    let channel =
-        SendTestEmail { account_id: author.account_id, author_id: author.id, user_notification_channel_id: channel.id }
-            .execute(&db.conn, &mailer)
-            .await?;
+    SendTestNotification {
+        account_id: author.account_id,
+        author_id: author.id,
+        user_notification_channel_id: channel.id,
+    }
+    .execute(&db.conn, pushover)
+    .await?;
+    Ok(())
+}
 
-    let sent = mailer.sent();
+#[tokio::test]
+async fn it_sends_a_test_notification() {
+    let db = TestDb::migrated().await;
+    let (fake, pushover) = pushover().await;
+    let ross = factory::create_user(&db.conn).await;
+    let channel = user_notification_channel(&db, Some(ross.id)).await.insert(&db.conn).await.unwrap();
+    send_test(&db, &pushover, &ross, &channel).await.unwrap();
+
+    let text = format!(
+        "This is a test notification for {} {}",
+        ross.first_name.as_deref().unwrap(),
+        ross.last_name.as_deref().unwrap()
+    );
+    let sent = fake.sent();
     assert_eq!(sent.len(), 1);
-    assert_eq!(sent[0].to, "admin@admin.com");
-    assert_eq!(sent[0].subject, "Test email for Monica");
+    assert_eq!((sent[0]["user"].as_str(), sent[0]["message"].as_str()), ("u-admin", text.as_str()));
+    assert!(!sent[0].contains_key("title"));
     let log = user_notification_sent::Entity::find()
         .filter(user_notification_sent::Column::UserNotificationChannelId.eq(channel.id))
         .one(&db.conn)
         .await
         .unwrap()
         .unwrap();
-    assert_eq!(log.subject_line, "Test email for Monica");
-    Ok(())
-}
-
-#[tokio::test]
-async fn it_sends_a_test_email() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_user(&db.conn).await;
-    let mut channel = user_notification_channel(&db, Some(ross.id)).await;
-    channel.content = Set("admin@admin.com".into());
-    channel.r#type = Set(TYPE_EMAIL.into());
-    let channel = channel.insert(&db.conn).await.unwrap();
-    send_test_email(&db, &ross, &channel).await.unwrap();
+    assert_eq!(log.subject_line, text);
     db.drop().await;
 }
 
-// send_test_email_fails_if_wrong_parameters_are_given: every field is typed, no invalid input can be built.
-
 #[tokio::test]
-async fn send_test_email_fails_if_notification_channel_doesnt_belong_to_user() {
+async fn send_test_fails_if_notification_channel_doesnt_belong_to_user() {
     let db = TestDb::migrated().await;
+    let (_fake, pushover) = pushover().await;
     let ross = factory::create_administrator(&db.conn).await;
     let channel = user_notification_channel(&db, None).await.insert(&db.conn).await.unwrap();
-    assert_eq!(send_test_email(&db, &ross, &channel).await.unwrap_err().code, Code::NotFound);
+    assert_eq!(send_test(&db, &pushover, &ross, &channel).await.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
 #[tokio::test]
-async fn send_test_email_fails_if_notification_channel_type_is_not_email() {
+async fn send_test_fails_if_pushover_doesnt_take_it() {
     let db = TestDb::migrated().await;
+    let (fake, pushover) = pushover().await;
+    fake.go_down();
     let ross = factory::create_user(&db.conn).await;
-    let mut channel = user_notification_channel(&db, Some(ross.id)).await;
-    channel.content = Set("admin@admin.com".into());
-    channel.r#type = Set("slack".into());
-    let channel = channel.insert(&db.conn).await.unwrap();
-    assert_eq!(send_test_email(&db, &ross, &channel).await.unwrap_err().code, Code::Conflict);
+    let channel = user_notification_channel(&db, Some(ross.id)).await.insert(&db.conn).await.unwrap();
+    let err = send_test(&db, &pushover, &ross, &channel).await.unwrap_err();
+    assert_eq!(err.code, Code::NotificationFailed);
+    assert!(user_notification_sent::Entity::find().one(&db.conn).await.unwrap().is_none());
     db.drop().await;
 }
-
-// SendTestTelegramNotificationTest: Telegram is removed (I009).
 
 // ---- ToggleUserNotificationChannelTest
 
@@ -386,85 +401,5 @@ async fn toggle_fails_if_notification_channel_doesnt_belong_to_user() {
     channel.active = Set(false);
     let channel = channel.insert(&db.conn).await.unwrap();
     assert_eq!(toggle_channel(&db, &ross, &channel).await.unwrap_err().code, Code::NotFound);
-    db.drop().await;
-}
-
-// ---- VerifyUserNotificationChannelEmailAddressTest
-
-async fn verify_channel(
-    db: &TestDb,
-    author: &users::Model,
-    channel: &user_notification_channels::Model,
-) -> ApiResult<()> {
-    let before = crate::db::now();
-    let channel = VerifyUserNotificationChannelEmailAddress {
-        account_id: author.account_id,
-        author_id: author.id,
-        user_notification_channel_id: channel.id,
-        uuid: UUID.parse().unwrap(),
-    }
-    .execute(&db.conn)
-    .await?;
-    let after = crate::db::now();
-
-    let verified_at = row(db, &channel).await.unwrap().verified_at.unwrap();
-    assert!(before <= verified_at && verified_at <= after);
-    Ok(())
-}
-
-#[tokio::test]
-async fn it_verifies_the_user_notification_channel() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_user(&db.conn).await;
-    let mut channel = user_notification_channel(&db, Some(ross.id)).await;
-    channel.content = Set("admin@admin.com".into());
-    channel.r#type = Set(TYPE_EMAIL.into());
-    channel.verification_token = Set(Some(UUID.into()));
-    let channel = channel.insert(&db.conn).await.unwrap();
-    verify_channel(&db, &ross, &channel).await.unwrap();
-    db.drop().await;
-}
-
-// verify_fails_if_wrong_parameters_are_given: every field is typed, no invalid input can be built.
-
-#[tokio::test]
-async fn verify_fails_if_notification_channel_doesnt_belong_to_user() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_administrator(&db.conn).await;
-    let channel = user_notification_channel(&db, None).await.insert(&db.conn).await.unwrap();
-    assert_eq!(verify_channel(&db, &ross, &channel).await.unwrap_err().code, Code::NotFound);
-    db.drop().await;
-}
-
-#[tokio::test]
-async fn verify_fails_if_the_token_is_not_the_channel_token() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_user(&db.conn).await;
-    let mut channel = user_notification_channel(&db, Some(ross.id)).await;
-    channel.verification_token = Set(Some("8a1d1f2e-0b5c-4e8f-9d6a-3c2b1a0f9e8d".into()));
-    let channel = channel.insert(&db.conn).await.unwrap();
-    assert_eq!(verify_channel(&db, &ross, &channel).await.unwrap_err().code, Code::ValidationFailed);
-    assert!(row(&db, &channel).await.unwrap().verified_at.is_none());
-    db.drop().await;
-}
-
-// ---- Jobs/SendVerificationEmailChannelTest
-
-#[tokio::test]
-async fn it_sends_a_verification_email() {
-    let db = TestDb::migrated().await;
-    let (mailer, config) = mail();
-    let mut channel = user_notification_channel(&db, None).await;
-    channel.r#type = Set(TYPE_EMAIL.into());
-    channel.content = Set("admin@admin.com".into());
-    channel.verification_token = Set(Some(UUID.into()));
-    let channel = channel.insert(&db.conn).await.unwrap();
-
-    SendVerificationEmailChannel { channel: channel.clone() }.handle(&mailer, &config).await.unwrap();
-
-    let sent = mailer.sent();
-    assert_eq!(sent.len(), 1);
-    assert_eq!(sent[0].to, "admin@admin.com");
-    assert!(sent[0].text.contains(&format!("http://localhost/settings/notifications/{}/verify/{UUID}", channel.id)));
     db.drop().await;
 }

@@ -10,13 +10,14 @@ use utoipa::ToSchema;
 use super::auth::PasswordConfirmation;
 use super::instance::{Instance, build_instance};
 use super::schemas::{CurrentUser, UserPreferences};
-use crate::auth::{two_factor, verification};
+use crate::auth::two_factor;
 use crate::db::id::Id;
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
-use crate::entities::{password_resets, personal_access_tokens, sessions, user_vault, users, vaults};
+use crate::domains::settings::manage_users::{normalize_username, validate_username};
+use crate::entities::{personal_access_tokens, sessions, user_vault, vaults};
 use crate::error::{ApiError, ApiResult};
-use crate::http::auth::{AuthUnverified, SessionAuth, require_password_confirmation};
+use crate::http::auth::{Auth, SessionAuth, require_password_confirmation};
 use crate::http::json::Json;
 use crate::http::session::{Session, delete_other_sessions};
 use crate::http::state::AppState;
@@ -33,7 +34,7 @@ use crate::validate::{Validator, clean};
     responses((status = 200, description = "The user.", body = CurrentUser), (status = 401, description = "Not logged in.")),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R329", "V029"])), ("x-services" = json!([])))
 )]
-pub async fn get_me(AuthUnverified(id): AuthUnverified) -> Json<CurrentUser> {
+pub async fn get_me(Auth(id): Auth) -> Json<CurrentUser> {
     Json(id.user.into())
 }
 
@@ -41,7 +42,7 @@ pub async fn get_me(AuthUnverified(id): AuthUnverified) -> Json<CurrentUser> {
 pub struct CurrentUserUpdate {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub email: Option<String>,
+    pub username: Option<String>,
 }
 
 #[utoipa::path(
@@ -49,47 +50,33 @@ pub struct CurrentUserUpdate {
     path = "/me",
     operation_id = "updateMe",
     tag = "Me",
-    summary = "Change name or email",
+    summary = "Change name or username",
     request_body = CurrentUserUpdate,
     responses((status = 200, description = "The user.", body = CurrentUser), (status = 422, description = "Validation failed.")),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["V013"])), ("x-services" = json!(["UpdateUserProfileInformation"])))
 )]
 pub async fn update_me(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     Json(body): Json<CurrentUserUpdate>,
 ) -> ApiResult<Json<CurrentUser>> {
     let user = id.user;
     let first_name = clean(body.first_name).or(user.first_name.clone());
     let last_name = clean(body.last_name).or(user.last_name.clone());
-    let email = clean(body.email).unwrap_or_else(|| user.email.clone());
+    let username = body.username.as_deref().map(normalize_username).unwrap_or_else(|| user.username.clone());
     let mut v = Validator::new();
     v.required("first_name", &first_name);
     v.max_len("first_name", first_name.as_deref(), 255);
     v.required("last_name", &last_name);
     v.max_len("last_name", last_name.as_deref(), 255);
-    v.email("email", Some(&email));
-    v.max_len("email", Some(&email), 255);
-    if email != user.email
-        && users::Entity::find().filter(users::Column::Email.eq(&email)).one(&state.db).await?.is_some()
-    {
-        v.fail("email", "unique", &[]);
-    }
+    validate_username(&state.db, &mut v, &username, Some(user.id)).await?;
     v.finish()?;
 
-    let changed_email = email != user.email;
     let mut u = user.into_active_model();
     u.first_name = Set(first_name);
     u.last_name = Set(last_name);
-    u.email = Set(email);
-    if changed_email {
-        u.email_verified_at = Set(None);
-    }
-    let mut user = u.update(&state.db).await?;
-    if changed_email {
-        user = verification::send(&state.db, &state.mailer, &state.config, user).await?;
-    }
-    Ok(Json(user.into()))
+    u.username = Set(username);
+    Ok(Json(u.update(&state.db).await?.into()))
 }
 
 #[derive(Deserialize, ToSchema)]
@@ -111,7 +98,7 @@ pub struct PasswordUpdate {
 )]
 pub async fn update_my_password(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
     Json(body): Json<PasswordUpdate>,
 ) -> ApiResult<StatusCode> {
@@ -138,11 +125,9 @@ pub async fn update_my_password(
     v.finish()?;
 
     let user_id = id.user.id;
-    let email = id.user.email.clone();
     let mut u = id.user.into_active_model();
     u.password = Set(Some(crate::password::hash(&body.password.unwrap())));
     u.update(&state.db).await?;
-    password_resets::Entity::delete_many().filter(password_resets::Column::Email.eq(email)).exec(&state.db).await?;
     delete_other_sessions(&state, user_id, session.id().as_deref()).await?;
     Ok(StatusCode::NO_CONTENT)
 }
@@ -180,10 +165,7 @@ pub struct Bootstrap {
     responses((status = 200, description = "The bootstrap data.", body = Bootstrap)),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!([])), ("x-services" = json!([])))
 )]
-pub async fn get_bootstrap(
-    State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
-) -> ApiResult<Json<Bootstrap>> {
+pub async fn get_bootstrap(State(state): State<AppState>, Auth(id): Auth) -> ApiResult<Json<Bootstrap>> {
     let rows = user_vault::Entity::find()
         .filter(user_vault::Column::UserId.eq(id.user.id))
         .find_also_related(vaults::Entity)
@@ -218,7 +200,7 @@ pub async fn get_bootstrap(
     responses((status = 200, description = "The preferences.", body = UserPreferences)),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R212"])), ("x-services" = json!([])))
 )]
-pub async fn get_my_preferences(AuthUnverified(id): AuthUnverified) -> Json<UserPreferences> {
+pub async fn get_my_preferences(Auth(id): Auth) -> Json<UserPreferences> {
     Json(CurrentUser::from(id.user).preferences)
 }
 
@@ -291,7 +273,7 @@ pub fn describe_agent(ua: &str) -> (Option<String>, Option<String>, bool) {
 )]
 pub async fn list_my_sessions(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
 ) -> ApiResult<Json<SessionList>> {
     let current = session.id();
@@ -332,7 +314,7 @@ pub async fn list_my_sessions(
 )]
 pub async fn log_out_other_sessions(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
     Json(body): Json<PasswordConfirmation>,
 ) -> ApiResult<StatusCode> {
@@ -546,7 +528,7 @@ pub struct TwoFactorRecoveryCodes {
 )]
 pub async fn enable_two_factor(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
     Json(body): Json<PasswordConfirmation>,
 ) -> ApiResult<Json<TwoFactorSetup>> {
@@ -557,7 +539,7 @@ pub async fn enable_two_factor(
     let secret = two_factor::new_secret();
     let codes = two_factor::new_recovery_codes();
     let otpauth_url =
-        two_factor::otpauth_url(&secret, &id.user.email).ok_or_else(|| ApiError::internal("otpauth url"))?;
+        two_factor::otpauth_url(&secret, &id.user.username).ok_or_else(|| ApiError::internal("otpauth url"))?;
     let qr_code_svg = two_factor::qr_code_svg(&otpauth_url).ok_or_else(|| ApiError::internal("qr code"))?;
     let mut u = id.user.into_active_model();
     u.two_factor_secret = Set(Some(crate::crypto::encrypt(&state.config.key, &secret)));
@@ -584,13 +566,13 @@ pub struct TwoFactorConfirm {
 )]
 pub async fn confirm_two_factor(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     Json(body): Json<TwoFactorConfirm>,
 ) -> ApiResult<StatusCode> {
     let secret = two_factor::secret(&state.config, &id.user);
     let code = clean(body.code).unwrap_or_default();
     let now = chrono::Utc::now().timestamp() as u64;
-    let ok = secret.is_some_and(|s| two_factor::verify(id.user.id, &s, &id.user.email, &code, now));
+    let ok = secret.is_some_and(|s| two_factor::verify(id.user.id, &s, &id.user.username, &code, now));
     if !ok {
         let msg = i18n::t(&i18n::current(), "The provided two factor authentication code was invalid.", &[]);
         return Err(ApiError::field("code", "invalid", msg));
@@ -613,7 +595,7 @@ pub async fn confirm_two_factor(
 )]
 pub async fn disable_two_factor(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
     Json(body): Json<PasswordConfirmation>,
 ) -> ApiResult<StatusCode> {
@@ -637,7 +619,7 @@ pub async fn disable_two_factor(
 )]
 pub async fn get_two_factor_recovery_codes(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
 ) -> ApiResult<Json<TwoFactorRecoveryCodes>> {
     require_password_confirmation(&id, &session, None)?;
@@ -659,7 +641,7 @@ pub async fn get_two_factor_recovery_codes(
 )]
 pub async fn regenerate_two_factor_recovery_codes(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     session: Session,
     Json(body): Json<PasswordConfirmation>,
 ) -> ApiResult<Json<TwoFactorRecoveryCodes>> {
@@ -723,7 +705,7 @@ pub struct UserPreferencesUpdate {
 )]
 pub async fn update_my_preferences(
     State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
+    Auth(id): Auth,
     Json(body): Json<UserPreferencesUpdate>,
 ) -> ApiResult<Json<UserPreferences>> {
     use crate::domains::settings::manage_user_preferences as prefs;
@@ -783,46 +765,4 @@ pub async fn update_my_preferences(
     }
     tx.commit().await?;
     Ok(Json(CurrentUser::from(user).preferences))
-}
-
-#[utoipa::path(
-    delete,
-    path = "/me",
-    operation_id = "deleteMe",
-    tag = "Me",
-    summary = "Delete your own user (when enabled)",
-    request_body = PasswordConfirmation,
-    responses(
-        (status = 204, description = "Deleted; the session ends."),
-        (status = 403, description = "`password_confirmation_required`."),
-        (status = 404, description = "Account deletion is off on this server."),
-        (status = 409, description = "You are the account's last administrator."),
-    ),
-    extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["V032"])), ("x-services" = json!(["DeleteUser", "DestroyUser"])))
-)]
-pub async fn delete_me(
-    State(state): State<AppState>,
-    AuthUnverified(id): AuthUnverified,
-    session: Session,
-    Json(body): Json<PasswordConfirmation>,
-) -> ApiResult<StatusCode> {
-    if !state.config.enable_account_deletion {
-        return Err(ApiError::not_found());
-    }
-    require_password_confirmation(&id, &session, body.password.as_deref())?;
-    if id.user.is_account_administrator {
-        let admins = users::Entity::find()
-            .filter(users::Column::AccountId.eq(id.user.account_id))
-            .filter(users::Column::IsAccountAdministrator.eq(true))
-            .all(&state.db)
-            .await?;
-        if admins.len() <= 1 {
-            return Err(ApiError::conflict("You are the account's last administrator."));
-        }
-    }
-    let tx = state.db.begin().await?;
-    crate::domains::settings::manage_users::delete_user(&tx, &id.user).await?;
-    tx.commit().await?;
-    session.destroy();
-    Ok(StatusCode::NO_CONTENT)
 }

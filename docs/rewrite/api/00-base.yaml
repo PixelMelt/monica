@@ -33,13 +33,8 @@ x-not-api:
   - { id: R003, reason: "served outside the API: 301 /.well-known/carddav -> /dav" }
   - { id: R004, reason: "served outside the API: 301 /.well-known/caldav -> /dav" }
   - { id: R005, reason: "served outside the API: 301 /.well-known/security.txt -> /security.txt" }
-  - { id: V004, reason: "SPA page only (forgot password form)" }
-  - { id: V006, reason: "SPA page only (reset password form)" }
-  - { id: V010, reason: "SPA page only (verify email notice)" }
   - { id: V015, reason: "SPA page only (confirm password form)" }
   - { id: V018, reason: "SPA page only (2FA challenge form)" }
-  - { id: V027, reason: "SPA page only; the markdown is a static asset of the SPA" }
-  - { id: V028, reason: "SPA page only; the markdown is a static asset of the SPA" }
   - { id: V038, reason: "CardDAV/CalDAV at /dav, see api-design.md §11" }
   - { id: V039, reason: "health check at /up, outside the API" }
 
@@ -110,9 +105,8 @@ components:
           schema: { $ref: '#/components/schemas/Problem' }
     Forbidden:
       description: |
-        `forbidden`, `csrf_token_mismatch`, `email_not_verified`,
-        `token_ability_missing`, `password_confirmation_required` or
-        `signup_disabled`.
+        `forbidden`, `csrf_token_mismatch`, `token_ability_missing`,
+        `password_confirmation_required` or `signup_disabled`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -133,8 +127,7 @@ components:
           schema: { $ref: '#/components/schemas/Problem' }
     ValidationFailed:
       description: |
-        `validation_failed` (with `errors`), `storage_limit_exceeded` or
-        `vault_user_limit_reached`.
+        `validation_failed` (with `errors`) or `vault_user_limit_reached`.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -143,6 +136,11 @@ components:
       headers:
         Retry-After:
           schema: { type: integer }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    NotificationFailed:
+      description: Pushover didn't take the notification (`notification_failed`); `detail` says why.
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -176,7 +174,6 @@ components:
             - bad_request
             - unauthenticated
             - csrf_token_mismatch
-            - email_not_verified
             - forbidden
             - token_ability_missing
             - password_confirmation_required
@@ -185,9 +182,9 @@ components:
             - conflict
             - payload_too_large
             - validation_failed
-            - storage_limit_exceeded
             - vault_user_limit_reached
             - rate_limited
+            - notification_failed
             - internal_error
         title: { type: string, description: Human-readable, in the request locale. }
         detail: { type: string }

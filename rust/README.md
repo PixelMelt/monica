@@ -11,35 +11,39 @@ export APP_KEY=$(cargo run -q -- key-generate)
 cargo run              # = cargo run -- serve; migrates, then listens on BIND (0.0.0.0:8080)
 ```
 
+This is a single-user install. The first visit opens the setup page, which
+creates the account and its administrator (username and password); sign-up
+is closed after that, and the administrator adds any other users. There is
+no email: reminders go to Pushover (Settings → Notifications: your Pushover
+user key and the token of a Pushover application you create at
+pushover.net), and a forgotten password is reset on the server with
+`monica reset-password <username>`, which prints a new one
+(`--disable-two-factor` also turns 2FA off).
+
 Configuration is read from the environment (or `.env`):
 
-| Variable | Default | |
-|---|---|---|
-| `APP_ENV` | `production` | `production`, `local` or `testing` |
-| `APP_URL` | `http://localhost:8080` | used in email links; https makes cookies `Secure` |
-| `APP_KEY` | (required) | 32 bytes, base64; `monica key-generate` |
-| `DATABASE_URL` | `sqlite://$DATA_DIR/monica.sqlite?mode=rwc` | or `mysql://…`, `postgres://…` |
-| `DATA_DIR` | `data` | uploaded files, default SQLite file |
-| `SPA_DIR` | — | built frontend served at `/` |
-| `BIND` | `0.0.0.0:8080` | |
-| `APP_LOCALE` | `en` | |
-| `APP_DISABLE_SIGNUP` | `false` | the first account can always register |
-| `APP_SHOW_DELETION_NOTICE` | `false` | |
-| `DEFAULT_STORAGE_LIMIT` | `50` | MB per account |
-| `MAX_UPLOAD_SIZE` | `10` | MB per file |
-| `ENABLE_ACCOUNT_DELETION` | `false` | `DELETE /api/v1/me` |
-| `SESSION_LIFETIME` | `120` | minutes |
-| `SESSION_SECURE_COOKIE` | https `APP_URL` | |
-| `MAIL_MAILER` | `smtp` if `MAIL_HOST` is set, else `log` | `smtp`, `log` |
-| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` | | `MAIL_ENCRYPTION`: `tls` (STARTTLS), `ssl` |
-| `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | `hello@example.com`, `Monica` | |
-| `WIKIPEDIA_URL` | `https://{lang}.wikipedia.org/w/api.php` | summaries on the city/country reports; empty disables |
-| `APP_VERSION`, `APP_COMMIT` | from git at build time | shown in the footer |
+| Variable                    | Default                                     |                                                       |
+| --------------------------- | ------------------------------------------- | ----------------------------------------------------- |
+| `APP_ENV`                   | `production`                                | `production`, `local` or `testing`                    |
+| `APP_URL`                   | `http://localhost:8080`                     | https makes cookies `Secure`                          |
+| `APP_KEY`                   | (required)                                  | 32 bytes, base64; `monica key-generate`               |
+| `DATABASE_URL`              | `sqlite://$DATA_DIR/monica.sqlite?mode=rwc` | or `mysql://…`, `postgres://…`                        |
+| `DATA_DIR`                  | `data`                                      | uploaded files, default SQLite file                   |
+| `SPA_DIR`                   | —                                           | built frontend served at `/`                          |
+| `BIND`                      | `0.0.0.0:8080`                              |                                                       |
+| `APP_LOCALE`                | `en`                                        |                                                       |
+| `MAX_UPLOAD_SIZE`           | `10`                                        | MB per file                                           |
+| `SESSION_LIFETIME`          | `120`                                       | minutes                                               |
+| `SESSION_SECURE_COOKIE`     | https `APP_URL`                             |                                                       |
+| `PUSHOVER_API_URL`          | `https://api.pushover.net/1`                | the Pushover API (tests point it at a fake)           |
+| `WIKIPEDIA_URL`             | `https://{lang}.wikipedia.org/w/api.php`    | summaries on the city/country reports; empty disables |
+| `APP_VERSION`, `APP_COMMIT` | from git at build time                      | shown in the footer                                   |
 
 Other subcommands: `migrate`, `openapi` (prints the generated OpenAPI
-document), `key-generate`, `schema-dump --database-url …`, `test-reminders`
-(sends every scheduled reminder now; not in production), `dummy [--migrate]
-[--force]` (wipes the database and creates a demo account).
+document), `key-generate`, `reset-password <username> [--disable-two-factor]`,
+`schema-dump --database-url …`, `test-reminders` (sends every scheduled
+reminder now; not in production), `dummy [--migrate] [--force]` (wipes the
+database and creates demo accounts `admin`/`admin123` and `blank`/`blank123`).
 
 ## Test
 

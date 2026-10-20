@@ -1,6 +1,5 @@
 //! `app/Domains/Settings`.
 
-pub mod cancel_account;
 pub mod create_account;
 pub mod manage_address_types;
 pub mod manage_call_reasons;

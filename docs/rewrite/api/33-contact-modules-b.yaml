@@ -205,9 +205,7 @@ paths:
       summary: Upload a document for a contact
       description: |
         Multipart upload (api-design.md §10). Stores the file as type
-        `document`, attached to the contact. Rejected with 422
-        `storage_limit_exceeded` when the account is at its storage limit
-        (X011).
+        `document`, attached to the contact. There is no storage quota.
       x-permission: vault:edit
       x-inventory: [R101]
       x-services: [UploadFile]
@@ -289,8 +287,7 @@ paths:
       description: |
         Multipart upload (api-design.md §10). JPEG, PNG, GIF or WebP only
         (422 otherwise). Stores the file as type `photo`, attached to the
-        contact. Rejected with 422 `storage_limit_exceeded` when the account
-        is at its storage limit (X011).
+        contact. There is no storage quota.
       x-permission: vault:edit
       x-inventory: [R105]
       x-services: [UploadFile]
@@ -944,25 +941,19 @@ components:
     # ---------------------------------------------------------------- documents and photos
     ContactDocumentList:
       type: object
-      required: [data, can_upload_file]
+      required: [data]
       properties:
         data:
           type: array
           items: { $ref: '#/components/schemas/File' }
-        can_upload_file:
-          type: boolean
-          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
     ContactPhotoList:
       type: object
-      required: [data, meta, can_upload_file]
+      required: [data, meta]
       properties:
         data:
           type: array
           items: { $ref: '#/components/schemas/File' }
         meta: { $ref: '#/components/schemas/PaginationMeta' }
-        can_upload_file:
-          type: boolean
-          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0 = unlimited).
 
     # ---------------------------------------------------------------- tasks
     ContactTask:
@@ -1263,26 +1254,20 @@ components:
     DocumentsModule:
       type: object
       description: Module `documents`. All documents, newest first.
-      required: [documents, can_upload_file]
+      required: [documents]
       properties:
         documents:
           type: array
           items: { $ref: '#/components/schemas/File' }
-        can_upload_file:
-          type: boolean
-          description: Computed (X011), as in `ContactDocumentList`.
     PhotosModule:
       type: object
       description: Module `photos`. The 6 newest photos; "View all" opens the photos page (`listContactPhotos`).
-      required: [photos, can_upload_file]
+      required: [photos]
       properties:
         photos:
           type: array
           maxItems: 6
           items: { $ref: '#/components/schemas/File' }
-        can_upload_file:
-          type: boolean
-          description: Computed (X011), as in `ContactPhotoList`.
     TasksModule:
       type: object
       description: |

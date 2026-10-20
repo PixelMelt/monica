@@ -8,19 +8,18 @@ use chrono_tz::Tz;
 use sea_orm::sea_query::{Expr, ExprTrait};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, QueryOrder};
 
-use crate::config::Config;
 use crate::db::id::Id;
 use crate::db::timestamp::Timestamp;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, VaultPermission, check, value_or_null};
-use crate::domains::settings::manage_notification_channels::TYPE_EMAIL;
+use crate::domains::settings::manage_notification_channels::TYPE_PUSHOVER;
 use crate::entities::{
     contact_reminder_scheduled, contact_reminders, contacts, user_notification_channels, user_notification_sent,
     user_vault, users, vaults,
 };
 use crate::error::{ApiError, ApiResult};
 use crate::i18n;
-use crate::mail::{Email, Mailer};
+use crate::pushover::{Credentials, Message, Pushover};
 use crate::validate::Validator;
 
 /// `ContactReminder::TYPE_ONE_TIME`.
@@ -385,7 +384,7 @@ impl UpdateContactReminder {
 pub struct ProcessScheduledContactReminders;
 
 impl ProcessScheduledContactReminders {
-    pub async fn execute<C: ConnectionTrait>(self, db: &C, mailer: &Mailer, _config: &Config) -> ApiResult<()> {
+    pub async fn execute<C: ConnectionTrait>(self, db: &C, pushover: &Pushover) -> ApiResult<()> {
         // this cron job runs every five minutes, so we must make sure that
         // the date we run this cron against, has no seconds, otherwise getting
         // the scheduled reminders will not return any results
@@ -416,7 +415,7 @@ impl ProcessScheduledContactReminders {
                 if let Some(contact) = contact {
                     Self::trigger_notification(
                         db,
-                        mailer,
+                        pushover,
                         &user_notification_channel,
                         &contact,
                         &contact_reminder,
@@ -495,7 +494,7 @@ impl ProcessScheduledContactReminders {
 
     async fn trigger_notification<C: ConnectionTrait>(
         db: &C,
-        mailer: &Mailer,
+        pushover: &Pushover,
         channel: &user_notification_channels::Model,
         contact: &contacts::Model,
         contact_reminder: &contact_reminders::Model,
@@ -512,13 +511,16 @@ impl ProcessScheduledContactReminders {
         .ok_or_else(|| anyhow::anyhow!("the notification channel has no user"))?;
         let contact_name = format_contact_name(&user, contact);
 
-        // I009: Telegram is removed; any type but email is unknown.
-        if channel.r#type != TYPE_EMAIL {
+        // Pushover is the only kind of channel.
+        if channel.r#type != TYPE_PUSHOVER {
             return Ok(());
         }
 
         i18n::LOCALE
-            .scope(user.locale.clone(), reminder_triggered(db, mailer, channel, &contact_reminder.label, &contact_name))
+            .scope(
+                user.locale.clone(),
+                reminder_triggered(db, pushover, channel, &contact_reminder.label, &contact_name),
+            )
             .await?;
 
         Self::update_number_of_times_triggered(db, scheduled_reminder.contact_reminder_id).await?;
@@ -534,11 +536,12 @@ impl ProcessScheduledContactReminders {
     }
 }
 
-/// `App\Notifications\ReminderTriggered` on the mail channel: `toMail`
-/// logs the notification, then the message goes to the channel's address.
+/// `App\Notifications\ReminderTriggered`, through Pushover: logs the
+/// notification, then sends "Reminder for <contact>" with the reminder's
+/// label.
 pub async fn reminder_triggered<C: ConnectionTrait>(
     db: &C,
-    mailer: &Mailer,
+    pushover: &Pushover,
     channel: &user_notification_channels::Model,
     content: &str,
     contact_name: &str,
@@ -552,26 +555,10 @@ pub async fn reminder_triggered<C: ConnectionTrait>(
     .insert(db)
     .await?;
 
-    let l = i18n::current();
-    let (text, html) = Mailer::render(
-        &[
-            i18n::t(&l, "You wanted to be reminded of the following:", &[]),
-            content.to_owned(),
-            i18n::t(&l, "for", &[]),
-            contact_name.to_owned(),
-            i18n::t(&l, "Test email for Monica", &[]),
-        ],
-        None,
-        &[],
-    );
-    mailer
-        .send(Email {
-            to: channel.content.clone(),
-            subject: i18n::t(&l, "Reminder for :name", &[("name", contact_name)]),
-            text,
-            html,
-        })
-        .await
+    let credentials = Credentials::from_content(&channel.content)?;
+    let title = i18n::t(&i18n::current(), "Reminder for :name", &[("name", contact_name)]);
+    pushover.send(&credentials, &Message { title: Some(title), message: content.to_owned() }).await?;
+    Ok(())
 }
 
 /// `$this->contact->reminders()->findOrFail($id)`.

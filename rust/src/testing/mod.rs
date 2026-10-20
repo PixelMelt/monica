@@ -7,6 +7,7 @@
 //! containers in `rust/README.md`).
 
 pub mod factory;
+pub mod pushover;
 
 use crate::db::blueprint::Engine;
 use sea_orm::{ConnectionTrait, DatabaseConnection, Statement, TransactionTrait};
@@ -82,6 +83,22 @@ fn drop_sql(engine: Engine, name: &str) -> String {
 }
 
 impl TestDb {
+    /// A new database with no migration applied (tests of a migration, which
+    /// then run the rest so the database can be pooled).
+    pub async fn empty() -> TestDb {
+        let engine = engine();
+        if engine == Engine::Sqlite {
+            let path = std::env::temp_dir().join(format!("monica_test_{}.sqlite", uuid::Uuid::new_v4().simple()));
+            let conn = crate::db::connect(&format!("sqlite://{}?mode=rwc", path.display())).await.expect("sqlite");
+            return TestDb { conn, engine, name: None, file: Some(path) };
+        }
+        drop_stale(engine).await;
+        let name = format!("monica_test_{}_{}", std::process::id(), uuid::Uuid::new_v4().simple());
+        admin(engine).await.execute_unprepared(&format!("create database {name}")).await.expect("create database");
+        let conn = crate::db::connect(&format!("{}/{name}", server_url(engine))).await.expect("test database");
+        TestDb { conn, engine, name: Some(name), file: None }
+    }
+
     /// A migrated database, recycled from an earlier test when possible.
     /// At most four migrate at once, so a parallel test run doesn't swamp
     /// the MySQL or Postgres server with DDL.

@@ -40,36 +40,21 @@ x-not-api:
   reason: 'served outside the API: 301 /.well-known/caldav -> /dav'
 - id: R005
   reason: 'served outside the API: 301 /.well-known/security.txt -> /security.txt'
-- id: V004
-  reason: SPA page only (forgot password form)
-- id: V006
-  reason: SPA page only (reset password form)
-- id: V010
-  reason: SPA page only (verify email notice)
 - id: V015
   reason: SPA page only (confirm password form)
 - id: V018
   reason: SPA page only (2FA challenge form)
-- id: V027
-  reason: SPA page only; the markdown is a static asset of the SPA
-- id: V028
-  reason: SPA page only; the markdown is a static asset of the SPA
 - id: V038
   reason: CardDAV/CalDAV at /dav, see api-design.md §11
 - id: V039
   reason: health check at /up, outside the API
-- id: R002
-  reason: The beta banner's dismissed state is per-browser UI state. The SPA keeps it in localStorage
-    (today a `beta` cookie set by this route); the server never reads it.
 - id: R211
   reason: 'SPA page only (settings index: static links); the administrator flag that hides the account
     section comes from GET /me/bootstrap'
 - id: R230
-  reason: SPA page only (invite user form); submits to POST /account/users
+  reason: SPA page only (add user form); submits to POST /account/users
 - id: R235
   reason: 'SPA page only (personalize index: static links)'
-- id: R325
-  reason: SPA page only (cancel account form); submits to DELETE /account
 - id: R039
   reason: SPA page only (create contact form); pick-lists from listGenders, listPronouns, listTemplates,
     and the vault's default_template_id from getVault
@@ -108,38 +93,6 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '403':
           $ref: '#/components/responses/Forbidden'
-    delete:
-      operationId: cancelAccount
-      tags:
-      - Account
-      summary: Cancel the account
-      description: 'Needs a password confirmation (api-design.md §7.4). Queues the deletion
-
-        of the account with all its users, vaults, contacts and files (J018);
-
-        the client then goes to the login page.
-
-        '
-      x-permission: account:admin
-      x-inventory:
-      - R326
-      x-services:
-      - CancelAccount
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CancelAccountRequest'
-      responses:
-        '202':
-          description: Deletion queued; no body.
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
   /account/address-types:
     get:
       operationId: listAddressTypes
@@ -2091,27 +2044,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-  /account/storage:
-    get:
-      operationId: getAccountStorage
-      tags:
-      - Account
-      summary: Storage used by the account's files, per file type
-      x-permission: account:member
-      x-inventory:
-      - R324
-      x-services: []
-      responses:
-        '200':
-          description: Usage totals and the account limit.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StorageUsage'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
   /account/templates:
     get:
       operationId: listTemplates
@@ -2535,11 +2467,9 @@ paths:
       tags:
       - Account
       summary: List the users of the account
-      description: 'Includes invited users who haven''t accepted yet. Ordered by
+      description: 'Ordered by `created_at`. The client marks the current user by
 
-        `created_at`. The client marks the current user by comparing ids with
-
-        GET /me/bootstrap.
+        comparing ids with GET /me/bootstrap.
 
         '
       x-permission: account:member
@@ -2559,29 +2489,29 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
     post:
-      operationId: inviteAccountUser
+      operationId: createAccountUser
       tags:
       - Account
-      summary: Invite a user to the account
-      description: 'Creates the user with an invitation code and queues the invitation
+      summary: Add a user, with a username and a first password
+      description: 'In place of email invitations: the administrator gives the new user a
 
-        email (E002), which links to the SPA''s accept-invitation page.
+        username and a first password, which they can change in their profile.
 
         '
       x-permission: account:admin
       x-inventory:
       - R231
       x-services:
-      - InviteUser
+      - CreateUser
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountUserInvite'
+              $ref: '#/components/schemas/AccountUserCreate'
       responses:
         '201':
-          description: The invited user.
+          description: The new user.
           content:
             application/json:
               schema:
@@ -2702,9 +2632,7 @@ paths:
 
         pass for 3 hours after it (api-design.md §7.4). Wrong password: 422 on
 
-        `password`. A user without a password always passes. No verified
-
-        email needed.
+        `password`. A user without a password always passes.
 
         '
       x-permission: user
@@ -2734,7 +2662,7 @@ paths:
       summary: Whether the session confirmed the password recently
       description: 'Used by the SPA''s `ConfirmsPassword` component before a sensitive
 
-        action. No verified email needed.
+        action.
 
         '
       x-permission: user
@@ -2781,116 +2709,21 @@ paths:
       responses:
         '204':
           $ref: '#/components/responses/NoContent'
-  /auth/email/verification-notification:
-    post:
-      operationId: sendEmailVerification
-      tags:
-      - Auth
-      summary: Send the verification email again
-      description: 'Sends E005 unless the email is already verified. As today, when the
-
-        mailer is SMTP without credentials the user is marked verified instead
-
-        of being sent an email. No verified email needed. 6 per minute.
-
-        '
-      x-permission: user
-      x-inventory:
-      - V012
-      x-services: []
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-  /auth/email/verify:
-    post:
-      operationId: verifyEmail
-      tags:
-      - Auth
-      summary: Verify the email address from the emailed link
-      description: 'The link opens the SPA at `/email/verify/{id}/{hash}?expires=&signature=`,
-
-        which posts those values. The server checks the signature and expiry,
-
-        that `id` is the logged-in user and `hash` is the SHA-1 of their email,
-
-        then sets `email_verified_at` (no change if already set). Bad link: 403.
-
-        No verified email needed. 6 per minute.
-
-        '
-      x-permission: user
-      x-inventory:
-      - V011
-      x-services: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EmailVerification'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-  /auth/forgot-password:
-    post:
-      operationId: requestPasswordReset
-      tags:
-      - Auth
-      summary: Email a password reset link
-      description: 'Sends E006, whose link opens the SPA at `/reset-password/{token}?email=`.
-
-        As today, an unknown email is a 422 on `email`, and so is a new request
-
-        for the same user within 60 seconds.
-
-        '
-      x-permission: public
-      security: []
-      x-inventory:
-      - V005
-      x-services: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PasswordResetLinkRequest'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-        '429':
-          $ref: '#/components/responses/RateLimited'
   /auth/login:
     post:
       operationId: logIn
       tags:
       - Auth
-      summary: Log in with email and password
+      summary: Log in with username and password
       description: 'Without confirmed 2FA, starts the session (new session id) and returns
 
         the user. With confirmed 2FA, the session only holds a pending login
 
-        (user id, `remember`) until POST /auth/two-factor-challenge. Wrong
+        (user id, `remember`) until POST /auth/two-factor-challenge. Usernames
 
-        credentials: 422 on `email`. 5 attempts per minute per email and IP.
+        ignore case. Wrong credentials: 422 on `username`. 5 attempts per
+
+        minute per username and IP.
 
         '
       x-permission: public
@@ -2928,9 +2761,7 @@ paths:
       summary: Log out
       description: 'Ends the cookie session and rotates the CSRF token. Bearer clients
 
-        revoke their token with DELETE /me/tokens/{token_id} instead. No
-
-        verified email needed.
+        revoke their token with DELETE /me/tokens/{token_id} instead.
 
         '
       x-permission: user
@@ -2949,14 +2780,14 @@ paths:
       operationId: registerUser
       tags:
       - Auth
-      summary: Sign up, creating a new account
-      description: 'Creates an account with this user as its administrator (locale = the
+      summary: 'First run: create the account and its first user'
+      description: 'Only while no user exists (`setup_required` in GET /instance): creates
 
-        request locale, timezone `UTC`), queues the account setup (J014),
+        the account with this user as its administrator (locale = the request
 
-        sends the verification email (E005) and starts a session.
+        locale, timezone `UTC`), sets it up (J014) and starts a session. After
 
-        `403 signup_disabled` when signup is off (X007).
+        that, `403 signup_disabled`; an administrator adds other users.
 
         '
       x-permission: public
@@ -2966,6 +2797,7 @@ paths:
       x-services:
       - CreateNewUser
       - CreateAccount
+      - SetupAccount
       requestBody:
         required: true
         content:
@@ -2979,41 +2811,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CurrentUser'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-        '429':
-          $ref: '#/components/responses/RateLimited'
-  /auth/reset-password:
-    post:
-      operationId: resetPassword
-      tags:
-      - Auth
-      summary: Set a new password with a reset token
-      description: 'Tokens expire after 60 minutes; a bad or expired token is a 422 on
-
-        `email`. Deletes the token and ends the user''s existing sessions.
-
-        Doesn''t log in.
-
-        '
-      x-permission: public
-      security: []
-      x-inventory:
-      - V007
-      x-services:
-      - ResetUserPassword
-      - CompletePasswordReset
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PasswordReset'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
         '403':
           $ref: '#/components/responses/Forbidden'
         '422':
@@ -3067,9 +2864,9 @@ paths:
       tags:
       - Auth
       summary: Public information about this instance
-      description: 'Feeds the login and register pages (V001, V008) and the footer. The
+      description: 'Feeds the login and first-run setup pages (V001, V008) and the footer.
 
-        login wallpaper (D008) and help links (D009) are SPA assets.
+        The login wallpaper (D008) and help links (D009) are SPA assets.
 
         '
       x-permission: public
@@ -3085,76 +2882,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Instance'
-  /invitations/{invitation_code}:
-    parameters:
-    - $ref: '#/components/parameters/InvitationCode'
-    get:
-      operationId: getInvitation
-      tags:
-      - Auth
-      summary: Check an invitation before showing the accept form
-      description: '404 when no user has this code or it was already accepted (today the
-
-        page redirects to `/`).
-
-        '
-      x-permission: public
-      security: []
-      x-inventory:
-      - R009
-      x-services: []
-      responses:
-        '200':
-          description: The pending invitation.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Invitation'
-        '404':
-          $ref: '#/components/responses/NotFound'
-  /invitations/{invitation_code}/accept:
-    parameters:
-    - $ref: '#/components/parameters/InvitationCode'
-    post:
-      operationId: acceptInvitation
-      tags:
-      - Auth
-      summary: Accept an invitation and log in
-      description: 'Sets the invited user''s names and password, `invitation_accepted_at`,
-
-        `email_verified_at`, timezone `UTC` and `is_account_administrator =
-
-        false` (as today), creates a verified, active email notification
-
-        channel for their email at 09:00, then starts a session.
-
-        '
-      x-permission: public
-      security: []
-      x-inventory:
-      - R010
-      x-services:
-      - AcceptInvitation
-      - CreateUserNotificationChannel
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InvitationAccept'
-      responses:
-        '200':
-          description: The user, now logged in.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CurrentUser'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
   /me:
     get:
       operationId: getMe
@@ -3163,7 +2890,7 @@ paths:
       summary: The logged-in user
       description: 'Also replaces `GET /api/user` (R329) and the user part of the profile
 
-        page (V029). No verified email needed.
+        page (V029).
 
         '
       x-permission: user
@@ -3186,10 +2913,10 @@ paths:
       operationId: updateMe
       tags:
       - Me
-      summary: Update name and email
-      description: 'Changing `email` clears `email_verified_at` and sends the verification
+      summary: Update name and username
+      description: 'The username is kept trimmed and in lower case, and must be no other
 
-        email (E005). No verified email needed.
+        user''s.
 
         '
       x-permission: user
@@ -3216,49 +2943,6 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '422':
           $ref: '#/components/responses/ValidationFailed'
-    delete:
-      operationId: deleteMe
-      tags:
-      - Me
-      summary: Delete my user
-      description: 'Only when the server flag `ENABLE_ACCOUNT_DELETION` is on. It defaults
-
-        to off, and then this answers 404, as today where the route isn''t
-
-        registered (`Instance.features.account_deletion`). Deletes the user and
-
-        the vaults they are the only manager of (DestroyUser), then ends the
-
-        session. 409 when they are the account''s last administrator.
-
-        Sensitive action. No verified email needed.
-
-        '
-      x-permission: user
-      x-inventory:
-      - V032
-      x-services:
-      - DeleteUser
-      - DestroyUser
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PasswordConfirmation'
-      responses:
-        '204':
-          $ref: '#/components/responses/NoContent'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
   /me/bootstrap:
     get:
       operationId: getBootstrap
@@ -3271,7 +2955,7 @@ paths:
 
         with permission and tab visibility, and the instance info (footer
 
-        version). No verified email needed.
+        version).
 
         '
       x-permission: user
@@ -3294,7 +2978,7 @@ paths:
       tags:
       - Me
       summary: My reminder notification channels
-      description: Email channels (Telegram is removed), ordered by `id`.
+      description: Pushover channels (email and Telegram are removed), ordered by `id`.
       x-permission: user
       x-inventory:
       - R221
@@ -3314,14 +2998,14 @@ paths:
       operationId: createNotificationChannel
       tags:
       - Me
-      summary: Add an email address to be notified at
-      description: 'Creates an inactive, unverified channel with a new `verification_token`
+      summary: Add a Pushover channel
+      description: 'Checks the user key and application token with Pushover
 
-        and queues the verification email (J015, E004), whose link opens the
+        (`users/validate.json`): refused or unreachable is a 422 on
 
-        SPA at `/settings/notifications/{id}/verify/{token}`. An address already
+        `user_key`. The channel is then verified and active, and the user''s
 
-        used by any channel is a 422 on `content`.
+        contact reminders are scheduled on it. The token is never returned.
 
         '
       x-permission: user
@@ -3470,17 +3154,19 @@ paths:
       operationId: sendNotificationChannelTest
       tags:
       - Me
-      summary: Send a test email to the channel
-      description: 'Sends E003 to `content` and adds a log entry (`subject_line` "Test
+      summary: Send a test notification to the channel
+      description: 'Sends "This is a test notification for <name>" (in the user''s locale)
 
-        email for Monica" in the user''s locale).
+        through Pushover and adds a log entry with that text. 502
+
+        `notification_failed` when Pushover doesn''t take it.
 
         '
       x-permission: user
       x-inventory:
       - R225
       x-services:
-      - SendTestEmail
+      - SendTestNotification
       parameters:
       - $ref: '#/components/parameters/NotificationChannelId'
       responses:
@@ -3492,50 +3178,8 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
-  /me/notification-channels/{notification_channel_id}/verify:
-    post:
-      operationId: verifyNotificationChannel
-      tags:
-      - Me
-      summary: Verify a channel's email address from the emailed link
-      description: 'Called by the SPA page the verification link opens, which then shows
-
-        the channels list (R224). Sets `verified_at` and schedules the user''s
-
-        contact reminders on the channel. `token` must equal the channel''s
-
-        `verification_token` (422 otherwise).
-
-        '
-      x-permission: user
-      x-inventory:
-      - R224
-      x-services:
-      - VerifyUserNotificationChannelEmailAddress
-      - ScheduleAllContactRemindersForNotificationChannel
-      parameters:
-      - $ref: '#/components/parameters/NotificationChannelId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NotificationChannelVerification'
-      responses:
-        '200':
-          description: The verified channel.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationChannel'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
+        '502':
+          $ref: '#/components/responses/NotificationFailed'
   /me/password:
     put:
       operationId: updateMyPassword
@@ -3546,7 +3190,7 @@ paths:
 
         ends the user''s other sessions (today through `AuthenticateSession`);
 
-        the current session stays. No verified email needed.
+        the current session stays.
 
         '
       x-permission: user
@@ -3657,9 +3301,7 @@ paths:
       summary: My browser sessions
       description: 'Rows of `sessions` for this user, most recently active first, for the
 
-        profile page (V029). Session ids are never returned. No verified email
-
-        needed.
+        profile page (V029). Session ids are never returned.
 
         '
       x-permission: user
@@ -3685,9 +3327,7 @@ paths:
       summary: Log out every other browser session
       description: 'Deletes this user''s `sessions` rows except the current one (X026).
 
-        Sensitive action; wrong password: 422 on `password`. No verified email
-
-        needed.
+        Sensitive action; wrong password: 422 on `password`.
 
         '
       x-permission: user
@@ -3830,7 +3470,7 @@ paths:
 
         secret. 2FA is active only after confirmTwoFactor. 409 when 2FA is
 
-        already confirmed. Sensitive action. No verified email needed.
+        already confirmed. Sensitive action.
 
         '
       x-permission: user
@@ -3868,8 +3508,6 @@ paths:
       summary: Disable 2FA
       description: 'Clears the secret, recovery codes and confirmation. Sensitive action.
 
-        No verified email needed.
-
         '
       x-permission: user
       x-inventory:
@@ -3899,9 +3537,7 @@ paths:
       summary: Confirm 2FA with a code from the app
       description: 'Sets `two_factor_confirmed_at`; from then on login asks for a code.
 
-        Wrong code or no pending secret: 422 on `code`. No verified email
-
-        needed.
+        Wrong code or no pending secret: 422 on `code`.
 
         '
       x-permission: user
@@ -3934,7 +3570,7 @@ paths:
 
         body, it needs the session confirmation (bearer clients regenerate
 
-        instead). No verified email needed.
+        instead).
 
         '
       x-permission: user
@@ -3957,7 +3593,7 @@ paths:
       tags:
       - Me
       summary: Replace the recovery codes with 8 new ones
-      description: '409 when 2FA has no secret. Sensitive action. No verified email needed.
+      description: '409 when 2FA has no secret. Sensitive action.
 
         '
       x-permission: user
@@ -5510,11 +5146,7 @@ paths:
       summary: Upload a document for a contact
       description: 'Multipart upload (api-design.md §10). Stores the file as type
 
-        `document`, attached to the contact. Rejected with 422
-
-        `storage_limit_exceeded` when the account is at its storage limit
-
-        (X011).
+        `document`, attached to the contact. There is no storage quota.
 
         '
       x-permission: vault:edit
@@ -6800,9 +6432,7 @@ paths:
 
         (422 otherwise). Stores the file as type `photo`, attached to the
 
-        contact. Rejected with 422 `storage_limit_exceeded` when the account
-
-        is at its storage limit (X011).
+        contact. There is no storage quota.
 
         '
       x-permission: vault:edit
@@ -9736,7 +9366,7 @@ paths:
       tags:
       - Vaults
       summary: List account users who could be added to the vault
-      description: Users of the account with a verified email who are not members yet.
+      description: Users of the account who are not members of the vault yet.
       x-permission: vault:manage
       x-inventory:
       - R173
@@ -10600,12 +10230,6 @@ components:
       schema:
         type: string
         maxLength: 255
-    InvitationCode:
-      name: invitation_code
-      in: path
-      required: true
-      schema:
-        $ref: '#/components/schemas/Uuid'
     NotificationChannelId:
       name: notification_channel_id
       in: path
@@ -10641,11 +10265,9 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     Forbidden:
-      description: '`forbidden`, `csrf_token_mismatch`, `email_not_verified`,
+      description: '`forbidden`, `csrf_token_mismatch`, `token_ability_missing`,
 
-        `token_ability_missing`, `password_confirmation_required` or
-
-        `signup_disabled`.
+        `password_confirmation_required` or `signup_disabled`.
 
         '
       content:
@@ -10671,9 +10293,7 @@ components:
           schema:
             $ref: '#/components/schemas/Problem'
     ValidationFailed:
-      description: '`validation_failed` (with `errors`), `storage_limit_exceeded` or
-
-        `vault_user_limit_reached`.
+      description: '`validation_failed` (with `errors`) or `vault_user_limit_reached`.
 
         '
       content:
@@ -10686,6 +10306,12 @@ components:
         Retry-After:
           schema:
             type: integer
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotificationFailed:
+      description: Pushover didn't take the notification (`notification_failed`); `detail` says why.
       content:
         application/problem+json:
           schema:
@@ -10728,7 +10354,6 @@ components:
           - bad_request
           - unauthenticated
           - csrf_token_mismatch
-          - email_not_verified
           - forbidden
           - token_ability_missing
           - password_confirmation_required
@@ -10737,9 +10362,9 @@ components:
           - conflict
           - payload_too_large
           - validation_failed
-          - storage_limit_exceeded
           - vault_user_limit_reached
           - rate_limited
+          - notification_failed
           - internal_error
         title:
           type: string
@@ -11031,26 +10656,20 @@ components:
     Instance:
       type: object
       required:
-      - signup_enabled
-      - show_deletion_notice
+      - setup_required
       - locale
       - default_locale
       - locales
       - version
       - commit
-      - features
       properties:
-        signup_enabled:
+        setup_required:
           type: boolean
-          description: 'False when `APP_DISABLE_SIGNUP` is set and at least one account
+          description: 'No user exists yet: the first visitor creates the account
 
-            exists; the first user can always sign up (X007).
+            (POST /auth/register); sign-up is closed after that.
 
             '
-        show_deletion_notice:
-          type: boolean
-          description: The login page warns that the instance and its data will be deleted (`APP_SHOW_DELETION_NOTICE`,
-            X008).
         locale:
           $ref: '#/components/schemas/LocaleCode'
           description: 'The locale of this request: the user''s `locale` when logged in,
@@ -11075,47 +10694,16 @@ components:
           - 'null'
           description: Full commit hash of the build; the footer shows the first 7 characters and links
             to the repository.
-        features:
-          type: object
-          required:
-          - account_deletion
-          properties:
-            account_deletion:
-              type: boolean
-              description: DELETE /me is enabled (server flag, off by default, V032).
-    Invitation:
-      type: object
-      required:
-      - invitation_code
-      - email
-      properties:
-        invitation_code:
-          $ref: '#/components/schemas/Uuid'
-        email:
-          type: string
-          format: email
-          description: The invited address; the user logs in with it after accepting.
-    InvitationAccept:
-      type: object
-      required:
-      - first_name
-      - last_name
-      - password
-      - password_confirmation
-      properties:
-        first_name:
-          type: string
-          minLength: 1
-          maxLength: 255
-        last_name:
-          type: string
-          minLength: 1
-          maxLength: 255
-        password:
-          $ref: '#/components/schemas/NewPassword'
-        password_confirmation:
-          type: string
-          description: Must equal `password`.
+    Username:
+      type: string
+      minLength: 1
+      maxLength: 255
+      pattern: ^[^\s:]+$
+      description: 'What a user signs in with. Kept trimmed and in lower case; unique; no
+
+        whitespace or `:` (CardDAV clients send `username:token`).
+
+        '
     NewPassword:
       type: string
       minLength: 4
@@ -11130,10 +10718,9 @@ components:
       required:
       - first_name
       - last_name
-      - email
+      - username
       - password
       - password_confirmation
-      - terms
       properties:
         first_name:
           type: string
@@ -11143,27 +10730,20 @@ components:
           type: string
           minLength: 1
           maxLength: 255
-        email:
-          type: string
-          format: email
-          maxLength: 255
-          description: Unique across users.
+        username:
+          $ref: '#/components/schemas/Username'
         password:
           $ref: '#/components/schemas/NewPassword'
         password_confirmation:
           type: string
           description: Must equal `password`.
-        terms:
-          type: boolean
-          const: true
-          description: Accepts the terms of service and privacy policy.
     LoginCredentials:
       type: object
       required:
-      - email
+      - username
       - password
       properties:
-        email:
+        username:
           type: string
         password:
           type: string
@@ -11195,50 +10775,6 @@ components:
           description: TOTP code.
         recovery_code:
           type: string
-    EmailVerification:
-      type: object
-      required:
-      - id
-      - hash
-      - expires
-      - signature
-      properties:
-        id:
-          $ref: '#/components/schemas/Uuid'
-        hash:
-          type: string
-          description: SHA-1 of the email the link was sent to.
-        expires:
-          type: integer
-          description: Unix time the link expires (60 minutes after sending).
-        signature:
-          type: string
-    PasswordResetLinkRequest:
-      type: object
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-    PasswordReset:
-      type: object
-      required:
-      - token
-      - email
-      - password
-      - password_confirmation
-      properties:
-        token:
-          type: string
-        email:
-          type: string
-          format: email
-        password:
-          $ref: '#/components/schemas/NewPassword'
-        password_confirmation:
-          type: string
-          description: Must equal `password`.
     PasswordConfirmation:
       type: object
       required:
@@ -11261,8 +10797,7 @@ components:
       - account_id
       - first_name
       - last_name
-      - email
-      - email_verified_at
+      - username
       - is_account_administrator
       - is_instance_administrator
       - two_factor_enabled
@@ -11282,15 +10817,8 @@ components:
           type:
           - string
           - 'null'
-        email:
-          type: string
-          format: email
-        email_verified_at:
-          description: Null until the email is verified; most endpoints answer 403 `email_not_verified`
-            until then.
-          oneOf:
-          - $ref: '#/components/schemas/Timestamp'
-          - type: 'null'
+        username:
+          $ref: '#/components/schemas/Username'
         is_account_administrator:
           type: boolean
         is_instance_administrator:
@@ -11317,11 +10845,8 @@ components:
           type: string
           minLength: 1
           maxLength: 255
-        email:
-          type: string
-          format: email
-          maxLength: 255
-          description: Unique across users.
+        username:
+          $ref: '#/components/schemas/Username'
     PasswordUpdate:
       type: object
       required:
@@ -11691,7 +11216,7 @@ components:
       - id
       - type
       - label
-      - content
+      - user_key
       - preferred_time
       - active
       - fails
@@ -11704,14 +11229,14 @@ components:
         type:
           type: string
           enum:
-          - email
+          - pushover
         label:
           type:
           - string
           - 'null'
-        content:
+        user_key:
           type: string
-          description: The email address.
+          description: The Pushover user (or group) key; the application token is never returned.
         preferred_time:
           type:
           - string
@@ -11725,7 +11250,7 @@ components:
           minimum: 0
           description: Consecutive send failures; at 10 (`max_notification_failures`) the channel is deactivated.
         verified_at:
-          description: Null until the address is verified; the UI offers activate and test only once verified.
+          description: When Pushover accepted the keys (at creation).
           oneOf:
           - $ref: '#/components/schemas/Timestamp'
           - type: 'null'
@@ -11746,17 +11271,22 @@ components:
       type: object
       required:
       - label
-      - content
+      - user_key
+      - app_token
       - preferred_time
       properties:
         label:
           type: string
           minLength: 1
           maxLength: 255
-        content:
+        user_key:
           type: string
-          format: email
           maxLength: 255
+          description: The Pushover user (or group) key.
+        app_token:
+          type: string
+          maxLength: 255
+          description: The token of your Pushover application.
         preferred_time:
           type: string
           pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
@@ -11769,13 +11299,6 @@ components:
       properties:
         active:
           type: boolean
-    NotificationChannelVerification:
-      type: object
-      required:
-      - token
-      properties:
-        token:
-          $ref: '#/components/schemas/Uuid'
     NotificationLog:
       type: object
       required:
@@ -11904,67 +11427,15 @@ components:
       type: object
       required:
       - id
-      - storage_limit_in_mb
       - created_at
       - updated_at
       properties:
         id:
           $ref: '#/components/schemas/Uuid'
-        storage_limit_in_mb:
-          type: integer
-          minimum: 0
-          description: 0 means unlimited (X011).
         created_at:
           $ref: '#/components/schemas/Timestamp'
         updated_at:
           $ref: '#/components/schemas/Timestamp'
-    StorageUsage:
-      type: object
-      description: 'Sizes are bytes, summed over the files of all the account''s vaults. The
-
-        client computes percentages (of the limit, and per type of the total).
-
-        '
-      required:
-      - storage_limit_in_mb
-      - total_size
-      - photo
-      - document
-      - avatar
-      properties:
-        storage_limit_in_mb:
-          type: integer
-          minimum: 0
-          description: 0 means unlimited (X011).
-        total_size:
-          type: integer
-          minimum: 0
-        photo:
-          $ref: '#/components/schemas/StorageTypeUsage'
-        document:
-          $ref: '#/components/schemas/StorageTypeUsage'
-        avatar:
-          $ref: '#/components/schemas/StorageTypeUsage'
-    StorageTypeUsage:
-      type: object
-      required:
-      - count
-      - size
-      properties:
-        count:
-          type: integer
-          minimum: 0
-          description: Number of files of this type.
-        size:
-          type: integer
-          minimum: 0
-          description: Bytes.
-    CancelAccountRequest:
-      type: object
-      properties:
-        password:
-          type: string
-          description: The current password, unless the session confirmed it recently (api-design.md §7.4).
     EmotionList:
       type: object
       required:
@@ -11978,43 +11449,27 @@ components:
       type: object
       required:
       - id
-      - email
+      - username
       - first_name
       - last_name
       - is_account_administrator
-      - email_verified_at
-      - invitation_accepted_at
-      - is_invitation_pending
       - created_at
       - updated_at
       properties:
         id:
           $ref: '#/components/schemas/Uuid'
-        email:
-          type: string
-          format: email
+        username:
+          $ref: '#/components/schemas/Username'
         first_name:
           type:
           - string
           - 'null'
-          description: Null until an invited user accepts.
         last_name:
           type:
           - string
           - 'null'
         is_account_administrator:
           type: boolean
-        email_verified_at:
-          oneOf:
-          - $ref: '#/components/schemas/Timestamp'
-          - type: 'null'
-        invitation_accepted_at:
-          oneOf:
-          - $ref: '#/components/schemas/Timestamp'
-          - type: 'null'
-        is_invitation_pending:
-          type: boolean
-          description: Computed; invited (has an invitation code) and not accepted yet.
         created_at:
           $ref: '#/components/schemas/Timestamp'
         updated_at:
@@ -12028,16 +11483,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AccountUser'
-    AccountUserInvite:
+    AccountUserCreate:
       type: object
       required:
-      - email
+      - first_name
+      - last_name
+      - username
+      - password
+      - password_confirmation
       properties:
-        email:
+        first_name:
           type: string
-          format: email
+          minLength: 1
           maxLength: 255
-          description: Must not belong to any user yet (`unique`).
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        username:
+          $ref: '#/components/schemas/Username'
+        password:
+          $ref: '#/components/schemas/NewPassword'
+        password_confirmation:
+          type: string
+          description: Must equal `password`.
         is_account_administrator:
           type: boolean
           default: false
@@ -13702,7 +13171,6 @@ components:
       required:
       - contact
       - is_current_user_contact
-      - can_upload_file
       - header_modules
       - groups
       - quick_fact_templates
@@ -13717,9 +13185,6 @@ components:
           type: boolean
           description: 'Computed: this is the current user''s own contact in the vault (the page hides
             archive and delete for it).'
-        can_upload_file:
-          type: boolean
-          description: 'Computed: the account is below its storage limit (X011).'
         header_modules:
           type: array
           description: 'Modules of the template''s `contact_information` page, in position
@@ -15503,22 +14968,16 @@ components:
       type: object
       required:
       - data
-      - can_upload_file
       properties:
         data:
           type: array
           items:
             $ref: '#/components/schemas/File'
-        can_upload_file:
-          type: boolean
-          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0
-            = unlimited).
     ContactPhotoList:
       type: object
       required:
       - data
       - meta
-      - can_upload_file
       properties:
         data:
           type: array
@@ -15526,10 +14985,6 @@ components:
             $ref: '#/components/schemas/File'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
-        can_upload_file:
-          type: boolean
-          description: Computed (X011) - false when the account's files reach `storage_limit_in_mb` (0
-            = unlimited).
     ContactTask:
       type: object
       required:
@@ -16244,30 +15699,22 @@ components:
       description: Module `documents`. All documents, newest first.
       required:
       - documents
-      - can_upload_file
       properties:
         documents:
           type: array
           items:
             $ref: '#/components/schemas/File'
-        can_upload_file:
-          type: boolean
-          description: Computed (X011), as in `ContactDocumentList`.
     PhotosModule:
       type: object
       description: Module `photos`. The 6 newest photos; "View all" opens the photos page (`listContactPhotos`).
       required:
       - photos
-      - can_upload_file
       properties:
         photos:
           type: array
           maxItems: 6
           items:
             $ref: '#/components/schemas/File'
-        can_upload_file:
-          type: boolean
-          description: Computed (X011), as in `ContactPhotoList`.
     TasksModule:
       type: object
       description: 'Module `tasks`. Open tasks, newest first; completed ones are loaded on
@@ -18131,16 +17578,11 @@ components:
       - mood_tracking_events
       - previous_post
       - next_post
-      - can_upload_file
       - created_at
       - updated_at
       properties:
         id:
           $ref: '#/components/schemas/Id'
-        can_upload_file:
-          type: boolean
-          description: 'Computed: the account is under its storage limit (X011); the edit page hides the
-            photo upload otherwise.'
         journal:
           type: object
           required:
@@ -18394,12 +17836,7 @@ components:
         - journal
         - posts
         - contacts
-        - can_upload_file
         properties:
-          can_upload_file:
-            type: boolean
-            description: 'Computed: the account is under its storage limit (X011); the page hides the
-              cover upload otherwise.'
           journal:
             type: object
             required:

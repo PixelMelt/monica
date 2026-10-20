@@ -34,9 +34,7 @@ pub struct CurrentUser {
     pub account_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
-    pub email: String,
-    #[schema(value_type = Option<String>, format = DateTime)]
-    pub email_verified_at: Option<Timestamp>,
+    pub username: String,
     pub is_account_administrator: bool,
     pub is_instance_administrator: bool,
     /// A secret exists and is confirmed.
@@ -56,8 +54,7 @@ impl From<users::Model> for CurrentUser {
             account_id: u.account_id,
             first_name: u.first_name,
             last_name: u.last_name,
-            email: u.email,
-            email_verified_at: u.email_verified_at,
+            username: u.username,
             is_account_administrator: u.is_account_administrator,
             is_instance_administrator: u.is_instance_administrator,
             preferences: UserPreferences {

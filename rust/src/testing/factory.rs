@@ -42,8 +42,7 @@ pub async fn user<C: ConnectionTrait>(db: &C, account: Option<Uuid>) -> users::M
         account_id: Set(account_id),
         first_name: Set(Some(name())),
         last_name: Set(Some(name())),
-        email: Set(format!("{}@example.com", random_string(12).to_lowercase())),
-        email_verified_at: Set(Some(crate::db::now())),
+        username: Set(random_string(12).to_lowercase()),
         password: Set(Some(password_hash())),
         remember_token: Set(Some(random_string(10))),
         is_account_administrator: Set(false),
@@ -174,7 +173,7 @@ pub async fn create_vault_user<C: ConnectionTrait>(
 ) -> vaults::Model {
     let v = vault(db, user.account_id).await;
     let mut a: vaults::ActiveModel = v.into();
-    a.description = Set(Some(format!("Contacts for {}", user.email)));
+    a.description = Set(Some(format!("Contacts for {}", user.username)));
     let v = a.update(db).await.expect("vault");
     set_permission_in_vault(db, user, permission, &v).await;
     v

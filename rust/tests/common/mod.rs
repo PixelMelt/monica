@@ -128,14 +128,17 @@ impl TestApp {
         self.send(method, path, Some((format!("multipart/form-data; boundary={boundary}"), body)), &[]).await
     }
 
-    /// Logs `email` in with the factory password, in a fresh browser session.
-    pub async fn login(&mut self, email: &str) {
+    /// Logs `username` in with the factory password, in a fresh browser session.
+    pub async fn login(&mut self, username: &str) {
         self.clear_cookies();
         self.use_cookies();
         self.get("/auth/csrf").await.assert(204);
-        self.post("/auth/login", serde_json::json!({"email": email, "password": monica::testing::factory::PASSWORD}))
-            .await
-            .assert(200);
+        self.post(
+            "/auth/login",
+            serde_json::json!({"username": username, "password": monica::testing::factory::PASSWORD}),
+        )
+        .await
+        .assert(200);
     }
 
     async fn send(

@@ -181,7 +181,7 @@ async fn prune_failed(state: &AppState) -> anyhow::Result<()> {
 
 /// `ProcessScheduledContactReminders` (J001).
 async fn process_reminders(state: &AppState) -> anyhow::Result<()> {
-    ProcessScheduledContactReminders.execute(&state.db, &state.mailer, &state.config).await?;
+    ProcessScheduledContactReminders.execute(&state.db, &state.pushover).await?;
     Ok(())
 }
 

@@ -21,7 +21,7 @@ use serde_json::{Value, json};
 async fn setup() -> (TestApp, users::Model, vaults::Model, String) {
     let mut app = TestApp::new().await;
     let manager = factory::user(&app.state.db, None).await;
-    app.login(&manager.email).await;
+    app.login(&manager.username).await;
     let vault = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     let id: Uuid = vault["id"].as_str().unwrap().parse().unwrap();
     let vault = vaults::Entity::find_by_id(id).one(&app.state.db).await.unwrap().unwrap();
@@ -483,7 +483,7 @@ async fn viewers_read_editors_add_labels_and_tags_and_strangers_see_nothing() {
     ];
 
     let viewer = member(&app, &manager, &vault, VaultPermission::View).await;
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     for l in lists {
         app.get(&format!("{base}/{l}")).await.assert(200);
     }
@@ -498,7 +498,7 @@ async fn viewers_read_editors_add_labels_and_tags_and_strangers_see_nothing() {
     }
 
     let editor = member(&app, &manager, &vault, VaultPermission::Edit).await;
-    app.login(&editor.email).await;
+    app.login(&editor.username).await;
     assert_eq!(app.post(&format!("{base}/labels"), json!({"name": "Home"})).await.assert(201).json()["name"], "Home");
     assert_eq!(app.post(&format!("{base}/tags"), json!({"name": "Food"})).await.assert(201).json()["name"], "Food");
     for (path, body) in &creates {
@@ -510,7 +510,7 @@ async fn viewers_read_editors_add_labels_and_tags_and_strangers_see_nothing() {
     }
 
     let stranger = factory::user(&app.state.db, None).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     for l in lists {
         assert_eq!(app.get(&format!("{base}/{l}")).await.assert(404).code(), "not_found");
     }
@@ -525,7 +525,7 @@ async fn viewers_read_editors_add_labels_and_tags_and_strangers_see_nothing() {
     }
 
     // The settings of another vault aren't reachable through this one.
-    app.login(&manager.email).await;
+    app.login(&manager.username).await;
     let other = app.post("/vaults", json!({"name": "Work"})).await.assert(201).json();
     let other = format!("/vaults/{}", other["id"].as_str().unwrap());
     for (path, body) in &items {

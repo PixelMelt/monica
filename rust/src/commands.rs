@@ -2,12 +2,14 @@
 
 use std::time::Duration;
 
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
 use crate::config::{Config, Environment};
 use crate::domains::contact::manage_reminders::{
     RescheduleContactReminderForChannel, format_contact_name, reminder_triggered,
 };
+use crate::domains::settings::manage_notification_channels::TYPE_PUSHOVER;
+use crate::domains::settings::manage_users::normalize_username;
 use crate::entities::{contact_reminder_scheduled, contact_reminders, contacts, user_notification_channels, users};
 use crate::error::ApiError;
 use crate::http::state::AppState;
@@ -59,7 +61,7 @@ pub async fn test_reminders(state: &AppState, config: &Config) -> anyhow::Result
             .await?
             .ok_or_else(ApiError::not_found)?;
 
-        if channel.r#type == "email" && channel.active {
+        if channel.r#type == TYPE_PUSHOVER && channel.active {
             let contact = contacts::Entity::find_by_id(contact_reminder.contact_id)
                 .one(db)
                 .await?
@@ -71,7 +73,7 @@ pub async fn test_reminders(state: &AppState, config: &Config) -> anyhow::Result
             let contact_name = format_contact_name(&user, &contact);
             i18n::LOCALE
                 .scope(user.locale.clone(), async {
-                    reminder_triggered(db, &state.mailer, &channel, &contact_reminder.label, &contact_name).await
+                    reminder_triggered(db, &state.pushover, &channel, &contact_reminder.label, &contact_name).await
                 })
                 .await?;
             sent += 1;
@@ -93,6 +95,32 @@ pub async fn test_reminders(state: &AppState, config: &Config) -> anyhow::Result
     Ok(sent)
 }
 
+/// `reset-password`: a new random password for `username`, returned to be
+/// printed, and the end of their sessions and "remember me" logins (there
+/// is no email to send a reset link to). `disable_two_factor` also turns
+/// two-factor authentication off, for a lost authenticator.
+pub async fn reset_password(state: &AppState, username: &str, disable_two_factor: bool) -> anyhow::Result<String> {
+    let username = normalize_username(username);
+    let user = users::Entity::find()
+        .filter(users::Column::Username.eq(&username))
+        .one(&state.db)
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("There is no user {username:?}."))?;
+    let password = crate::crypto::random_string(20);
+    let user_id = user.id;
+    let mut u: users::ActiveModel = user.into();
+    u.password = Set(Some(crate::password::hash(&password)));
+    u.remember_token = Set(Some(crate::crypto::random_string(60)));
+    if disable_two_factor {
+        u.two_factor_secret = Set(None);
+        u.two_factor_recovery_codes = Set(None);
+        u.two_factor_confirmed_at = Set(None);
+    }
+    u.update(&state.db).await?;
+    crate::http::session::delete_other_sessions(state, user_id, None).await?;
+    Ok(password)
+}
+
 #[cfg(test)]
 mod tests {
     use chrono::{Datelike, NaiveTime};
@@ -101,21 +129,25 @@ mod tests {
     use super::*;
     use crate::domains::base::VaultPermission;
     use crate::domains::contact::manage_reminders::{CreateContactReminder, TYPE_RECURRING_YEAR};
+    use crate::pushover::Credentials;
+    use crate::testing::pushover::FakePushover;
     use crate::testing::{TestDb, factory};
 
     #[tokio::test]
     async fn test_reminders_sends_every_scheduled_reminder_now() {
         let db = TestDb::migrated().await;
-        let config = Config::for_tests("", std::env::temp_dir());
+        let pushover = FakePushover::start().await;
+        let mut config = Config::for_tests("", std::env::temp_dir());
+        config.pushover_api_url = pushover.url();
         let state = AppState::new(db.conn.clone(), config.clone()).unwrap();
         let user = factory::create_user(&db.conn).await;
         let vault = factory::create_vault_user(&db.conn, &user, VaultPermission::Manage).await;
         let contact = factory::contact(&db.conn, &vault).await;
         user_notification_channels::ActiveModel {
             user_id: Set(Some(user.id)),
-            r#type: Set("email".into()),
+            r#type: Set(TYPE_PUSHOVER.into()),
             label: Set(Some("me".into())),
-            content: Set("me@example.com".into()),
+            content: Set(Credentials { user_key: "u-me".into(), app_token: "a-monica".into() }.to_content()),
             active: Set(true),
             fails: Set(0),
             preferred_time: Set(NaiveTime::from_hms_opt(9, 0, 0)),
@@ -142,10 +174,10 @@ mod tests {
         .unwrap();
 
         assert_eq!(test_reminders(&state, &config).await.unwrap(), 1);
-        let sent = state.mailer.sent();
+        let sent = pushover.sent();
         assert_eq!(sent.len(), 1);
-        assert_eq!(sent[0].to, "me@example.com");
-        assert!(sent[0].text.contains("Birthday"));
+        assert_eq!((sent[0]["user"].as_str(), sent[0]["token"].as_str()), ("u-me", "a-monica"));
+        assert_eq!(sent[0]["message"], "Birthday");
         let before = contact_reminder_scheduled::Entity::find().one(&db.conn).await.unwrap().unwrap();
         let rows = contact_reminder_scheduled::Entity::find().all(&db.conn).await.unwrap();
         assert_eq!(rows.len(), 1, "the schedule row is moved, as syncWithoutDetaching does");
@@ -157,11 +189,34 @@ mod tests {
         test_reminders(&state, &config).await.unwrap();
         let after = contact_reminder_scheduled::Entity::find().one(&db.conn).await.unwrap().unwrap();
         assert_eq!(after.scheduled_at.0.year(), year + 1);
-        assert_eq!(state.mailer.sent().len(), 2);
+        assert_eq!(pushover.sent().len(), 2);
 
         let mut production = config.clone();
         production.env = Environment::Production;
         assert_eq!(test_reminders(&state, &production).await.unwrap(), 0);
+        db.drop().await;
+    }
+
+    #[tokio::test]
+    async fn reset_password_sets_a_new_password_and_can_turn_two_factor_off() {
+        let db = TestDb::migrated().await;
+        let state = AppState::new(db.conn.clone(), Config::for_tests("", std::env::temp_dir())).unwrap();
+        let user = factory::create_user(&db.conn).await;
+        let mut u: users::ActiveModel = user.clone().into();
+        u.two_factor_secret = Set(Some("secret".into()));
+        u.two_factor_confirmed_at = Set(Some(crate::db::now()));
+        u.update(&db.conn).await.unwrap();
+
+        let password = reset_password(&state, &user.username.to_uppercase(), false).await.unwrap();
+        assert_eq!(password.len(), 20);
+        let after = users::Entity::find_by_id(user.id).one(&db.conn).await.unwrap().unwrap();
+        assert!(crate::password::verify(&password, after.password.as_deref().unwrap()));
+        assert!(after.two_factor_confirmed_at.is_some(), "2FA stays on without the flag");
+
+        reset_password(&state, &user.username, true).await.unwrap();
+        let after = users::Entity::find_by_id(user.id).one(&db.conn).await.unwrap().unwrap();
+        assert!(after.two_factor_secret.is_none() && after.two_factor_confirmed_at.is_none());
+        assert!(reset_password(&state, "nobody", false).await.is_err());
         db.drop().await;
     }
 }

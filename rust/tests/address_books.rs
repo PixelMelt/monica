@@ -81,7 +81,7 @@ async fn remote_server(broken: bool) -> String {
 async fn setup() -> (TestApp, users::Model, vaults::Model, String) {
     let mut app = TestApp::new().await;
     let manager = factory::user(&app.state.db, None).await;
-    app.login(&manager.email).await;
+    app.login(&manager.username).await;
     let vault = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     let id: Uuid = vault["id"].as_str().unwrap().parse().unwrap();
     let vault = vaults::Entity::find_by_id(id).one(&app.state.db).await.unwrap().unwrap();
@@ -157,11 +157,11 @@ async fn downloads_a_contact_as_a_vcard() {
     app.get(&format!("/vaults/{other}/contacts/{}/vcard", contact.id)).await.assert(404);
 
     let viewer = member(&app, &manager, &vault, VaultPermission::View).await;
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     app.get(&format!("{base}/contacts/{}/vcard", contact.id)).await.assert(200);
 
     let stranger = factory::user(&app.state.db, None).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.get(&format!("{base}/contacts/{}/vcard", contact.id)).await.assert(404);
     app.finish().await;
 }
@@ -231,12 +231,12 @@ async fn creates_a_subscription_and_runs_the_first_sync() {
     assert_eq!(list["data"][0]["id"], id.to_string());
 
     let editor = member(&app, &manager, &vault, VaultPermission::Edit).await;
-    app.login(&editor.email).await;
+    app.login(&editor.username).await;
     app.post(&path, json!({"base_uri": remote, "username": "u", "password": "p"})).await.assert(403);
     app.get(&path).await.assert(403);
 
     let stranger = factory::user(&app.state.db, None).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.post(&path, json!({"base_uri": remote, "username": "u", "password": "p"})).await.assert(404);
     app.get(&path).await.assert(404);
     app.finish().await;
@@ -285,18 +285,18 @@ async fn shows_updates_and_deletes_a_subscription() {
     app.patch(&path, json!({})).await.assert(200);
 
     let viewer = member(&app, &manager, &vault, VaultPermission::View).await;
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     app.get(&path).await.assert(403);
     app.patch(&path, json!({"frequency": 30})).await.assert(403);
     app.delete(&path).await.assert(403);
 
     let stranger = factory::user(&app.state.db, None).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.get(&path).await.assert(404);
     app.patch(&path, json!({"frequency": 30})).await.assert(404);
     app.delete(&path).await.assert(404);
 
-    app.login(&manager.email).await;
+    app.login(&manager.username).await;
     app.delete(&path).await.assert(204);
     assert!(row(&app, subscription.id).await.is_none());
     app.get(&path).await.assert(404);
@@ -325,11 +325,11 @@ async fn synchronizes_a_subscription_now() {
     app.post(&format!("{base}/address-book-subscriptions/{}/sync", Uuid::new()), json!({})).await.assert(404);
 
     let viewer = member(&app, &manager, &vault, VaultPermission::View).await;
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     app.post(&path, json!({})).await.assert(403);
 
     let stranger = factory::user(&app.state.db, None).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.post(&path, json!({})).await.assert(404);
     app.finish().await;
 }

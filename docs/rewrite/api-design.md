@@ -159,18 +159,17 @@ Errors use RFC 9457 problem details, `Content-Type: application/problem+json`:
 | 400    | `bad_request`                    | malformed JSON, wrong content type                                                                                                                          |
 | 401    | `unauthenticated`                | no valid session or token                                                                                                                                   |
 | 403    | `csrf_token_mismatch`            | cookie-authenticated unsafe request without a valid CSRF header                                                                                             |
-| 403    | `email_not_verified`             | the user hasn't verified their email                                                                                                                        |
 | 403    | `forbidden`                      | authenticated, can see the resource, lacks the permission (e.g. viewer trying to edit)                                                                      |
 | 403    | `token_ability_missing`          | the bearer token lacks `write`                                                                                                                              |
 | 403    | `password_confirmation_required` | a sensitive action without a recent password confirmation (§7.4)                                                                                            |
-| 403    | `signup_disabled`                | registration while signup is off (X007)                                                                                                                     |
+| 403    | `signup_disabled`                | registration once the first user exists (first-run setup, X007)                                                                                             |
 | 404    | `not_found`                      | doesn't exist, or belongs to a vault/account the user can't see                                                                                             |
 | 409    | `conflict`                       | uniqueness or state conflicts (`EntryAlreadyExistException`, `SameUserException`, `CantBeDeletedException`); deleting a row whose `can_be_deleted` is false |
 | 413    | `payload_too_large`              | upload above the per-file limit                                                                                                                             |
 | 422    | `validation_failed`              | field validation (X003)                                                                                                                                     |
-| 422    | `storage_limit_exceeded`         | upload would pass the account storage limit (X011)                                                                                                          |
 | 422    | `vault_user_limit_reached`       | `MaximumNumberOfUsersInVaultException`                                                                                                                      |
 | 429    | `rate_limited`                   | rate limits (X005); `Retry-After` header set                                                                                                                |
+| 502    | `notification_failed`            | Pushover didn't take a test notification (`detail` says why)                                                                                                |
 | 500    | `internal_error`                 | anything else; no details leaked                                                                                                                            |
 
 A resource in a vault the user isn't a member of is a 404, not a 403, so ids
@@ -206,33 +205,29 @@ extra code. Requests from other origins are not given CORS headers.
 
 ### 7.3 Flows
 
-| Flow                    | Endpoint(s)                                                                                                                                             |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Register (X007 gate)    | `POST /auth/register` → session cookie; verification email sent                                                                                         |
-| Log in                  | `POST /auth/login` `{email, password, remember}` → `200 {two_factor: false, user}` with session, or `200 {two_factor: true}` with a pending-2FA session |
-| 2FA challenge           | `POST /auth/two-factor-challenge` `{code}` or `{recovery_code}`                                                                                         |
-| Log out                 | `POST /auth/logout`                                                                                                                                     |
-| Verify email            | link in the email opens the SPA at `/email/verify/{user_id}/{hash}?expires=&signature=`, which calls `POST /auth/email/verify` with those values        |
-| Resend verification     | `POST /auth/email/verification-notification`                                                                                                            |
-| Forgot / reset password | `POST /auth/forgot-password` `{email}`; `POST /auth/reset-password` `{token, email, password, password_confirmation}`                                   |
-| Confirm password (§7.4) | `POST /auth/confirm-password`; `GET /auth/confirmed-password-status`                                                                                    |
-| Accept invitation       | `GET /invitations/{code}`; `POST /invitations/{code}/accept`                                                                                            |
-| Instance info (public)  | `GET /instance`: signup enabled, deletion notice, locales, version, feature flags                                                                       |
+| Flow                    | Endpoint(s)                                                                                                                                                |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| First-run setup (X007)  | `POST /auth/register` while no user exists (`GET /instance` → `setup_required`) → session cookie                                                           |
+| Log in                  | `POST /auth/login` `{username, password, remember}` → `200 {two_factor: false, user}` with session, or `200 {two_factor: true}` with a pending-2FA session |
+| 2FA challenge           | `POST /auth/two-factor-challenge` `{code}` or `{recovery_code}`                                                                                            |
+| Log out                 | `POST /auth/logout`                                                                                                                                        |
+| Forgotten password      | none over HTTP (no email): `monica reset-password <username>` on the server prints a new one                                                               |
+| Confirm password (§7.4) | `POST /auth/confirm-password`; `GET /auth/confirmed-password-status`                                                                                       |
+| Add a user              | an administrator calls `POST /account/users` with a username and a first password                                                                          |
+| Instance info (public)  | `GET /instance`: setup required, locales, version                                                                                                          |
 
 Bearer tokens are created from a logged-in session (`POST /me/tokens`); there
 is no password grant. A mobile app gets its first token by logging in with
 the cookie flow and creating one.
 
-Rate limits (X005): login 5/min per email+IP, 2FA 5/min per pending login,
-email verification 6/min, everything else 60/min per user (or IP when
-anonymous).
+Rate limits (X005): login 5/min per username+IP, 2FA 5/min per pending
+login, everything else 60/min per user (or IP when anonymous).
 
 ### 7.4 Sensitive actions
 
 Enabling/disabling 2FA, viewing or regenerating recovery codes, logging out
-other sessions, cancelling the account, deleting a user and deleting yourself
-need a recent password confirmation, as Fortify does today for the first
-four. The request passes if either:
+other sessions and deleting a user need a recent password confirmation, as
+Fortify does today for the first four. The request passes if either:
 
 - the cookie session confirmed the password in the last 3 hours
   (`POST /auth/confirm-password`), or
@@ -256,7 +251,7 @@ SPA's `ConfirmsPassword` component handles the same way it does today.
 - The request locale is the user's `locale`; for anonymous requests it is
   negotiated from `Accept-Language` against the 29 supported locales, falling
   back to `en` (X009).
-- Only error messages and emails are translated by the server. The SPA keeps
+- Only error messages and notifications are translated by the server. The SPA keeps
   shipping `lang/*.json`.
 - `GET /instance` lists the supported locales; `GET /reference/…` returns
   countries, currencies and languages with names in the request locale (D001–D003).
@@ -265,15 +260,15 @@ SPA's `ConfirmsPassword` component handles the same way it does today.
 
 Each operation in the spec has an `x-permission`:
 
-| Value            | Meaning                                              |
-| ---------------- | ---------------------------------------------------- |
-| `public`         | no authentication                                    |
-| `user`           | any authenticated user (verified email unless noted) |
-| `account:member` | any user of the account that owns the resource       |
-| `account:admin`  | `is_account_administrator` (gate `administrator`)    |
-| `vault:view`     | vault permission ≤ 300 (any member)                  |
-| `vault:edit`     | vault permission ≤ 200                               |
-| `vault:manage`   | vault permission ≤ 100                               |
+| Value            | Meaning                                           |
+| ---------------- | ------------------------------------------------- |
+| `public`         | no authentication                                 |
+| `user`           | any authenticated user                            |
+| `account:member` | any user of the account that owns the resource    |
+| `account:admin`  | `is_account_administrator` (gate `administrator`) |
+| `vault:view`     | vault permission ≤ 300 (any member)               |
+| `vault:edit`     | vault permission ≤ 200                            |
+| `vault:manage`   | vault permission ≤ 100                            |
 
 When one operation's fields need different permissions, `x-field-permissions`
 maps field name to permission (only `updateVault`: any member may set
@@ -301,10 +296,9 @@ Replaces Uploadcare (I005, X020).
   `original_url`/`cdn_url` stay null, `name`, `mime_type`, `size`, `type`),
   and returns a `File` object `{id, uuid, name, mime_type, size, type,
 created_at}`.
-- Limits: per-file `MAX_UPLOAD_SIZE` (default 10 MB) → 413; account total
-  against `storage_limit_in_mb` (default 50, X011) → 422
-  `storage_limit_exceeded`. Photos and avatars must be JPEG, PNG, GIF or WebP
-  (HEIC rejected with 422).
+- Limits: per-file `MAX_UPLOAD_SIZE` (default 10 MB) → 413; no account
+  quota (single-user install). Photos and avatars must be JPEG, PNG, GIF or
+  WebP (HEIC rejected with 422).
 - Serving: `GET /vaults/{vault_id}/files/{file_id}/content?variant=` with
   `variant` = `original` (default) or `thumbnail` (300×300 centre crop,
   generated on first request and cached on disk, JPEG or PNG). Needs
@@ -328,19 +322,19 @@ created_at}`.
 ## 11. CardDAV / CalDAV
 
 Not part of the OpenAPI spec. `/dav` keeps today's surface (V038): principal
-`/dav/principals/{email}`, address books per vault, calendars per vault,
+`/dav/principals/{username}`, address books per vault, calendars per vault,
 `PROPFIND`, `REPORT` (addressbook-multiget, addressbook-query,
 calendar-multiget, sync-collection), `GET`/`PUT`/`DELETE` of `.vcf`/`.ics`,
 VCF/ICS export, sync tokens. Authentication is what
 `EnsureDavRequestsAreStateful` and `AuthenticateWithTokenOnBasicAuth` intend
 (the PHP condition is inverted, F23): a bearer personal access token, HTTP
-Basic with the user's email and a personal access token as the password (the
+Basic with the user's username and a personal access token as the password (the
 token needs both `read` and `write`), or the browser session (with the
 `X-XSRF-TOKEN` header on unsafe methods). The account password is not
 accepted. Clients connect to `/dav/` (or the host, through
 `/.well-known/carddav` and `/.well-known/caldav`); address books are
-`/dav/addressbooks/{email}/{vault}/`, calendars
-`/dav/calendars/{email}/dates-{vault}/` and `…/tasks-{vault}/`. Address book subscriptions
+`/dav/addressbooks/{username}/{vault}/`, calendars
+`/dav/calendars/{username}/dates-{vault}/` and `…/tasks-{vault}/`. Address book subscriptions
 (the DAV client, I003) are managed through the API under
 `/vaults/{vault_id}/address-book-subscriptions` (today only the console
 command K003 creates them).
