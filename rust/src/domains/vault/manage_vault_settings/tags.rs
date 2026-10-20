@@ -2,12 +2,12 @@
 
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 
-use super::slug;
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, VaultPermission, check};
 use crate::entities::tags;
 use crate::error::{ApiError, ApiResult};
+use crate::text::slug;
 use crate::validate::Validator;
 
 /// `CreateTag`.

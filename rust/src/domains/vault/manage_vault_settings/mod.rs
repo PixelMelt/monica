@@ -329,12 +329,3 @@ async fn validate<C: ConnectionTrait>(db: &C, c: &Check, user_id: Uuid) -> ApiRe
     }
     Ok((checked, user))
 }
-
-/// Stand-in for `Str::slug($name, '-', language: currentLang())` until a
-/// shared slug helper exists (the one in `settings::manage_templates` is
-/// private): `Str::ascii` isn't ported, so non-ASCII letters are kept.
-fn slug(title: &str) -> String {
-    let title = title.replace('_', "-").replace('@', "-at-").to_lowercase();
-    let title: String = title.chars().filter(|c| *c == '-' || c.is_alphanumeric() || c.is_whitespace()).collect();
-    title.split(|c: char| c == '-' || c.is_whitespace()).filter(|s| !s.is_empty()).collect::<Vec<_>>().join("-")
-}
