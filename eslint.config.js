@@ -63,5 +63,14 @@ export default [
       ],
     },
   },
+  {
+    // Node scripts (the API client generator, localize, the smoke test).
+    files: ['scripts/**/*.mjs', 'tests/**/*.mjs'],
+    languageOptions: {
+      ecmaVersion: 2025,
+      sourceType: 'module',
+      globals: globals.node,
+    },
+  },
   eslintConfigPrettier,
 ];
