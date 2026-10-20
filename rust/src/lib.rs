@@ -7,6 +7,7 @@ pub mod config;
 pub mod crypto;
 pub mod db;
 pub mod domains;
+pub mod dummy;
 pub mod entities;
 pub mod error;
 pub mod http;
