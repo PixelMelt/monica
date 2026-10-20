@@ -3789,6 +3789,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"marked@npm:15.0.12":
+  version: 15.0.12
+  resolution: "marked@npm:15.0.12"
+  bin:
+    marked: bin/marked.js
+  checksum: 10c0/e09da211544b787ecfb25fed07af206060bf7cd6d9de6cb123f15c496a57f83b7aabea93340aaa94dae9c94e097ae129377cad6310abc16009590972e85f4212
+  languageName: node
+  linkType: hard
+
 "math-intrinsics@npm:^1.1.0":
   version: 1.1.0
   resolution: "math-intrinsics@npm:1.1.0"
@@ -4628,6 +4637,7 @@ __metadata:
     lint-staged: "npm:^16.1.5"
     lodash: "npm:^4.17.21"
     lucide-vue-next: "npm:^0.539.0"
+    marked: "npm:15.0.12"
     mitt: "npm:^3.0.1"
     openapi-typescript: "npm:7.8.0"
     prettier: "npm:^3.6.2"
