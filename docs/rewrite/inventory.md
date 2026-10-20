@@ -1190,6 +1190,11 @@ behaviour, so the port fixes them:
   deactivated, instead of only that channel's schedules. The port deletes the
   schedules. `ProcessScheduledContactReminders` does the same when a channel
   reaches 10 failures; the port deletes that channel's schedules there too.
+- **F22.** `CreateLoan`/`UpdateLoan` attach the loaners and loanees with two
+  `syncWithoutDetaching` loops on `contact_loan` (one row per loaner and
+  loanee pair); each call overwrites the other key of existing rows, so a loan
+  with several loaners and several loanees keeps only one loaner. The port
+  stores every pair.
 - **F18.** `can_be_deleted` is enforced only by the UI for templates, template
   pages, post templates and sections, and contact information types; deleting
   the contact information page breaks the contact page. The spec answers 409.

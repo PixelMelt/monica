@@ -874,17 +874,17 @@ components:
         active: { type: boolean, description: True on creation; no operation changes it today. }
         max_streak:
           type: integer
-          minimum: 1
+          minimum: 0
           description: |
             Computed (`GoalHelper::getStreakData`): the longest run of
-            consecutive days with a streak. 1 when the goal has no streaks, as today.
+            consecutive days with a streak; 0 when the goal has no streaks (Q6).
         current_streak:
           type: integer
           minimum: 0
           description: |
             Computed (`GoalHelper::getStreakData`): when the latest streak is
-            today (UTC), the number of day-to-day steps in the run ending on it
-            (a run of n days gives n − 1, as today); otherwise 0.
+            today (UTC), the number of days of the run ending on it (Q6);
+            otherwise 0.
         last_7_days:
           type: array
           minItems: 7

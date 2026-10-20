@@ -4,7 +4,6 @@
 mod tests;
 
 use chrono::{NaiveDate, NaiveTime};
-use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, TransactionSession,
     TransactionTrait,
@@ -117,17 +116,7 @@ impl CreateLoan {
         .insert(db)
         .await?;
 
-        for loaner in loaners {
-            for loanee in loanees {
-                sync_without_detaching(db, loan.id, loaner.id, loanee.id, contact_loan::Column::LoanerId).await?;
-            }
-        }
-
-        for loanee in loanees {
-            for loaner in loaners {
-                sync_without_detaching(db, loan.id, loaner.id, loanee.id, contact_loan::Column::LoaneeId).await?;
-            }
-        }
+        attach_parties(db, loan.id, &loaners, &loanees).await?;
 
         Ok(loan)
     }
@@ -314,17 +303,7 @@ impl UpdateLoan {
         // remove all the current loaners and loanees
         contact_loan::Entity::delete_many().filter(contact_loan::Column::LoanId.eq(loan.id)).exec(&txn).await?;
 
-        for loaner in loaners {
-            for loanee in loanees {
-                sync_without_detaching(&txn, loan.id, loaner.id, loanee.id, contact_loan::Column::LoanerId).await?;
-            }
-        }
-
-        for loanee in loanees {
-            for loaner in loaners {
-                sync_without_detaching(&txn, loan.id, loaner.id, loanee.id, contact_loan::Column::LoaneeId).await?;
-            }
-        }
+        attach_parties(&txn, loan.id, &loaners, &loanees).await?;
         txn.commit().await?;
 
         let mut contact: contacts::ActiveModel = checked.contact().clone().into();
@@ -344,42 +323,27 @@ async fn find<C: ConnectionTrait>(db: &C, vault_id: Uuid, loan_id: Id) -> ApiRes
         .ok_or_else(ApiError::not_found)
 }
 
-/// `$loaner->loansAsLoaner()` (`key` is `loaner_id`) or `$loanee->loansAsLoanee()`
-/// (`key` is `loanee_id`) `->syncWithoutDetaching([$loan->id => [<other key> => …]])`:
-/// inserts the row when the contact has none for the loan, else sets the
-/// other key on its rows.
-async fn sync_without_detaching<C: ConnectionTrait>(
+/// F22: one `contact_loan` row per loaner and loanee pair. (The PHP synced
+/// each side with `syncWithoutDetaching`, which overwrote the other key of
+/// existing rows and lost all but one loaner when a loan had several loaners
+/// and several loanees.)
+async fn attach_parties<C: ConnectionTrait>(
     db: &C,
     loan_id: Id,
-    loaner_id: Uuid,
-    loanee_id: Uuid,
-    key: contact_loan::Column,
+    loaners: &[contacts::Model],
+    loanees: &[contacts::Model],
 ) -> ApiResult<()> {
-    let (contact_id, other, other_id) = match key {
-        contact_loan::Column::LoanerId => (loaner_id, contact_loan::Column::LoaneeId, loanee_id),
-        _ => (loanee_id, contact_loan::Column::LoanerId, loaner_id),
-    };
-    let attached = contact_loan::Entity::find()
-        .filter(key.eq(contact_id))
-        .filter(contact_loan::Column::LoanId.eq(loan_id))
-        .one(db)
-        .await?;
-    if attached.is_none() {
-        contact_loan::Entity::insert(contact_loan::ActiveModel {
-            loan_id: Set(loan_id),
-            loaner_id: Set(loaner_id),
-            loanee_id: Set(loanee_id),
-            ..Default::default()
-        })
-        .exec_without_returning(db)
-        .await?;
-    } else {
-        contact_loan::Entity::update_many()
-            .col_expr(other, Expr::value(other_id))
-            .filter(key.eq(contact_id))
-            .filter(contact_loan::Column::LoanId.eq(loan_id))
-            .exec(db)
+    for loaner in loaners {
+        for loanee in loanees {
+            contact_loan::Entity::insert(contact_loan::ActiveModel {
+                loan_id: Set(loan_id),
+                loaner_id: Set(loaner.id),
+                loanee_id: Set(loanee.id),
+                ..Default::default()
+            })
+            .exec_without_returning(db)
             .await?;
+        }
     }
     Ok(())
 }
