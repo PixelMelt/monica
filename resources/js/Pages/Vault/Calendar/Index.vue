@@ -5,10 +5,15 @@ import { Tooltip as ATooltip } from 'ant-design-vue';
 import Layout from '@/Layouts/Layout.vue';
 import ContactCard from '@/Shared/ContactCard.vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { useRoute } from 'vue-router';
+import { getVaultCalendarDay } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 defineProps({
   layoutData: Object,
   data: Object,
 });
+
+const vaultId = useRoute().params.vault;
 
 const loadedDay = ref([]);
 const dayDetailsLoaded = ref(false);
@@ -18,9 +23,9 @@ const get = (day) => {
     return;
   }
 
-  axios.get(day.url.show).then((response) => {
+  getVaultCalendarDay({ vault_id: vaultId, year: day.year, month: day.month, day: day.day }).then((information) => {
     dayDetailsLoaded.value = true;
-    loadedDay.value = response.data.data;
+    loadedDay.value = dto.dayInformation(information, vaultId);
   });
 };
 </script>

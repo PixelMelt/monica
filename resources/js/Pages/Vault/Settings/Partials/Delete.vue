@@ -48,6 +48,8 @@
 
 <script>
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
+import { deleteVault } from '@/api/client';
+import { route, visit } from '@/router';
 
 export default {
   components: {
@@ -72,11 +74,10 @@ export default {
   methods: {
     destroy() {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(this.data.url.destroy)
-          .then((response) => {
+        deleteVault({ vault_id: this.$route.params.vault })
+          .then(() => {
             localStorage.success = this.$t('The vault has been deleted');
-            this.$inertia.visit(response.data.data);
+            visit(route('vault.index'));
           })
           .catch((error) => {
             this.form.errors = error.response.data;

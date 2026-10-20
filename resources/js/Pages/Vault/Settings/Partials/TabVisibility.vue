@@ -1,5 +1,7 @@
 <script setup>
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
+import { updateVault } from '@/api/client';
 
 const props = defineProps({
   data: Object,
@@ -15,8 +17,10 @@ const form = useForm({
   show_calendar_tab: props.data.visibility.show_calendar_tab,
 });
 
+const vaultId = useRoute().params.vault;
+
 const update = () => {
-  form.put(props.data.url.update_tab_visibility);
+  form.submit((data) => updateVault({ vault_id: vaultId }, data));
 };
 </script>
 

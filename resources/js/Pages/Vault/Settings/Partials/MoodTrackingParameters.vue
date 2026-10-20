@@ -1,5 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import draggable from 'vuedraggable';
@@ -7,6 +8,12 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import {
+  createVaultMoodTrackingParameter,
+  updateVaultMoodTrackingParameter,
+  deleteVaultMoodTrackingParameter,
+} from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 const props = defineProps({
   data: Object,
@@ -17,12 +24,12 @@ const localMoodTrackingParameters = ref(props.data.mood_tracking_parameters);
 const createMoodTrackingParametersModalShown = ref(false);
 const editMoodTrackingParameterId = ref(0);
 const newMoodTrackingParameter = useTemplateRef('newMoodTrackingParameter');
+const vaultId = useRoute().params.vault;
 
 const form = useForm({
   label: '',
   hex_color: '',
   position: '',
-  errors: [],
 });
 
 const showMoodTrackingParameterModal = () => {
@@ -44,10 +51,9 @@ const renameMoodTrackingParameterModal = (moodTrackingParameter) => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.mood_tracking_parameter_store, form)
-    .then((response) => {
-      localMoodTrackingParameters.value.push(response.data.data);
+  createVaultMoodTrackingParameter({ vault_id: vaultId }, { label: form.label, hex_color: form.hex_color })
+    .then((parameter) => {
+      localMoodTrackingParameters.value.push(dto.moodTrackingParameter(parameter));
       loadingState.value = null;
       createMoodTrackingParametersModalShown.value = false;
     })
@@ -60,12 +66,14 @@ const submit = () => {
 const update = (moodTrackingParameter) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(moodTrackingParameter.url.update, form)
-    .then((response) => {
+  updateVaultMoodTrackingParameter(
+    { vault_id: vaultId, mood_tracking_parameter_id: moodTrackingParameter.id },
+    { label: form.label, hex_color: form.hex_color },
+  )
+    .then((updated) => {
       localMoodTrackingParameters.value[
         localMoodTrackingParameters.value.findIndex((x) => x.id === moodTrackingParameter.id)
-      ] = response.data.data;
+      ] = dto.moodTrackingParameter(updated);
       loadingState.value = null;
       editMoodTrackingParameterId.value = 0;
     })
@@ -77,8 +85,7 @@ const update = (moodTrackingParameter) => {
 
 const destroy = (moodTrackingParameter) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(moodTrackingParameter.url.destroy)
+    deleteVaultMoodTrackingParameter({ vault_id: vaultId, mood_tracking_parameter_id: moodTrackingParameter.id })
       .then(() => {
         var id = localMoodTrackingParameters.value.findIndex((x) => x.id === moodTrackingParameter.id);
         localMoodTrackingParameters.value.splice(id, 1);
@@ -94,7 +101,10 @@ const updatePosition = (event) => {
   // the event object comes from the draggable component
   form.position = event.moved.newIndex + 1;
 
-  axios.put(event.moved.element.url.position, form).catch((error) => {
+  updateVaultMoodTrackingParameter(
+    { vault_id: vaultId, mood_tracking_parameter_id: event.moved.element.id },
+    { position: form.position },
+  ).catch((error) => {
     loadingState.value = null;
     form.errors = error.response.data;
   });

@@ -222,6 +222,8 @@
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { addVaultMember, updateVaultMember, removeVaultMember } from '@/api/client';
+import * as dto from '@/adapters/vaults';
 
 export default {
   components: {
@@ -278,14 +280,16 @@ export default {
     store() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.user_store, this.form)
-        .then((response) => {
+      addVaultMember(
+        { vault_id: this.$route.params.vault },
+        { user_id: this.form.user_id, permission: Number(this.form.permission) },
+      )
+        .then((added) => {
           this.flash(this.$t('The user has been added'), 'success');
           this.loadingState = '';
 
           // add user in the list of users in the vault
-          this.localUsersInVault.unshift(response.data.data);
+          this.localUsersInVault.unshift(dto.member(added));
 
           // remove user from the list of users in the account
           var id = this.localUsersInAccount.findIndex((x) => x.id === this.form.user_id);
@@ -302,12 +306,14 @@ export default {
     update(user) {
       this.loadingState = 'loading';
 
-      axios
-        .put(user.url.update, this.form)
-        .then((response) => {
+      updateVaultMember(
+        { vault_id: this.$route.params.vault, user_id: user.id },
+        { permission: Number(this.form.permission) },
+      )
+        .then((updated) => {
           this.flash(this.$t('The user has been updated'), 'success');
           var id = this.localUsersInVault.findIndex((x) => x.id === user.id);
-          this.localUsersInVault[id] = response.data.data;
+          this.localUsersInVault[id] = dto.member(updated);
           this.loadingState = '';
           this.editedUser = [];
         })
@@ -318,8 +324,7 @@ export default {
     },
 
     destroy(user) {
-      axios
-        .delete(user.url.destroy)
+      removeVaultMember({ vault_id: this.$route.params.vault, user_id: user.id })
         .then(() => {
           this.flash(this.$t('The user has been removed'), 'success');
 
