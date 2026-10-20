@@ -123,7 +123,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import Pages from '@/Pages/Settings/Personalize/Templates/Partials/Pages.vue';
 import Modules from '@/Pages/Settings/Personalize/Templates/Partials/Modules.vue';

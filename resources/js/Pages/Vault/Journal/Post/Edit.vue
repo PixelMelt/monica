@@ -1,5 +1,6 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
 import { watch, ref } from 'vue';
 import { debounce } from 'lodash';
 import { trans } from 'laravel-vue-i18n';
@@ -378,7 +379,7 @@ const destroy = () => {
             <DatePicker
               v-model.string="form.date"
               :masks="masks"
-              :locale="$page.props.auth.user?.locale_ietf"
+              :locale="localeIetf()"
               class="mb-6 inline-block">
               <template #default="{ inputValue, inputEvents }">
                 <input

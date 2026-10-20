@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import draggable from 'vuedraggable';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';

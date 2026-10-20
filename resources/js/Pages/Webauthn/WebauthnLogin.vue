@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick, watch, onMounted } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import JetInputError from '@/Components/InputError.vue';
 import WaitForKey from '@/Pages/Webauthn/Partials/WaitForKey.vue';

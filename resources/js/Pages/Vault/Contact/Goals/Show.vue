@@ -137,7 +137,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Tooltip as ATooltip } from 'ant-design-vue';
 import Layout from '@/Layouts/Layout.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';

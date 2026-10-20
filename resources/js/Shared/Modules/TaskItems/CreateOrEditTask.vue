@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -114,7 +114,7 @@ defineExpose({
           v-model.string="form.due_at"
           class="inline-block h-full"
           :masks="masks"
-          :locale="$page.props.auth.user?.locale_ietf"
+          :locale="localeIetf()"
           :is-dark="isDark()">
           <template #default="{ inputValue, inputEvents }">
             <input

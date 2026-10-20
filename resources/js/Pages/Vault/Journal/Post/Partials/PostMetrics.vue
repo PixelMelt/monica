@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import Errors from '@/Shared/Form/Errors.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';

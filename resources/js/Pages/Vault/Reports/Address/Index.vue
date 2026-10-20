@@ -1,6 +1,6 @@
 <script setup>
 import Layout from '@/Layouts/Layout.vue';
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 
 defineProps({
   layoutData: Object,

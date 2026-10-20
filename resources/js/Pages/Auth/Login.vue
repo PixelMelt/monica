@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
 import JetButton from '@/Components/Button.vue';
 import JetCheckbox from '@/Components/Checkbox.vue';
 import JetValidationErrors from '@/Components/ValidationErrors.vue';

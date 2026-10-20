@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
 import Layout from '@/Layouts/Layout.vue';

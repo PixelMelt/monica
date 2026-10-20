@@ -1,5 +1,6 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import { trans } from 'laravel-vue-i18n';

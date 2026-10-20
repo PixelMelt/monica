@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Popover as APopover } from 'ant-design-vue';
 import CalendarIcon from '@/Shared/Icons/CalendarIcon.vue';
 import PeopleIcon from '@/Shared/Icons/PeopleIcon.vue';

@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
@@ -151,7 +152,7 @@ const submit = () => {
             :timezone="'UTC'"
             class="inline-block h-full"
             :masks="masks"
-            :locale="$page.props.auth.user?.locale_ietf"
+            :locale="localeIetf()"
             :is-dark="isDark()">
             <template #default="{ inputValue, inputEvents }">
               <input

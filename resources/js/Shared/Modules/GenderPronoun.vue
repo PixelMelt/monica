@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Pencil } from 'lucide-vue-next';
 
 defineProps({

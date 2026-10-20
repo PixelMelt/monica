@@ -1,6 +1,6 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
 import { Tooltip as ATooltip } from 'ant-design-vue';

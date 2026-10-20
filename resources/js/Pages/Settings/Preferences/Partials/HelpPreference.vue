@@ -8,7 +8,7 @@
           {{ $t('Help') }}
         </span>
 
-        <help :url="$page.props.help_links.settings_preferences_help" :top="'5px'" />
+        <help :url="helpLinks.settings_preferences_help" :top="'5px'" />
       </h3>
     </div>
 

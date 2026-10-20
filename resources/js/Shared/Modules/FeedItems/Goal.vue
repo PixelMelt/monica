@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Avatar from '@/Shared/Avatar.vue';
 
 export default {

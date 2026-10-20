@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { flash } from '@/methods';
 import { trans } from 'laravel-vue-i18n';
 import { DatePicker } from 'v-calendar';
@@ -182,7 +182,7 @@ const destroy = (call) => {
               v-model.string="form.called_at"
               class="inline-block h-full"
               :masks="masks"
-              :locale="$page.props.auth.user?.locale_ietf"
+              :locale="localeIetf()"
               :is-dark="isDark()"
               :max-date="new Date()">
               <template #default="{ inputValue, inputEvents }">

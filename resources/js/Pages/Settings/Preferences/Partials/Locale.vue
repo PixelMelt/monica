@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { loadLanguageAsync, getActiveLanguage, trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -54,7 +54,7 @@ const submit = () => {
           {{ $t('Language of the application') }}
         </span>
 
-        <Help :url="$page.props.help_links.settings_preferences_language" :top="'5px'" />
+        <Help :url="helpLinks.settings_preferences_language" :top="'5px'" />
       </h3>
       <PrettyButton v-if="!editMode" :text="$t('Edit')" @click="editMode = true" />
     </div>

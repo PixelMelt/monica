@@ -1,5 +1,5 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import ApiTokenManager from '@/Pages/API/Partials/ApiTokenManager.vue';
 import Layout from '@/Layouts/Layout.vue';
 

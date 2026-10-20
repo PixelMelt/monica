@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Monica</title>
+
+    <link rel="shortcut icon" href="/img/favicon.svg" />
+
+    <script type="text/javascript">
+      if (
+        localStorage.theme === 'dark' ||
+        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      ) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+
+    <script type="module" src="/resources/js/app.js"></script>
+  </head>
+  <body class="font-sans antialiased bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+    <div id="app"></div>
+  </body>
+</html>

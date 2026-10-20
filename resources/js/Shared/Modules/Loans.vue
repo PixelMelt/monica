@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { flash } from '@/methods';
 import { trans } from 'laravel-vue-i18n';
 import { DatePicker } from 'v-calendar';
@@ -257,7 +257,7 @@ const toggle = (loan) => {
               v-model.string="form.loaned_at"
               class="inline-block h-full"
               :masks="masks"
-              :locale="$page.props.auth.user?.locale_ietf"
+              :locale="localeIetf()"
               :is-dark="isDark()">
               <template #default="{ inputValue, inputEvents }">
                 <input
@@ -473,7 +473,7 @@ const toggle = (loan) => {
                 v-model.string="form.loaned_at"
                 class="inline-block h-full"
                 :masks="masks"
-                :locale="$page.props.auth.user?.locale_ietf"
+                :locale="localeIetf()"
                 :is-dark="isDark()">
                 <template #default="{ inputValue, inputEvents }">
                   <input

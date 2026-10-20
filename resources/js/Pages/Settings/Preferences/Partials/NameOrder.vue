@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -78,7 +78,7 @@ const submit = () => {
           {{ $t('Customize how contacts should be displayed') }}
         </span>
 
-        <help :url="$page.props.help_links.settings_preferences_contact_names" :top="'5px'" />
+        <help :url="helpLinks.settings_preferences_contact_names" :top="'5px'" />
       </h3>
       <pretty-button v-if="!editMode" :text="$t('Edit')" @click="enableEditMode" />
     </div>

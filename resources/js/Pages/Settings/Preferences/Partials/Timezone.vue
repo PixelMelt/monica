@@ -8,7 +8,7 @@
           {{ $t('Timezone') }}
         </span>
 
-        <help :url="$page.props.help_links.settings_preferences_timezone" :top="'5px'" />
+        <help :url="helpLinks.settings_preferences_timezone" :top="'5px'" />
       </h3>
       <pretty-button v-if="!editMode" :text="$t('Edit')" @click="enableEditMode" />
     </div>

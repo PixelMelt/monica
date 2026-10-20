@@ -150,12 +150,14 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createGender, updateGender, deleteGender } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -219,11 +221,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.gender_store, this.form)
-        .then((response) => {
+      createGender({}, { name: this.form.name })
+        .then((gender) => {
           this.flash(this.$t('The gender has been created'), 'success');
-          this.localGenders.unshift(response.data.data);
+          this.localGenders.unshift(dto.gender(gender));
           this.loadingState = null;
           this.createGenderModalShown = false;
         })
@@ -236,11 +237,10 @@ export default {
     update(gender) {
       this.loadingState = 'loading';
 
-      axios
-        .put(gender.url.update, this.form)
-        .then((response) => {
+      updateGender({ gender_id: gender.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The gender has been updated'), 'success');
-          this.localGenders[this.localGenders.findIndex((x) => x.id === gender.id)] = response.data.data;
+          this.localGenders[this.localGenders.findIndex((x) => x.id === gender.id)] = dto.gender(updated);
           this.loadingState = null;
           this.renameGenderModalShownId = 0;
         })
@@ -258,8 +258,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(gender.url.destroy)
+        deleteGender({ gender_id: gender.id })
           .then(() => {
             this.flash(this.$t('The gender has been deleted'), 'success');
             var id = this.localGenders.findIndex((x) => x.id === gender.id);

@@ -1,12 +1,15 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
+import { useRouter } from 'vue-router';
+import Link from '@/router/Link.vue';
 
 defineProps({
   links: Object,
 });
 
+const router = useRouter();
+
 const navigateToSelected = (event) => {
-  router.visit(event.target.value);
+  router.push(event.target.value);
 };
 </script>
 

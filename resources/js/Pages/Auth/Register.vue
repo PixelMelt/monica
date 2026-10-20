@@ -1,5 +1,6 @@
 <script setup>
-import { Link, useForm } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import JetGuestLayout from '@/Shared/Guest.vue';
 import JetInput from '@/Components/Input.vue';

@@ -120,7 +120,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';

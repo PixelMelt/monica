@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import NameOrder from '@/Pages/Settings/Preferences/Partials/NameOrder.vue';
 import DateFormat from '@/Pages/Settings/Preferences/Partials/DateFormat.vue';

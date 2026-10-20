@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { size } from 'lodash';
 import JetButton from '@/Components/Button.vue';
 

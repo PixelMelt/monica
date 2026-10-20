@@ -1,13 +1,12 @@
 <script setup>
-import { ref, reactive, nextTick, computed, useTemplateRef } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { ref, reactive, nextTick } from 'vue';
 import { trans } from 'laravel-vue-i18n';
+import { confirmPassword as sendPassword, getPasswordConfirmationStatus } from '@/api/client';
 import Button from '@/Components/Button.vue';
 import DialogModal from './DialogModal.vue';
 import Input from '@/Components/Input.vue';
 import InputError from '@/Components/InputError.vue';
 import SecondaryButton from './SecondaryButton.vue';
-import WebauthnTest from '@/Pages/Webauthn/WebauthnTest.vue';
 
 const emit = defineEmits(['confirmed']);
 
@@ -35,12 +34,10 @@ const form = reactive({
 });
 
 const passwordInput = ref(null);
-const webauthn = useTemplateRef('webauthn');
-const webauthnEnabled = computed(() => usePage().props.hasKey === true);
 
 const startConfirmingPassword = () => {
-  axios.get(route('password.confirmation')).then((response) => {
-    if (response.data.confirmed) {
+  getPasswordConfirmationStatus().then((status) => {
+    if (status.confirmed) {
       emit('confirmed');
     } else {
       confirmingPassword.value = true;
@@ -53,10 +50,7 @@ const startConfirmingPassword = () => {
 const confirmPassword = () => {
   form.processing = true;
 
-  axios
-    .post(route('password.confirm'), {
-      password: form.password,
-    })
+  sendPassword({}, { password: form.password })
     .then(() => {
       form.processing = false;
 
@@ -64,7 +58,7 @@ const confirmPassword = () => {
     })
     .catch((error) => {
       form.processing = false;
-      form.error = error.response.data.errors.password[0];
+      form.error = error.errors?.password?.[0] ?? error.message;
       nextTick().then(() => passwordInput.value.focus());
     });
 };
@@ -94,24 +88,6 @@ const closeModal = () => {
 
       <template #content>
         {{ content }}
-
-        <div v-if="webauthnEnabled" class="mt-4">
-          <p>
-            {{ $t('When you are ready, authenticate using the button below:') }}
-          </p>
-
-          <Button class="mt-2 block" @click.prevent="webauthn.start()">
-            {{ $t('Confirm your passkey or security key') }}
-          </Button>
-
-          <WebauthnTest ref="webauthn" @success="confirm()" />
-        </div>
-
-        <fieldset v-if="webauthnEnabled" class="mt-5 border-t border-gray-300 dark:border-gray-700">
-          <legend class="mx-auto px-4 text-l italic text-gray-600 dark:text-gray-200">
-            {{ $t('Or') }}
-          </legend>
-        </fieldset>
 
         <div class="mt-4">
           {{ $t('Authenticate using your password:') }}

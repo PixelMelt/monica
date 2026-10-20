@@ -1,5 +1,6 @@
 <script setup>
-import { usePage } from '@inertiajs/vue3';
+import { session } from '@/lib/session';
+import { helpUrl } from '@/lib/help';
 import { Tooltip } from 'ant-design-vue';
 import { computed } from 'vue';
 import { MessageCircleQuestion } from 'lucide-vue-next';
@@ -13,13 +14,13 @@ const props = defineProps({
 });
 
 const finalURL = computed(() => {
-  return usePage().props.help_url + props.url;
+  return helpUrl + props.url;
 });
 </script>
 
 <template>
   <a
-    v-if="$page.props.auth.user?.help_shown"
+    v-if="session.user?.preferences.help_shown"
     class="relative inline cursor-pointer"
     :href="finalURL"
     :style="'top:' + top"

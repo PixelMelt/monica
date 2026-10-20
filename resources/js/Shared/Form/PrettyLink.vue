@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { Link } from '@inertiajs/vue3';
+import Link from '@/router/Link.vue';
 import { Plus, Check, DoorOpen } from 'lucide-vue-next';
 
 export default {

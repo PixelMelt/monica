@@ -1,8 +1,8 @@
 <script setup>
 import { computed } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { pageErrors } from '@/lib/form';
 
-const errors = computed(() => usePage().props.errors);
+const errors = computed(() => pageErrors.errors);
 const hasErrors = computed(() => Object.keys(errors.value).length > 0);
 </script>
 

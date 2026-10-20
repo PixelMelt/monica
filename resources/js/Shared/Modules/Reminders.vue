@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, ref, useTemplateRef } from 'vue';
-import { useForm } from '@inertiajs/vue3';
+import { useForm } from '@/lib/form';
 import { flash } from '@/methods';
 import { trans } from 'laravel-vue-i18n';
 import { DatePicker } from 'v-calendar';
@@ -180,7 +180,7 @@ const destroy = (reminder) => {
               v-model.string="form.date"
               class="inline-block h-full"
               :masks="masks"
-              :locale="$page.props.auth.user?.locale_ietf"
+              :locale="localeIetf()"
               :is-dark="isDark()">
               <template #default="{ inputValue, inputEvents }">
                 <input
@@ -376,7 +376,7 @@ const destroy = (reminder) => {
                     v-model.string="form.date"
                     class="inline-block h-full"
                     :masks="masks"
-                    :locale="$page.props.auth.user?.locale_ietf"
+                    :locale="localeIetf()"
                     :is-dark="isDark()">
                     <template #default="{ inputValue, inputEvents }">
                       <input
