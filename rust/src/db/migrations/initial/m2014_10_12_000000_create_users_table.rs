@@ -6,7 +6,9 @@ pub fn up(s: &mut Schema, _e: Engine) {
     s.create("users", |t| {
         t.uuid("id");
         t.primary(&["id"]);
-        t.foreign_id_for("account_id", Key::Uuid).constrained("accounts").cascade_on_delete();
+        t.foreign_id_for("account_id", Key::Uuid)
+            .constrained("accounts")
+            .cascade_on_delete();
         t.string("first_name").nullable();
         t.string("last_name").nullable();
         t.string("password").nullable();

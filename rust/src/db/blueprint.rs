@@ -38,7 +38,10 @@ impl Engine {
     }
 
     fn columnize(self, cols: &[String]) -> String {
-        cols.iter().map(|c| self.wrap(c)).collect::<Vec<_>>().join(", ")
+        cols.iter()
+            .map(|c| self.wrap(c))
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 }
 
@@ -112,13 +115,25 @@ impl Column {
 
     fn sql(&self, e: Engine, has_primary_command: bool) -> String {
         let serial = self.auto_increment
-            && matches!(self.kind, Kind::BigInteger | Kind::Integer | Kind::SmallInteger | Kind::TinyInteger | Kind::MediumInteger);
+            && matches!(
+                self.kind,
+                Kind::BigInteger
+                    | Kind::Integer
+                    | Kind::SmallInteger
+                    | Kind::TinyInteger
+                    | Kind::MediumInteger
+            );
         let ty = match (e, self.kind) {
             (Engine::Sqlite, Kind::String(_) | Kind::Char(_) | Kind::Uuid) => "varchar".into(),
             (Engine::Sqlite, Kind::Text | Kind::MediumText | Kind::LongText) => "text".into(),
-            (Engine::Sqlite, Kind::Integer | Kind::BigInteger | Kind::SmallInteger | Kind::TinyInteger | Kind::MediumInteger) => {
-                "integer".into()
-            }
+            (
+                Engine::Sqlite,
+                Kind::Integer
+                | Kind::BigInteger
+                | Kind::SmallInteger
+                | Kind::TinyInteger
+                | Kind::MediumInteger,
+            ) => "integer".into(),
             (Engine::Sqlite, Kind::Boolean) => "tinyint(1)".into(),
             (Engine::Sqlite, Kind::DateTime | Kind::Timestamp) => "datetime".into(),
             (Engine::Sqlite, Kind::Date) => "date".into(),
@@ -146,11 +161,19 @@ impl Column {
             (Engine::Postgres, Kind::String(n)) => format!("varchar({n})"),
             (Engine::Postgres, Kind::Char(n)) => format!("char({n})"),
             (Engine::Postgres, Kind::Text | Kind::MediumText | Kind::LongText) => "text".into(),
-            (Engine::Postgres, Kind::Integer | Kind::MediumInteger) => if serial { "serial" } else { "integer" }.into(),
-            (Engine::Postgres, Kind::BigInteger) => if serial { "bigserial" } else { "bigint" }.into(),
-            (Engine::Postgres, Kind::SmallInteger | Kind::TinyInteger) => if serial { "smallserial" } else { "smallint" }.into(),
+            (Engine::Postgres, Kind::Integer | Kind::MediumInteger) => {
+                if serial { "serial" } else { "integer" }.into()
+            }
+            (Engine::Postgres, Kind::BigInteger) => {
+                if serial { "bigserial" } else { "bigint" }.into()
+            }
+            (Engine::Postgres, Kind::SmallInteger | Kind::TinyInteger) => {
+                if serial { "smallserial" } else { "smallint" }.into()
+            }
             (Engine::Postgres, Kind::Boolean) => "boolean".into(),
-            (Engine::Postgres, Kind::DateTime | Kind::Timestamp) => "timestamp(0) without time zone".into(),
+            (Engine::Postgres, Kind::DateTime | Kind::Timestamp) => {
+                "timestamp(0) without time zone".into()
+            }
             (Engine::Postgres, Kind::Date) => "date".into(),
             (Engine::Postgres, Kind::Time) => "time(0) without time zone".into(),
             (Engine::Postgres, Kind::Uuid) => "uuid".into(),
@@ -180,7 +203,11 @@ impl Column {
                 sql.push_str(if self.nullable { " null" } else { " not null" });
                 sql.push_str(&default.unwrap_or_default());
                 if serial {
-                    sql.push_str(if has_primary_command { " auto_increment" } else { " auto_increment primary key" });
+                    sql.push_str(if has_primary_command {
+                        " auto_increment"
+                    } else {
+                        " auto_increment primary key"
+                    });
                 }
             }
             Engine::Postgres => {
@@ -279,7 +306,11 @@ impl Foreign {
 
 #[derive(Debug)]
 enum Command {
-    Index { name: String, kind: IndexKind, columns: Vec<String> },
+    Index {
+        name: String,
+        kind: IndexKind,
+        columns: Vec<String>,
+    },
     Foreign(usize),
 }
 
@@ -301,7 +332,13 @@ pub struct Blueprint {
 
 impl Blueprint {
     fn new(table: &str) -> Self {
-        Blueprint { table: table.to_owned(), columns: Vec::new(), primary: None, commands: Vec::new(), foreigns: Vec::new() }
+        Blueprint {
+            table: table.to_owned(),
+            columns: Vec::new(),
+            primary: None,
+            commands: Vec::new(),
+            foreigns: Vec::new(),
+        }
     }
 
     fn add(&mut self, name: &str, kind: Kind) -> &mut Column {
@@ -318,7 +355,9 @@ impl Blueprint {
     }
 
     fn index_name(&self, kind: &str, cols: &[&str]) -> String {
-        format!("{}_{}_{}", self.table, cols.join("_"), kind).to_lowercase().replace(['-', '.'], "_")
+        format!("{}_{}_{}", self.table, cols.join("_"), kind)
+            .to_lowercase()
+            .replace(['-', '.'], "_")
     }
 
     // ------------------------------------------------------------- columns
@@ -471,7 +510,10 @@ impl Blueprint {
                 self.uuid(column);
             }
         }
-        ForeignId { bp: self, column: column.to_owned() }
+        ForeignId {
+            bp: self,
+            column: column.to_owned(),
+        }
     }
 
     // ------------------------------------------------------------- keys
@@ -529,7 +571,8 @@ impl Blueprint {
             on_delete: None,
             on_update: None,
         });
-        self.commands.push(Command::Foreign(self.foreigns.len() - 1));
+        self.commands
+            .push(Command::Foreign(self.foreigns.len() - 1));
         self.foreigns.last_mut().unwrap()
     }
 }
@@ -571,8 +614,11 @@ impl Schema {
         f(&mut bp);
         // Blueprint::addFluentIndexes runs at toSql time, after the commands
         // the callback added.
-        let fluent: Vec<(String, IndexKind)> =
-            bp.columns.iter().filter_map(|c| c.fluent.map(|k| (c.name.clone(), k))).collect();
+        let fluent: Vec<(String, IndexKind)> = bp
+            .columns
+            .iter()
+            .filter_map(|c| c.fluent.map(|k| (c.name.clone(), k)))
+            .collect();
         for (col, kind) in fluent {
             match kind {
                 IndexKind::Unique => bp.unique(&[&col]),
@@ -591,7 +637,8 @@ impl Schema {
             let mut cols: Vec<String> = bp.columns.iter().map(|c| c.sql(e, has_primary)).collect();
             match e {
                 Engine::Sqlite => {
-                    let mut sql = format!("create table {} ({}", e.wrap(&bp.table), cols.join(", "));
+                    let mut sql =
+                        format!("create table {} ({}", e.wrap(&bp.table), cols.join(", "));
                     for f in &bp.foreigns {
                         sql.push_str(&format!(
                             ", foreign key({}) references {}({})",
@@ -607,7 +654,12 @@ impl Schema {
                     sql.push(')');
                     out.push(sql);
                     for c in &bp.commands {
-                        if let Command::Index { name, kind, columns } = c {
+                        if let Command::Index {
+                            name,
+                            kind,
+                            columns,
+                        } = c
+                        {
                             match kind {
                                 IndexKind::Index => out.push(format!(
                                     "create index {} on {} ({})",
@@ -648,15 +700,26 @@ impl Schema {
                     }
                     for c in &bp.commands {
                         match c {
-                            Command::Index { name, kind, columns } => {
+                            Command::Index {
+                                name,
+                                kind,
+                                columns,
+                            } => {
                                 let k = match kind {
                                     IndexKind::Index => "index",
                                     IndexKind::Unique => "unique",
                                     IndexKind::FullText => "fulltext",
                                 };
-                                out.push(format!("alter table {} add {k} {}({})", e.wrap(&bp.table), e.wrap(name), e.columnize(columns)));
+                                out.push(format!(
+                                    "alter table {} add {k} {}({})",
+                                    e.wrap(&bp.table),
+                                    e.wrap(name),
+                                    e.columnize(columns)
+                                ));
                                 if *kind != IndexKind::FullText {
-                                    indexes.retain(|(cols, implicit)| implicit.is_none() || !columns.starts_with(cols));
+                                    indexes.retain(|(cols, implicit)| {
+                                        implicit.is_none() || !columns.starts_with(cols)
+                                    });
                                     indexes.push((columns.clone(), None));
                                 }
                             }
@@ -671,34 +734,63 @@ impl Schema {
                     }
                     for (cols, implicit) in indexes {
                         if let Some(name) = implicit {
-                            out.push(format!("alter table {} add index {}({})", e.wrap(&bp.table), e.wrap(&name), e.columnize(&cols)));
+                            out.push(format!(
+                                "alter table {} add index {}({})",
+                                e.wrap(&bp.table),
+                                e.wrap(&name),
+                                e.columnize(&cols)
+                            ));
                         }
                     }
                 }
                 Engine::Postgres => {
-                    out.push(format!("create table {} ({})", e.wrap(&bp.table), cols.join(", ")));
+                    out.push(format!(
+                        "create table {} ({})",
+                        e.wrap(&bp.table),
+                        cols.join(", ")
+                    ));
                     if let Some(pk) = &bp.primary {
-                        out.push(format!("alter table {} add primary key ({})", e.wrap(&bp.table), e.columnize(pk)));
+                        out.push(format!(
+                            "alter table {} add primary key ({})",
+                            e.wrap(&bp.table),
+                            e.columnize(pk)
+                        ));
                     }
                     for c in &bp.commands {
                         match c {
-                            Command::Index { name, kind: IndexKind::Index, columns } => out.push(format!(
+                            Command::Index {
+                                name,
+                                kind: IndexKind::Index,
+                                columns,
+                            } => out.push(format!(
                                 "create index {} on {} ({})",
                                 e.wrap(name),
                                 e.wrap(&bp.table),
                                 e.columnize(columns)
                             )),
-                            Command::Index { name, kind: IndexKind::Unique, columns } => out.push(format!(
+                            Command::Index {
+                                name,
+                                kind: IndexKind::Unique,
+                                columns,
+                            } => out.push(format!(
                                 "alter table {} add constraint {} unique ({})",
                                 e.wrap(&bp.table),
                                 e.wrap(name),
                                 e.columnize(columns)
                             )),
-                            Command::Index { name, kind: IndexKind::FullText, columns } => out.push(format!(
+                            Command::Index {
+                                name,
+                                kind: IndexKind::FullText,
+                                columns,
+                            } => out.push(format!(
                                 "create index {} on {} using gin (({}))",
                                 e.wrap(name),
                                 e.wrap(&bp.table),
-                                columns.iter().map(|c| format!("to_tsvector('english', {})", e.wrap(c))).collect::<Vec<_>>().join(" || ")
+                                columns
+                                    .iter()
+                                    .map(|c| format!("to_tsvector('english', {})", e.wrap(c)))
+                                    .collect::<Vec<_>>()
+                                    .join(" || ")
                             )),
                             Command::Foreign(i) => deferred.push(bp.foreigns[*i].clone()),
                         }
@@ -707,7 +799,12 @@ impl Schema {
             }
         }
         for f in deferred {
-            out.push(format!("alter table {} add constraint {} {}", e.wrap(&f.table), e.wrap(&f.name), f.clause(e)));
+            out.push(format!(
+                "alter table {} add constraint {} {}",
+                e.wrap(&f.table),
+                e.wrap(&f.name),
+                f.clause(e)
+            ));
         }
         out
     }

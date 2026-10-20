@@ -86,7 +86,9 @@ fn diff_map<T: PartialEq + std::fmt::Debug>(
     for (k, v) in a {
         match b.get(k) {
             None => out.push(format!("{table}: missing {what} {k} ({v:?})")),
-            Some(o) if o != v => out.push(format!("{table}: {what} {k}: expected {v:?}, got {o:?}")),
+            Some(o) if o != v => {
+                out.push(format!("{table}: {what} {k}: expected {v:?}, got {o:?}"))
+            }
             _ => {}
         }
     }
@@ -100,10 +102,45 @@ fn diff_map<T: PartialEq + std::fmt::Debug>(
 fn diff_table(name: &str, a: &Table, b: &Table, out: &mut Vec<String>) {
     diff_map("column", name, &a.columns, &b.columns, out);
     if a.primary_key != b.primary_key {
-        out.push(format!("{name}: primary key expected {:?}, got {:?}", a.primary_key, b.primary_key));
+        out.push(format!(
+            "{name}: primary key expected {:?}, got {:?}",
+            a.primary_key, b.primary_key
+        ));
     }
     diff_map("index", name, &a.indexes, &b.indexes, out);
     diff_map("foreign key", name, &a.foreign_keys, &b.foreign_keys, out);
+}
+
+/// Foreign key rows collected before they become a [`ForeignKey`].
+#[derive(Default)]
+struct FkParts {
+    /// (position, column, referenced column)
+    cols: Vec<(i64, String, String)>,
+    ref_table: String,
+    on_update: String,
+    on_delete: String,
+}
+
+impl FkParts {
+    fn finish(mut self) -> ForeignKey {
+        self.cols.sort();
+        ForeignKey {
+            columns: self.cols.iter().map(|c| c.1.clone()).collect(),
+            ref_table: self.ref_table,
+            ref_columns: self.cols.iter().map(|c| c.2.clone()).collect(),
+            on_update: self.on_update,
+            on_delete: self.on_delete,
+        }
+    }
+}
+
+/// Index rows collected before they become an [`Index`].
+#[derive(Default)]
+struct IndexParts {
+    /// (position, column)
+    cols: Vec<(i64, String)>,
+    unique: bool,
+    kind: String,
 }
 
 fn s(row: &QueryResult, col: &str) -> Result<String, DbErr> {
@@ -119,7 +156,11 @@ fn int(row: &QueryResult, col: &str) -> Result<i64, DbErr> {
 }
 
 async fn rows<C: ConnectionTrait>(db: &C, sql: &str) -> Result<Vec<QueryResult>, DbErr> {
-    db.query_all_raw(Statement::from_string(db.get_database_backend(), sql.to_owned())).await
+    db.query_all_raw(Statement::from_string(
+        db.get_database_backend(),
+        sql.to_owned(),
+    ))
+    .await
 }
 
 /// Reads the schema of the database `db` is connected to.
@@ -150,7 +191,14 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
         let mut table = Table::default();
 
         let mut pk: Vec<(i64, String)> = Vec::new();
-        for c in rows(db, &format!("SELECT name, type, \"notnull\" AS nn, dflt_value, pk FROM pragma_table_info({q})")).await? {
+        for c in rows(
+            db,
+            &format!(
+                "SELECT name, type, \"notnull\" AS nn, dflt_value, pk FROM pragma_table_info({q})"
+            ),
+        )
+        .await?
+        {
             let col = s(&c, "name")?;
             let data_type = s(&c, "type")?.to_lowercase();
             let pk_pos = int(&c, "pk")?;
@@ -159,7 +207,10 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
             }
             let auto_increment = pk_pos > 0
                 && data_type == "integer"
-                && create_sql.contains(&format!("\"{}\" integer primary key autoincrement", col.to_lowercase()));
+                && create_sql.contains(&format!(
+                    "\"{}\" integer primary key autoincrement",
+                    col.to_lowercase()
+                ));
             table.columns.insert(
                 col,
                 Column {
@@ -174,44 +225,51 @@ async fn dump_sqlite<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
         pk.sort();
         table.primary_key = pk.into_iter().map(|(_, c)| c).collect();
 
-        for i in rows(db, &format!("SELECT name, \"unique\" AS uniq, origin FROM pragma_index_list({q})")).await? {
+        for i in rows(
+            db,
+            &format!("SELECT name, \"unique\" AS uniq, origin FROM pragma_index_list({q})"),
+        )
+        .await?
+        {
             if s(&i, "origin")? == "pk" {
                 continue;
             }
             let iname = s(&i, "name")?;
             let mut cols: Vec<(i64, String)> = Vec::new();
-            for c in rows(db, &format!("SELECT seqno, name FROM pragma_index_info({})", quote_sqlite(&iname))).await? {
+            for c in rows(
+                db,
+                &format!(
+                    "SELECT seqno, name FROM pragma_index_info({})",
+                    quote_sqlite(&iname)
+                ),
+            )
+            .await?
+            {
                 cols.push((int(&c, "seqno")?, s(&c, "name")?));
             }
             cols.sort();
             table.indexes.insert(
                 iname,
-                Index { columns: cols.into_iter().map(|(_, c)| c).collect(), unique: int(&i, "uniq")? == 1, kind: "btree".into() },
+                Index {
+                    columns: cols.into_iter().map(|(_, c)| c).collect(),
+                    unique: int(&i, "uniq")? == 1,
+                    kind: "btree".into(),
+                },
             );
         }
 
-        let mut fks: BTreeMap<i64, (Vec<(i64, String, String)>, String, String, String)> = BTreeMap::new();
+        let mut fks: BTreeMap<i64, FkParts> = BTreeMap::new();
         for f in rows(db, &format!("SELECT id, seq, \"table\" AS ref_table, \"from\" AS col, \"to\" AS ref_col, on_update, on_delete FROM pragma_foreign_key_list({q})")).await? {
-            let e = fks.entry(int(&f, "id")?).or_insert_with(|| (Vec::new(), String::new(), String::new(), String::new()));
-            e.0.push((int(&f, "seq")?, s(&f, "col")?, opt(&f, "ref_col")?.unwrap_or_default()));
-            e.1 = s(&f, "ref_table")?;
-            e.2 = s(&f, "on_update")?;
-            e.3 = s(&f, "on_delete")?;
+            let e = fks.entry(int(&f, "id")?).or_default();
+            e.cols.push((int(&f, "seq")?, s(&f, "col")?, opt(&f, "ref_col")?.unwrap_or_default()));
+            e.ref_table = s(&f, "ref_table")?;
+            e.on_update = s(&f, "on_update")?.to_lowercase();
+            e.on_delete = s(&f, "on_delete")?.to_lowercase();
         }
-        for (_, (mut cols, ref_table, on_update, on_delete)) in fks {
-            cols.sort();
-            let columns: Vec<String> = cols.iter().map(|c| c.1.clone()).collect();
+        for parts in fks.into_values() {
+            let fk = parts.finish();
             // SQLite foreign keys have no name; key them by their columns.
-            table.foreign_keys.insert(
-                columns.join(","),
-                ForeignKey {
-                    columns,
-                    ref_table,
-                    ref_columns: cols.iter().map(|c| c.2.clone()).collect(),
-                    on_update: on_update.to_lowercase(),
-                    on_delete: on_delete.to_lowercase(),
-                },
-            );
+            table.foreign_keys.insert(fk.columns.join(","), fk);
         }
         schema.tables.insert(name, table);
     }
@@ -251,7 +309,7 @@ async fn dump_mysql<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
             },
         );
     }
-    let mut idx: BTreeMap<(String, String), (Vec<(i64, String)>, bool, String)> = BTreeMap::new();
+    let mut idx: BTreeMap<(String, String), IndexParts> = BTreeMap::new();
     for i in rows(
         db,
         "SELECT CAST(TABLE_NAME AS CHAR) AS t, CAST(INDEX_NAME AS CHAR) AS i, CAST(NON_UNIQUE AS SIGNED) AS non_unique, \
@@ -260,22 +318,31 @@ async fn dump_mysql<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
     )
     .await?
     {
-        let e = idx.entry((s(&i, "t")?, s(&i, "i")?)).or_insert_with(|| (Vec::new(), false, String::new()));
-        e.0.push((int(&i, "seq")?, s(&i, "c")?));
-        e.1 = int(&i, "non_unique")? == 0;
-        e.2 = s(&i, "kind")?.to_lowercase();
+        let e = idx.entry((s(&i, "t")?, s(&i, "i")?)).or_default();
+        e.cols.push((int(&i, "seq")?, s(&i, "c")?));
+        e.unique = int(&i, "non_unique")? == 0;
+        e.kind = s(&i, "kind")?.to_lowercase();
     }
-    for ((t, i), (mut cols, unique, kind)) in idx {
-        let Some(table) = schema.tables.get_mut(&t) else { continue };
-        cols.sort();
-        let columns: Vec<String> = cols.into_iter().map(|(_, c)| c).collect();
+    for ((t, i), mut parts) in idx {
+        let Some(table) = schema.tables.get_mut(&t) else {
+            continue;
+        };
+        parts.cols.sort();
+        let columns: Vec<String> = parts.cols.into_iter().map(|(_, c)| c).collect();
         if i == "PRIMARY" {
             table.primary_key = columns;
         } else {
-            table.indexes.insert(i, Index { columns, unique, kind });
+            table.indexes.insert(
+                i,
+                Index {
+                    columns,
+                    unique: parts.unique,
+                    kind: parts.kind,
+                },
+            );
         }
     }
-    let mut fks: BTreeMap<(String, String), (Vec<(i64, String, String)>, String, String, String)> = BTreeMap::new();
+    let mut fks: BTreeMap<(String, String), FkParts> = BTreeMap::new();
     for f in rows(
         db,
         "SELECT CAST(k.TABLE_NAME AS CHAR) AS t, CAST(k.CONSTRAINT_NAME AS CHAR) AS n, CAST(k.ORDINAL_POSITION AS SIGNED) AS pos, \
@@ -288,25 +355,17 @@ async fn dump_mysql<C: ConnectionTrait>(db: &C) -> Result<Schema, DbErr> {
     )
     .await?
     {
-        let e = fks.entry((s(&f, "t")?, s(&f, "n")?)).or_insert_with(|| (Vec::new(), String::new(), String::new(), String::new()));
-        e.0.push((int(&f, "pos")?, s(&f, "c")?, s(&f, "rc")?));
-        e.1 = s(&f, "rt")?;
-        e.2 = s(&f, "upd")?.to_lowercase();
-        e.3 = s(&f, "del")?.to_lowercase();
+        let e = fks.entry((s(&f, "t")?, s(&f, "n")?)).or_default();
+        e.cols.push((int(&f, "pos")?, s(&f, "c")?, s(&f, "rc")?));
+        e.ref_table = s(&f, "rt")?;
+        e.on_update = s(&f, "upd")?.to_lowercase();
+        e.on_delete = s(&f, "del")?.to_lowercase();
     }
-    for ((t, n), (mut cols, ref_table, on_update, on_delete)) in fks {
-        let Some(table) = schema.tables.get_mut(&t) else { continue };
-        cols.sort();
-        table.foreign_keys.insert(
-            n,
-            ForeignKey {
-                columns: cols.iter().map(|c| c.1.clone()).collect(),
-                ref_table,
-                ref_columns: cols.iter().map(|c| c.2.clone()).collect(),
-                on_update,
-                on_delete,
-            },
-        );
+    for ((t, n), parts) in fks {
+        let Some(table) = schema.tables.get_mut(&t) else {
+            continue;
+        };
+        table.foreign_keys.insert(n, parts.finish());
     }
     Ok(schema)
 }

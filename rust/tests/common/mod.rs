@@ -33,22 +33,46 @@ impl TestDb {
         match engine {
             Engine::Sqlite => {
                 let path = std::env::temp_dir().join(format!("{name}.sqlite"));
-                let conn = monica::db::connect(&format!("sqlite://{}?mode=rwc", path.display())).await.expect("sqlite");
-                TestDb { conn, engine, admin: None, file: Some(path) }
+                let conn = monica::db::connect(&format!("sqlite://{}?mode=rwc", path.display()))
+                    .await
+                    .expect("sqlite");
+                TestDb {
+                    conn,
+                    engine,
+                    admin: None,
+                    file: Some(path),
+                }
             }
             Engine::MySql | Engine::Postgres => {
                 let base = if engine == Engine::MySql {
-                    std::env::var("MONICA_TEST_MYSQL_URL").unwrap_or_else(|_| "mysql://root:root@127.0.0.1:33306".into())
+                    std::env::var("MONICA_TEST_MYSQL_URL")
+                        .unwrap_or_else(|_| "mysql://root:root@127.0.0.1:33306".into())
                 } else {
                     std::env::var("MONICA_TEST_POSTGRES_URL")
                         .unwrap_or_else(|_| "postgres://postgres:postgres@127.0.0.1:55432".into())
                 };
                 let base = base.trim_end_matches('/').to_owned();
-                let admin_url = if engine == Engine::MySql { base.clone() } else { format!("{base}/postgres") };
-                let admin = monica::db::connect(&admin_url).await.expect("admin connection");
-                admin.execute_unprepared(&format!("create database {name}")).await.expect("create database");
-                let conn = monica::db::connect(&format!("{base}/{name}")).await.expect("test database");
-                TestDb { conn, engine, admin: Some((admin, name)), file: None }
+                let admin_url = if engine == Engine::MySql {
+                    base.clone()
+                } else {
+                    format!("{base}/postgres")
+                };
+                let admin = monica::db::connect(&admin_url)
+                    .await
+                    .expect("admin connection");
+                admin
+                    .execute_unprepared(&format!("create database {name}"))
+                    .await
+                    .expect("create database");
+                let conn = monica::db::connect(&format!("{base}/{name}"))
+                    .await
+                    .expect("test database");
+                TestDb {
+                    conn,
+                    engine,
+                    admin: Some((admin, name)),
+                    file: None,
+                }
             }
         }
     }
