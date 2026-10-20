@@ -58,11 +58,7 @@
 
           <div>
             <p>
-              {{
-                $t(
-                  'You can be notified through different channels: emails, a Telegram message, on Facebook. You decide.',
-                )
-              }}
+              {{ $t('You can be notified by email.') }}
             </p>
           </div>
         </div>
