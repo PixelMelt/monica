@@ -4,7 +4,7 @@ import { route } from '@/router';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
 import { updateMyPreferences } from '@/api/client';
-import { visitPage } from '@/adapters/contacts';
+import { visit } from '@/router';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import Avatar from '@/Shared/Avatar.vue';
@@ -24,7 +24,7 @@ const form = useForm({
 const update = () => {
   updateMyPreferences({}, { contact_sort_order: form.sort_order }).then(() => {
     localStorage.success = trans('Changes saved');
-    visitPage(route('contact.index', { vault: props.layoutData.vault.id }));
+    visit(route('contact.index', { vault: props.layoutData.vault.id }));
   });
 };
 </script>

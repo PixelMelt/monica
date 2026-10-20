@@ -8,8 +8,7 @@ import { contactName, getDays, getMonths, label as translated, sortByCollator } 
 import { avatar, formatImportantDate, groupsSummary, importantDateType } from '@/lib/helpers';
 import { urls } from '@/api/client';
 import { session } from '@/lib/session';
-import { flash } from '@/methods';
-import router, { route } from '@/router';
+import { route } from '@/router';
 
 /**
  * A form value as Laravel's `ConvertEmptyStringsToNull` passed it on:
@@ -22,21 +21,6 @@ export const toId = (value) => {
   const id = Number(nullable(value) ?? 0);
   return id > 0 ? id : null;
 };
-
-/**
- * `router.visit(url)` of Inertia, which also reloads the page when `url` is
- * the current one (vue-router ignores a push to the current location).
- */
-export async function visitPage(url) {
-  const [path, search = ''] = url.split('?');
-  const same = router.currentRoute.value.fullPath === url;
-  await router.push({ path, query: Object.fromEntries(new URLSearchParams(search)), force: same, replace: same });
-  // the page got its new props without remounting: show the flash its layout shows on mount
-  if (same && localStorage.success) {
-    flash(localStorage.success, 'success');
-    localStorage.removeItem('success');
-  }
-}
 
 /** `$religion->name`: the name, else the translated key. */
 const religionName = (r) => r.name ?? (r.translation_key ? trans(r.translation_key) : null);

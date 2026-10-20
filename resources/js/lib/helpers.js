@@ -201,10 +201,16 @@ export function sliceDateRange(oldest, newest) {
 
 // --- Contacts ----------------------------------------------------------
 
-/** `$contact->avatar`: `{type: 'url', content}` from the avatar endpoint. */
+/**
+ * `$contact->avatar`: `{type: 'url', content}`. An uploaded avatar is its
+ * file's 300×300 thumbnail (a new URL for every upload, so caches never show
+ * an old one); otherwise the generated avatar of the avatar endpoint.
+ */
 export const avatar = (contact) => ({
   type: 'url',
-  content: urls.getContactAvatar({ vault_id: contact.vault_id, contact_id: contact.id }),
+  content: contact.avatar_file_id
+    ? urls.getVaultFileContent({ vault_id: contact.vault_id, file_id: contact.avatar_file_id, variant: 'thumbnail' })
+    : urls.getContactAvatar({ vault_id: contact.vault_id, contact_id: contact.id }),
 });
 
 /** `UserHelper::getInformationAboutContact` from a `ContactSummary`. */

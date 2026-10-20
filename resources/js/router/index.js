@@ -3,6 +3,7 @@
 // session (`/me/bootstrap`) of the visit. Access rules follow the Laravel
 // middleware: `auth` → login, `verified` → email notice, `guest` → home.
 
+import { reactive } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import routes from './routes';
 import progress from './progress';
@@ -22,6 +23,9 @@ const router = createRouter({
 });
 
 const INTENDED = 'url.intended';
+
+/** Counts page visits, so a visit to the current URL remounts the page. */
+let visits = 0;
 
 /** Remembers where the visitor wanted to go (`redirect()->intended()`). */
 export function setIntended(path) {
@@ -61,7 +65,9 @@ router.beforeResolve(async (to) => {
     }
     pageErrors.errors = {};
     to.meta.error = null;
-    to.meta.props = to.meta.load ? await to.meta.load(to) : {};
+    to.meta.visit = ++visits;
+    // Inertia's page props were reactive: pages mutate nested data in place.
+    to.meta.props = reactive(to.meta.load ? await to.meta.load(to) : {});
     if (to.meta.props?.redirect) return to.meta.props.redirect;
   } catch (e) {
     if (!(e instanceof ApiError)) throw e;
@@ -98,7 +104,21 @@ export function route(name, params = {}) {
   return router.resolve({ name, params: path, query }).href;
 }
 
-/** `router.visit(url)` of Inertia. */
-export const visit = (url, { replace = false } = {}) => (replace ? router.replace(url) : router.push(url));
+/**
+ * `router.visit(url)` of Inertia: loads the page at `url`, also when it is
+ * the current one (the page is fetched again and remounted, and the history
+ * entry replaced, as Inertia did).
+ */
+export function visit(url, { replace = false } = {}) {
+  const target = router.resolve(url);
+  const same = target.fullPath === router.currentRoute.value.fullPath;
+  return router.push({
+    path: target.path,
+    query: target.query,
+    hash: target.hash,
+    force: true,
+    replace: replace || same,
+  });
+}
 
 export default router;
