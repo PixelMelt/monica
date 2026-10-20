@@ -25,8 +25,18 @@ use super::contacts::{
 };
 use super::templates::TemplatePage;
 use super::vault_settings::QuickFactTemplate;
+use std::collections::HashMap;
+
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
+use crate::domains::settings::manage_storage;
+use crate::entities::{
+    accounts, contact_group, contacts, groups, module_template_page, modules, quick_facts, template_pages,
+    vault_quick_facts_templates,
+};
+use crate::error::ApiError;
 use crate::error::ApiResult;
 use crate::http::access;
 use crate::http::auth::Auth;
@@ -53,8 +63,34 @@ pub struct ModuleContext {
 }
 
 /// One module block of the contact page; `data` depends on `type`.
-// TODO(endpoints): hand-written: a oneOf of the variants in the draft.
-pub type ContactPageModule = serde_json::Value;
+#[derive(Serialize, ToSchema)]
+#[serde(untagged)]
+pub enum ContactPageModule {
+    Notes(ContactPageModuleNotes),
+    ContactNames(ContactPageModuleContactNames),
+    Avatar(ContactPageModuleAvatar),
+    FamilySummary(ContactPageModuleFamilySummary),
+    Company(ContactPageModuleCompany),
+    Feed(ContactPageModuleFeed),
+    GenderPronoun(ContactPageModuleGenderPronoun),
+    ImportantDates(ContactPageModuleImportantDates),
+    Labels(ContactPageModuleLabels),
+    Reminders(ContactPageModuleReminders),
+    Loans(ContactPageModuleLoans),
+    Relationships(ContactPageModuleRelationships),
+    Tasks(ContactPageModuleTasks),
+    Calls(ContactPageModuleCalls),
+    Pets(ContactPageModulePets),
+    Goals(ContactPageModuleGoals),
+    Addresses(ContactPageModuleAddresses),
+    Groups(ContactPageModuleGroups),
+    ContactInformation(ContactPageModuleContactInformation),
+    Documents(ContactPageModuleDocuments),
+    Photos(ContactPageModulePhotos),
+    Posts(ContactPageModulePosts),
+    Religions(ContactPageModuleReligions),
+    LifeEvents(ContactPageModuleLifeEvents),
+}
 
 /// Data of the contact page (Vault/Contact/Show), api-design.md §12.
 #[derive(Serialize, ToSchema)]
@@ -388,7 +424,182 @@ pub async fn get_contact_page(
     Query(query): Query<GetContactPageQuery>,
 ) -> ApiResult<Json<ContactPage>> {
     let access = access::vault(&state, &id, vault_id, crate::domains::base::VaultPermission::View).await?;
-    todo!("getContactPage")
+    let db = &state.db;
+    let contact = contacts::Entity::live()
+        .filter(contacts::Column::Id.eq(contact_id))
+        .filter(contacts::Column::VaultId.eq(vault_id))
+        .one(db)
+        .await?
+        .ok_or_else(ApiError::not_found)?;
+    let account =
+        accounts::Entity::find_by_id(access.vault.account_id).one(db).await?.ok_or_else(ApiError::not_found)?;
+    let ctx = ModuleContext { user: id.user.clone(), vault: access.vault.clone(), contact: contact.clone() };
+
+    // `GroupsViewHelper::summary`.
+    let mut groups: Vec<ContactPageGroup> = contact_group::Entity::find()
+        .filter(contact_group::Column::ContactId.eq(contact.id))
+        .find_also_related(groups::Entity)
+        .all(db)
+        .await?
+        .into_iter()
+        .filter_map(|(_, g)| g.filter(|g| g.deleted_at.is_none()))
+        .map(|g| ContactPageGroup { id: g.id, name: g.name })
+        .collect();
+    crate::text::sort_by_collator(&mut groups, |g| g.name.clone());
+
+    // `ContactShowViewHelper::quickFacts`: the vault's templates, and the
+    // contact's quick facts of the first one.
+    let templates = vault_quick_facts_templates::Entity::find()
+        .filter(vault_quick_facts_templates::Column::VaultId.eq(vault_id))
+        .order_by_asc(vault_quick_facts_templates::Column::Position)
+        .order_by_asc(vault_quick_facts_templates::Column::Id)
+        .all(db)
+        .await?;
+    let quick_facts = match templates.first() {
+        Some(first) => quick_facts::Entity::find()
+            .filter(quick_facts::Column::ContactId.eq(contact.id))
+            .filter(quick_facts::Column::VaultQuickFactsTemplateId.eq(first.id))
+            .order_by_asc(quick_facts::Column::Id)
+            .all(db)
+            .await?
+            .into_iter()
+            .map(QuickFact::from)
+            .collect(),
+        None => Vec::new(),
+    };
+
+    // The template's pages: the `contact_information` page gives the header,
+    // the requested page (else the first other page) gives the modules.
+    let (mut header_modules, mut modules, mut template_pages, mut active_template_page_id) =
+        (Vec::new(), Vec::new(), Vec::new(), None);
+    if let Some(template_id) = contact.template_id {
+        let pages = template_pages::Entity::find()
+            .filter(template_pages::Column::TemplateId.eq(template_id))
+            .order_by_asc(template_pages::Column::Position)
+            .order_by_asc(template_pages::Column::Id)
+            .all(db)
+            .await?;
+        let is_contact_page = |p: &template_pages::Model| p.r#type.as_deref() == Some(TYPE_CONTACT);
+        let active = match &query.template_page {
+            Some(slug) => Some(pages.iter().find(|p| &p.slug == slug).ok_or_else(ApiError::not_found)?),
+            None => pages.iter().find(|p| !is_contact_page(p)),
+        };
+        if let Some(page) = pages.iter().find(|p| is_contact_page(p)) {
+            header_modules = page_modules(&state, &ctx, page.id).await?;
+        }
+        if let Some(page) = active {
+            active_template_page_id = Some(page.id.0);
+            modules = page_modules(&state, &ctx, page.id).await?;
+        }
+        template_pages = pages.into_iter().filter(|p| !is_contact_page(p)).map(TemplatePage::from).collect();
+    }
+
+    Ok(Json(ContactPage {
+        is_current_user_contact: access.membership.contact_id == contact.id,
+        can_upload_file: manage_storage::can_upload_file(db, &account).await?,
+        contact: Contact::load(db, id.user.id, contact).await?,
+        header_modules,
+        groups,
+        quick_fact_templates: templates.into_iter().map(QuickFactTemplate::from).collect(),
+        quick_facts,
+        template_pages,
+        active_template_page_id,
+        modules,
+    }))
+}
+
+/// `TemplatePage::TYPE_CONTACT`.
+const TYPE_CONTACT: &str = "contact_information";
+
+/// The modules of a template page, in position order, with their data
+/// (`ContactShowViewHelper::getContactInformation` and `::modules`); a
+/// module of a type the page doesn't show is left out.
+async fn page_modules(state: &AppState, ctx: &ModuleContext, page_id: Id) -> ApiResult<Vec<ContactPageModule>> {
+    let links = module_template_page::Entity::find()
+        .filter(module_template_page::Column::TemplatePageId.eq(page_id))
+        .order_by_asc(module_template_page::Column::Position)
+        .order_by_asc(module_template_page::Column::ModuleId)
+        .all(&state.db)
+        .await?;
+    let ids: Vec<Id> = links.iter().map(|l| l.module_id).collect();
+    let mut by_id: HashMap<Id, modules::Model> = modules::Entity::find()
+        .filter(modules::Column::Id.is_in(ids.clone()))
+        .all(&state.db)
+        .await?
+        .into_iter()
+        .map(|m| (m.id, m))
+        .collect();
+    let mut out = Vec::new();
+    for id in ids {
+        if let Some(module) = by_id.remove(&id)
+            && let Some(block) = module_block(state, ctx, module).await?
+        {
+            out.push(block);
+        }
+    }
+    Ok(out)
+}
+
+/// One module with the data of its type.
+async fn module_block(
+    state: &AppState,
+    ctx: &ModuleContext,
+    module: modules::Model,
+) -> ApiResult<Option<ContactPageModule>> {
+    use super::{contact_modules_a as a, contact_modules_b as b, contact_notes, contacts};
+    let Some(kind) = module.r#type.clone() else { return Ok(None) };
+    macro_rules! block {
+        ($variant:ident, $schema:ident, $data:expr) => {
+            ContactPageModule::$variant($schema {
+                name: module.name,
+                name_translation_key: module.name_translation_key,
+                id: module.id,
+                r#type: kind.clone(),
+                data: $data,
+            })
+        };
+    }
+    Ok(Some(match kind.as_str() {
+        "notes" => block!(Notes, ContactPageModuleNotes, contact_notes::notes_module(state, ctx).await?),
+        "contact_names" => {
+            block!(ContactNames, ContactPageModuleContactNames, contacts::contact_names_module(state, ctx).await?)
+        }
+        "avatar" => block!(Avatar, ContactPageModuleAvatar, contacts::avatar_module(state, ctx).await?),
+        "family_summary" => {
+            block!(FamilySummary, ContactPageModuleFamilySummary, contacts::family_summary_module(state, ctx).await?)
+        }
+        "company" => block!(Company, ContactPageModuleCompany, a::company_module(state, ctx).await?),
+        "feed" => block!(Feed, ContactPageModuleFeed, contacts::feed_module(state, ctx).await?),
+        "gender_pronoun" => {
+            block!(GenderPronoun, ContactPageModuleGenderPronoun, contacts::gender_pronoun_module(state, ctx).await?)
+        }
+        "important_dates" => {
+            block!(ImportantDates, ContactPageModuleImportantDates, a::important_dates_module(state, ctx).await?)
+        }
+        "labels" => block!(Labels, ContactPageModuleLabels, a::labels_module(state, ctx).await?),
+        "reminders" => block!(Reminders, ContactPageModuleReminders, a::reminders_module(state, ctx).await?),
+        "loans" => block!(Loans, ContactPageModuleLoans, a::loans_module(state, ctx).await?),
+        "relationships" => {
+            block!(Relationships, ContactPageModuleRelationships, b::relationships_module(state, ctx).await?)
+        }
+        "tasks" => block!(Tasks, ContactPageModuleTasks, b::tasks_module(state, ctx).await?),
+        "calls" => block!(Calls, ContactPageModuleCalls, b::calls_module(state, ctx).await?),
+        "pets" => block!(Pets, ContactPageModulePets, b::pets_module(state, ctx).await?),
+        "goals" => block!(Goals, ContactPageModuleGoals, a::goals_module(state, ctx).await?),
+        "addresses" => block!(Addresses, ContactPageModuleAddresses, a::addresses_module(state, ctx).await?),
+        "groups" => block!(Groups, ContactPageModuleGroups, b::groups_module(state, ctx).await?),
+        "contact_information" => block!(
+            ContactInformation,
+            ContactPageModuleContactInformation,
+            a::contact_information_module(state, ctx).await?
+        ),
+        "documents" => block!(Documents, ContactPageModuleDocuments, b::documents_module(state, ctx).await?),
+        "photos" => block!(Photos, ContactPageModulePhotos, b::photos_module(state, ctx).await?),
+        "posts" => block!(Posts, ContactPageModulePosts, contacts::posts_module(state, ctx).await?),
+        "religions" => block!(Religions, ContactPageModuleReligions, a::religions_module(state, ctx).await?),
+        "life_events" => block!(LifeEvents, ContactPageModuleLifeEvents, b::life_events_module(state, ctx).await?),
+        _ => return Ok(None),
+    }))
 }
 
 /// The operations of this module.
