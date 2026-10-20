@@ -1,46 +1,59 @@
 //! Translations: the 29 locales of `lang/` (D005).
 //!
 //! The server translates only what it sends to people directly: error
-//! titles, validation messages and emails (api-design.md §8). App strings come
-//! from `lang/<locale>.json`; Laravel's `validation`, `passwords` and `auth`
-//! arrays come from `rust/locales/<locale>.json` (`php rust/locales/generate.php`).
+//! titles, validation messages and notifications (api-design.md §8). App
+//! strings come from `lang/<locale>.json`; Laravel's `auth` and `validation`
+//! arrays from `lang/<locale>/auth.json` and `lang/<locale>/validation.json`.
 
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
 use serde_json::Value;
 
-/// (locale, `lang/<locale>.json`, `locales/<locale>.json`), `en` first.
-const SOURCES: &[(&str, &str, &str)] = &[
-    ("en", include_str!("../../lang/en.json"), include_str!("../locales/en.json")),
-    ("ar", include_str!("../../lang/ar.json"), include_str!("../locales/ar.json")),
-    ("bn", include_str!("../../lang/bn.json"), include_str!("../locales/bn.json")),
-    ("ca", include_str!("../../lang/ca.json"), include_str!("../locales/ca.json")),
-    ("da", include_str!("../../lang/da.json"), include_str!("../locales/da.json")),
-    ("de", include_str!("../../lang/de.json"), include_str!("../locales/de.json")),
-    ("es", include_str!("../../lang/es.json"), include_str!("../locales/es.json")),
-    ("el", include_str!("../../lang/el.json"), include_str!("../locales/el.json")),
-    ("fr", include_str!("../../lang/fr.json"), include_str!("../locales/fr.json")),
-    ("he", include_str!("../../lang/he.json"), include_str!("../locales/he.json")),
-    ("hi", include_str!("../../lang/hi.json"), include_str!("../locales/hi.json")),
-    ("it", include_str!("../../lang/it.json"), include_str!("../locales/it.json")),
-    ("ja", include_str!("../../lang/ja.json"), include_str!("../locales/ja.json")),
-    ("ml", include_str!("../../lang/ml.json"), include_str!("../locales/ml.json")),
-    ("nl", include_str!("../../lang/nl.json"), include_str!("../locales/nl.json")),
-    ("nn", include_str!("../../lang/nn.json"), include_str!("../locales/nn.json")),
-    ("pa", include_str!("../../lang/pa.json"), include_str!("../locales/pa.json")),
-    ("pl", include_str!("../../lang/pl.json"), include_str!("../locales/pl.json")),
-    ("pt", include_str!("../../lang/pt.json"), include_str!("../locales/pt.json")),
-    ("pt_BR", include_str!("../../lang/pt_BR.json"), include_str!("../locales/pt_BR.json")),
-    ("ro", include_str!("../../lang/ro.json"), include_str!("../locales/ro.json")),
-    ("ru", include_str!("../../lang/ru.json"), include_str!("../locales/ru.json")),
-    ("sv", include_str!("../../lang/sv.json"), include_str!("../locales/sv.json")),
-    ("te", include_str!("../../lang/te.json"), include_str!("../locales/te.json")),
-    ("tr", include_str!("../../lang/tr.json"), include_str!("../locales/tr.json")),
-    ("ur", include_str!("../../lang/ur.json"), include_str!("../locales/ur.json")),
-    ("vi", include_str!("../../lang/vi.json"), include_str!("../locales/vi.json")),
-    ("zh_CN", include_str!("../../lang/zh_CN.json"), include_str!("../locales/zh_CN.json")),
-    ("zh_TW", include_str!("../../lang/zh_TW.json"), include_str!("../locales/zh_TW.json")),
+/// (locale, `lang/<locale>.json`, `lang/<locale>/auth.json`,
+/// `lang/<locale>/validation.json`).
+macro_rules! locale {
+    ($l:literal) => {
+        (
+            $l,
+            include_str!(concat!("../../lang/", $l, ".json")),
+            include_str!(concat!("../../lang/", $l, "/auth.json")),
+            include_str!(concat!("../../lang/", $l, "/validation.json")),
+        )
+    };
+}
+
+/// The supported locales, `en` first.
+const SOURCES: &[(&str, &str, &str, &str)] = &[
+    locale!("en"),
+    locale!("ar"),
+    locale!("bn"),
+    locale!("ca"),
+    locale!("da"),
+    locale!("de"),
+    locale!("es"),
+    locale!("el"),
+    locale!("fr"),
+    locale!("he"),
+    locale!("hi"),
+    locale!("it"),
+    locale!("ja"),
+    locale!("ml"),
+    locale!("nl"),
+    locale!("nn"),
+    locale!("pa"),
+    locale!("pl"),
+    locale!("pt"),
+    locale!("pt_BR"),
+    locale!("ro"),
+    locale!("ru"),
+    locale!("sv"),
+    locale!("te"),
+    locale!("tr"),
+    locale!("ur"),
+    locale!("vi"),
+    locale!("zh_CN"),
+    locale!("zh_TW"),
 ];
 
 tokio::task_local! {
@@ -55,7 +68,7 @@ pub fn current() -> String {
 
 /// The supported locales (`config/localizer.php`), `en` first.
 pub fn locales() -> impl Iterator<Item = &'static str> {
-    SOURCES.iter().map(|(l, _, _)| *l)
+    SOURCES.iter().map(|(l, _, _, _)| *l)
 }
 
 pub fn is_supported(locale: &str) -> bool {
@@ -72,9 +85,10 @@ fn bundles() -> &'static HashMap<&'static str, Bundle> {
     B.get_or_init(|| {
         SOURCES
             .iter()
-            .map(|(l, json, groups)| {
+            .map(|(l, json, auth, validation)| {
                 let strings = serde_json::from_str(json).unwrap_or_default();
-                let groups = serde_json::from_str(groups).unwrap_or(Value::Null);
+                let parse = |s: &str| serde_json::from_str(s).unwrap_or(Value::Null);
+                let groups = serde_json::json!({ "auth": parse(auth), "validation": parse(validation) });
                 (*l, Bundle { strings, groups })
             })
             .collect()
@@ -119,8 +133,8 @@ pub fn t(locale: &str, key: &str, params: &[(&str, &str)]) -> String {
     replace(text, params)
 }
 
-/// `trans('group.path')` for the `validation`, `passwords` and `auth`
-/// arrays (dot path, e.g. `validation.max.string`). `None` if missing in
+/// `trans('group.path')` for the `validation` and `auth` arrays (dot path,
+/// e.g. `validation.max.string`). `None` if missing in
 /// both `locale` and English.
 pub fn group(locale: &str, path: &str, params: &[(&str, &str)]) -> Option<String> {
     let b = bundles();

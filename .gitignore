@@ -1,5 +1,4 @@
 /dist
-/lang/php_*.json
 /node_modules
 /public/build
 /public/hot
@@ -8,7 +7,6 @@
 /rust/data
 /rust/target
 /rust/target-copy
-/vendor
 .pnp.*
 .yarn/*
 !.yarn/patches
