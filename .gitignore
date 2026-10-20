@@ -39,4 +39,5 @@ yarn-error.log
 monica.db
 sail
 /rust/target
+/rust/target-copy
 /dist
