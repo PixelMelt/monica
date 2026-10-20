@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath } from 'node:url';
 import vue from '@vitejs/plugin-vue';
-import i18n from 'laravel-vue-i18n/vite';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
@@ -22,7 +21,6 @@ export default defineConfig(({ mode }) => {
         },
       }),
       tailwindcss(),
-      i18n(),
     ],
     resolve: {
       alias: { '@': fileURLToPath(new URL('./resources/js', import.meta.url)) },

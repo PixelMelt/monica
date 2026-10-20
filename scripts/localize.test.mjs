@@ -50,5 +50,5 @@ test('finds the keys of the SPA and the server', () => {
     'an i18n::t(&i18n::current(), …) key',
   );
   assert.ok(!keys.has('🔔 Reminder: :label for :contactName'), 'a key only the Telegram channel used');
-  assert.ok(![...keys].some((k) => k.startsWith('format.')), 'PHP group keys are left out');
+  assert.ok(![...keys].some((k) => k.startsWith('format.')), 'group keys are left out');
 });

@@ -10,8 +10,8 @@
 // Rust server: the strings of `i18n::t(…, "key", …)` calls. In both, any string
 // literal that already is a key counts too (the server's seeded names such as
 // `trans_key('Male')`, the SPA's tables of feed action labels).
-// The framework files (lang/<locale>/*.php, the PHP `lang:add`/`lang:update`
-// of laravel-lang) are left alone.
+// The arrays of lang/<locale>/*.json (Laravel's `auth`, `validation`,
+// `format` and `pagination` groups) are left alone.
 
 import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, extname } from 'node:path';
@@ -89,10 +89,10 @@ function usedKeys(known) {
   for (const key of known) {
     if (["'", '"', '`'].some((q) => spa.includes(quoted(key, q))) || rust.includes(quoted(key, '"'))) keys.add(key);
   }
-  // `group.key` of a lang/<locale>/<group>.php file is not a JSON key.
+  // `group.key` of a lang/<locale>/<group>.json array is not an app string.
   for (const key of keys) {
     const group = key.match(/^([a-z_]+)\.[\w.]+$/)?.[1];
-    if (group && existsSync(join(ROOT, `lang/en/${group}.php`))) keys.delete(key);
+    if (group && existsSync(join(ROOT, `lang/en/${group}.json`))) keys.delete(key);
   }
   return keys;
 }
@@ -247,7 +247,7 @@ async function main() {
   }
   // `fixPagination`
   for (const locale of LOCALES) {
-    const path = join(ROOT, `lang/${locale}/pagination.php`);
+    const path = join(ROOT, `lang/${locale}/pagination.json`);
     if (!existsSync(path)) continue;
     const text = readFileSync(path, 'utf8').replaceAll('&laquo; ', '❮ ').replaceAll(' &raquo;', ' ❯');
     writeFileSync(path, text);
