@@ -1,12 +1,12 @@
 //! `/auth`: sessions, registration, 2FA challenge, email verification,
 //! password reset and confirmation (api-design.md §7.3).
 
-use axum::extract::State;
+use axum::extract::{Query, State};
 use axum::http::StatusCode;
 use axum::http::header::HeaderMap;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, QueryFilter, TransactionTrait};
 use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use utoipa::{IntoParams, ToSchema};
 
 use super::schemas::CurrentUser;
 use crate::auth::{password_reset, two_factor, verification};
@@ -14,7 +14,7 @@ use crate::entities::users;
 use crate::error::{ApiError, ApiResult};
 use crate::http::auth::AuthUnverified;
 use crate::http::json::Json;
-use crate::http::session::{Credential, PendingLogin, Session};
+use crate::http::session::{Credential, PASSWORD_TIMEOUT_SECONDS, PendingLogin, Session};
 use crate::http::state::AppState;
 use crate::i18n;
 use crate::validate::{Validator, clean};
@@ -380,20 +380,31 @@ pub struct PasswordConfirmationStatus {
     pub confirmed: bool,
 }
 
+#[derive(Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct PasswordConfirmationStatusQuery {
+    /// Window to check, in seconds (default 10800).
+    #[param(minimum = 1)]
+    pub seconds: Option<i64>,
+}
+
 #[utoipa::path(
     get,
     path = "/auth/confirmed-password-status",
     operation_id = "getPasswordConfirmationStatus",
     tag = "Auth",
     summary = "Whether the password was confirmed in the last 3 hours",
+    params(PasswordConfirmationStatusQuery),
     responses((status = 200, description = "The status.", body = PasswordConfirmationStatus)),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["V016"])), ("x-services" = json!([])))
 )]
 pub async fn get_password_confirmation_status(
     _auth: AuthUnverified,
     session: Session,
+    Query(query): Query<PasswordConfirmationStatusQuery>,
 ) -> Json<PasswordConfirmationStatus> {
-    Json(PasswordConfirmationStatus { confirmed: session.password_recently_confirmed() })
+    let seconds = query.seconds.unwrap_or(PASSWORD_TIMEOUT_SECONDS);
+    Json(PasswordConfirmationStatus { confirmed: session.password_confirmed_within(seconds) })
 }
 
 #[derive(Deserialize, ToSchema)]

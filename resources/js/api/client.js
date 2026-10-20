@@ -2,14 +2,14 @@
 import { request, buildUrl } from './runtime';
 
 /**
- * Get the current user's account (`GET /account`).
+ * The caller's account (`GET /account`).
  * @param {import('./schema').operations['getAccount']['parameters']['path'] & import('./schema').operations['getAccount']['parameters']['query']} [params]
  */
 export const getAccount = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/account', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Cancel the account (`DELETE /account`).
+ * Delete the account and everything in it (`DELETE /account`).
  * @param {import('./schema').operations['cancelAccount']['parameters']['path'] & import('./schema').operations['cancelAccount']['parameters']['query']} [params]
  * @param {import('./schema').operations['cancelAccount']['requestBody']['content']['application/json']} [body]
  */
@@ -966,7 +966,7 @@ export const deleteReligion = (params = {}, body = undefined) =>
   );
 
 /**
- * Storage used by the account's files, per file type (`GET /account/storage`).
+ * Storage used by the account (`GET /account/storage`).
  * @param {import('./schema').operations['getAccountStorage']['parameters']['path'] & import('./schema').operations['getAccountStorage']['parameters']['query']} [params]
  */
 export const getAccountStorage = (params = {}, body = undefined) =>
@@ -1162,14 +1162,14 @@ export const removeTemplatePageModule = (params = {}, body = undefined) =>
   );
 
 /**
- * List the users of the account (`GET /account/users`).
+ * The account's users, invited ones included (`GET /account/users`).
  * @param {import('./schema').operations['listAccountUsers']['parameters']['path'] & import('./schema').operations['listAccountUsers']['parameters']['query']} [params]
  */
 export const listAccountUsers = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/account/users', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Invite a user to the account (`POST /account/users`).
+ * Invite someone to the account (`POST /account/users`).
  * @param {import('./schema').operations['inviteAccountUser']['parameters']['path'] & import('./schema').operations['inviteAccountUser']['parameters']['query']} [params]
  * @param {import('./schema').operations['inviteAccountUser']['requestBody']['content']['application/json']} [body]
  */
@@ -1177,7 +1177,7 @@ export const inviteAccountUser = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/account/users', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Get a user of the account (`GET /account/users/{user_id}`).
+ * A user of the account (`GET /account/users/{user_id}`).
  * @param {import('./schema').operations['getAccountUser']['parameters']['path'] & import('./schema').operations['getAccountUser']['parameters']['query']} [params]
  */
 export const getAccountUser = (params = {}, body = undefined) =>
@@ -1188,7 +1188,7 @@ export const getAccountUser = (params = {}, body = undefined) =>
   );
 
 /**
- * Give or remove the administrator privilege (`PATCH /account/users/{user_id}`).
+ * Make a user an administrator, or not (`PATCH /account/users/{user_id}`).
  * @param {import('./schema').operations['updateAccountUser']['parameters']['path'] & import('./schema').operations['updateAccountUser']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateAccountUser']['requestBody']['content']['application/json']} [body]
  */
@@ -1212,7 +1212,7 @@ export const deleteAccountUser = (params = {}, body = undefined) =>
   );
 
 /**
- * Confirm the password for sensitive actions (`POST /auth/confirm-password`).
+ * Confirm the password for sensitive actions (3 hours) (`POST /auth/confirm-password`).
  * @param {import('./schema').operations['confirmPassword']['parameters']['path'] & import('./schema').operations['confirmPassword']['parameters']['query']} [params]
  * @param {import('./schema').operations['confirmPassword']['requestBody']['content']['application/json']} [body]
  */
@@ -1224,7 +1224,7 @@ export const confirmPassword = (params = {}, body = undefined) =>
   );
 
 /**
- * Whether the session confirmed the password recently (`GET /auth/confirmed-password-status`).
+ * Whether the password was confirmed in the last 3 hours (`GET /auth/confirmed-password-status`).
  * @param {import('./schema').operations['getPasswordConfirmationStatus']['parameters']['path'] & import('./schema').operations['getPasswordConfirmationStatus']['parameters']['query']} [params]
  */
 export const getPasswordConfirmationStatus = (params = {}, body = undefined) =>
@@ -1242,7 +1242,7 @@ export const getCsrfCookie = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/auth/csrf', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Send the verification email again (`POST /auth/email/verification-notification`).
+ * Email the verification link again (`POST /auth/email/verification-notification`).
  * @param {import('./schema').operations['sendEmailVerification']['parameters']['path'] & import('./schema').operations['sendEmailVerification']['parameters']['query']} [params]
  */
 export const sendEmailVerification = (params = {}, body = undefined) =>
@@ -1281,14 +1281,14 @@ export const logIn = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/auth/login', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Log out (`POST /auth/logout`).
+ * End the browser session (`POST /auth/logout`).
  * @param {import('./schema').operations['logOut']['parameters']['path'] & import('./schema').operations['logOut']['parameters']['query']} [params]
  */
 export const logOut = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/auth/logout', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Sign up, creating a new account (`POST /auth/register`).
+ * Create an account and its first user (`POST /auth/register`).
  * @param {import('./schema').operations['registerUser']['parameters']['path'] & import('./schema').operations['registerUser']['parameters']['query']} [params]
  * @param {import('./schema').operations['registerUser']['requestBody']['content']['application/json']} [body]
  */
@@ -1296,7 +1296,7 @@ export const registerUser = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/auth/register', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Set a new password with a reset token (`POST /auth/reset-password`).
+ * Set a new password with the emailed token (`POST /auth/reset-password`).
  * @param {import('./schema').operations['resetPassword']['parameters']['path'] & import('./schema').operations['resetPassword']['parameters']['query']} [params]
  * @param {import('./schema').operations['resetPassword']['requestBody']['content']['application/json']} [body]
  */
@@ -1308,7 +1308,7 @@ export const resetPassword = (params = {}, body = undefined) =>
   );
 
 /**
- * Finish a 2FA login with a TOTP or recovery code (`POST /auth/two-factor-challenge`).
+ * Finish a login with a 2FA or recovery code (`POST /auth/two-factor-challenge`).
  * @param {import('./schema').operations['completeTwoFactorChallenge']['parameters']['path'] & import('./schema').operations['completeTwoFactorChallenge']['parameters']['query']} [params]
  * @param {import('./schema').operations['completeTwoFactorChallenge']['requestBody']['content']['application/json']} [body]
  */
@@ -1327,7 +1327,7 @@ export const getInstance = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/instance', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Check an invitation before showing the accept form (`GET /invitations/{invitation_code}`).
+ * A pending invitation (`GET /invitations/{invitation_code}`).
  * @param {import('./schema').operations['getInvitation']['parameters']['path'] & import('./schema').operations['getInvitation']['parameters']['query']} [params]
  */
 export const getInvitation = (params = {}, body = undefined) =>
@@ -1369,7 +1369,7 @@ export const getMe = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Update name and email (`PATCH /me`).
+ * Change name or email (`PATCH /me`).
  * @param {import('./schema').operations['updateMe']['parameters']['path'] & import('./schema').operations['updateMe']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateMe']['requestBody']['content']['application/json']} [body]
  */
@@ -1377,7 +1377,7 @@ export const updateMe = (params = {}, body = undefined) =>
   request({ method: 'PATCH', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Delete my user (`DELETE /me`).
+ * Delete your own user (when enabled) (`DELETE /me`).
  * @param {import('./schema').operations['deleteMe']['parameters']['path'] & import('./schema').operations['deleteMe']['parameters']['query']} [params]
  * @param {import('./schema').operations['deleteMe']['requestBody']['content']['application/json']} [body]
  */
@@ -1385,14 +1385,14 @@ export const deleteMe = (params = {}, body = undefined) =>
   request({ method: 'DELETE', path: '/me', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Everything the layout needs, in one call (`GET /me/bootstrap`).
+ * Everything the layout needs (aggregate) (`GET /me/bootstrap`).
  * @param {import('./schema').operations['getBootstrap']['parameters']['path'] & import('./schema').operations['getBootstrap']['parameters']['query']} [params]
  */
 export const getBootstrap = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/me/bootstrap', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * My reminder notification channels (`GET /me/notification-channels`).
+ * The user's notification channels (`GET /me/notification-channels`).
  * @param {import('./schema').operations['listNotificationChannels']['parameters']['path'] & import('./schema').operations['listNotificationChannels']['parameters']['query']} [params]
  */
 export const listNotificationChannels = (params = {}, body = undefined) =>
@@ -1403,7 +1403,7 @@ export const listNotificationChannels = (params = {}, body = undefined) =>
   );
 
 /**
- * Add an email address to be notified at (`POST /me/notification-channels`).
+ * Add an email channel (`POST /me/notification-channels`).
  * @param {import('./schema').operations['createNotificationChannel']['parameters']['path'] & import('./schema').operations['createNotificationChannel']['parameters']['query']} [params]
  * @param {import('./schema').operations['createNotificationChannel']['requestBody']['content']['application/json']} [body]
  */
@@ -1415,7 +1415,7 @@ export const createNotificationChannel = (params = {}, body = undefined) =>
   );
 
 /**
- * One notification channel (`GET /me/notification-channels/{notification_channel_id}`).
+ * A notification channel (`GET /me/notification-channels/{notification_channel_id}`).
  * @param {import('./schema').operations['getNotificationChannel']['parameters']['path'] & import('./schema').operations['getNotificationChannel']['parameters']['query']} [params]
  */
 export const getNotificationChannel = (params = {}, body = undefined) =>
@@ -1432,7 +1432,7 @@ export const getNotificationChannel = (params = {}, body = undefined) =>
   );
 
 /**
- * Activate or deactivate a channel (`PATCH /me/notification-channels/{notification_channel_id}`).
+ * Turn a channel on or off (`PATCH /me/notification-channels/{notification_channel_id}`).
  * @param {import('./schema').operations['updateNotificationChannel']['parameters']['path'] & import('./schema').operations['updateNotificationChannel']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateNotificationChannel']['requestBody']['content']['application/json']} [body]
  */
@@ -1467,7 +1467,7 @@ export const deleteNotificationChannel = (params = {}, body = undefined) =>
   );
 
 /**
- * Notifications sent on a channel, newest first (`GET /me/notification-channels/{notification_channel_id}/logs`).
+ * What was sent through a channel (`GET /me/notification-channels/{notification_channel_id}/logs`).
  * @param {import('./schema').operations['listNotificationChannelLogs']['parameters']['path'] & import('./schema').operations['listNotificationChannelLogs']['parameters']['query']} [params]
  */
 export const listNotificationChannelLogs = (params = {}, body = undefined) =>
@@ -1484,7 +1484,7 @@ export const listNotificationChannelLogs = (params = {}, body = undefined) =>
   );
 
 /**
- * Send a test email to the channel (`POST /me/notification-channels/{notification_channel_id}/test`).
+ * Send a test email (`POST /me/notification-channels/{notification_channel_id}/test`).
  * @param {import('./schema').operations['sendNotificationChannelTest']['parameters']['path'] & import('./schema').operations['sendNotificationChannelTest']['parameters']['query']} [params]
  */
 export const sendNotificationChannelTest = (params = {}, body = undefined) =>
@@ -1501,7 +1501,7 @@ export const sendNotificationChannelTest = (params = {}, body = undefined) =>
   );
 
 /**
- * Verify a channel's email address from the emailed link (`POST /me/notification-channels/{notification_channel_id}/verify`).
+ * Verify a channel with the token from its email (`POST /me/notification-channels/{notification_channel_id}/verify`).
  * @param {import('./schema').operations['verifyNotificationChannel']['parameters']['path'] & import('./schema').operations['verifyNotificationChannel']['parameters']['query']} [params]
  * @param {import('./schema').operations['verifyNotificationChannel']['requestBody']['content']['application/json']} [body]
  */
@@ -1519,7 +1519,7 @@ export const verifyNotificationChannel = (params = {}, body = undefined) =>
   );
 
 /**
- * Change my password (`PUT /me/password`).
+ * Change the password (`PUT /me/password`).
  * @param {import('./schema').operations['updateMyPassword']['parameters']['path'] & import('./schema').operations['updateMyPassword']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateMyPassword']['requestBody']['content']['application/json']} [body]
  */
@@ -1527,14 +1527,14 @@ export const updateMyPassword = (params = {}, body = undefined) =>
   request({ method: 'PUT', path: '/me/password', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * My display preferences (`GET /me/preferences`).
+ * Display and format preferences (`GET /me/preferences`).
  * @param {import('./schema').operations['getMyPreferences']['parameters']['path'] & import('./schema').operations['getMyPreferences']['parameters']['query']} [params]
  */
 export const getMyPreferences = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/me/preferences', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Change one or more preferences (`PATCH /me/preferences`).
+ * Change display and format preferences (`PATCH /me/preferences`).
  * @param {import('./schema').operations['updateMyPreferences']['parameters']['path'] & import('./schema').operations['updateMyPreferences']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateMyPreferences']['requestBody']['content']['application/json']} [body]
  */
@@ -1542,7 +1542,7 @@ export const updateMyPreferences = (params = {}, body = undefined) =>
   request({ method: 'PATCH', path: '/me/preferences', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * My browser sessions (`GET /me/sessions`).
+ * The user's browser sessions, most recent first (`GET /me/sessions`).
  * @param {import('./schema').operations['listMySessions']['parameters']['path'] & import('./schema').operations['listMySessions']['parameters']['query']} [params]
  */
 export const listMySessions = (params = {}, body = undefined) =>
@@ -1561,14 +1561,14 @@ export const logOutOtherSessions = (params = {}, body = undefined) =>
   );
 
 /**
- * My personal access tokens (`GET /me/tokens`).
+ * The user's API tokens (`GET /me/tokens`).
  * @param {import('./schema').operations['listMyTokens']['parameters']['path'] & import('./schema').operations['listMyTokens']['parameters']['query']} [params]
  */
 export const listMyTokens = (params = {}, body = undefined) =>
   request({ method: 'GET', path: '/me/tokens', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Create a personal access token (`POST /me/tokens`).
+ * Create an API token (`POST /me/tokens`).
  * @param {import('./schema').operations['createMyToken']['parameters']['path'] & import('./schema').operations['createMyToken']['parameters']['query']} [params]
  * @param {import('./schema').operations['createMyToken']['requestBody']['content']['application/json']} [body]
  */
@@ -1607,7 +1607,7 @@ export const enableTwoFactor = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/me/two-factor', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Disable 2FA (`DELETE /me/two-factor`).
+ * Turn 2FA off (`DELETE /me/two-factor`).
  * @param {import('./schema').operations['disableTwoFactor']['parameters']['path'] & import('./schema').operations['disableTwoFactor']['parameters']['query']} [params]
  * @param {import('./schema').operations['disableTwoFactor']['requestBody']['content']['application/json']} [body]
  */
@@ -1615,7 +1615,7 @@ export const disableTwoFactor = (params = {}, body = undefined) =>
   request({ method: 'DELETE', path: '/me/two-factor', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Confirm 2FA with a code from the app (`POST /me/two-factor/confirm`).
+ * Confirm 2FA with a first code (`POST /me/two-factor/confirm`).
  * @param {import('./schema').operations['confirmTwoFactor']['parameters']['path'] & import('./schema').operations['confirmTwoFactor']['parameters']['query']} [params]
  * @param {import('./schema').operations['confirmTwoFactor']['requestBody']['content']['application/json']} [body]
  */
@@ -1627,7 +1627,7 @@ export const confirmTwoFactor = (params = {}, body = undefined) =>
   );
 
 /**
- * Show the recovery codes (`GET /me/two-factor/recovery-codes`).
+ * The current recovery codes (`GET /me/two-factor/recovery-codes`).
  * @param {import('./schema').operations['getTwoFactorRecoveryCodes']['parameters']['path'] & import('./schema').operations['getTwoFactorRecoveryCodes']['parameters']['query']} [params]
  */
 export const getTwoFactorRecoveryCodes = (params = {}, body = undefined) =>
@@ -1638,7 +1638,7 @@ export const getTwoFactorRecoveryCodes = (params = {}, body = undefined) =>
   );
 
 /**
- * Replace the recovery codes with 8 new ones (`POST /me/two-factor/recovery-codes`).
+ * Replace the recovery codes (`POST /me/two-factor/recovery-codes`).
  * @param {import('./schema').operations['regenerateTwoFactorRecoveryCodes']['parameters']['path'] & import('./schema').operations['regenerateTwoFactorRecoveryCodes']['parameters']['query']} [params]
  * @param {import('./schema').operations['regenerateTwoFactorRecoveryCodes']['requestBody']['content']['application/json']} [body]
  */
@@ -1694,7 +1694,7 @@ export const listReferenceTimezones = (params = {}, body = undefined) =>
   );
 
 /**
- * List the current user's vaults, by name (`GET /vaults`).
+ * The caller's vaults (`GET /vaults`).
  * @param {import('./schema').operations['listVaults']['parameters']['path'] & import('./schema').operations['listVaults']['parameters']['query']} [params]
  */
 export const listVaults = (params = {}, body = undefined) =>
@@ -1709,7 +1709,7 @@ export const createVault = (params = {}, body = undefined) =>
   request({ method: 'POST', path: '/vaults', pathParams: [], queryParams: [], binary: false }, params, body);
 
 /**
- * Get a vault (`GET /vaults/{vault_id}`).
+ * A vault (`GET /vaults/{vault_id}`).
  * @param {import('./schema').operations['getVault']['parameters']['path'] & import('./schema').operations['getVault']['parameters']['query']} [params]
  */
 export const getVault = (params = {}, body = undefined) =>
@@ -1720,7 +1720,7 @@ export const getVault = (params = {}, body = undefined) =>
   );
 
 /**
- * Edit a vault, its default template, tab visibility or dashboard tab (`PATCH /vaults/{vault_id}`).
+ * Change a vault (`PATCH /vaults/{vault_id}`).
  * @param {import('./schema').operations['updateVault']['parameters']['path'] & import('./schema').operations['updateVault']['parameters']['query']} [params]
  * @param {import('./schema').operations['updateVault']['requestBody']['content']['application/json']} [body]
  */
@@ -1732,7 +1732,7 @@ export const updateVault = (params = {}, body = undefined) =>
   );
 
 /**
- * Delete a vault and everything in it (`DELETE /vaults/{vault_id}`).
+ * Delete a vault (`DELETE /vaults/{vault_id}`).
  * @param {import('./schema').operations['deleteVault']['parameters']['path'] & import('./schema').operations['deleteVault']['parameters']['query']} [params]
  */
 export const deleteVault = (params = {}, body = undefined) =>
@@ -4485,7 +4485,7 @@ export const incrementVaultLifeMetric = (params = {}, body = undefined) =>
   );
 
 /**
- * List account users who could be added to the vault (`GET /vaults/{vault_id}/member-candidates`).
+ * Account users who could be added (`GET /vaults/{vault_id}/member-candidates`).
  * @param {import('./schema').operations['listVaultMemberCandidates']['parameters']['path'] & import('./schema').operations['listVaultMemberCandidates']['parameters']['query']} [params]
  */
 export const listVaultMemberCandidates = (params = {}, body = undefined) =>
@@ -4502,7 +4502,7 @@ export const listVaultMemberCandidates = (params = {}, body = undefined) =>
   );
 
 /**
- * List the users who have access to the vault (`GET /vaults/{vault_id}/members`).
+ * The vault's members (`GET /vaults/{vault_id}/members`).
  * @param {import('./schema').operations['listVaultMembers']['parameters']['path'] & import('./schema').operations['listVaultMembers']['parameters']['query']} [params]
  */
 export const listVaultMembers = (params = {}, body = undefined) =>
@@ -4543,7 +4543,7 @@ export const updateVaultMember = (params = {}, body = undefined) =>
   );
 
 /**
- * Remove a user's access to the vault (`DELETE /vaults/{vault_id}/members/{user_id}`).
+ * Remove a member (`DELETE /vaults/{vault_id}/members/{user_id}`).
  * @param {import('./schema').operations['removeVaultMember']['parameters']['path'] & import('./schema').operations['removeVaultMember']['parameters']['query']} [params]
  */
 export const removeVaultMember = (params = {}, body = undefined) =>

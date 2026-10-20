@@ -1,8 +1,8 @@
 //! The OpenAPI document generated from the code (utoipa) agrees with the
 //! approved draft, `docs/rewrite/openapi.yaml`, for every operation the
 //! server implements: same path, method and operationId, same
-//! `x-permission` and `x-inventory`, same success status codes, and the
-//! document is OpenAPI 3.1.
+//! `x-permission` and `x-inventory`, same parameters, same success status
+//! codes, and the document is OpenAPI 3.1.
 
 use std::collections::BTreeSet;
 
@@ -23,6 +23,19 @@ fn operations(doc: &Value) -> Vec<(String, String, Value)> {
         }
     }
     out
+}
+
+/// The `in`/`name` of an operation's parameters and its path item's, with
+/// `$ref`s resolved.
+fn parameters(doc: &Value, path: &str, op: &Value) -> BTreeSet<String> {
+    let item = doc["paths"][path]["parameters"].as_array().into_iter().flatten();
+    item.chain(op["parameters"].as_array().into_iter().flatten())
+        .map(|p| match p["$ref"].as_str() {
+            Some(r) => doc.pointer(r.trim_start_matches('#')).unwrap(),
+            None => p,
+        })
+        .map(|p| format!("{} {}", p["in"].as_str().unwrap(), p["name"].as_str().unwrap()))
+        .collect()
 }
 
 fn success_codes(op: &Value) -> BTreeSet<String> {
@@ -48,6 +61,10 @@ fn generated_operations_match_the_draft() {
             if d[ext] != op[ext] {
                 problems.push(format!("{method} {path} ({id}): {ext} {} vs draft {}", op[ext], d[ext]));
             }
+        }
+        let (ours, theirs) = (parameters(&generated, &path, &op), parameters(&draft, &path, d));
+        if ours != theirs {
+            problems.push(format!("{method} {path} ({id}): parameters {ours:?} vs draft {theirs:?}"));
         }
         if success_codes(d) != success_codes(&op) {
             problems.push(format!(
