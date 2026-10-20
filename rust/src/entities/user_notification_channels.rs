@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "user_notification_channels")]
 pub struct Model {
@@ -14,10 +16,10 @@ pub struct Model {
     pub content: String,
     pub preferred_time: Option<Time>,
     pub active: bool,
-    pub verified_at: Option<DateTime>,
+    pub verified_at: Option<Timestamp>,
     pub verification_token: Option<String>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
     pub fails: i32,
 }
 
@@ -41,4 +43,4 @@ impl Related<super::user_notification_sent::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

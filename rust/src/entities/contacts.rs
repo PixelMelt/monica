@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "contacts")]
 pub struct Model {
@@ -27,10 +29,10 @@ pub struct Model {
     pub distant_uuid: Option<String>,
     pub distant_etag: Option<String>,
     pub distant_uri: Option<String>,
-    pub last_updated_at: Option<DateTime>,
-    pub deleted_at: Option<DateTime>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub last_updated_at: Option<Timestamp>,
+    pub deleted_at: Option<Timestamp>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
     pub file_id: Option<Id>,
     pub religion_id: Option<Id>,
     pub show_quick_facts: bool,
@@ -314,4 +316,11 @@ impl Related<super::vaults::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();
+
+impl Entity {
+    /// Rows not soft-deleted (Eloquent's `SoftDeletes` global scope).
+    pub fn live() -> Select<Entity> {
+        Self::find().filter(Column::DeletedAt.is_null())
+    }
+}

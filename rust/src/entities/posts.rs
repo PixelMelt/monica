@@ -1,6 +1,8 @@
 use crate::db::id::Id;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "posts")]
 pub struct Model {
@@ -10,9 +12,9 @@ pub struct Model {
     pub published: bool,
     pub title: Option<String>,
     pub view_count: i32,
-    pub written_at: DateTime,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub written_at: Timestamp,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
     pub slice_of_life_id: Option<Id>,
 }
 
@@ -80,4 +82,4 @@ impl Related<super::slice_of_lives::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

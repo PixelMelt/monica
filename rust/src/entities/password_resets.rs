@@ -1,5 +1,7 @@
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "password_resets")]
 pub struct Model {
@@ -7,7 +9,7 @@ pub struct Model {
     pub email: String,
     #[sea_orm(primary_key, auto_increment = false)]
     pub token: String,
-    pub created_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -2,6 +2,8 @@ use crate::db::id::Id;
 use crate::db::uuid::Uuid;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "pets")]
 pub struct Model {
@@ -11,8 +13,8 @@ pub struct Model {
     pub contact_id: Uuid,
     pub pet_category_id: Id,
     pub name: Option<String>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -47,4 +49,4 @@ impl Related<super::pet_categories::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

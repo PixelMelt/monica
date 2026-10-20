@@ -3,7 +3,6 @@
 //! `<id>|<40 random characters>`; the table keeps the SHA-256 of the random
 //! part, as Sanctum does. Abilities are `read` and `write`.
 
-use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait, IntoActiveModel};
 
 use super::session::{Credential, Identity};
@@ -29,13 +28,13 @@ pub async fn authenticate(state: &AppState, raw: &str) -> Option<Identity> {
     if !crypto::eq(&row.token, &crypto::sha256_hex(secret.as_bytes())) || row.tokenable_type != TOKENABLE_TYPE {
         return None;
     }
-    if row.expires_at.is_some_and(|e| e <= Utc::now().naive_utc()) {
+    if row.expires_at.is_some_and(|e| e <= crate::db::now()) {
         return None;
     }
     let user = users::Entity::find_by_id(row.tokenable_id).one(&state.db).await.ok()??;
     let abilities = abilities_of(&row);
     let mut active = row.into_active_model();
-    active.last_used_at = Set(Some(Utc::now().naive_utc()));
+    active.last_used_at = Set(Some(crate::db::now()));
     let _ = active.update(&state.db).await;
     Some(Identity { user, credential: Credential::Token { id, abilities } })
 }
@@ -48,7 +47,7 @@ pub async fn create(
     abilities: &[String],
 ) -> ApiResult<(personal_access_tokens::Model, String)> {
     let secret = crypto::random_string(40);
-    let now = Utc::now().naive_utc();
+    let now = crate::db::now();
     let row = personal_access_tokens::ActiveModel {
         tokenable_type: Set(TOKENABLE_TYPE.to_owned()),
         tokenable_id: Set(user),

@@ -9,6 +9,36 @@
 //! [`Id`]: crate::db::id::Id
 //! [`Uuid`]: crate::db::uuid::Uuid
 //! [`Int`]: crate::db::id::Int
+//!
+//! Tables with `created_at` and `updated_at` use [`timestamps!`]: like
+//! Eloquent, an insert fills both and an update refreshes `updated_at`,
+//! unless the caller set them.
+//!
+//! `contacts`, `groups`, `contact_tasks` and `contact_important_dates` are
+//! soft-deleted (`deleted_at`): query them with `Entity::live()` unless the
+//! PHP uses `withTrashed()`.
+
+/// `ActiveModelBehavior` with Eloquent's timestamps.
+macro_rules! timestamps {
+    () => {
+        #[async_trait::async_trait]
+        impl ActiveModelBehavior for ActiveModel {
+            async fn before_save<C>(mut self, _db: &C, insert: bool) -> Result<Self, DbErr>
+            where
+                C: ConnectionTrait,
+            {
+                let now = crate::db::now();
+                if insert && !matches!(self.created_at, sea_orm::ActiveValue::Set(_)) {
+                    self.created_at = sea_orm::ActiveValue::Set(Some(now));
+                }
+                if !matches!(self.updated_at, sea_orm::ActiveValue::Set(_)) {
+                    self.updated_at = sea_orm::ActiveValue::Set(Some(now));
+                }
+                Ok(self)
+            }
+        }
+    };
+}
 
 pub mod prelude;
 

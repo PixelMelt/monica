@@ -1,6 +1,8 @@
 use crate::db::id::Id;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "life_event_types")]
 pub struct Model {
@@ -11,8 +13,8 @@ pub struct Model {
     pub label_translation_key: Option<String>,
     pub can_be_deleted: bool,
     pub position: Option<i32>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -41,4 +43,4 @@ impl Related<super::life_events::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

@@ -1,15 +1,17 @@
 use crate::db::id::Id;
 use sea_orm::entity::prelude::*;
 
+use crate::db::timestamp::Timestamp;
+
 #[derive(Clone, Debug, PartialEq, Eq, DeriveEntityModel)]
 #[sea_orm(table_name = "streaks")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: Id,
     pub goal_id: Id,
-    pub happened_at: DateTime,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
+    pub happened_at: Timestamp,
+    pub created_at: Option<Timestamp>,
+    pub updated_at: Option<Timestamp>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -30,4 +32,4 @@ impl Related<super::goals::Entity> for Entity {
     }
 }
 
-impl ActiveModelBehavior for ActiveModel {}
+timestamps!();

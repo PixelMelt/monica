@@ -49,10 +49,15 @@ impl Validator {
     }
 
     /// Records a failure of `rule` on `field`. The error `code` is the rule
-    /// name without its type suffix (`max.string` → `max`).
+    /// name without its type suffix (`max.string` → `max`), other dots
+    /// become underscores (`password.letters` → `password_letters`).
     pub fn fail(&mut self, field: &str, rule: &str, params: &[(&str, &str)]) {
         let msg = message(&self.locale, rule, field, params);
-        let code = rule.split('.').next().unwrap_or(rule);
+        let code = match rule.rsplit_once('.') {
+            Some((head, "string" | "numeric" | "array" | "file")) => head.replace('.', "_"),
+            _ => rule.replace('.', "_"),
+        };
+        let code = code.as_str();
         let p: Map<String, Value> = params
             .iter()
             .map(|(k, v)| {
