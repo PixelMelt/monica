@@ -41,14 +41,14 @@ comes from current behaviour.
 
 ## 3. Methods
 
-| Method | Use | Success |
-|---|---|---|
-| `GET` collection | list | 200, list envelope (§5) |
-| `GET` item | read | 200, the object |
-| `POST` collection | create | 201, the created object |
-| `PATCH` item | partial update (JSON merge: absent = unchanged, `null` = clear a nullable field) | 200, the updated object |
-| `PUT` item | set a sub-resource that has no id of its own (e.g. a contact's job, a label assignment) | 200 with the object, or 204 |
-| `DELETE` item | delete | 204 |
+| Method                | Use                                                                                                       | Success                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `GET` collection      | list                                                                                                      | 200, list envelope (§5)        |
+| `GET` item            | read                                                                                                      | 200, the object                |
+| `POST` collection     | create                                                                                                    | 201, the created object        |
+| `PATCH` item          | partial update (JSON merge: absent = unchanged, `null` = clear a nullable field)                          | 200, the updated object        |
+| `PUT` item            | set a sub-resource that has no id of its own (e.g. a contact's job, a label assignment)                   | 200 with the object, or 204    |
+| `DELETE` item         | delete                                                                                                    | 204                            |
 | `POST /…/{id}/<verb>` | an action that isn't a field change (move a contact, send a test notification, regenerate recovery codes) | 200 or 202 with a body, or 204 |
 
 Rules that follow from this:
@@ -95,7 +95,7 @@ Rules that follow from this:
   raw: a contact's age in years, the next occurrence of a reminder, a goal's
   streaks, calendar grids, report totals. Formatting them is the client's job.
 - `ContactSummary` is `{id, vault_id, first_name, middle_name, last_name,
-  nickname, maiden_name, prefix, suffix, avatar_file_id, listed}`; the client
+nickname, maiden_name, prefix, suffix, avatar_file_id, listed}`; the client
   builds the display name from the user's `name_order`. Where the UI shows
   the contact hover card, the response embeds `ContactCard` (summary + age +
   groups).
@@ -140,7 +140,12 @@ Errors use RFC 9457 problem details, `Content-Type: application/problem+json`:
   "code": "validation_failed",
   "title": "The given data was invalid.",
   "errors": [
-    { "field": "title", "code": "max", "message": "The title may not be greater than 255 characters.", "params": { "max": 255 } }
+    {
+      "field": "title",
+      "code": "max",
+      "message": "The title may not be greater than 255 characters.",
+      "params": { "max": 255 }
+    }
   ]
 }
 ```
@@ -149,24 +154,24 @@ Errors use RFC 9457 problem details, `Content-Type: application/problem+json`:
   request locale (§8).
 - `errors[].field` is a JSON path into the request body (`"emails[2].value"`).
 
-| Status | `code` | When |
-|---|---|---|
-| 400 | `bad_request` | malformed JSON, wrong content type |
-| 401 | `unauthenticated` | no valid session or token |
-| 403 | `csrf_token_mismatch` | cookie-authenticated unsafe request without a valid CSRF header |
-| 403 | `email_not_verified` | the user hasn't verified their email |
-| 403 | `forbidden` | authenticated, can see the resource, lacks the permission (e.g. viewer trying to edit) |
-| 403 | `token_ability_missing` | the bearer token lacks `write` |
-| 403 | `password_confirmation_required` | a sensitive action without a recent password confirmation (§7.4) |
-| 403 | `signup_disabled` | registration while signup is off (X007) |
-| 404 | `not_found` | doesn't exist, or belongs to a vault/account the user can't see |
-| 409 | `conflict` | uniqueness or state conflicts (`EntryAlreadyExistException`, `SameUserException`, `CantBeDeletedException`); deleting a row whose `can_be_deleted` is false |
-| 413 | `payload_too_large` | upload above the per-file limit |
-| 422 | `validation_failed` | field validation (X003) |
-| 422 | `storage_limit_exceeded` | upload would pass the account storage limit (X011) |
-| 422 | `vault_user_limit_reached` | `MaximumNumberOfUsersInVaultException` |
-| 429 | `rate_limited` | rate limits (X005); `Retry-After` header set |
-| 500 | `internal_error` | anything else; no details leaked |
+| Status | `code`                           | When                                                                                                                                                        |
+| ------ | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400    | `bad_request`                    | malformed JSON, wrong content type                                                                                                                          |
+| 401    | `unauthenticated`                | no valid session or token                                                                                                                                   |
+| 403    | `csrf_token_mismatch`            | cookie-authenticated unsafe request without a valid CSRF header                                                                                             |
+| 403    | `email_not_verified`             | the user hasn't verified their email                                                                                                                        |
+| 403    | `forbidden`                      | authenticated, can see the resource, lacks the permission (e.g. viewer trying to edit)                                                                      |
+| 403    | `token_ability_missing`          | the bearer token lacks `write`                                                                                                                              |
+| 403    | `password_confirmation_required` | a sensitive action without a recent password confirmation (§7.4)                                                                                            |
+| 403    | `signup_disabled`                | registration while signup is off (X007)                                                                                                                     |
+| 404    | `not_found`                      | doesn't exist, or belongs to a vault/account the user can't see                                                                                             |
+| 409    | `conflict`                       | uniqueness or state conflicts (`EntryAlreadyExistException`, `SameUserException`, `CantBeDeletedException`); deleting a row whose `can_be_deleted` is false |
+| 413    | `payload_too_large`              | upload above the per-file limit                                                                                                                             |
+| 422    | `validation_failed`              | field validation (X003)                                                                                                                                     |
+| 422    | `storage_limit_exceeded`         | upload would pass the account storage limit (X011)                                                                                                          |
+| 422    | `vault_user_limit_reached`       | `MaximumNumberOfUsersInVaultException`                                                                                                                      |
+| 429    | `rate_limited`                   | rate limits (X005); `Retry-After` header set                                                                                                                |
+| 500    | `internal_error`                 | anything else; no details leaked                                                                                                                            |
 
 A resource in a vault the user isn't a member of is a 404, not a 403, so ids
 don't leak across accounts.
@@ -201,18 +206,18 @@ extra code. Requests from other origins are not given CORS headers.
 
 ### 7.3 Flows
 
-| Flow | Endpoint(s) |
-|---|---|
-| Register (X007 gate) | `POST /auth/register` → session cookie; verification email sent |
-| Log in | `POST /auth/login` `{email, password, remember}` → `200 {two_factor: false, user}` with session, or `200 {two_factor: true}` with a pending-2FA session |
-| 2FA challenge | `POST /auth/two-factor-challenge` `{code}` or `{recovery_code}` |
-| Log out | `POST /auth/logout` |
-| Verify email | link in the email opens the SPA at `/email/verify/{user_id}/{hash}?expires=&signature=`, which calls `POST /auth/email/verify` with those values |
-| Resend verification | `POST /auth/email/verification-notification` |
-| Forgot / reset password | `POST /auth/forgot-password` `{email}`; `POST /auth/reset-password` `{token, email, password, password_confirmation}` |
-| Confirm password (§7.4) | `POST /auth/confirm-password`; `GET /auth/confirmed-password-status` |
-| Accept invitation | `GET /invitations/{code}`; `POST /invitations/{code}/accept` |
-| Instance info (public) | `GET /instance`: signup enabled, deletion notice, locales, version, feature flags |
+| Flow                    | Endpoint(s)                                                                                                                                             |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Register (X007 gate)    | `POST /auth/register` → session cookie; verification email sent                                                                                         |
+| Log in                  | `POST /auth/login` `{email, password, remember}` → `200 {two_factor: false, user}` with session, or `200 {two_factor: true}` with a pending-2FA session |
+| 2FA challenge           | `POST /auth/two-factor-challenge` `{code}` or `{recovery_code}`                                                                                         |
+| Log out                 | `POST /auth/logout`                                                                                                                                     |
+| Verify email            | link in the email opens the SPA at `/email/verify/{user_id}/{hash}?expires=&signature=`, which calls `POST /auth/email/verify` with those values        |
+| Resend verification     | `POST /auth/email/verification-notification`                                                                                                            |
+| Forgot / reset password | `POST /auth/forgot-password` `{email}`; `POST /auth/reset-password` `{token, email, password, password_confirmation}`                                   |
+| Confirm password (§7.4) | `POST /auth/confirm-password`; `GET /auth/confirmed-password-status`                                                                                    |
+| Accept invitation       | `GET /invitations/{code}`; `POST /invitations/{code}/accept`                                                                                            |
+| Instance info (public)  | `GET /instance`: signup enabled, deletion notice, locales, version, feature flags                                                                       |
 
 Bearer tokens are created from a logged-in session (`POST /me/tokens`); there
 is no password grant. A mobile app gets its first token by logging in with
@@ -260,15 +265,15 @@ SPA's `ConfirmsPassword` component handles the same way it does today.
 
 Each operation in the spec has an `x-permission`:
 
-| Value | Meaning |
-|---|---|
-| `public` | no authentication |
-| `user` | any authenticated user (verified email unless noted) |
-| `account:member` | any user of the account that owns the resource |
-| `account:admin` | `is_account_administrator` (gate `administrator`) |
-| `vault:view` | vault permission ≤ 300 (any member) |
-| `vault:edit` | vault permission ≤ 200 |
-| `vault:manage` | vault permission ≤ 100 |
+| Value            | Meaning                                              |
+| ---------------- | ---------------------------------------------------- |
+| `public`         | no authentication                                    |
+| `user`           | any authenticated user (verified email unless noted) |
+| `account:member` | any user of the account that owns the resource       |
+| `account:admin`  | `is_account_administrator` (gate `administrator`)    |
+| `vault:view`     | vault permission ≤ 300 (any member)                  |
+| `vault:edit`     | vault permission ≤ 200                               |
+| `vault:manage`   | vault permission ≤ 100                               |
 
 When one operation's fields need different permissions, `x-field-permissions`
 maps field name to permission (only `updateVault`: any member may set
@@ -295,7 +300,7 @@ Replaces Uploadcare (I005, X020).
   writes a `files` row (the existing columns: `uuid` is the storage key,
   `original_url`/`cdn_url` stay null, `name`, `mime_type`, `size`, `type`),
   and returns a `File` object `{id, uuid, name, mime_type, size, type,
-  created_at}`.
+created_at}`.
 - Limits: per-file `MAX_UPLOAD_SIZE` (default 10 MB) → 413; account total
   against `storage_limit_in_mb` (default 50, X011) → 422
   `storage_limit_exceeded`. Photos and avatars must be JPEG, PNG, GIF or WebP
@@ -327,10 +332,15 @@ Not part of the OpenAPI spec. `/dav` keeps today's surface (V038): principal
 `PROPFIND`, `REPORT` (addressbook-multiget, addressbook-query,
 calendar-multiget, sync-collection), `GET`/`PUT`/`DELETE` of `.vcf`/`.ics`,
 VCF/ICS export, sync tokens. Authentication is what
-`EnsureDavRequestsAreStateful` and `AuthenticateWithTokenOnBasicAuth` allow
-today: a bearer personal access token, HTTP Basic with the user's email and a
-personal access token as the password (the token needs both `read` and
-`write`), or the browser session. The account password is not accepted. Address book subscriptions
+`EnsureDavRequestsAreStateful` and `AuthenticateWithTokenOnBasicAuth` intend
+(the PHP condition is inverted, F23): a bearer personal access token, HTTP
+Basic with the user's email and a personal access token as the password (the
+token needs both `read` and `write`), or the browser session (with the
+`X-XSRF-TOKEN` header on unsafe methods). The account password is not
+accepted. Clients connect to `/dav/` (or the host, through
+`/.well-known/carddav` and `/.well-known/caldav`); address books are
+`/dav/addressbooks/{email}/{vault}/`, calendars
+`/dav/calendars/{email}/dates-{vault}/` and `…/tasks-{vault}/`. Address book subscriptions
 (the DAV client, I003) are managed through the API under
 `/vaults/{vault_id}/address-book-subscriptions` (today only the console
 command K003 creates them).
@@ -342,13 +352,13 @@ separately would cost 10–25 requests per page view, so these pages get one
 read endpoint that returns what the page needs. They are reads only; every
 write still goes to the resource endpoints.
 
-| Endpoint | Page | Contents |
-|---|---|---|
-| `GET /me/bootstrap` | layout (every page) | current user + preferences, account flags, the user's vaults with permissions, the data `VaultIndexViewHelper::layoutData` builds today |
-| `GET /vaults/{vault_id}/dashboard` | Vault/Dashboard/Index | default tab, favorites, last updated contacts, upcoming reminders, due tasks, mood tracking events, life metrics |
-| `GET /vaults/{vault_id}/contacts/{contact_id}/page?template_page=` | Vault/Contact/Show | contact header (names, avatar, labels, quick facts, family summary, gender/pronoun, important dates, company, religion), the template's pages (tabs), and for the requested page, every module's data as a `oneOf` keyed by `module.type` |
-| `GET /vaults/{vault_id}/journals/{journal_id}/overview?year=` | Vault/Journal/Show | posts grouped by month for a year, years with posts, slices of life, tags |
-| `GET /vaults/{vault_id}/calendar/{year}/{month}` | Vault/Calendar/Index | month grid with important dates, mood events, posts per day |
+| Endpoint                                                           | Page                  | Contents                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------ | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /me/bootstrap`                                                | layout (every page)   | current user + preferences, account flags, the user's vaults with permissions, the data `VaultIndexViewHelper::layoutData` builds today                                                                                                   |
+| `GET /vaults/{vault_id}/dashboard`                                 | Vault/Dashboard/Index | default tab, favorites, last updated contacts, upcoming reminders, due tasks, mood tracking events, life metrics                                                                                                                          |
+| `GET /vaults/{vault_id}/contacts/{contact_id}/page?template_page=` | Vault/Contact/Show    | contact header (names, avatar, labels, quick facts, family summary, gender/pronoun, important dates, company, religion), the template's pages (tabs), and for the requested page, every module's data as a `oneOf` keyed by `module.type` |
+| `GET /vaults/{vault_id}/journals/{journal_id}/overview?year=`      | Vault/Journal/Show    | posts grouped by month for a year, years with posts, slices of life, tags                                                                                                                                                                 |
+| `GET /vaults/{vault_id}/calendar/{year}/{month}`                   | Vault/Calendar/Index  | month grid with important dates, mood events, posts per day                                                                                                                                                                               |
 
 Each aggregate's module/section shapes reuse the schemas of the matching
 resource endpoints, so a client that prefers per-resource calls gets the same
