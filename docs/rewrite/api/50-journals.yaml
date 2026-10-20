@@ -212,8 +212,7 @@ paths:
       summary: Get a post with everything its show and edit pages need
       description: |
         Has no side effect; the show page also calls `recordJournalPostView`.
-        The edit page additionally uses `listJournalSlices`, `listVaultTags`
-        and the account's storage usage.
+        The edit page additionally uses `listJournalSlices` and `listVaultTags`.
       x-permission: vault:view
       x-inventory: [R142, R143]
       x-services: []
@@ -902,10 +901,12 @@ components:
         - mood_tracking_events
         - previous_post
         - next_post
+        - can_upload_file
         - created_at
         - updated_at
       properties:
         id: { $ref: '#/components/schemas/Id' }
+        can_upload_file: { type: boolean, description: 'Computed: the account is under its storage limit (X011); the edit page hides the photo upload otherwise.' }
         journal:
           type: object
           required: [id, name]
@@ -1055,8 +1056,9 @@ components:
       allOf:
         - $ref: '#/components/schemas/SliceOfLife'
         - type: object
-          required: [journal, posts, contacts]
+          required: [journal, posts, contacts, can_upload_file]
           properties:
+            can_upload_file: { type: boolean, description: 'Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise.' }
             journal:
               type: object
               required: [id, name]

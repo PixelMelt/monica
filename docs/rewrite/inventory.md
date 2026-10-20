@@ -1148,6 +1148,41 @@ Findings in the current code that affect what "parity" means:
 - **F5.** `VaultLifeEventController` (C324) has no route. Nothing to port
   beyond what the services it calls already cover.
 
+Bugs found while drafting the spec. The spec specifies the intended
+behaviour, so the port fixes them:
+
+- **F6.** `ToggleFavoriteContact` writes an `unfavorited` feed item on a
+  contact's first favorite (R052).
+- **F7.** `UpdatePet` looks the pet up by the *new* category, so changing the
+  category returns 404 (R099).
+- **F8.** `UpdateCall` ignores `description` (R113); the task controller always
+  sends `description: null` on update (R109).
+- **F9.** `CreateTimelineEvent` reads `summary` instead of `label`, so timeline
+  event labels are never saved (R118).
+- **F10.** `UpdateReligion` does `findOrFail(null)` when clearing the religion,
+  so clearing returns 404 (R094).
+- **F11.** `RemoveModuleFromTemplatePage` uses `toggle()`, so removing a module
+  that isn't on the page adds it (R310).
+- **F12.** Notification channel verification accepts any UUID instead of the
+  channel's `verification_token` (R224).
+- **F13.** `RemoveVaultAccess` deletes the user's scheduled reminders in every
+  vault, not just the one they leave (R178).
+- **F14.** The vault reminders page matches reminders by month number only, so
+  next year's reminders show under this month (R023); the mood report skips
+  the last day of each month (R030); the address report counts the contacts
+  of the first matching address only (R027–R029).
+- **F15.** The post view counter requires an editor, so a viewer opening a
+  post gets an error (R142).
+- **F16.** Every post autosave detaches and re-adds all mentioned contacts and
+  writes an `added_to_post` feed item for each (R144).
+- **F17.** Delete endpoints for contact documents/photos and post photos
+  accept any file id in the vault (`DestroyFile`); loan, timeline and life
+  event paths don't check that the contact in the path is involved. The spec
+  answers 404 for anything not attached to the parent in the path.
+- **F18.** `can_be_deleted` is enforced only by the UI for templates, template
+  pages, post templates and sections, and contact information types; deleting
+  the contact information page breaks the contact page. The spec answers 409.
+
 Open questions (to answer at the phase 1 ★):
 
 - **Q1. Wikipedia lookups (I004).** The city and country report pages call
@@ -1164,4 +1199,26 @@ Open questions (to answer at the phase 1 ★):
   the same rules. (Default unless you object.)
 - **Q4. Self-service account deletion (V032).** It is off in
   `config/jetstream.php`, so `DeleteUserForm` never shows. Keep it behind a
-  config flag that defaults to off (default), or drop it.
+  config flag that defaults to off (default), or drop it. If kept, the spec
+  adds one rule: 409 when the user is the account's last administrator.
+- **Q5. Invited administrators.** `AcceptInvitation` sets
+  `is_account_administrator = false`, so inviting someone as an administrator
+  has no effect. The spec keeps this. Fix it (recommended)?
+- **Q6. Quirks kept as today, fix or keep?** Goal streak stats (`max_streak`
+  is 1 with no streaks, `current_streak` is the run length minus 1);
+  un-settling a loan and un-completing a task set `settled_at` /
+  `completed_at` to now; a tag's `post_count` counts posts in the whole
+  vault, not the journal. Recommendation: fix the streak numbers and the
+  timestamps (clear them when un-setting); keep the tag count.
+- **Q7. Orphaned files.** Deleting a journal or a slice leaves the `files`
+  rows (and, with local storage, the bytes) of post photos and slice covers;
+  replacing a slice cover keeps the old file. Recommendation: delete them, so
+  they stop counting against the storage limit.
+- **Q8. Forgot password reveals accounts.** An unknown email gets a 422 today,
+  which tells anyone whether an email has an account. Keep, or answer 200
+  either way (recommended)?
+- **Q9. Settings reads open to all account members.** The settings pages are
+  admin-only today, but contact forms already need the same lists (genders,
+  pronouns, …). The spec makes every account-level read `account:member` and
+  every write `account:admin`, including the users list (emails of all
+  account users). OK?

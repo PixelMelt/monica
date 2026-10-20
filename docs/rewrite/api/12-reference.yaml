@@ -6,19 +6,13 @@ paths:
     get:
       operationId: listReferenceCurrencies
       tags: [Reference]
-      summary: Currencies, ordered by code
+      summary: All currencies, ordered by code
       description: |
-        With `active=true`, only the currencies enabled in the user's account
-        (`account_currency.active`), as the loan form's pick-list (R327).
-        Enabling and disabling them is account settings (AccountCurrency).
+        The full currency list (D003). The loan form's pick-list is the
+        account's enabled currencies, `listAccountCurrencies?active=true`.
       x-permission: user
-      x-inventory: [R327]
+      x-inventory: []
       x-services: []
-      parameters:
-        - name: active
-          in: query
-          description: Keep only the currencies the account has enabled.
-          schema: { type: boolean, default: false }
       responses:
         '200':
           description: The currencies.

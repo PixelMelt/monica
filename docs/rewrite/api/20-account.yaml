@@ -1193,7 +1193,7 @@ paths:
       summary: List all currencies with their state in the account
       description: Ordered by `code`. `active=true` gives the currencies offered in money fields (loans).
       x-permission: account:member
-      x-inventory: [R315]
+      x-inventory: [R315, R327]
       x-services: []
       parameters:
         - name: active

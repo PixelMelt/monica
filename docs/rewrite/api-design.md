@@ -59,8 +59,20 @@ Rules that follow from this:
 - Reordering becomes `PATCH` of `position` on the item. The server shifts the
   siblings, as the `Update…Position` services do today.
 - A controller action that chained two services for one form (create a label
-  and assign it, R074) becomes two calls. Exceptions are listed in the spec with
-  `x-composite: true` where a single call is needed for atomicity.
+  and assign it, R074) becomes two calls. Exceptions are marked
+  `x-composite: true` where one call is needed so nothing is left half-made:
+  `createContactAddress` (an address can't exist without a contact),
+  `setContactAvatar` (upload + set), `createContactRelationship` (may create
+  the other contact), `createContactTimelineEvent` (a timeline event never
+  exists without a life event), `createJournalPostTag` (create a tag while
+  writing a post, as an editor).
+- GET never has side effects. View counters that today increment on page
+  load become explicit actions the SPA calls when it opens the page:
+  `recordContactView` (most consulted contacts, X014) and
+  `recordJournalPostView`.
+- One sub-resource is keyed by a date instead of an id: a goal's streak days,
+  `PUT`/`DELETE …/goals/{goal_id}/streaks/{date}`, which return the updated
+  goal so the module can redraw its stats.
 
 ## 4. Representation
 
@@ -82,9 +94,11 @@ Rules that follow from this:
 - Values that come from domain logic are computed by the server and returned
   raw: a contact's age in years, the next occurrence of a reminder, a goal's
   streaks, calendar grids, report totals. Formatting them is the client's job.
-- `ContactSummary` is `{id, first_name, middle_name, last_name, nickname,
-  maiden_name, prefix, suffix, avatar_file_id, is_listed?}`; the client
-  builds the display name from the user's `name_order`.
+- `ContactSummary` is `{id, vault_id, first_name, middle_name, last_name,
+  nickname, maiden_name, prefix, suffix, avatar_file_id, listed}`; the client
+  builds the display name from the user's `name_order`. Where the UI shows
+  the contact hover card, the response embeds `ContactCard` (summary + age +
+  groups).
 - Avatars: a contact's avatar is always fetched from
   `GET /vaults/{vault_id}/contacts/{contact_id}/avatar`, which returns the
   uploaded avatar (300×300 crop) or the generated MultiAvatar SVG (X021). The
@@ -146,7 +160,7 @@ Errors use RFC 9457 problem details, `Content-Type: application/problem+json`:
 | 403 | `password_confirmation_required` | a sensitive action without a recent password confirmation (§7.4) |
 | 403 | `signup_disabled` | registration while signup is off (X007) |
 | 404 | `not_found` | doesn't exist, or belongs to a vault/account the user can't see |
-| 409 | `conflict` | uniqueness or state conflicts (`EntryAlreadyExistException`, `SameUserException`, `CantBeDeletedException`) |
+| 409 | `conflict` | uniqueness or state conflicts (`EntryAlreadyExistException`, `SameUserException`, `CantBeDeletedException`); deleting a row whose `can_be_deleted` is false |
 | 413 | `payload_too_large` | upload above the per-file limit |
 | 422 | `validation_failed` | field validation (X003) |
 | 422 | `storage_limit_exceeded` | upload would pass the account storage limit (X011) |
@@ -173,6 +187,8 @@ Every `/api/v1` route accepts either:
   once at creation and stored hashed (SHA-256).
 
 If both are present, the bearer token wins and CSRF is not checked.
+Creating or changing tokens needs a cookie session, so a token can't mint
+tokens or widen its own abilities.
 
 ### 7.2 CSRF
 
@@ -209,8 +225,9 @@ anonymous).
 ### 7.4 Sensitive actions
 
 Enabling/disabling 2FA, viewing or regenerating recovery codes, logging out
-other sessions, cancelling the account and deleting a user need a recent
-password confirmation, as Fortify does today. The request passes if either:
+other sessions, cancelling the account, deleting a user and deleting yourself
+need a recent password confirmation, as Fortify does today for the first
+four. The request passes if either:
 
 - the cookie session confirmed the password in the last 3 hours
   (`POST /auth/confirm-password`), or
@@ -253,6 +270,10 @@ Each operation in the spec has an `x-permission`:
 | `vault:edit` | vault permission ≤ 200 |
 | `vault:manage` | vault permission ≤ 100 |
 
+When one operation's fields need different permissions, `x-field-permissions`
+maps field name to permission (only `updateVault`: any member may set
+`default_activity_tab`, the rest needs `vault:manage`).
+
 Today the route gates check membership (`vault-viewer`, X001) and the services
 check edit/manage (`author_must_be_vault_editor`, X002). The API checks the
 stricter of the two at the HTTP layer, and the Rust services keep their own
@@ -292,6 +313,10 @@ Replaces Uploadcare (I005, X020).
   200×100 and 800×100 banners and a 1700 px wide view. The SPA uses the
   `thumbnail` variant for squares up to 300 px and `original` with CSS
   `object-fit: cover` for the rest, so the pages look the same.
+- Responses that back an upload widget carry a computed `can_upload_file`
+  (storage used < limit), as the pages' `canUploadFile` props do today:
+  `ContactPage`, the contact photo and document lists and modules, `Post`,
+  `SliceOfLifeDetail`. `GET /account/storage` gives the full usage.
 - Deleting the `files` row deletes the bytes and cached variants (E009).
 - The vault files page lists files with `GET /vaults/{vault_id}/files?type=`.
 
@@ -339,8 +364,13 @@ objects.
   - `x-inventory`: the inventory rows it covers (`[R066]`), so coverage can be
     checked mechanically,
   - `x-services`: the PHP services it ports (`[CreateNote]`),
+  - optionally `x-composite` (§3) and `x-field-permissions` (§9),
   - responses for success and every error status it can return, via the
     shared `components/responses`.
+- Rows that are ported without an operation (SPA-only pages, redirects,
+  `/dav`) are listed in `x-not-api` with the reason, in `00-base.yaml` or in
+  the area's fragment. Operations with no inventory row (list endpoints a
+  module reuses, the reference lists) have `x-inventory: []`.
 - Schemas: `<Thing>` for the read model, `<Thing>Create` and `<Thing>Update`
   for bodies (`Update` has no required fields, matching PATCH). Validation
   limits from the PHP `rules()` become `maxLength`, `minimum`, `format`,
