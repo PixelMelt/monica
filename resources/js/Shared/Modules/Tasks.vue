@@ -7,6 +7,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import CreateOrEditTask from '@/Shared/Modules/TaskItems/CreateOrEditTask.vue';
 import DateIcon from '@/Shared/Icons/DateIcon.vue';
 import { LayoutList } from 'lucide-vue-next';
+import { deleteContactTask, listContactTasks, updateContactTask } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 const props = defineProps({
   data: Object,
@@ -41,10 +43,12 @@ const showUpdateCompletedTaskModal = (task) => {
 };
 
 const getCompleted = () => {
-  axios.get(props.data.url.completed).then((response) => {
-    localCompletedTasks.value = response.data.data;
-    showCompletedTasks.value = true;
-  });
+  listContactTasks({ vault_id: props.data.vault_id, contact_id: props.data.contact_id, completed: true }).then(
+    (response) => {
+      localCompletedTasks.value = response.data.map(dto.task);
+      showCompletedTasks.value = true;
+    },
+  );
 };
 
 const created = (task) => {
@@ -66,15 +70,17 @@ const updatedCompleted = (task) => {
 };
 
 const toggle = (task) => {
-  axios.put(task.url.toggle).catch((error) => {
+  updateContactTask(
+    { vault_id: props.data.vault_id, contact_id: props.data.contact_id, task_id: task.id },
+    { completed: task.completed },
+  ).catch((error) => {
     form.errors = error.response.data;
   });
 };
 
 const destroy = (task) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(task.url.destroy)
+    deleteContactTask({ vault_id: props.data.vault_id, contact_id: props.data.contact_id, task_id: task.id })
       .then(() => {
         flash(trans('The task has been deleted'), 'success');
         var id = localTasks.value.findIndex((x) => x.id === task.id);

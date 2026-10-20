@@ -7,6 +7,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createContactTask, updateContactTask } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 const emit = defineEmits(['close', 'created', 'update:task']);
 
@@ -24,7 +26,6 @@ const form = useForm({
   label: '',
   due_at: '',
   due_at_checked: false,
-  errors: [],
 });
 
 const reset = () => {
@@ -44,24 +45,29 @@ const reset = () => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  let request = {
-    method: 'post',
-    url: props.data.url.store,
-    data: form,
-  };
+  // ContactModuleTaskController: store sends the picked date, update only when "Add a due date" is checked
+  const params = { vault_id: props.data.vault_id, contact_id: props.data.contact_id };
+  let request;
   let event = 'created';
 
   if (props.task) {
-    request.method = 'put';
-    request.url = props.task.url.update;
+    request = updateContactTask(
+      { ...params, task_id: props.task.id },
+      { label: form.label, description: null, due_at: form.due_at_checked ? dto.pickedDate(form.due_at) : null },
+    );
     event = 'update:task';
+  } else {
+    request = createContactTask(params, {
+      label: form.label,
+      description: null,
+      due_at: form.due_at ? dto.pickedDate(form.due_at) : null,
+    });
   }
 
-  axios
-    .request(request)
-    .then((response) => {
+  request
+    .then((task) => {
       loadingState.value = '';
-      emit(event, response.data.data);
+      emit(event, dto.task(task));
     })
     .catch((error) => {
       loadingState.value = '';

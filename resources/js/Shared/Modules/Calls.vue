@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useForm } from '@/lib/form';
 import { flash } from '@/methods';
 import { trans } from 'laravel-vue-i18n';
@@ -11,6 +11,14 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextArea from '@/Shared/Form/TextArea.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { PhoneCall } from 'lucide-vue-next';
+import {
+  createContactCall,
+  deleteContactCall,
+  listCallReasonTypes,
+  listEmotions,
+  updateContactCall,
+} from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 const props = defineProps({
   data: Object,
@@ -18,6 +26,8 @@ const props = defineProps({
 
 const createCallModalShown = ref(false);
 const localCalls = ref(props.data.calls);
+const emotions = ref([]);
+const callReasonTypes = ref([]);
 const loadingState = ref('');
 const editedCallId = ref(0);
 const descriptionFieldShown = ref(false);
@@ -33,7 +43,16 @@ const form = useForm({
   description: '',
   emotion_id: 0,
   type: 'audio',
-  errors: [],
+});
+
+// the pick-lists of the form (ModuleCallsViewHelper::data)
+onMounted(() => {
+  listEmotions().then((response) => {
+    emotions.value = response.data.map(dto.emotion);
+  });
+  listCallReasonTypes().then((response) => {
+    callReasonTypes.value = response.data.map(dto.callReasonType);
+  });
 });
 
 const showDescriptionField = () => {
@@ -94,19 +113,40 @@ const showUpdateCallModal = (call) => {
     emotionFieldShown.value = false;
   }
 
-  form.called_at = call.called_at;
+  form.called_at = call.called_at_value;
   editedCallId.value = call.id;
+};
+
+// ContactModuleCallController: who called and whether it was answered, from the form's choice
+const WHO_INITIATED = {
+  contact_not_answered: ['contact', false],
+  me_not_answered: ['me', false],
+  contact: ['contact', true],
+  me: ['me', true],
+};
+
+const callBody = () => {
+  const [whoInitiated, answered] = WHO_INITIATED[form.who_initiated] ?? ['me', false];
+
+  return {
+    called_at: dto.pickedDate(form.called_at),
+    type: form.type,
+    description: dto.blank(form.description),
+    answered: answered,
+    who_initiated: whoInitiated,
+    call_reason_id: dto.toInt(form.call_reason_id) || null,
+    emotion_id: dto.toInt(form.emotion_id) || null,
+  };
 };
 
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createContactCall({ vault_id: props.data.vault_id, contact_id: props.data.contact_id }, callBody())
+    .then((call) => {
       loadingState.value = '';
       flash(trans('The call has been created'), 'success');
-      localCalls.value.unshift(response.data.data);
+      localCalls.value.unshift(dto.call(call));
       createCallModalShown.value = false;
     })
     .catch((error) => {
@@ -118,12 +158,11 @@ const submit = () => {
 const update = (call) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(call.url.update, form)
-    .then((response) => {
+  updateContactCall({ vault_id: props.data.vault_id, contact_id: props.data.contact_id, call_id: call.id }, callBody())
+    .then((updated) => {
       loadingState.value = '';
       flash(trans('The call has been updated'), 'success');
-      localCalls.value[localCalls.value.findIndex((x) => x.id === call.id)] = response.data.data;
+      localCalls.value[localCalls.value.findIndex((x) => x.id === call.id)] = dto.call(updated);
       editedCallId.value = 0;
     })
     .catch((error) => {
@@ -134,8 +173,7 @@ const update = (call) => {
 
 const destroy = (call) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(call.url.destroy)
+    deleteContactCall({ vault_id: props.data.vault_id, contact_id: props.data.contact_id, call_id: call.id })
       .then(() => {
         flash(trans('The call has been deleted'), 'success');
         let id = localCalls.value.findIndex((x) => x.id === call.id);
@@ -318,10 +356,7 @@ const destroy = (call) => {
             v-model="form.call_reason_id"
             name="types"
             class="w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-xs focus:border-indigo-300 focus:outline-hidden focus:ring-3 focus:ring-indigo-200/50 dark:bg-gray-900 sm:text-sm">
-            <optgroup
-              v-for="callReasonType in data.call_reason_types"
-              :key="callReasonType.id"
-              :label="callReasonType.label">
+            <optgroup v-for="callReasonType in callReasonTypes" :key="callReasonType.id" :label="callReasonType.label">
               <option v-for="reason in callReasonType.reasons" :key="reason.id" :value="reason.id">
                 {{ reason.label }}
               </option>
@@ -332,7 +367,7 @@ const destroy = (call) => {
         <!-- emotion -->
         <div v-if="emotionFieldShown" class="border-b border-gray-200 p-5 dark:border-gray-700">
           <p class="mb-2">{{ $t('How did you feel?') }}</p>
-          <div v-for="emotion in data.emotions" :key="emotion.id" class="mb-2 flex items-center">
+          <div v-for="emotion in emotions" :key="emotion.id" class="mb-2 flex items-center">
             <input
               :id="emotion.type"
               v-model="form.emotion_id"
@@ -571,7 +606,7 @@ const destroy = (call) => {
                 name="types"
                 class="w-full rounded-md border-gray-300 bg-white px-3 py-2 shadow-xs focus:border-indigo-300 focus:outline-hidden focus:ring-3 focus:ring-indigo-200/50 dark:bg-gray-900 sm:text-sm">
                 <optgroup
-                  v-for="callReasonType in data.call_reason_types"
+                  v-for="callReasonType in callReasonTypes"
                   :key="callReasonType.id"
                   :label="callReasonType.label">
                   <option v-for="reason in callReasonType.reasons" :key="reason.id" :value="reason.id">
@@ -584,7 +619,7 @@ const destroy = (call) => {
             <!-- emotion -->
             <div v-if="emotionFieldShown" class="border-b border-gray-200 p-5 dark:border-gray-700">
               <p class="mb-2">{{ $t('How did you feel?') }}</p>
-              <div v-for="emotion in data.emotions" :key="emotion.id" class="mb-2 flex items-center">
+              <div v-for="emotion in emotions" :key="emotion.id" class="mb-2 flex items-center">
                 <input
                   :id="emotion.type"
                   v-model="form.emotion_id"

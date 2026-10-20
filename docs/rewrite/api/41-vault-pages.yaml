@@ -765,9 +765,15 @@ components:
   schemas:
     VaultDashboard:
       type: object
-      required: [default_activity_tab, favorites, last_updated_contacts, upcoming_reminders, due_tasks, mood_tracking_parameters, current_date, life_events, life_metrics]
+      required: [default_activity_tab, user_contact, favorites, last_updated_contacts, upcoming_reminders, due_tasks, mood_tracking_parameters, current_date, life_events, life_metrics]
       properties:
         default_activity_tab: { type: string, enum: [activity, life_events, life_metrics] }
+        user_contact:
+          $ref: '#/components/schemas/ContactSummary'
+          description: |
+            The current user's own contact in the vault (`Vault.user_contact_id`):
+            the mood form and the life events module act on it, and the life
+            events form shows it as the first participant.
         favorites:
           type: array
           description: Contacts the current user marked favorite in this vault.

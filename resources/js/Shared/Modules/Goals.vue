@@ -130,6 +130,8 @@ import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { Crosshair } from 'lucide-vue-next';
+import { createContactGoal, deleteContactGoal, deleteContactGoalStreak, setContactGoalStreak } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 export default {
   components: {
@@ -182,11 +184,10 @@ export default {
     },
 
     submit() {
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      createContactGoal({ vault_id: this.data.vault_id, contact_id: this.data.contact_id }, { name: this.form.name })
+        .then((goal) => {
           this.flash(this.$t('The goal has been created'), 'success');
-          this.localGoals.unshift(response.data.data);
+          this.localGoals.unshift(dto.goal(goal, this.data.vault_id));
           this.createGoalModalShown = false;
         })
         .catch((error) => {
@@ -195,13 +196,18 @@ export default {
     },
 
     toggleStreak(goal, streak) {
-      this.form.happened_at = streak.happened_at;
+      // ToggleStreak: the day is unmarked when it has a streak, marked otherwise
+      const toggle = streak.active ? deleteContactGoalStreak : setContactGoalStreak;
 
-      axios
-        .put(goal.url.streak_update, this.form)
-        .then((response) => {
+      toggle({
+        vault_id: this.data.vault_id,
+        contact_id: this.data.contact_id,
+        goal_id: goal.id,
+        date: streak.happened_at,
+      })
+        .then((updated) => {
           this.flash(this.$t('The goal has been updated'), 'success');
-          this.localGoals[this.localGoals.findIndex((x) => x.id === goal.id)] = response.data.data;
+          this.localGoals[this.localGoals.findIndex((x) => x.id === goal.id)] = dto.goal(updated, this.data.vault_id);
           this.editedGoalId = 0;
         })
         .catch((error) => {
@@ -211,8 +217,7 @@ export default {
 
     destroy(goal) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(goal.url.destroy)
+        deleteContactGoal({ vault_id: this.data.vault_id, contact_id: this.data.contact_id, goal_id: goal.id })
           .then(() => {
             this.flash(this.$t('The goal has been deleted'), 'success');
             var id = this.localGoals.findIndex((x) => x.id === goal.id);

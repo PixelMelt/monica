@@ -16,13 +16,17 @@ export const pageErrors = reactive({ errors: {} });
 const STATE = ['errors', 'hasErrors', 'processing', 'wasSuccessful', 'recentlySuccessful'];
 
 export function useForm(initial = {}) {
+  // Some components keep their own `errors` in the form data: it starts as
+  // the form's errors and is not sent.
+  const { errors: initialErrors, ...fields } = initial;
+  initial = fields;
   let defaults = cloneDeep(initial);
   let transform = (data) => data;
   let timer = null;
 
   const form = reactive({
     ...cloneDeep(initial),
-    errors: {},
+    errors: initialErrors ?? {},
     hasErrors: false,
     processing: false,
     wasSuccessful: false,

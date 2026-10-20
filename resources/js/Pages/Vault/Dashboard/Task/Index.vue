@@ -88,6 +88,7 @@ import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { LayoutList } from 'lucide-vue-next';
+import { updateContactTask } from '@/api/client';
 
 export default {
   components: {
@@ -110,7 +111,10 @@ export default {
 
   methods: {
     toggle(task) {
-      axios.put(task.url.toggle).catch((error) => {
+      updateContactTask(
+        { vault_id: this.$route.params.vault, contact_id: task.contact_id, task_id: task.id },
+        { completed: task.completed },
+      ).catch((error) => {
         this.form.errors = error.response.data;
       });
     },

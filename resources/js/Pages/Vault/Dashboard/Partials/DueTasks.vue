@@ -1,13 +1,20 @@
 <script setup>
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { LayoutList } from 'lucide-vue-next';
+import { updateContactTask } from '@/api/client';
 defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
+
 const toggle = (task) => {
-  axios.put(task.url.toggle).catch((error) => {
+  updateContactTask(
+    { vault_id: currentRoute.params.vault, contact_id: task.contact_id, task_id: task.id },
+    { completed: task.completed },
+  ).catch((error) => {
     this.form.errors = error.response.data;
   });
 };

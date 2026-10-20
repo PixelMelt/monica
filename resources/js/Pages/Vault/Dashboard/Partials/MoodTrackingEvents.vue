@@ -10,6 +10,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { CloudSun } from 'lucide-vue-next';
+import { createContactMoodTrackingEvent } from '@/api/client';
+import { blank, pickedDate, toInt } from '@/adapters/modules-a';
 
 const props = defineProps({
   data: Object,
@@ -57,8 +59,16 @@ const showHoursSleptField = () => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
+  // ContactMoodTrackingEventsController@store, on the user's own contact
+  createContactMoodTrackingEvent(
+    { vault_id: props.data.vault_id, contact_id: props.data.contact_id },
+    {
+      mood_tracking_parameter_id: toInt(form.parameter_id),
+      rated_at: pickedDate(form.date),
+      note: blank(form.note),
+      number_of_hours_slept: toInt(form.hours),
+    },
+  )
     .then(() => {
       createMoodEventModalShown.value = false;
       successShown.value = true;

@@ -12,6 +12,8 @@ import TextInput from '@/Shared/Form/TextInput.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import { Bell } from 'lucide-vue-next';
+import { createContactReminder, deleteContactReminder, updateContactReminder } from '@/api/client';
+import * as dto from '@/adapters/modules-a';
 
 const props = defineProps({
   data: Object,
@@ -35,7 +37,6 @@ const form = useForm({
   date: '',
   frequencyType: '',
   frequencyNumber: 0,
-  errors: [],
 });
 
 const showCreateReminderModal = () => {
@@ -59,7 +60,9 @@ const showEditReminderModal = (reminder) => {
   form.label = reminder.label;
   form.day = reminder.day;
   form.month = reminder.month;
-  form.date = reminder.date;
+  form.date = reminder.year
+    ? `${reminder.year}-${String(reminder.month).padStart(2, '0')}-${String(reminder.day).padStart(2, '0')}`
+    : '';
   form.reminderChoice = reminder.reminder_choice;
   form.frequencyNumber = reminder.frequency_number;
   form.frequencyType = reminder.type;
@@ -68,14 +71,34 @@ const showEditReminderModal = (reminder) => {
   nextTick().then(() => labels.value[0].focus());
 };
 
+// ContactModuleReminderController: the date and frequency from the form's choices
+const reminderBody = () => {
+  let day = dto.toInt(form.day);
+  let month = dto.toInt(form.month);
+  let year = null;
+  if (form.choice === 'full_date') {
+    [year, month, day] = dto.pickedDate(form.date).split('-').map(Number);
+  }
+
+  const oneTime = form.reminderChoice === 'one_time';
+
+  return {
+    label: form.label,
+    day: day,
+    month: month,
+    year: year,
+    type: oneTime ? 'one_time' : form.frequencyType,
+    frequency_number: oneTime ? 1 : dto.toInt(form.frequencyNumber),
+  };
+};
+
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createContactReminder({ vault_id: props.data.vault_id, contact_id: props.data.contact_id }, reminderBody())
+    .then((reminder) => {
       flash(trans('The reminder has been created'), 'success');
-      localReminders.value.unshift(response.data.data);
+      localReminders.value.unshift(dto.reminder(reminder));
       loadingState.value = '';
       addReminderModalShown.value = false;
     })
@@ -88,12 +111,14 @@ const submit = () => {
 const update = (reminder) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(reminder.url.update, form)
-    .then((response) => {
+  updateContactReminder(
+    { vault_id: props.data.vault_id, contact_id: props.data.contact_id, reminder_id: reminder.id },
+    reminderBody(),
+  )
+    .then((updated) => {
       loadingState.value = '';
       flash(trans('The reminder has been updated'), 'success');
-      localReminders.value[localReminders.value.findIndex((x) => x.id === reminder.id)] = response.data.data;
+      localReminders.value[localReminders.value.findIndex((x) => x.id === reminder.id)] = dto.reminder(updated);
       editedReminderId.value = 0;
     })
     .catch((error) => {
@@ -104,8 +129,11 @@ const update = (reminder) => {
 
 const destroy = (reminder) => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    axios
-      .delete(reminder.url.destroy)
+    deleteContactReminder({
+      vault_id: props.data.vault_id,
+      contact_id: props.data.contact_id,
+      reminder_id: reminder.id,
+    })
       .then(() => {
         flash(trans('The reminder has been deleted'), 'success');
         let id = localReminders.value.findIndex((x) => x.id === reminder.id);

@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@/lib/form';
 import Layout from '@/Layouts/Layout.vue';
 import LastUpdated from '@/Pages/Vault/Dashboard/Partials/LastUpdated.vue';
 import UpcomingReminders from '@/Pages/Vault/Dashboard/Partials/UpcomingReminders.vue';
@@ -11,6 +10,7 @@ import MoodTrackingEvents from '@/Pages/Vault/Dashboard/Partials/MoodTrackingEve
 import Feed from '@/Shared/Modules/Feed.vue';
 import LifeEvent from '@/Shared/Modules/LifeEvent.vue';
 import { SquareActivity, Flame, ChartSpline } from 'lucide-vue-next';
+import { updateVault } from '@/api/client';
 
 const props = defineProps({
   layoutData: Object,
@@ -18,7 +18,7 @@ const props = defineProps({
   lastUpdatedContacts: Object,
   upcomingReminders: Object,
   favorites: Object,
-  url: Array,
+  feed: Object,
   dueTasks: Object,
   moodTrackingEvents: Object,
   lifeEvents: Object,
@@ -28,15 +28,10 @@ const props = defineProps({
 
 const currentTab = ref(props.defaultTab);
 
-const form = useForm({
-  default_activity_tab: null,
-});
-
 const changeTab = (tab) => {
   currentTab.value = tab;
-  form.default_activity_tab = tab;
 
-  axios.put(props.url.default_tab, form);
+  updateVault({ vault_id: props.layoutData.vault.id }, { default_activity_tab: tab });
 };
 </script>
 
@@ -104,7 +99,7 @@ const changeTab = (tab) => {
             </div>
 
             <!-- feed tab -->
-            <Feed v-if="currentTab === 'activity'" :url="url.feed" :contact-view-mode="false" />
+            <Feed v-if="currentTab === 'activity'" :data="feed" :contact-view-mode="false" />
 
             <!-- life events -->
             <LifeEvent v-else-if="currentTab === 'life_events'" :data="lifeEvents" :layout-data="layoutData" />

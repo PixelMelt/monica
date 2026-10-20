@@ -1156,21 +1156,14 @@ components:
         paid_by_contact_id: { type: [string, 'null'], format: uuid }
         duration_in_minutes: { type: [integer, 'null'] }
         distance: { type: [integer, 'null'] }
-        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, miles, null], description: 'The web form writes `km` or `miles`.' }
         from_place: { type: [string, 'null'] }
         to_place: { type: [string, 'null'] }
         place: { type: [string, 'null'] }
         participants:
           type: array
-          items:
-            allOf:
-              - $ref: '#/components/schemas/ContactSummary'
-              - type: object
-                required: [age]
-                properties:
-                  age:
-                    type: [integer, 'null']
-                    description: Computed from the contact's birthdate important date; null when unknown.
+          description: With what the contact hover card shows (`ContactCardHelper`, age and groups).
+          items: { $ref: '#/components/schemas/ContactCard' }
         created_at: { $ref: '#/components/schemas/Timestamp' }
         updated_at: { $ref: '#/components/schemas/Timestamp' }
     LifeEventCreate:
@@ -1186,7 +1179,7 @@ components:
         paid_by_contact_id: { type: [string, 'null'], format: uuid, description: A contact in the vault. }
         duration_in_minutes: { type: [integer, 'null'] }
         distance: { type: [integer, 'null'] }
-        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, miles, null], description: 'The web form writes `km` or `miles`.' }
         from_place: { type: [string, 'null'], maxLength: 255 }
         to_place: { type: [string, 'null'], maxLength: 255 }
         place: { type: [string, 'null'], maxLength: 255 }
@@ -1208,7 +1201,7 @@ components:
         paid_by_contact_id: { type: [string, 'null'], format: uuid }
         duration_in_minutes: { type: [integer, 'null'] }
         distance: { type: [integer, 'null'] }
-        distance_unit: { type: [string, 'null'], enum: [km, mi, null] }
+        distance_unit: { type: [string, 'null'], enum: [km, mi, miles, null], description: 'The web form writes `km` or `miles`.' }
         from_place: { type: [string, 'null'], maxLength: 255 }
         to_place: { type: [string, 'null'], maxLength: 255 }
         place: { type: [string, 'null'], maxLength: 255 }

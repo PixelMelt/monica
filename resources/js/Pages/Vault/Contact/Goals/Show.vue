@@ -143,6 +143,8 @@ import Layout from '@/Layouts/Layout.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
+import { deleteContactGoal, updateContactGoal } from '@/api/client';
+import { route } from '@/router';
 
 export default {
   components: {
@@ -191,12 +193,21 @@ export default {
       });
     },
 
+    ids() {
+      return { vault_id: this.localGoal.vault_id, contact_id: this.localGoal.contact_id, goal_id: this.localGoal.id };
+    },
+
     update() {
-      axios
-        .put(this.localGoal.url.update, this.form)
-        .then((response) => {
+      updateContactGoal(this.ids(), { name: this.form.name })
+        .then((goal) => {
           this.flash(this.$t('The goal has been updated'), 'success');
-          this.localGoal = response.data.data;
+          // a rename keeps the streaks: only the name and the statistics come back
+          this.localGoal = {
+            ...this.localGoal,
+            name: goal.name,
+            active: goal.active,
+            streaks_statistics: { max_streak: goal.max_streak, current_streak: goal.current_streak },
+          };
           this.editMode = false;
         })
         .catch((error) => {
@@ -206,11 +217,12 @@ export default {
 
     destroy() {
       if (confirm(this.$t('Are you sure? This will delete the goal and all the streaks permanently.'))) {
-        axios
-          .delete(this.localGoal.url.destroy)
-          .then((response) => {
+        deleteContactGoal(this.ids())
+          .then(() => {
             localStorage.success = this.$t('The goal has been deleted');
-            this.$inertia.visit(response.data.data);
+            this.$router.push(
+              route('contact.show', { vault: this.localGoal.vault_id, contact: this.localGoal.contact_id }),
+            );
           })
           .catch((error) => {
             this.form.errors = error.response.data;
