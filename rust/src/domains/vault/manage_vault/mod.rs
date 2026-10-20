@@ -7,7 +7,7 @@ use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, 
 
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
-use crate::domains::base::{Check, VaultPermission, check};
+use crate::domains::base::{Check, VaultPermission, check, value_or_null};
 use crate::domains::vault::manage_vault_important_date_types::CreateContactImportantDateType;
 use crate::entities::{
     contacts, files, life_event_categories, life_event_types, mood_tracking_parameters, templates, user_vault, users,
@@ -355,9 +355,4 @@ impl UpdateVaultTabVisibility {
         vault.show_calendar_tab = Set(self.show_calendar_tab);
         Ok(vault.update(db).await?)
     }
-}
-
-/// `valueOrNull`: `null` when PHP's `empty()` holds (`""`, `"0"`).
-fn value_or_null(value: Option<String>) -> Option<String> {
-    value.filter(|s| !s.is_empty() && s != "0")
 }

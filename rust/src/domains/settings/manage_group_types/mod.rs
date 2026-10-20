@@ -89,9 +89,6 @@ impl CreateGroupTypeRole {
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<()> {
         let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
         v.max_len("label", self.label.as_deref(), 255);
         v.max_len("label_translation_key", self.label_translation_key.as_deref(), 255);
         v.finish()?;
@@ -144,11 +141,6 @@ pub struct DestroyGroupType {
 
 impl DestroyGroupType {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -193,14 +185,6 @@ pub struct DestroyGroupTypeRole {
 
 impl DestroyGroupTypeRole {
     pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<()> {
-        let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
-        if group_type_roles::Entity::find_by_id(self.group_type_role_id).one(db).await?.is_none() {
-            v.fail("group_type_role_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -256,9 +240,6 @@ impl UpdateGroupType {
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<group_types::Model> {
         let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
         if self.label.trim().is_empty() {
             v.fail("label", "required", &[]);
         }
@@ -299,11 +280,6 @@ impl UpdateGroupTypePosition {
     }
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<(group_types::Model, i32)> {
-        let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {
@@ -380,12 +356,6 @@ impl UpdateGroupTypeRole {
 
     async fn validate<C: ConnectionTrait>(&self, db: &C) -> ApiResult<group_type_roles::Model> {
         let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
-        if group_type_roles::Entity::find_by_id(self.group_type_role_id).one(db).await?.is_none() {
-            v.fail("group_type_role_id", "exists", &[]);
-        }
         if self.label.trim().is_empty() {
             v.fail("label", "required", &[]);
         }
@@ -437,14 +407,6 @@ impl UpdateGroupTypeRolePosition {
         &self,
         db: &C,
     ) -> ApiResult<(group_types::Model, group_type_roles::Model, i32)> {
-        let mut v = Validator::new();
-        if group_types::Entity::find_by_id(self.group_type_id).one(db).await?.is_none() {
-            v.fail("group_type_id", "exists", &[]);
-        }
-        if group_type_roles::Entity::find_by_id(self.group_type_role_id).one(db).await?.is_none() {
-            v.fail("group_type_role_id", "exists", &[]);
-        }
-        v.finish()?;
         check(
             db,
             &Check {

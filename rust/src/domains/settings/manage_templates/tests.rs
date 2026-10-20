@@ -142,7 +142,8 @@ async fn it_fails_if_wrong_parameters_are_given() {
     .execute(&db.conn)
     .await
     .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 
@@ -413,7 +414,8 @@ async fn destroy_module_fails_if_wrong_parameters_are_given() {
     let ross = factory::create_administrator(&db.conn).await;
     let err =
         DestroyModule { account_id: ross.account_id, author_id: ross.id, module_id: Id(0) }.execute(&db.conn).await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
@@ -477,7 +479,8 @@ async fn destroy_template_fails_if_wrong_parameters_are_given() {
     let ross = factory::create_administrator(&db.conn).await;
     let err =
         DestroyTemplate { account_id: ross.account_id, author_id: ross.id, template_id: Id(0) }.execute(&db.conn).await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
@@ -562,7 +565,8 @@ async fn destroy_template_page_fails_if_wrong_parameters_are_given() {
     }
     .execute(&db.conn)
     .await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
@@ -658,7 +662,8 @@ async fn remove_module_from_template_page_fails_if_wrong_parameters_are_given() 
     }
     .execute(&db.conn)
     .await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
@@ -833,7 +838,8 @@ async fn update_module_position_fails_if_wrong_parameters_are_given() {
     }
     .execute(&db.conn)
     .await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 
@@ -1107,7 +1113,8 @@ async fn update_template_page_position_fails_if_wrong_parameters_are_given() {
     }
     .execute(&db.conn)
     .await;
-    assert_eq!(err.unwrap_err().code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.unwrap_err().code, Code::NotFound);
     db.drop().await;
 }
 

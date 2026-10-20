@@ -219,7 +219,8 @@ async fn destroy_fails_if_wrong_parameters_are_given() {
         .execute(&db.conn)
         .await
         .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 
@@ -295,7 +296,8 @@ async fn destroy_role_fails_if_wrong_parameters_are_given() {
     .execute(&db.conn)
     .await
     .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 
@@ -473,7 +475,8 @@ async fn update_position_fails_if_wrong_parameters_are_given() {
     .execute(&db.conn)
     .await
     .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 
@@ -664,7 +667,8 @@ async fn update_role_position_fails_if_wrong_parameters_are_given() {
     .execute(&db.conn)
     .await
     .unwrap_err();
-    assert_eq!(err.code, Code::ValidationFailed);
+    // A missing id is a 404, not a validation error (porting.md, `exists`).
+    assert_eq!(err.code, Code::NotFound);
     db.drop().await;
 }
 

@@ -7,7 +7,7 @@ use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, 
 
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
-use crate::domains::base::{Check, check};
+use crate::domains::base::{Check, check, value_or_null};
 use crate::entities::{relationship_group_types, relationship_types};
 use crate::error::{ApiError, ApiResult, Code};
 use crate::validate::Validator;
@@ -273,9 +273,4 @@ async fn find_type<C: ConnectionTrait>(
         .one(db)
         .await?
         .ok_or_else(ApiError::not_found)
-}
-
-/// `valueOrNull`: `empty()` values become null.
-fn value_or_null(value: Option<String>) -> Option<String> {
-    value.filter(|v| !v.is_empty() && v != "0")
 }
