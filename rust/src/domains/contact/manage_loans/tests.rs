@@ -139,6 +139,48 @@ async fn it_creates_a_loan() {
     db.drop().await;
 }
 
+/// F22: every loaner and loanee pair is stored, so a loan keeps all its
+/// loaners and loanees.
+#[tokio::test]
+async fn it_keeps_every_loaner_and_loanee() {
+    let db = TestDb::migrated().await;
+    let (regis, vault) = regis_in_vault(&db, VaultPermission::Edit).await;
+    let contact = factory::contact(&db.conn, &vault).await;
+    let (a, b, c, d) = (
+        factory::contact(&db.conn, &vault).await,
+        factory::contact(&db.conn, &vault).await,
+        factory::contact(&db.conn, &vault).await,
+        factory::contact(&db.conn, &vault).await,
+    );
+    let currency = currency(&db).await;
+    let loan = CreateLoan {
+        account_id: regis.account_id,
+        vault_id: vault.id,
+        author_id: regis.id,
+        contact_id: contact.id,
+        currency_id: Some(currency.id),
+        r#type: TYPE_DEBT.into(),
+        name: "Dinner".into(),
+        description: None,
+        loaner_ids: vec![a.id, b.id],
+        loanee_ids: vec![c.id, d.id],
+        amount_lent: Some(100),
+        loaned_at: None,
+    }
+    .execute(&db.conn)
+    .await
+    .unwrap();
+    for loaner in [&a, &b] {
+        for loanee in [&c, &d] {
+            assert_link(&db, loan.id, loaner, loanee).await;
+        }
+    }
+    let rows =
+        contact_loan::Entity::find().filter(contact_loan::Column::LoanId.eq(loan.id)).all(&db.conn).await.unwrap();
+    assert_eq!(rows.len(), 4);
+    db.drop().await;
+}
+
 #[tokio::test]
 async fn create_fails_if_wrong_parameters_are_given() {
     let db = TestDb::migrated().await;
