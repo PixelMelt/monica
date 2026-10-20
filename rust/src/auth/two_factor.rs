@@ -30,7 +30,7 @@ pub fn new_recovery_code() -> String {
     format!("{}-{}", crypto::random_string(10), crypto::random_string(10))
 }
 
-fn totp(secret: &str, email: &str) -> Option<Totp> {
+fn totp(secret: &str, username: &str) -> Option<Totp> {
     Some(
         Builder::new()
             .with_algorithm(Algorithm::SHA1)
@@ -38,15 +38,15 @@ fn totp(secret: &str, email: &str) -> Option<Totp> {
             .with_skew(1)
             .with_step_duration(30)
             .with_secret(Secret::try_from_base32(secret).ok()?)
-            .with_account_name(email)
+            .with_account_name(username)
             .with_issuer(Some(ISSUER))
             .build_noncompliant(),
     )
 }
 
-/// `otpauth://totp/Monica:<email>?secret=…&issuer=Monica`.
-pub fn otpauth_url(secret: &str, email: &str) -> Option<String> {
-    totp(secret, email)?.to_url().ok()
+/// `otpauth://totp/Monica:<username>?secret=…&issuer=Monica`.
+pub fn otpauth_url(secret: &str, username: &str) -> Option<String> {
+    totp(secret, username)?.to_url().ok()
 }
 
 /// The QR code of the otpauth URL, as Fortify's `twoFactorQrCodeSvg` (192 px).
@@ -85,8 +85,8 @@ fn used_steps() -> &'static Mutex<HashMap<Uuid, u64>> {
 
 /// Checks `code` against `secret` at `time`; a time step already used by
 /// `user` is refused (Fortify caches used codes for their window).
-pub fn verify(user: Uuid, secret: &str, email: &str, code: &str, time: u64) -> bool {
-    let Some(t) = totp(secret, email) else { return false };
+pub fn verify(user: Uuid, secret: &str, username: &str, code: &str, time: u64) -> bool {
+    let Some(t) = totp(secret, username) else { return false };
     let Some(step) = t.check(code.trim(), time) else { return false };
     let mut used = used_steps().lock().unwrap();
     if used.get(&user).is_some_and(|s| *s >= step) {

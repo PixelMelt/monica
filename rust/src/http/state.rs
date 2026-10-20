@@ -6,22 +6,22 @@ use sea_orm::DatabaseConnection;
 
 use super::ratelimit::RateLimiter;
 use crate::config::Config;
-use crate::mail::Mailer;
+use crate::pushover::Pushover;
 use crate::storage::Storage;
 
 #[derive(Clone)]
 pub struct AppState {
     pub db: DatabaseConnection,
     pub config: Arc<Config>,
-    pub mailer: Mailer,
+    pub pushover: Pushover,
     pub limiter: RateLimiter,
     pub storage: Storage,
 }
 
 impl AppState {
     pub fn new(db: DatabaseConnection, config: Config) -> anyhow::Result<AppState> {
-        let mailer = Mailer::new(&config)?;
+        let pushover = Pushover::new(&config);
         let storage = Storage::new(&config.data_dir);
-        Ok(AppState { db, config: Arc::new(config), mailer, limiter: RateLimiter::default(), storage })
+        Ok(AppState { db, config: Arc::new(config), pushover, limiter: RateLimiter::default(), storage })
     }
 }

@@ -52,7 +52,7 @@ fn failed_basic_response() -> Response {
 }
 
 /// `EnsureDavRequestsAreStateful` and `AuthenticateWithTokenOnBasicAuth`: a
-/// bearer token, or Basic with the user's email and a token as password;
+/// bearer token, or Basic with the user's username and a token as password;
 /// without an `Authorization` header, the session cookie (and its CSRF check
 /// on unsafe methods).
 async fn authenticate(State(state): State<AppState>, mut req: Request, next: Next) -> Response {
@@ -71,8 +71,10 @@ async fn authenticate(State(state): State<AppState>, mut req: Request, next: Nex
         let decoded = base64::engine::general_purpose::STANDARD.decode(authorization[6..].trim()).unwrap_or_default();
         let decoded = String::from_utf8_lossy(&decoded).into_owned();
         match decoded.split_once(':') {
-            // The PHP_AUTH_USER must match the user's email.
-            Some((user, password)) => tokens::authenticate(&state, password).await.filter(|id| id.user.email == user),
+            // The PHP_AUTH_USER must match the user's username.
+            Some((user, password)) => tokens::authenticate(&state, password)
+                .await
+                .filter(|id| id.user.username == crate::domains::settings::manage_users::normalize_username(user)),
             None => None,
         }
     } else {

@@ -5,14 +5,10 @@ use sea_orm::{ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter};
 use super::*;
 use crate::entities::{
     address_types, call_reason_types, genders, modules, pet_categories, pronouns, relationship_group_types,
+    user_notification_channels,
 };
 use crate::error::Code;
 use crate::testing::{TestDb, factory};
-
-fn mail() -> (Mailer, Config) {
-    let config = Config::for_tests("", std::env::temp_dir());
-    (Mailer::new(&config).expect("mailer"), config)
-}
 
 /// `assertDatabaseHas`.
 async fn assert_has<E: EntityTrait>(db: &TestDb, condition: Condition) {
@@ -25,55 +21,41 @@ async fn assert_has<E: EntityTrait>(db: &TestDb, condition: Condition) {
 #[tokio::test]
 async fn it_creates_an_account() {
     let db = TestDb::migrated().await;
-    let (mailer, config) = mail();
 
     let user = CreateAccount {
         first_name: "john".into(),
         last_name: "john".into(),
-        email: "john@email.com".into(),
+        username: " John ".into(),
         password: Some("john".into()),
-        storage_limit_in_mb: 120,
     }
-    .execute(&db.conn, &mailer, &config)
+    .execute(&db.conn)
     .await
     .unwrap();
 
     let account = accounts::Entity::find_by_id(user.account_id).one(&db.conn).await.unwrap().unwrap();
-    assert_eq!(account.storage_limit_in_mb, 120);
+    assert_eq!(account.storage_limit_in_mb, 0, "no storage limit");
 
     let row = users::Entity::find_by_id(user.id).one(&db.conn).await.unwrap().unwrap();
     assert_eq!(row.account_id, user.account_id);
     assert_eq!(row.first_name.as_deref(), Some("john"));
     assert_eq!(row.last_name.as_deref(), Some("john"));
-    assert_eq!(row.email, "john@email.com");
+    assert_eq!(row.username, "john");
     assert!(row.is_account_administrator);
     assert_eq!(row.timezone.as_deref(), Some("UTC"));
 
     // `Queue::assertPushed(SetupAccount::class, author_id === $user->id)`: it ran for the user.
-    assert_has::<user_notification_channels::Entity>(
-        &db,
-        Condition::all()
-            .add(user_notification_channels::Column::UserId.eq(user.id))
-            .add(user_notification_channels::Column::Content.eq("john@email.com")),
-    )
-    .await;
+    assert_has::<templates::Entity>(&db, Condition::all().add(templates::Column::AccountId.eq(user.account_id))).await;
     db.drop().await;
 }
 
 #[tokio::test]
 async fn it_fails_if_wrong_parameters_are_given() {
     let db = TestDb::migrated().await;
-    let (mailer, config) = mail();
-    let err = CreateAccount {
-        first_name: String::new(),
-        last_name: String::new(),
-        email: String::new(),
-        password: None,
-        storage_limit_in_mb: 120,
-    }
-    .execute(&db.conn, &mailer, &config)
-    .await
-    .unwrap_err();
+    let err =
+        CreateAccount { first_name: String::new(), last_name: String::new(), username: String::new(), password: None }
+            .execute(&db.conn)
+            .await
+            .unwrap_err();
     assert_eq!(err.code, Code::ValidationFailed);
     db.drop().await;
 }
@@ -83,10 +65,9 @@ async fn it_fails_if_wrong_parameters_are_given() {
 #[tokio::test]
 async fn it_sets_an_account_up() {
     let db = TestDb::migrated().await;
-    let (mailer, config) = mail();
     let user = factory::create_administrator(&db.conn).await;
 
-    SetupAccount { account_id: user.account_id, author_id: user.id }.execute(&db.conn, &mailer, &config).await.unwrap();
+    SetupAccount { account_id: user.account_id, author_id: user.id }.execute(&db.conn).await.unwrap();
 
     let currency = currencies::Entity::find().one(&db.conn).await.unwrap().unwrap();
 
@@ -99,16 +80,13 @@ async fn it_sets_an_account_up() {
     .await;
     assert_eq!(currencies::Entity::find().count(&db.conn).await.unwrap(), 164);
 
-    assert_has::<user_notification_channels::Entity>(
-        &db,
-        Condition::all()
-            .add(user_notification_channels::Column::UserId.eq(user.id))
-            .add(user_notification_channels::Column::Label.eq("Email address"))
-            .add(user_notification_channels::Column::Type.eq("email"))
-            .add(user_notification_channels::Column::Content.eq(&user.email))
-            .add(user_notification_channels::Column::Active.eq(true)),
-    )
-    .await;
+    // No email channel: the user adds a Pushover channel themselves.
+    let channels = user_notification_channels::Entity::find()
+        .filter(user_notification_channels::Column::UserId.eq(user.id))
+        .count(&db.conn)
+        .await
+        .unwrap();
+    assert_eq!(channels, 0);
 
     assert_has::<templates::Entity>(
         &db,

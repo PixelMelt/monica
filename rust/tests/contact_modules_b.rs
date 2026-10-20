@@ -38,17 +38,13 @@ async fn setup() -> Setup {
     let user = CreateAccount {
         first_name: "Ann".into(),
         last_name: "Smith".into(),
-        email: format!("{}@example.com", uuid::Uuid::new_v4().simple()),
+        username: uuid::Uuid::new_v4().simple().to_string(),
         password: Some(factory::PASSWORD.into()),
-        storage_limit_in_mb: 50,
     }
-    .execute(&app.state.db, &app.state.mailer, &app.state.config)
+    .execute(&app.state.db)
     .await
     .unwrap();
-    let mut verified: users::ActiveModel = user.into();
-    verified.email_verified_at = Set(Some(monica::db::now()));
-    let user = verified.update(&app.state.db).await.unwrap();
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let vault = new_vault(&mut app, "Family").await;
     let contact = factory::contact(&app.state.db, &vault).await;
     let base = format!("/vaults/{}/contacts/{}", vault.id, contact.id);
@@ -65,12 +61,12 @@ impl Setup {
     async fn login_viewer(&mut self) {
         let viewer = factory::user(&self.app.state.db, Some(self.user.account_id)).await;
         factory::set_permission_in_vault(&self.app.state.db, &viewer, VaultPermission::View, &self.vault).await;
-        self.app.login(&viewer.email).await;
+        self.app.login(&viewer.username).await;
     }
 
     async fn login_stranger(&mut self) {
         let stranger = factory::user(&self.app.state.db, None).await;
-        self.app.login(&stranger.email).await;
+        self.app.login(&stranger.username).await;
     }
 
     fn ctx(&self, contact: &contacts::Model) -> ModuleContext {
@@ -321,7 +317,7 @@ async fn manages_pets() {
     s.app.patch(&item, json!({"name": "Max"})).await.assert(403);
     s.app.delete(&item).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&item).await.assert(204);
     assert_eq!(len(&s.app.get(&base).await.json()["data"]), 0);
     s.app.delete(&item).await.assert(404);
@@ -357,9 +353,8 @@ async fn uploads_lists_and_deletes_documents() {
     let list = s.app.get(&base).await.assert(200).json();
     assert_eq!(len(&list["data"]), 1);
     assert_eq!(list["data"][0]["id"], doc["id"]);
-    assert_eq!(list["can_upload_file"], true);
     let m = serde_json::to_value(modules::documents_module(&s.app.state, &s.ctx(&s.contact)).await.unwrap()).unwrap();
-    assert_eq!((len(&m["documents"]), m["can_upload_file"].clone()), (1, json!(true)));
+    assert_eq!(len(&m["documents"]), 1);
 
     // F17: only the contact's documents.
     let photo = s
@@ -377,13 +372,13 @@ async fn uploads_lists_and_deletes_documents() {
     s.app.upload(Method::POST, &base, "b.txt", "text/plain", b"hello").await.assert(403);
     s.app.delete(&format!("{base}/{}", doc["id"])).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&format!("{base}/{}", doc["id"])).await.assert(204);
     assert!(files::Entity::find_by_id(row.id).one(&db).await.unwrap().is_none());
     assert!(s.app.state.storage.get(s.vault.id, &row.uuid).await.is_err(), "the bytes are deleted");
     assert_eq!(len(&s.app.get(&base).await.json()["data"]), 0);
 
-    // X011: the account's storage limit.
+    // No storage limit: an account over its old `storage_limit_in_mb` still uploads.
     let mut account: accounts::ActiveModel =
         accounts::Entity::find_by_id(s.user.account_id).one(&db).await.unwrap().unwrap().into();
     account.storage_limit_in_mb = Set(1);
@@ -400,9 +395,7 @@ async fn uploads_lists_and_deletes_documents() {
     .insert(&db)
     .await
     .unwrap();
-    let res = s.app.upload(Method::POST, &base, "c.txt", "text/plain", b"hello").await.assert(422);
-    assert_eq!(res.code(), "storage_limit_exceeded");
-    assert_eq!(s.app.get(&base).await.json()["can_upload_file"], false);
+    s.app.upload(Method::POST, &base, "c.txt", "text/plain", b"hello").await.assert(201);
 
     s.login_stranger().await;
     s.app.get(&base).await.assert(404);
@@ -429,7 +422,6 @@ async fn uploads_pages_shows_and_deletes_photos() {
     let list = s.app.get(&base).await.assert(200).json();
     assert_eq!(len(&list["data"]), 3);
     assert_eq!(list["meta"], json!({"page": 1, "per_page": 30, "total": 3, "last_page": 1}));
-    assert_eq!(list["can_upload_file"], true);
     let page = s.app.get(&format!("{base}?per_page=2&page=1")).await.assert(200).json();
     assert_eq!(len(&page["data"]), 2);
     assert_eq!(page["data"][0]["id"], ids[2], "newest first");
@@ -456,7 +448,7 @@ async fn uploads_pages_shows_and_deletes_photos() {
     s.app.upload(Method::POST, &base, "e.png", "image/png", &png()).await.assert(403);
     s.app.delete(&format!("{base}/{}", ids[0])).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&format!("{base}/{}", ids[0])).await.assert(204);
     s.app.get(&format!("{base}/{}", ids[0])).await.assert(404);
     assert_eq!(s.app.get(&base).await.json()["meta"]["total"], 2);
@@ -538,7 +530,7 @@ async fn manages_tasks() {
     s.app.patch(&item, json!({"completed": true})).await.assert(403);
     s.app.delete(&item).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&item).await.assert(204);
     let row = contact_tasks::Entity::find_by_id(Id(late["id"].as_i64().unwrap())).one(&db).await.unwrap().unwrap();
     assert!(row.deleted_at.is_some(), "soft deleted");
@@ -667,7 +659,7 @@ async fn logs_and_edits_calls() {
     s.app.patch(&item, json!({"description": "x"})).await.assert(403);
     s.app.delete(&item).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&item).await.assert(204);
     s.app.delete(&item).await.assert(404);
     assert_eq!(len(&s.app.get(&base).await.json()["data"]), 1);
@@ -778,7 +770,7 @@ async fn adds_and_removes_the_contact_from_groups() {
     s.app.post(&base, json!({"group_id": zed.id})).await.assert(403);
     s.app.delete(&format!("{base}/{}", alpha.id)).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     s.app.delete(&format!("{base}/{}", alpha.id)).await.assert(204);
     assert_eq!(len(&s.app.get(&base).await.json()["data"]), 1);
     s.app.delete(&format!("{base}/{}", alpha.id)).await.assert(404);
@@ -962,7 +954,7 @@ async fn manages_timeline_and_life_events() {
     s.app.delete(&life).await.assert(403);
     s.app.delete(&item).await.assert(403);
 
-    s.app.login(&s.user.email).await;
+    s.app.login(&s.user.username).await;
     // Deleting the last life event deletes the timeline event.
     s.app.delete(&format!("{item}/life-events/{}", second["id"])).await.assert(204);
     s.app.delete(&life).await.assert(204);

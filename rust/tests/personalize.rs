@@ -25,7 +25,7 @@ async fn world() -> World {
     let member = factory::user(&app.state.db, Some(admin.account_id)).await;
     let stranger = factory::create_administrator(&app.state.db).await;
     SetupAccount { account_id: admin.account_id, author_id: admin.id }
-        .execute(&app.state.db, &app.state.mailer, &app.state.config)
+        .execute(&app.state.db)
         .await
         .expect("setup account");
     World { app, admin, member, stranger }
@@ -33,17 +33,17 @@ async fn world() -> World {
 
 impl World {
     async fn as_admin(&mut self) {
-        let email = self.admin.email.clone();
+        let email = self.admin.username.clone();
         self.app.login(&email).await;
     }
 
     async fn as_member(&mut self) {
-        let email = self.member.email.clone();
+        let email = self.member.username.clone();
         self.app.login(&email).await;
     }
 
     async fn as_stranger(&mut self) {
-        let email = self.stranger.email.clone();
+        let email = self.stranger.username.clone();
         self.app.login(&email).await;
     }
 }

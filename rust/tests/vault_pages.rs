@@ -35,7 +35,7 @@ struct World {
 async fn world() -> World {
     let mut app = TestApp::new().await;
     let user = factory::user(&app.state.db, None).await;
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let v = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     let id: Uuid = v["id"].as_str().unwrap().parse().unwrap();
     let me: Uuid = v["user_contact_id"].as_str().unwrap().parse().unwrap();
@@ -298,7 +298,7 @@ async fn the_dashboard_gathers_the_vault_and_the_users_data() {
     assert_eq!(d["life_metrics"], json!([]));
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.finish().await;
 }
@@ -342,7 +342,7 @@ async fn the_feed_pages_the_items_of_every_live_contact_newest_first() {
     assert_eq!(second["meta"]["last_page"], 2);
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.finish().await;
 }
@@ -384,7 +384,7 @@ async fn reminders_are_grouped_into_the_next_twelve_months() {
     assert!(months[2..].iter().all(|m| labels(m).is_empty()));
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/reminders", w.base)).await.assert(404);
     w.finish().await;
 }
@@ -411,7 +411,7 @@ async fn open_tasks_are_grouped_by_contact_by_last_name() {
     assert_eq!(ids(&groups[1]["tasks"]), vec![open.id.to_string()]);
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/tasks", w.base)).await.assert(404);
     w.finish().await;
 }
@@ -520,7 +520,7 @@ async fn the_calendar_shows_a_month_grid_and_a_day() {
     w.app.get(&format!("{}/calendar/2026/2/32", w.base)).await.assert(422);
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/calendar/2026/2", w.base)).await.assert(404);
     w.app.get(&format!("{}/calendar/2026/2/14", w.base)).await.assert(404);
     w.finish().await;
@@ -595,7 +595,7 @@ async fn the_address_reports_group_places_case_insensitively() {
     w.app.get(&format!("{}/reports/addresses/by-country?country={long}", w.base)).await.assert(422);
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/reports/addresses", w.base)).await.assert(404);
     w.app.get(&format!("{}/reports/addresses/by-city?city=Paris", w.base)).await.assert(404);
     w.app.get(&format!("{}/reports/addresses/by-country?country=France", w.base)).await.assert(404);
@@ -630,7 +630,7 @@ async fn the_mood_report_has_every_day_of_the_year() {
     assert_eq!(bad["errors"][0]["field"], "year");
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/reports/mood-tracking-events", w.base)).await.assert(404);
     w.finish().await;
 }
@@ -666,7 +666,7 @@ async fn the_important_date_report_covers_the_next_twelve_months() {
     assert_eq!(late_item["contact_important_date_type"], Value::Null);
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{}/reports/important-dates", w.base)).await.assert(404);
     w.finish().await;
 }
@@ -726,18 +726,18 @@ async fn life_metrics_are_created_counted_renamed_and_deleted() {
 
     let viewer = w.member(VaultPermission::View).await;
     let stranger = w.stranger().await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     let seen = w.app.get(&path).await.assert(200).json();
     assert_eq!(seen["data"][0]["stats"]["yearly_events"], 0, "the viewer's own counts");
     w.app.post(&path, json!({"label": "Mine"})).await.assert(403);
     w.app.patch(&format!("{path}/{id}"), json!({"label": "Mine"})).await.assert(403);
     w.app.post(&format!("{path}/{id}/increment"), json!({})).await.assert(403);
     w.app.delete(&format!("{path}/{id}")).await.assert(403);
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.app.post(&format!("{path}/{id}/increment"), json!({})).await.assert(404);
 
-    w.app.login(&w.user.email.clone()).await;
+    w.app.login(&w.user.username.clone()).await;
     w.app.delete(&format!("{path}/{id}")).await.assert(204);
     w.app.delete(&format!("{path}/{id}")).await.assert(404);
     w.app.post(&format!("{path}/{id}/increment"), json!({})).await.assert(404);
@@ -820,15 +820,15 @@ async fn vault_files_are_listed_served_and_deleted() {
 
     let viewer = w.member(VaultPermission::View).await;
     let stranger = w.stranger().await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.get(&format!("{path}/{}/content", photo.id)).await.assert(200);
     w.app.delete(&format!("{path}/{}", photo.id)).await.assert(403);
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.app.get(&format!("{path}/{}/content", photo.id)).await.assert(404);
     w.app.delete(&format!("{path}/{}", photo.id)).await.assert(404);
 
-    w.app.login(&w.user.email.clone()).await;
+    w.app.login(&w.user.username.clone()).await;
     w.app.delete(&format!("{path}/{}", foreign.id)).await.assert(404);
     w.app.delete(&format!("{path}/{}", photo.id)).await.assert(204);
     assert!(!w.app.state.storage.path(w.vault.id, &photo.uuid).exists(), "E009: the bytes are gone");
@@ -871,10 +871,10 @@ async fn companies_are_created_and_listed_by_name() {
 
     let viewer = w.member(VaultPermission::View).await;
     let stranger = w.stranger().await;
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     w.app.get(&path).await.assert(200);
     w.app.post(&path, json!({"name": "Mine"})).await.assert(403);
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&path).await.assert(404);
     w.app.post(&path, json!({"name": "Mine"})).await.assert(404);
     w.finish().await;
@@ -940,7 +940,7 @@ async fn search_matches_contacts_notes_and_groups() {
     assert_eq!(bad["errors"][0]["field"], "q");
 
     let stranger = w.stranger().await;
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&format!("{path}?q=saur")).await.assert(404);
     w.finish().await;
 }

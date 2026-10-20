@@ -271,10 +271,8 @@ impl Server<'_> {
 
         // Adding principal properties
         if let Node::Principal(principal) = node {
-            prop_find.handle(
-                "{DAV:}alternate-URI-set",
-                Some(PropValue::Href(vec![format!("mailto:{}", principal.email_address)])),
-            );
+            // `getAlternateUriSet()`: a principal without an email address has none.
+            prop_find.handle("{DAV:}alternate-URI-set", Some(PropValue::Href(Vec::new())));
             prop_find.handle("{DAV:}principal-URL", Some(PropValue::Href(vec![format!("{}/", principal.uri)])));
             if prop_find.wants("{DAV:}group-member-set") {
                 let members = backend::get_group_member_set(self.ctx, &principal.uri)

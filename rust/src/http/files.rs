@@ -9,8 +9,7 @@ use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 
 use super::state::AppState;
-use crate::domains::settings::manage_storage;
-use crate::entities::{accounts, files};
+use crate::entities::files;
 use crate::error::{ApiError, ApiResult, Code};
 use crate::storage;
 use crate::validate::Validator;
@@ -38,14 +37,8 @@ pub enum Accept {
 }
 
 /// Reads the `file` part of `multipart`: 413 above `MAX_UPLOAD_SIZE`, 422
-/// when it is missing, not an accepted image, or over the account's storage
-/// limit (`storage_limit_exceeded`).
-pub async fn receive(
-    state: &AppState,
-    account: &accounts::Model,
-    mut multipart: Multipart,
-    accept: Accept,
-) -> ApiResult<Upload> {
+/// when it is missing or not an accepted image.
+pub async fn receive(state: &AppState, mut multipart: Multipart, accept: Accept) -> ApiResult<Upload> {
     let max = state.config.max_upload_size_mb * 1024 * 1024;
     let mut upload = None;
     while let Some(mut field) = multipart.next_field().await.map_err(bad_multipart)? {
@@ -74,14 +67,6 @@ pub async fn receive(
     if accept == Accept::Images && !storage::is_image(&upload.bytes) {
         v.fail("file", "mimes", &[("values", "jpeg, png, gif, webp")]);
         v.finish()?;
-    }
-
-    if account.storage_limit_in_mb != 0 {
-        let used = manage_storage::usage(&state.db, account.id).await?.total_size();
-        let limit = u64::try_from(account.storage_limit_in_mb).unwrap_or(0) * 1024 * 1024;
-        if used + upload.bytes.len() as u64 > limit {
-            return Err(ApiError::new(Code::StorageLimitExceeded));
-        }
     }
     Ok(upload)
 }

@@ -901,12 +901,10 @@ components:
         - mood_tracking_events
         - previous_post
         - next_post
-        - can_upload_file
         - created_at
         - updated_at
       properties:
         id: { $ref: '#/components/schemas/Id' }
-        can_upload_file: { type: boolean, description: 'Computed: the account is under its storage limit (X011); the edit page hides the photo upload otherwise.' }
         journal:
           type: object
           required: [id, name]
@@ -1056,9 +1054,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/SliceOfLife'
         - type: object
-          required: [journal, posts, contacts, can_upload_file]
+          required: [journal, posts, contacts]
           properties:
-            can_upload_file: { type: boolean, description: 'Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise.' }
             journal:
               type: object
               required: [id, name]

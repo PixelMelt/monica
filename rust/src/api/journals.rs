@@ -23,7 +23,7 @@ use crate::domains::vault::manage_journals::{
 };
 use crate::domains::vault::manage_vault_settings::CreateTag;
 use crate::entities::{
-    accounts, contact_post, contacts, files, journal_metrics, journals, mood_tracking_events, mood_tracking_parameters,
+    contact_post, contacts, files, journal_metrics, journals, mood_tracking_events, mood_tracking_parameters,
     post_metrics, post_sections, post_tag, post_templates, posts, slice_of_lives, tags,
 };
 use crate::error::{ApiError, ApiResult};
@@ -112,8 +112,6 @@ pub struct PostSummary {
 pub struct Post {
     #[schema(value_type = i64)]
     pub id: Id,
-    /// Computed: the account is under its storage limit (X011); the edit page hides the photo upload otherwise.
-    pub can_upload_file: bool,
     pub journal: PostJournal,
     pub slice_of_life: Option<SliceOfLife>,
     /// Null when untitled (the client shows its "Undefined" label).
@@ -248,8 +246,6 @@ pub struct SliceOfLifeDetail {
     pub created_at: Timestamp,
     #[schema(value_type = String, format = DateTime)]
     pub updated_at: Timestamp,
-    /// Computed: the account is under its storage limit (X011); the page hides the cover upload otherwise.
-    pub can_upload_file: bool,
     pub journal: SliceOfLifeDetailJournal,
     /// The slice's posts, `written_at` descending.
     pub posts: Vec<PostSummary>,
@@ -504,10 +500,6 @@ async fn purge(state: &AppState, rows: &[files::Model]) {
     for f in rows {
         state.storage.delete(f.vault_id, &f.uuid).await;
     }
-}
-
-async fn account(state: &AppState, id: &Identity) -> ApiResult<accounts::Model> {
-    accounts::Entity::find_by_id(id.user.account_id).one(&state.db).await?.ok_or_else(ApiError::not_found)
 }
 
 /// `$vault->journals()->findOrFail($id)`.
@@ -833,13 +825,11 @@ async fn mood<C: ConnectionTrait>(
 /// for the caller.
 async fn post_view(
     state: &AppState,
-    id: &Identity,
     access: &VaultAccess,
     journal: journals::Model,
     post: posts::Model,
 ) -> ApiResult<Post> {
     let db = &state.db;
-    let can_upload_file = manage_storage::can_upload_file(db, &account(state, id).await?).await?;
     let slice_of_life = match post.slice_of_life_id {
         Some(slice_id) => match journal_slice(state, journal.id, slice_id).await? {
             Some(s) => Some(SliceOfLife::load(db, s).await?),
@@ -937,7 +927,6 @@ async fn post_view(
 
     Ok(Post {
         id: post.id,
-        can_upload_file,
         journal: PostJournal { id: journal.id, name: journal.name },
         slice_of_life,
         title: value_or_null(post.title),
@@ -1405,7 +1394,7 @@ pub async fn create_journal_post(
     .execute(&tx)
     .await?;
     tx.commit().await?;
-    Ok((StatusCode::CREATED, Json(post_view(&state, &id, &access, journal, post).await?)))
+    Ok((StatusCode::CREATED, Json(post_view(&state, &access, journal, post).await?)))
 }
 
 #[utoipa::path(
@@ -1425,7 +1414,7 @@ pub async fn get_journal_post(
 ) -> ApiResult<Json<Post>> {
     let access = access::vault(&state, &id, vault_id, VaultPermission::View).await?;
     let (journal, post) = find_post(&state, vault_id, journal_id, post_id).await?;
-    Ok(Json(post_view(&state, &id, &access, journal, post).await?))
+    Ok(Json(post_view(&state, &access, journal, post).await?))
 }
 
 #[utoipa::path(
@@ -1486,7 +1475,7 @@ pub async fn update_journal_post(
     .execute(&tx)
     .await?;
     tx.commit().await?;
-    Ok(Json(post_view(&state, &id, &access, journal, post).await?))
+    Ok(Json(post_view(&state, &access, journal, post).await?))
 }
 
 #[utoipa::path(
@@ -1635,7 +1624,7 @@ pub async fn upload_journal_post_photo(
 ) -> ApiResult<(StatusCode, Json<File>)> {
     access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
     let (journal, post) = find_post(&state, vault_id, journal_id, post_id).await?;
-    let upload = receive(&state, &account(&state, &id).await?, multipart, Accept::Images).await?;
+    let upload = receive(&state, multipart, Accept::Images).await?;
     let key = state.storage.put(vault_id, &upload.bytes).await.map_err(ApiError::internal)?;
     let file = add_post_photo(&state, &id, vault_id, journal.id, post.id, &upload, key.clone()).await;
     if file.is_err() {
@@ -2013,7 +2002,6 @@ pub async fn get_journal_slice(
     access::vault(&state, &id, vault_id, VaultPermission::View).await?;
     let (journal, slice) = find_slice(&state, vault_id, journal_id, slice_id).await?;
     let db = &state.db;
-    let can_upload_file = manage_storage::can_upload_file(db, &account(&state, &id).await?).await?;
     let posts = posts::Entity::find()
         .filter(posts::Column::SliceOfLifeId.eq(slice.id))
         .order_by_desc(posts::Column::WrittenAt)
@@ -2065,7 +2053,6 @@ pub async fn get_journal_slice(
         newest_post_written_at: s.newest_post_written_at,
         created_at: s.created_at,
         updated_at: s.updated_at,
-        can_upload_file,
         journal: SliceOfLifeDetailJournal { id: journal.id, name: journal.name },
         posts: PostSummary::load_many(db, posts).await?,
         contacts: ContactCard::load_many(db, contacts).await?,
@@ -2164,7 +2151,7 @@ pub async fn set_journal_slice_cover(
 ) -> ApiResult<Json<File>> {
     access::vault(&state, &id, vault_id, VaultPermission::Edit).await?;
     let (journal, slice) = find_slice(&state, vault_id, journal_id, slice_id).await?;
-    let upload = receive(&state, &account(&state, &id).await?, multipart, Accept::Images).await?;
+    let upload = receive(&state, multipart, Accept::Images).await?;
     // Q7: SetSliceOfLifeCoverImage deletes the previous cover.
     let previous = match slice.file_cover_image_id {
         Some(f) => files::Entity::find_by_id(f).one(&state.db).await?,

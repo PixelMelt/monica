@@ -45,7 +45,7 @@ impl Dav {
 
     /// `$this->call($method, $uri, …, $server, $content)`.
     async fn call(&mut self, method: &str, uri: &str, body: &str, headers: &[(&str, &str)]) -> TestResponse {
-        let auth = basic(&self.user.email, &self.token);
+        let auth = basic(&self.user.username, &self.token);
         let mut all = vec![("authorization", auth.as_str())];
         all.extend_from_slice(headers);
         self.app.raw(method, uri, body, &all).await
@@ -425,14 +425,14 @@ mod dav_server_test {
         assert_sabre(&response);
 
         assert_see(&response, "<d:response><d:href>/dav/principals/</d:href>");
-        assert_see(&response, &format!("<d:response><d:href>/dav/principals/{}/</d:href>", t.user.email));
+        assert_see(&response, &format!("<d:response><d:href>/dav/principals/{}/</d:href>", t.user.username));
         t.finish().await;
     }
 
     #[tokio::test]
     async fn test_dav_propfind_principals_user() {
         let mut t = Dav::new().await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/principals/{email}"), "", &[]).await;
 
@@ -458,7 +458,7 @@ mod dav_server_test {
     #[tokio::test]
     async fn test_carddav_propfind_groupmemberset() {
         let mut t = Dav::new().await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -491,7 +491,7 @@ mod dav_server_test {
     #[tokio::test]
     async fn test_carddav_report_propertysearch() {
         let mut t = Dav::new().await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let name = format!(
             "{} {}",
             t.user.first_name.clone().unwrap_or_default(),
@@ -547,7 +547,7 @@ mod card_dav_test {
         assert_sabre(&response);
 
         assert_see(&response, "<d:response><d:href>/dav/addressbooks/</d:href>");
-        assert_see(&response, &format!("<d:response><d:href>/dav/addressbooks/{}/</d:href>", t.user.email));
+        assert_see(&response, &format!("<d:response><d:href>/dav/addressbooks/{}/</d:href>", t.user.username));
         t.finish().await;
     }
 
@@ -556,7 +556,7 @@ mod card_dav_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/addressbooks/{email}"), "", &[]).await;
 
@@ -574,7 +574,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let contact = contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/addressbooks/{email}/{vaultname}"), "", &[]).await;
 
@@ -594,7 +594,7 @@ mod card_dav_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -628,7 +628,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let contact = contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", contact.id);
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -646,7 +646,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let contact = contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{}", contact.id);
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -664,7 +664,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response =
             t.call("PROPFIND", &format!("/dav/addressbooks/{email}/"), GETCTAG, &[("depth", "1"), XML]).await;
@@ -693,7 +693,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call("PROPFIND", &format!("/dav/addressbooks/{email}/{vaultname}/"), GETCTAG, &[("depth", "0"), XML])
@@ -724,7 +724,7 @@ mod card_dav_test {
         let contact = contact_random(t.db(), &vault).await;
         contacts_at(t.db(), &vault, at(2019, 1, 1, 9)).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let token = sync_token(t.db(), &t.user, &format!("contacts-{}", vault.id), at(2018, 1, 1, 8)).await;
 
@@ -767,7 +767,7 @@ mod card_dav_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let contact = contact_random(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -823,7 +823,7 @@ mod card_dav_test {
         am.updated_at = Set(Some(at(2019, 1, 1, 9)));
         am.update(t.db()).await.unwrap();
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let token = sync_token(t.db(), &t.user, &format!("contacts-{}", vault.id), at(2019, 2, 1, 9)).await;
 
@@ -872,7 +872,7 @@ mod cal_dav_test {
         assert_sabre(&response);
 
         assert_see(&response, "<d:response><d:href>/dav/calendars/</d:href>");
-        assert_see(&response, &format!("<d:response><d:href>/dav/calendars/{}/</d:href>", t.user.email));
+        assert_see(&response, &format!("<d:response><d:href>/dav/calendars/{}/</d:href>", t.user.username));
         t.finish().await;
     }
 
@@ -881,7 +881,7 @@ mod cal_dav_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/calendars/{email}"), "", &[]).await;
 
@@ -907,7 +907,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/calendars/{email}/dates-{vaultname}"), "", &[]).await;
 
@@ -930,7 +930,7 @@ mod cal_dav_dates_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -965,7 +965,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/calendars/{email}/dates-{vaultname}/{}.ics", date.uuid.unwrap());
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -984,7 +984,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/calendars/{email}/dates-{vaultname}/{}", date.uuid.unwrap());
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -1003,7 +1003,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/calendars/{email}/"), GETCTAG, &[("depth", "1"), XML]).await;
 
@@ -1032,7 +1032,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call("PROPFIND", &format!("/dav/calendars/{email}/dates-{vaultname}/"), GETCTAG, &[("depth", "0"), XML])
@@ -1067,7 +1067,7 @@ mod cal_dav_dates_test {
         am.updated_at = Set(Some(at(2019, 1, 1, 9)));
         let date = am.update(t.db()).await.unwrap();
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let token = sync_token(t.db(), &t.user, &format!("dates-{}", vault.id), at(2018, 1, 1, 8)).await;
 
@@ -1112,7 +1112,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1164,7 +1164,7 @@ mod cal_dav_dates_test {
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "Old Label").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let data = get_date(t.db(), &date).await.replace("Old Label", "New Label");
 
@@ -1186,7 +1186,7 @@ mod cal_dav_dates_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Manage).await;
         important_date_type(t.db(), &vault).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let data = "BEGIN:VCALENDAR
 PRODID:-//Sabre//Sabre VObject 4.5.3//EN
@@ -1234,7 +1234,7 @@ END:VCALENDAR
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call("DELETE", &format!("/dav/calendars/{email}/dates-{vaultname}/{}.ics", date.uuid.unwrap()), "", &[])
@@ -1261,7 +1261,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/calendars/{email}/tasks-{vaultname}"), "", &[]).await;
 
@@ -1284,7 +1284,7 @@ mod cal_dav_tasks_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1319,7 +1319,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/calendars/{email}/tasks-{vaultname}/{}.ics", task.uuid.unwrap());
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -1338,7 +1338,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let path = format!("/dav/calendars/{email}/tasks-{vaultname}/{}", task.uuid.unwrap());
         let response = t.call("PROPFIND", &path, "", &[]).await;
@@ -1357,7 +1357,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.call("PROPFIND", &format!("/dav/calendars/{email}/"), GETCTAG, &[("depth", "1"), XML]).await;
 
@@ -1386,7 +1386,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call("PROPFIND", &format!("/dav/calendars/{email}/tasks-{vaultname}/"), GETCTAG, &[("depth", "0"), XML])
@@ -1421,7 +1421,7 @@ mod cal_dav_tasks_test {
         am.updated_at = Set(Some(at(2019, 1, 1, 9)));
         let task = am.update(t.db()).await.unwrap();
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let token = sync_token(t.db(), &t.user, &format!("tasks-{}", vault.id), at(2018, 1, 1, 8)).await;
 
@@ -1466,7 +1466,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1518,7 +1518,7 @@ mod cal_dav_tasks_test {
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Old Label").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let data = get_task(t.db(), &task).await.replace("Old Label", "New Label");
 
@@ -1539,7 +1539,7 @@ mod cal_dav_tasks_test {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::Manage).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let data = "BEGIN:VCALENDAR
 PRODID:-//Sabre//Sabre VObject 4.5.3//EN
@@ -1584,7 +1584,7 @@ END:VCALENDAR
         let contact = contact_random(t.db(), &vault).await;
         let task = task(t.db(), &contact, "Sentence.").await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call("DELETE", &format!("/dav/calendars/{email}/tasks-{vaultname}/{}.ics", task.uuid.unwrap()), "", &[])
@@ -1628,7 +1628,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1652,7 +1652,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let uuid = Uuid::new();
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1680,7 +1680,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response =
             t.call("PUT", &format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", contact.id), DOEX, &[XML]).await;
@@ -1700,7 +1700,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let filename = monica::dav::http::urlencode(&format!("{}.vcf", contact.id));
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1726,7 +1726,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let filename = monica::dav::http::urlencode(&format!("{}.vcf", contact.id));
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1753,7 +1753,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let filename = monica::dav::http::urlencode(&format!("{}.vcf", contact.id));
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1779,7 +1779,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let filename = monica::dav::http::urlencode(&format!("{}.vcf", contact.id));
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1811,7 +1811,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let filename = monica::dav::http::urlencode(&format!("{}.vcf", contact.id));
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{filename}");
 
         let response = t.call("GET", &path, "", &[]).await;
@@ -1830,7 +1830,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1868,7 +1868,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::View).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1908,7 +1908,7 @@ mod vcard_contact_test {
         let vaultname = rawurlencode(&vault.name);
         let contact1 = contact_random(t.db(), &vault).await;
         let contact2 = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -1960,7 +1960,7 @@ mod vcard_contact_test {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response =
             t.call("DELETE", &format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", contact.id), "", &[]).await;
@@ -2026,7 +2026,7 @@ mod http {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t.app.raw("GET", "/.well-known/carddav", "", &[]).await;
         assert!(response.status.is_redirection());
@@ -2108,7 +2108,7 @@ mod http {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", contact.id);
 
         let response = t.call("OPTIONS", &path, "", &[]).await;
@@ -2157,7 +2157,7 @@ mod http {
         let changed = contact_random(t.db(), &vault).await;
         let deleted = contact_random(t.db(), &vault).await;
         contacts_at(t.db(), &vault, at(2020, 1, 1, 9)).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let collection = format!("/dav/addressbooks/{email}/{vaultname}/");
 
         // Initial sync: every card, and a token.
@@ -2226,7 +2226,7 @@ mod http {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let uuid = Uuid::new();
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{uuid}.vcf");
 
         let card = format!(
@@ -2262,7 +2262,7 @@ mod http {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", contact.id);
 
         // The etag of the card, as a client reads it.
@@ -2299,7 +2299,7 @@ mod http {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let group = group(t.db(), &vault, &[&contact]).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let path = format!("/dav/addressbooks/{email}/{vaultname}/{}.vcf", group.uuid.unwrap());
 
         let response = t.call("GET", &path, "", &[("accept", "text/vcard; version=4.0")]).await;
@@ -2328,7 +2328,7 @@ mod http {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let today = chrono::Utc::now().format("%Y-%m-%d");
 
         let response = t.call("GET", &format!("/dav/addressbooks/{email}/{vaultname}?export"), "", &[]).await;
@@ -2371,7 +2371,7 @@ mod http {
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
         let date = important_date(t.db(), &contact, "birthdate").await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let query = |start: &str, end: &str| {
             format!(
                 r#"<c:calendar-query xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop><d:getetag/></d:prop><c:filter><c:comp-filter name="VCALENDAR"><c:comp-filter name="VEVENT"><c:time-range start="{start}" end="{end}"/></c:comp-filter></c:comp-filter></c:filter></c:calendar-query>"#
@@ -2417,7 +2417,7 @@ mod http {
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
         let contact = contact_random(t.db(), &vault).await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
         let book = format!("/dav/addressbooks/{email}/{vaultname}");
         let card = format!("{book}/{}.vcf", contact.id);
 
@@ -2507,7 +2507,7 @@ mod http {
         let mut t = Dav::new().await;
         let vault = vault_user(t.db(), &t.user, VaultPermission::Edit).await;
         let vaultname = rawurlencode(&vault.name);
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         let response = t
             .call(
@@ -2559,7 +2559,7 @@ mod http {
     #[tokio::test]
     async fn authentication() {
         let mut t = Dav::new().await;
-        let email = t.user.email.clone();
+        let email = t.user.username.clone();
 
         // No credentials.
         let response = t.app.raw("PROPFIND", "/dav/", "", &[]).await;

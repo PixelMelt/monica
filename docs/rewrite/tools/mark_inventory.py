@@ -106,7 +106,7 @@ def main():
         rid = m.group(1)
         cells = line.split("|")
         status = cells[-2].strip()
-        if status.startswith("done") or status == "removed":
+        if status.startswith("done") or status.startswith("removed"):
             continue
         new = None
         if "remove" in status:

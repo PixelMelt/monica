@@ -1,4 +1,4 @@
-//! `/me/notification-channels`: where reminders are sent (email only).
+//! `/me/notification-channels`: where reminders are sent (Pushover).
 
 use axum::extract::{Path, Query, State};
 use axum::http::StatusCode;
@@ -10,8 +10,8 @@ use super::paging::{PageQuery, PaginationMeta, paginate};
 use crate::db::id::Id;
 use crate::db::timestamp::Timestamp;
 use crate::domains::settings::manage_notification_channels::{
-    CreateUserNotificationChannel, DestroyUserNotificationChannel, SendTestEmail, TYPE_EMAIL,
-    ToggleUserNotificationChannel, VerifyUserNotificationChannelEmailAddress,
+    CreateUserNotificationChannel, DestroyUserNotificationChannel, SendTestNotification, TYPE_PUSHOVER,
+    ToggleUserNotificationChannel,
 };
 use crate::entities::{user_notification_channels, user_notification_sent};
 use crate::error::{ApiError, ApiResult};
@@ -19,16 +19,18 @@ use crate::http::auth::Auth;
 use crate::http::json::Json;
 use crate::http::session::Identity;
 use crate::http::state::AppState;
+use crate::pushover::Credentials;
 use crate::validate::{Validator, clean};
 
 #[derive(Serialize, ToSchema)]
 pub struct NotificationChannel {
     #[schema(value_type = i64)]
     pub id: Id,
-    /// `email`.
+    /// `pushover`.
     pub r#type: String,
     pub label: Option<String>,
-    pub content: String,
+    /// The Pushover user key (the application token is never sent back).
+    pub user_key: String,
     /// `HH:MM`, in the user's timezone.
     pub preferred_time: Option<String>,
     pub active: bool,
@@ -47,7 +49,7 @@ impl From<user_notification_channels::Model> for NotificationChannel {
             id: c.id,
             r#type: c.r#type,
             label: c.label,
-            content: c.content,
+            user_key: Credentials::from_content(&c.content).map(|k| k.user_key).unwrap_or_default(),
             preferred_time: c.preferred_time.map(|t| t.format("%H:%M").to_string()),
             active: c.active,
             fails: c.fails,
@@ -86,7 +88,7 @@ pub async fn list_notification_channels(
 ) -> ApiResult<Json<NotificationChannelList>> {
     let rows = user_notification_channels::Entity::find()
         .filter(user_notification_channels::Column::UserId.eq(id.user.id))
-        .filter(user_notification_channels::Column::Type.eq(TYPE_EMAIL))
+        .filter(user_notification_channels::Column::Type.eq(TYPE_PUSHOVER))
         .order_by_asc(user_notification_channels::Column::Id)
         .all(&state.db)
         .await?;
@@ -96,7 +98,10 @@ pub async fn list_notification_channels(
 #[derive(Deserialize, ToSchema)]
 pub struct NotificationChannelCreate {
     pub label: Option<String>,
-    pub content: Option<String>,
+    /// The Pushover user (or group) key.
+    pub user_key: Option<String>,
+    /// The token of your Pushover application.
+    pub app_token: Option<String>,
     /// `HH:MM`.
     pub preferred_time: Option<String>,
 }
@@ -115,9 +120,10 @@ fn is_hh_mm(s: &str) -> bool {
     path = "/me/notification-channels",
     operation_id = "createNotificationChannel",
     tag = "Me",
-    summary = "Add an email channel",
+    summary = "Add a Pushover channel",
+    description = "The keys are checked with Pushover; the channel is then active and gets the reminders.",
     request_body = NotificationChannelCreate,
-    responses((status = 201, description = "The channel.", body = NotificationChannel), (status = 422, description = "Validation failed.")),
+    responses((status = 201, description = "The channel.", body = NotificationChannel), (status = 422, description = "Validation failed, or Pushover refused the keys (on `user_key`).")),
     extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R222"])), ("x-services" = json!(["CreateUserNotificationChannel"])))
 )]
 pub async fn create_notification_channel(
@@ -126,29 +132,28 @@ pub async fn create_notification_channel(
     Json(body): Json<NotificationChannelCreate>,
 ) -> ApiResult<(StatusCode, Json<NotificationChannel>)> {
     let label = clean(body.label);
-    let content = clean(body.content);
+    let user_key = clean(body.user_key);
+    let app_token = clean(body.app_token);
     let preferred_time = clean(body.preferred_time);
     let mut v = Validator::new();
     v.required("label", &label);
-    if v.required("content", &content) {
-        v.email("content", content.as_deref());
-        v.max_len("content", content.as_deref(), 255);
-    }
+    v.required("user_key", &user_key);
+    v.required("app_token", &app_token);
     if v.required("preferred_time", &preferred_time) && !preferred_time.as_deref().is_some_and(is_hh_mm) {
         v.fail("preferred_time", "date_format", &[("format", "H:i")]);
     }
     v.finish()?;
+    let tx = state.db.begin().await?;
     let channel = CreateUserNotificationChannel {
         account_id: id.user.account_id,
         author_id: id.user.id,
         label: label.unwrap(),
-        r#type: TYPE_EMAIL.into(),
-        content: content.unwrap(),
-        verify_email: Some(true),
-        preferred_time,
+        credentials: Credentials { user_key: user_key.unwrap(), app_token: app_token.unwrap() },
+        preferred_time: preferred_time.unwrap(),
     }
-    .execute(&state.db, &state.mailer, &state.config)
+    .execute(&tx, &state.pushover)
     .await?;
+    tx.commit().await?;
     Ok((StatusCode::CREATED, Json(channel.into())))
 }
 
@@ -288,10 +293,14 @@ pub async fn list_notification_channel_logs(
     path = "/me/notification-channels/{notification_channel_id}/test",
     operation_id = "sendNotificationChannelTest",
     tag = "Me",
-    summary = "Send a test email",
+    summary = "Send a test notification",
     params(("notification_channel_id" = i64, Path)),
-    responses((status = 204, description = "Sent."), (status = 404, description = "Not found.")),
-    extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R225"])), ("x-services" = json!(["SendTestEmail"])))
+    responses(
+        (status = 204, description = "Sent."),
+        (status = 404, description = "Not found."),
+        (status = 502, description = "`notification_failed`: Pushover didn't take it (the detail says why)."),
+    ),
+    extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R225"])), ("x-services" = json!(["SendTestNotification"])))
 )]
 pub async fn send_notification_channel_test(
     State(state): State<AppState>,
@@ -299,58 +308,10 @@ pub async fn send_notification_channel_test(
     Path(channel_id): Path<i64>,
 ) -> ApiResult<StatusCode> {
     let c = channel(&state, &id, Id(channel_id)).await?;
-    SendTestEmail { account_id: id.user.account_id, author_id: id.user.id, user_notification_channel_id: c.id }
-        .execute(&state.db, &state.mailer)
+    SendTestNotification { account_id: id.user.account_id, author_id: id.user.id, user_notification_channel_id: c.id }
+        .execute(&state.db, &state.pushover)
         .await?;
     Ok(StatusCode::NO_CONTENT)
-}
-
-#[derive(Deserialize, ToSchema)]
-pub struct NotificationChannelVerification {
-    #[schema(value_type = Option<uuid::Uuid>)]
-    pub token: Option<crate::db::uuid::Uuid>,
-}
-
-#[utoipa::path(
-    post,
-    path = "/me/notification-channels/{notification_channel_id}/verify",
-    operation_id = "verifyNotificationChannel",
-    tag = "Me",
-    summary = "Verify a channel with the token from its email",
-    params(("notification_channel_id" = i64, Path)),
-    request_body = NotificationChannelVerification,
-    responses((status = 200, description = "The channel.", body = NotificationChannel), (status = 422, description = "Wrong token.")),
-    extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["R224"])), ("x-services" = json!(["VerifyUserNotificationChannelEmailAddress", "ScheduleAllContactRemindersForNotificationChannel"])))
-)]
-pub async fn verify_notification_channel(
-    State(state): State<AppState>,
-    Auth(id): Auth,
-    Path(channel_id): Path<i64>,
-    Json(body): Json<NotificationChannelVerification>,
-) -> ApiResult<Json<NotificationChannel>> {
-    let c = channel(&state, &id, Id(channel_id)).await?;
-    let mut v = Validator::new();
-    v.required("token", &body.token);
-    v.finish()?;
-    let tx = state.db.begin().await?;
-    let channel = VerifyUserNotificationChannelEmailAddress {
-        account_id: id.user.account_id,
-        author_id: id.user.id,
-        user_notification_channel_id: c.id,
-        uuid: body.token.unwrap(),
-    }
-    .execute(&tx)
-    .await
-    .map_err(|mut e| {
-        for f in &mut e.errors {
-            if f.field == "uuid" {
-                f.field = "token".into();
-            }
-        }
-        e
-    })?;
-    tx.commit().await?;
-    Ok(Json(channel.into()))
 }
 
 #[cfg(test)]

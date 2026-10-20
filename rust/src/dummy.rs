@@ -9,7 +9,7 @@ use fake::faker::lorem::en::{Paragraph, Sentence, Word};
 use fake::faker::name::en::{FirstName, LastName};
 use rand::random_range;
 use rand::seq::{IndexedRandom, SliceRandom};
-use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use sea_orm_migration::MigratorTrait;
 
 use crate::config::Config;
@@ -26,7 +26,6 @@ use crate::entities::{
     contact_important_date_types, contacts, group_type_roles, group_types, post_templates, users, vaults,
 };
 use crate::error::Code;
-use crate::mail::Mailer;
 
 /// `Vault::TYPE_PERSONAL`.
 const VAULT_TYPE_PERSONAL: &str = "personal";
@@ -47,7 +46,6 @@ const TYPE_BIRTHDATE: &str = "birthdate";
 pub async fn setup_dummy_account(
     db: &DatabaseConnection,
     config: &Config,
-    mailer: &Mailer,
     fresh: bool,
     force: bool,
 ) -> anyhow::Result<()> {
@@ -55,7 +53,7 @@ pub async fn setup_dummy_account(
         return Ok(());
     }
     wipe_and_migrate_db(db, fresh).await?;
-    let first_user = create_first_user(db, config, mailer).await?;
+    let first_user = create_first_user(db).await?;
     create_vaults(db, &first_user).await?;
     create_contacts(db, &first_user).await?;
     create_groups(db, &first_user).await?;
@@ -63,7 +61,7 @@ pub async fn setup_dummy_account(
     create_tasks(db, &first_user).await?;
     create_goals(db, &first_user).await?;
     create_journals(db, &first_user).await?;
-    create_second_user(db, config, mailer).await?;
+    create_second_user(db).await?;
     stop(config);
     Ok(())
 }
@@ -98,11 +96,11 @@ fn stop(config: &Config) {
     println!("-----------------------------");
     println!("| You can now sign in with one of these two accounts:");
     println!("| An account with a lot of data:");
-    println!("| username: admin@admin.com");
+    println!("| username: admin");
     println!("| password: admin123");
     println!("|----------------------------");
     println!("|A blank account:");
-    println!("| username: blank@blank.com");
+    println!("| username: blank");
     println!("| password: blank123");
     println!("|----------------------------");
     println!("| URL:      {}", config.url);
@@ -111,22 +109,17 @@ fn stop(config: &Config) {
     println!("Setup is done. Have fun.");
 }
 
-async fn create_first_user(db: &DatabaseConnection, config: &Config, mailer: &Mailer) -> anyhow::Result<users::Model> {
+async fn create_first_user(db: &DatabaseConnection) -> anyhow::Result<users::Model> {
     println!("☐ Create first user of the account");
 
-    let first_user = CreateAccount {
-        email: "admin@admin.com".into(),
+    Ok(CreateAccount {
+        username: "admin".into(),
         password: Some("admin123".into()),
         first_name: "Michael".into(),
         last_name: "Scott".into(),
-        storage_limit_in_mb: config.default_storage_limit_mb,
     }
-    .execute(db, mailer, config)
-    .await?;
-
-    let mut first_user: users::ActiveModel = first_user.into();
-    first_user.email_verified_at = Set(Some(crate::db::now()));
-    Ok(first_user.update(db).await?)
+    .execute(db)
+    .await?)
 }
 
 async fn create_vaults(db: &DatabaseConnection, first_user: &users::Model) -> anyhow::Result<()> {
@@ -398,22 +391,17 @@ async fn create_journals(db: &DatabaseConnection, first_user: &users::Model) -> 
     Ok(())
 }
 
-async fn create_second_user(db: &DatabaseConnection, config: &Config, mailer: &Mailer) -> anyhow::Result<()> {
+async fn create_second_user(db: &DatabaseConnection) -> anyhow::Result<()> {
     println!("☐ Create second user of the account");
 
-    let second_user = CreateAccount {
-        email: "blank@blank.com".into(),
+    CreateAccount {
+        username: "blank".into(),
         password: Some("blank123".into()),
         first_name: "John".into(),
         last_name: "Doe".into(),
-        storage_limit_in_mb: config.default_storage_limit_mb,
     }
-    .execute(db, mailer, config)
+    .execute(db)
     .await?;
-
-    let mut second_user: users::ActiveModel = second_user.into();
-    second_user.email_verified_at = Set(Some(crate::db::now()));
-    second_user.update(db).await?;
     Ok(())
 }
 
@@ -434,19 +422,17 @@ mod tests {
     async fn it_sets_up_the_dummy_and_the_blank_accounts() {
         let db = TestDb::migrated().await;
         let config = Config::for_tests("", std::env::temp_dir());
-        let mailer = Mailer::new(&config).expect("mailer");
 
-        setup_dummy_account(&db.conn, &config, &mailer, false, false).await.unwrap();
+        setup_dummy_account(&db.conn, &config, false, false).await.unwrap();
 
         let users = users::Entity::find().all(&db.conn).await.unwrap();
-        let first = users.iter().find(|u| u.email == "admin@admin.com").expect("first user");
-        let second = users.iter().find(|u| u.email == "blank@blank.com").expect("second user");
+        let first = users.iter().find(|u| u.username == "admin").expect("first user");
+        let second = users.iter().find(|u| u.username == "blank").expect("second user");
         assert_eq!(users.len(), 2);
         assert_ne!(first.account_id, second.account_id);
         assert_eq!((first.first_name.as_deref(), first.last_name.as_deref()), (Some("Michael"), Some("Scott")));
         assert_eq!((second.first_name.as_deref(), second.last_name.as_deref()), (Some("John"), Some("Doe")));
         for user in [first, second] {
-            assert!(user.email_verified_at.is_some());
             assert!(user.is_account_administrator);
         }
         assert!(crate::password::verify("admin123", first.password.as_deref().unwrap()));

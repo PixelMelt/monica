@@ -12,7 +12,6 @@ pub enum Code {
     BadRequest,
     Unauthenticated,
     CsrfTokenMismatch,
-    EmailNotVerified,
     Forbidden,
     TokenAbilityMissing,
     PasswordConfirmationRequired,
@@ -21,9 +20,9 @@ pub enum Code {
     Conflict,
     PayloadTooLarge,
     ValidationFailed,
-    StorageLimitExceeded,
     VaultUserLimitReached,
     RateLimited,
+    NotificationFailed,
     InternalError,
 }
 
@@ -33,7 +32,6 @@ impl Code {
             Code::BadRequest => StatusCode::BAD_REQUEST,
             Code::Unauthenticated => StatusCode::UNAUTHORIZED,
             Code::CsrfTokenMismatch
-            | Code::EmailNotVerified
             | Code::Forbidden
             | Code::TokenAbilityMissing
             | Code::PasswordConfirmationRequired
@@ -41,10 +39,9 @@ impl Code {
             Code::NotFound => StatusCode::NOT_FOUND,
             Code::Conflict => StatusCode::CONFLICT,
             Code::PayloadTooLarge => StatusCode::PAYLOAD_TOO_LARGE,
-            Code::ValidationFailed | Code::StorageLimitExceeded | Code::VaultUserLimitReached => {
-                StatusCode::UNPROCESSABLE_ENTITY
-            }
+            Code::ValidationFailed | Code::VaultUserLimitReached => StatusCode::UNPROCESSABLE_ENTITY,
             Code::RateLimited => StatusCode::TOO_MANY_REQUESTS,
+            Code::NotificationFailed => StatusCode::BAD_GATEWAY,
             Code::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -54,7 +51,6 @@ impl Code {
             Code::BadRequest => "The request is malformed.",
             Code::Unauthenticated => "Unauthenticated.",
             Code::CsrfTokenMismatch => "CSRF token mismatch.",
-            Code::EmailNotVerified => "Your email address is not verified.",
             Code::Forbidden => "This action is unauthorized.",
             Code::TokenAbilityMissing => "This token can't perform this action.",
             Code::PasswordConfirmationRequired => "Password confirmation required.",
@@ -63,9 +59,9 @@ impl Code {
             Code::Conflict => "This conflicts with the current state.",
             Code::PayloadTooLarge => "The file is too large.",
             Code::ValidationFailed => "The given data was invalid.",
-            Code::StorageLimitExceeded => "The account storage limit has been reached.",
             Code::VaultUserLimitReached => "The vault has reached its maximum number of users.",
             Code::RateLimited => "Too many requests.",
+            Code::NotificationFailed => "The notification could not be sent.",
             Code::InternalError => "Server error.",
         }
     }

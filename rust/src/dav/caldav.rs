@@ -208,8 +208,9 @@ impl Server<'_> {
                 prop_find.handle(&ns("calendar-home-set"), home.map(|h| PropValue::local_href(vec![format!("{h}/")])));
             }
 
-            // The calendar-user-address-set property is basically mapped to the {DAV:}alternate-URI-set property.
-            let alternate = vec![format!("mailto:{}", principal.email_address)];
+            // The calendar-user-address-set property is basically mapped to the {DAV:}alternate-URI-set property
+            // (empty: principals have no email address).
+            let alternate: Vec<String> = Vec::new();
             let mut addresses = alternate.clone();
             addresses.push(format!("{BASE_URI}{principal_url}/"));
             prop_find.handle(&ns("calendar-user-address-set"), Some(PropValue::local_href(addresses)));

@@ -5,7 +5,7 @@ use sea_orm::EntityTrait;
 use serde::Serialize;
 use utoipa::ToSchema;
 
-use crate::entities::accounts;
+use crate::entities::users;
 use crate::error::ApiResult;
 use crate::http::json::Json;
 use crate::http::state::AppState;
@@ -28,18 +28,10 @@ pub enum Dir {
 }
 
 #[derive(Serialize, ToSchema)]
-pub struct Features {
-    /// `DELETE /me` is enabled (server flag, off by default, V032).
-    pub account_deletion: bool,
-}
-
-#[derive(Serialize, ToSchema)]
 pub struct Instance {
-    /// False when `APP_DISABLE_SIGNUP` is set and at least one account
-    /// exists; the first user can always sign up (X007).
-    pub signup_enabled: bool,
-    /// `APP_SHOW_DELETION_NOTICE` (X008).
-    pub show_deletion_notice: bool,
+    /// No user exists yet: the first visitor creates the account
+    /// (`POST /auth/register`); sign-up is closed after that.
+    pub setup_required: bool,
     /// The locale of this request (X009).
     pub locale: String,
     pub default_locale: String,
@@ -48,7 +40,6 @@ pub struct Instance {
     pub version: String,
     /// Commit hash of the build, when known.
     pub commit: Option<String>,
-    pub features: Features,
 }
 
 /// `htmldir()` in `app/Helpers/helpers.php`.
@@ -59,9 +50,9 @@ pub fn dir(locale: &str) -> Dir {
     }
 }
 
-/// `SignupHelper::isEnabled`.
-pub async fn signup_enabled(state: &AppState) -> ApiResult<bool> {
-    Ok(!state.config.disable_signup || accounts::Entity::find().one(&state.db).await?.is_none())
+/// Whether no user exists yet.
+pub async fn setup_required(state: &AppState) -> ApiResult<bool> {
+    Ok(users::Entity::find().one(&state.db).await?.is_none())
 }
 
 #[utoipa::path(
@@ -89,13 +80,11 @@ pub async fn build_instance(state: &AppState) -> ApiResult<Instance> {
         .collect();
     locales.sort_by_key(|l| l.name.to_lowercase());
     Ok(Instance {
-        signup_enabled: signup_enabled(state).await?,
-        show_deletion_notice: state.config.show_deletion_notice,
+        setup_required: setup_required(state).await?,
         locale: i18n::current(),
         default_locale: state.config.locale.clone(),
         locales,
         version: std::env::var("APP_VERSION").unwrap_or_else(|_| env!("MONICA_VERSION").to_owned()),
         commit: std::env::var("APP_COMMIT").ok().or_else(|| option_env!("MONICA_COMMIT").map(str::to_owned)),
-        features: Features { account_deletion: state.config.enable_account_deletion },
     })
 }

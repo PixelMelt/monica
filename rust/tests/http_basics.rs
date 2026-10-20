@@ -10,11 +10,11 @@ async fn instance_is_public_and_lists_locales() {
     let mut app = TestApp::new().await;
     let res = app.get("/instance").await.assert(200);
     let body = res.json();
-    assert_eq!(body["signup_enabled"], true);
+    assert_eq!(body["setup_required"], true, "no user yet");
     assert_eq!(body["locale"], "en");
     assert_eq!(body["locales"].as_array().unwrap().len(), 29);
     assert!(body["locales"].as_array().unwrap().iter().any(|l| l["id"] == "ar" && l["dir"] == "rtl"));
-    assert_eq!(body["features"]["account_deletion"], false);
+    assert!(body.get("features").is_none() && body.get("show_deletion_notice").is_none());
 
     let fr =
         app.request_with(axum::http::Method::GET, "/instance", None, &[("accept-language", "fr-FR,fr;q=0.9")]).await;
@@ -26,7 +26,7 @@ async fn instance_is_public_and_lists_locales() {
 async fn unsafe_requests_need_the_csrf_token() {
     let mut app = TestApp::new().await;
     // No session yet: rejected.
-    let res = app.post("/auth/login", json!({"email": "a@b.c", "password": "x"})).await.assert(403);
+    let res = app.post("/auth/login", json!({"username": "a", "password": "x"})).await.assert(403);
     assert_eq!(res.code(), "csrf_token_mismatch");
 
     app.get("/auth/csrf").await.assert(204);

@@ -1,7 +1,4 @@
-//! Fortify's flows (V002–V026): email verification, password reset and
-//! two-factor authentication. The HTTP handlers are in `api::auth` and
-//! `api::me`.
+//! Fortify's two-factor authentication (V020–V026). The HTTP handlers are
+//! in `api::auth` and `api::me`.
 
-pub mod password_reset;
 pub mod two_factor;
-pub mod verification;

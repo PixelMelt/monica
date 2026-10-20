@@ -1,12 +1,12 @@
-# Account administration (area B1): the account, its users, storage, cancellation,
-# and the personalization lists used by contact forms. Reads are open to every
+# Account administration (area B1): the account, its users, and the
+# personalization lists used by contact forms. A single-user install has no
+# storage quota and no account cancellation. Reads are open to every
 # account member; writes need the account administrator (api-design.md §2, §9).
 
 x-not-api:
   - { id: R211, reason: "SPA page only (settings index: static links); the administrator flag that hides the account section comes from GET /me/bootstrap" }
-  - { id: R230, reason: "SPA page only (invite user form); submits to POST /account/users" }
+  - { id: R230, reason: "SPA page only (add user form); submits to POST /account/users" }
   - { id: R235, reason: "SPA page only (personalize index: static links)" }
-  - { id: R325, reason: "SPA page only (cancel account form); submits to DELETE /account" }
 
 paths:
   /account:
@@ -23,45 +23,6 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Account' }
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-    delete:
-      operationId: cancelAccount
-      tags: [Account]
-      summary: Cancel the account
-      description: |
-        Needs a password confirmation (api-design.md §7.4). Queues the deletion
-        of the account with all its users, vaults, contacts and files (J018);
-        the client then goes to the login page.
-      x-permission: account:admin
-      x-inventory: [R326]
-      x-services: [CancelAccount]
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/CancelAccountRequest' }
-      responses:
-        '202':
-          description: Deletion queued; no body.
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-
-  /account/storage:
-    get:
-      operationId: getAccountStorage
-      tags: [Account]
-      summary: Storage used by the account's files, per file type
-      x-permission: account:member
-      x-inventory: [R324]
-      x-services: []
-      responses:
-        '200':
-          description: Usage totals and the account limit.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/StorageUsage' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
@@ -90,9 +51,8 @@ paths:
       tags: [Account]
       summary: List the users of the account
       description: |
-        Includes invited users who haven't accepted yet. Ordered by
-        `created_at`. The client marks the current user by comparing ids with
-        GET /me/bootstrap.
+        Ordered by `created_at`. The client marks the current user by
+        comparing ids with GET /me/bootstrap.
       x-permission: account:member
       x-inventory: [R229, R330]
       x-services: []
@@ -105,23 +65,23 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
     post:
-      operationId: inviteAccountUser
+      operationId: createAccountUser
       tags: [Account]
-      summary: Invite a user to the account
+      summary: Add a user, with a username and a first password
       description: |
-        Creates the user with an invitation code and queues the invitation
-        email (E002), which links to the SPA's accept-invitation page.
+        In place of email invitations: the administrator gives the new user a
+        username and a first password, which they can change in their profile.
       x-permission: account:admin
       x-inventory: [R231]
-      x-services: [InviteUser]
+      x-services: [CreateUser]
       requestBody:
         required: true
         content:
           application/json:
-            schema: { $ref: '#/components/schemas/AccountUserInvite' }
+            schema: { $ref: '#/components/schemas/AccountUserCreate' }
       responses:
         '201':
-          description: The invited user.
+          description: The new user.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/AccountUser' }
@@ -1271,36 +1231,11 @@ components:
     # ---------------------------------------------------------------- account
     Account:
       type: object
-      required: [id, storage_limit_in_mb, created_at, updated_at]
+      required: [id, created_at, updated_at]
       properties:
         id: { $ref: '#/components/schemas/Uuid' }
-        storage_limit_in_mb: { type: integer, minimum: 0, description: 0 means unlimited (X011). }
         created_at: { $ref: '#/components/schemas/Timestamp' }
         updated_at: { $ref: '#/components/schemas/Timestamp' }
-    StorageUsage:
-      type: object
-      description: |
-        Sizes are bytes, summed over the files of all the account's vaults. The
-        client computes percentages (of the limit, and per type of the total).
-      required: [storage_limit_in_mb, total_size, photo, document, avatar]
-      properties:
-        storage_limit_in_mb: { type: integer, minimum: 0, description: 0 means unlimited (X011). }
-        total_size: { type: integer, minimum: 0 }
-        photo: { $ref: '#/components/schemas/StorageTypeUsage' }
-        document: { $ref: '#/components/schemas/StorageTypeUsage' }
-        avatar: { $ref: '#/components/schemas/StorageTypeUsage' }
-    StorageTypeUsage:
-      type: object
-      required: [count, size]
-      properties:
-        count: { type: integer, minimum: 0, description: Number of files of this type. }
-        size: { type: integer, minimum: 0, description: Bytes. }
-    CancelAccountRequest:
-      type: object
-      properties:
-        password:
-          type: string
-          description: The current password, unless the session confirmed it recently (api-design.md §7.4).
     EmotionList:
       type: object
       required: [data]
@@ -1312,24 +1247,13 @@ components:
     # ---------------------------------------------------------------- users
     AccountUser:
       type: object
-      required: [id, email, first_name, last_name, is_account_administrator, email_verified_at, invitation_accepted_at, is_invitation_pending, created_at, updated_at]
+      required: [id, username, first_name, last_name, is_account_administrator, created_at, updated_at]
       properties:
         id: { $ref: '#/components/schemas/Uuid' }
-        email: { type: string, format: email }
-        first_name: { type: [string, 'null'], description: Null until an invited user accepts. }
+        username: { $ref: '#/components/schemas/Username' }
+        first_name: { type: [string, 'null'] }
         last_name: { type: [string, 'null'] }
         is_account_administrator: { type: boolean }
-        email_verified_at:
-          oneOf:
-            - $ref: '#/components/schemas/Timestamp'
-            - type: 'null'
-        invitation_accepted_at:
-          oneOf:
-            - $ref: '#/components/schemas/Timestamp'
-            - type: 'null'
-        is_invitation_pending:
-          type: boolean
-          description: Computed; invited (has an invitation code) and not accepted yet.
         created_at: { $ref: '#/components/schemas/Timestamp' }
         updated_at: { $ref: '#/components/schemas/Timestamp' }
     AccountUserList:
@@ -1339,11 +1263,15 @@ components:
         data:
           type: array
           items: { $ref: '#/components/schemas/AccountUser' }
-    AccountUserInvite:
+    AccountUserCreate:
       type: object
-      required: [email]
+      required: [first_name, last_name, username, password, password_confirmation]
       properties:
-        email: { type: string, format: email, maxLength: 255, description: Must not belong to any user yet (`unique`). }
+        first_name: { type: string, minLength: 1, maxLength: 255 }
+        last_name: { type: string, minLength: 1, maxLength: 255 }
+        username: { $ref: '#/components/schemas/Username' }
+        password: { $ref: '#/components/schemas/NewPassword' }
+        password_confirmation: { type: string, description: Must equal `password`. }
         is_account_administrator: { type: boolean, default: false }
     AccountUserUpdate:
       type: object

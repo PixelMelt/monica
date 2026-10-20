@@ -31,9 +31,8 @@ use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 use crate::db::id::Id;
 use crate::db::uuid::Uuid;
-use crate::domains::settings::manage_storage;
 use crate::entities::{
-    accounts, contact_group, contacts, groups, module_template_page, modules, quick_facts, template_pages,
+    contact_group, contacts, groups, module_template_page, modules, quick_facts, template_pages,
     vault_quick_facts_templates,
 };
 use crate::error::ApiError;
@@ -98,8 +97,6 @@ pub struct ContactPage {
     pub contact: Contact,
     /// Computed: this is the current user's own contact in the vault (the page hides archive and delete for it).
     pub is_current_user_contact: bool,
-    /// Computed: the account is below its storage limit (X011).
-    pub can_upload_file: bool,
     /// Modules of the template's `contact_information` page, in position
     /// order (left column: avatar, contact_names, family_summary,
     /// gender_pronoun, important_dates, labels, company, religions).
@@ -431,8 +428,6 @@ pub async fn get_contact_page(
         .one(db)
         .await?
         .ok_or_else(ApiError::not_found)?;
-    let account =
-        accounts::Entity::find_by_id(access.vault.account_id).one(db).await?.ok_or_else(ApiError::not_found)?;
     let ctx = ModuleContext { user: id.user.clone(), vault: access.vault.clone(), contact: contact.clone() };
 
     // `GroupsViewHelper::summary`.
@@ -496,7 +491,6 @@ pub async fn get_contact_page(
 
     Ok(Json(ContactPage {
         is_current_user_contact: access.membership.contact_id == contact.id,
-        can_upload_file: manage_storage::can_upload_file(db, &account).await?,
         contact: Contact::load(db, id.user.id, contact).await?,
         header_modules,
         groups,

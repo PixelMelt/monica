@@ -39,7 +39,7 @@ async fn module(app: &TestApp, account_id: Uuid, name: &str, ty: &str, reserved:
 
 async fn admin(app: &mut TestApp) -> users::Model {
     let user = factory::create_administrator(&app.state.db).await;
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     user
 }
 
@@ -419,7 +419,7 @@ async fn members_read_and_only_administrators_write() {
 
     // Q9: any member of the account reads, only administrators write.
     let member = factory::user(&app.state.db, Some(user.account_id)).await;
-    app.login(&member.email).await;
+    app.login(&member.username).await;
     for path in &reads {
         app.get(path).await.assert(200);
     }
@@ -430,7 +430,7 @@ async fn members_read_and_only_administrators_write() {
 
     // Another account's administrator sees none of it.
     let stranger = factory::create_administrator(&app.state.db).await;
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     assert_eq!(app.get("/account/templates").await.assert(200).json()["data"], json!([]));
     assert_eq!(app.get("/account/modules").await.assert(200).json()["data"], json!([]));
     assert_eq!(app.get("/account/post-templates").await.assert(200).json()["data"], json!([]));
@@ -452,10 +452,7 @@ async fn members_read_and_only_administrators_write() {
 async fn the_seeded_defaults_cannot_be_deleted() {
     let mut app = TestApp::new().await;
     let user = admin(&mut app).await;
-    SetupAccount { account_id: user.account_id, author_id: user.id }
-        .execute(&app.state.db, &app.state.mailer, &app.state.config)
-        .await
-        .unwrap();
+    SetupAccount { account_id: user.account_id, author_id: user.id }.execute(&app.state.db).await.unwrap();
 
     let templates = app.get("/account/templates").await.json()["data"].clone();
     assert_eq!(templates.as_array().unwrap().len(), 1);

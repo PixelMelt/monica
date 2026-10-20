@@ -15,7 +15,7 @@ async fn logged_in(locale: &str) -> TestApp {
     let mut u = user.clone().into_active_model();
     u.locale = Set(locale.into());
     let _: users::Model = u.update(&app.state.db).await.unwrap();
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     app
 }
 
@@ -116,16 +116,13 @@ async fn lists_timezones_with_their_offsets() {
 }
 
 #[tokio::test]
-async fn needs_a_verified_user() {
+async fn needs_a_user() {
     let mut app = TestApp::new().await;
     for path in ["/reference/currencies", "/reference/countries", "/reference/languages", "/reference/timezones"] {
         assert_eq!(app.get(path).await.assert(401).code(), "unauthenticated");
     }
     let user = factory::create_user(&app.state.db).await;
-    let mut u = user.clone().into_active_model();
-    u.email_verified_at = Set(None);
-    let _: users::Model = u.update(&app.state.db).await.unwrap();
-    app.login(&user.email).await;
-    assert_eq!(app.get("/reference/countries").await.assert(403).code(), "email_not_verified");
+    app.login(&user.username).await;
+    app.get("/reference/countries").await.assert(200);
     app.finish().await;
 }

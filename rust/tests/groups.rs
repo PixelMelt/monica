@@ -78,7 +78,7 @@ async fn creates_lists_shows_updates_and_deletes_groups() {
     let child = role(&app, family.id, "Child", 2).await;
     let parent = role(&app, family.id, "Parent", 1).await;
     let elsewhere = group_type(&app, factory::account(&app.state.db).await.id, "Other").await;
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let base = format!("/vaults/{}/groups", vault.id);
 
     let res = app.post(&base, json!({"name": "  "})).await.assert(422);
@@ -200,21 +200,21 @@ async fn viewers_only_read_and_strangers_see_nothing() {
     let other = factory::create_vault_user(&app.state.db, &editor, VaultPermission::Edit).await;
     let base = format!("/vaults/{}/groups", vault.id);
 
-    app.login(&editor.email).await;
+    app.login(&editor.username).await;
     let g = app.post(&base, json!({"name": "Friends"})).await.assert(201).json();
     let path = format!("{base}/{}", g["id"]);
     let foreign = app.post(&format!("/vaults/{}/groups", other.id), json!({"name": "Theirs"})).await.assert(201).json();
     app.get(&format!("{base}/{}", foreign["id"])).await.assert(404);
     app.get(&format!("{base}/999999")).await.assert(404);
 
-    app.login(&viewer.email).await;
+    app.login(&viewer.username).await;
     assert_eq!(app.get(&base).await.assert(200).json()["data"][0]["name"], "Friends");
     app.get(&path).await.assert(200);
     assert_eq!(app.post(&base, json!({"name": "Mine"})).await.assert(403).code(), "forbidden");
     app.patch(&path, json!({"name": "Mine"})).await.assert(403);
     app.delete(&path).await.assert(403);
 
-    app.login(&stranger.email).await;
+    app.login(&stranger.username).await;
     app.get(&base).await.assert(404);
     app.get(&path).await.assert(404);
     app.post(&base, json!({"name": "Mine"})).await.assert(404);

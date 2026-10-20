@@ -26,10 +26,10 @@ async fn world() -> World {
     let mut app = TestApp::new().await;
     let user = factory::create_administrator(&app.state.db).await;
     SetupAccount { account_id: user.account_id, author_id: user.id }
-        .execute(&app.state.db, &app.state.mailer, &app.state.config)
+        .execute(&app.state.db)
         .await
         .expect("setup account");
-    app.login(&user.email).await;
+    app.login(&user.username).await;
     let v = app.post("/vaults", json!({"name": "Family"})).await.assert(201).json();
     let vault = v["id"].as_str().unwrap().to_owned();
     let c = app.post(&format!("/vaults/{vault}/contacts"), json!({"first_name": "Jane"})).await.assert(201).json();
@@ -88,10 +88,7 @@ async fn creates_lists_updates_and_deletes_notes() {
     let db = w.app.state.db.clone();
     let emotion = w.emotion(w.user.account_id).await;
     let other_account = factory::create_administrator(&db).await;
-    SetupAccount { account_id: other_account.account_id, author_id: other_account.id }
-        .execute(&db, &w.app.state.mailer, &w.app.state.config)
-        .await
-        .unwrap();
+    SetupAccount { account_id: other_account.account_id, author_id: other_account.id }.execute(&db).await.unwrap();
     let foreign_emotion = w.emotion(other_account.account_id).await;
     let base = w.notes();
 
@@ -198,20 +195,20 @@ async fn viewers_read_notes_and_strangers_see_nothing() {
     let viewer = w.member(VaultPermission::View).await;
     let stranger = factory::create_user(&w.app.state.db).await;
 
-    w.app.login(&viewer.email).await;
+    w.app.login(&viewer.username).await;
     let list = w.app.get(&base).await.assert(200).json();
     assert_eq!(list["data"][0]["id"], note["id"]);
     assert_eq!(w.app.post(&base, json!({"body": "No"})).await.assert(403).code(), "forbidden");
     w.app.patch(&path, json!({"body": "No"})).await.assert(403);
     w.app.delete(&path).await.assert(403);
 
-    w.app.login(&stranger.email).await;
+    w.app.login(&stranger.username).await;
     w.app.get(&base).await.assert(404);
     w.app.post(&base, json!({"body": "No"})).await.assert(404);
     w.app.patch(&path, json!({"body": "No"})).await.assert(404);
     w.app.delete(&path).await.assert(404);
 
-    let email = w.user.email.clone();
+    let email = w.user.username.clone();
     w.app.login(&email).await;
     let missing = format!("/vaults/{}/contacts/{}/notes", w.vault, Uuid::new());
     w.app.get(&missing).await.assert(404);

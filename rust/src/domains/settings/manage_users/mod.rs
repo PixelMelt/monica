@@ -5,31 +5,69 @@ mod tests;
 
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter};
 
-use crate::config::Config;
 use crate::db::uuid::Uuid;
 use crate::domains::base::{Check, VaultPermission, check};
-use crate::domains::settings::manage_notification_channels::{CreateUserNotificationChannel, TYPE_EMAIL};
-use crate::entities::{user_notification_channels, user_vault, users, vaults};
+use crate::entities::{user_vault, users, vaults};
 use crate::error::{ApiError, ApiResult};
 use crate::i18n;
-use crate::mail::{Email, Mailer};
 use crate::validate::Validator;
 
-/// `AcceptInvitation`.
-pub struct AcceptInvitation {
-    pub invitation_code: Uuid,
-    pub first_name: String,
-    pub last_name: String,
-    pub password: String,
+/// A username as stored: trimmed and in lower case, so signing in ignores
+/// case on every database.
+pub fn normalize_username(username: &str) -> String {
+    username.trim().to_lowercase()
 }
 
-impl AcceptInvitation {
-    pub async fn execute<C: ConnectionTrait>(
-        self,
-        db: &C,
-        mailer: &Mailer,
-        config: &Config,
-    ) -> ApiResult<users::Model> {
+/// The rules of a (normalized) username: required, at most 255 characters,
+/// no whitespace and no `:` (CardDAV clients send `username:token`), and no
+/// other user's (`except` is the user being edited).
+pub async fn validate_username<C: ConnectionTrait>(
+    db: &C,
+    v: &mut Validator,
+    username: &str,
+    except: Option<Uuid>,
+) -> ApiResult<()> {
+    if username.is_empty() {
+        v.fail("username", "required", &[]);
+        return Ok(());
+    }
+    v.max_len("username", Some(username), 255);
+    if username.chars().any(|c| c.is_whitespace() || c == ':') {
+        v.fail("username", "regex", &[]);
+    }
+    let taken = users::Entity::find().filter(users::Column::Username.eq(username)).one(db).await?;
+    if taken.is_some_and(|u| Some(u.id) != except) {
+        v.fail("username", "unique", &[]);
+    }
+    Ok(())
+}
+
+/// Adds a user to the account with a username and an initial password, set
+/// by an administrator (in place of `InviteUser`'s email invitation).
+pub struct CreateUser {
+    pub account_id: Uuid,
+    pub author_id: Uuid,
+    pub first_name: String,
+    pub last_name: String,
+    pub username: String,
+    pub password: String,
+    pub is_administrator: bool,
+}
+
+impl CreateUser {
+    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<users::Model> {
+        check(
+            db,
+            &Check {
+                account_id: self.account_id,
+                author_id: self.author_id,
+                administrator: true,
+                ..Default::default()
+            },
+        )
+        .await?;
+
+        let username = normalize_username(&self.username);
         let mut v = Validator::new();
         for (field, value) in [("first_name", &self.first_name), ("last_name", &self.last_name)] {
             if value.trim().is_empty() {
@@ -37,66 +75,28 @@ impl AcceptInvitation {
             }
             v.max_len(field, Some(value), 255);
         }
-        if self.password.trim().is_empty() {
+        validate_username(db, &mut v, &username, None).await?;
+        if self.password.is_empty() {
             v.fail("password", "required", &[]);
-        } else if !self.password.chars().all(|c| c.is_alphanumeric() || c == '_' || c == '-') {
-            v.fail("password", "alpha_dash", &[]);
         }
-        v.max_len("password", Some(&self.password), 255);
         v.finish()?;
 
-        let user = self.find_user_by_invitation_code(db).await?;
-        let user = self.update_user(db, user).await?;
-        Self::create_notification_channel(db, mailer, config, &user).await?;
-
-        Ok(user)
-    }
-
-    async fn find_user_by_invitation_code<C: ConnectionTrait>(&self, db: &C) -> ApiResult<users::Model> {
-        users::Entity::find()
-            .filter(users::Column::InvitationCode.eq(self.invitation_code.to_string()))
-            .filter(users::Column::InvitationAcceptedAt.is_null())
-            .one(db)
-            .await?
-            .ok_or_else(ApiError::not_found)
-    }
-
-    async fn update_user<C: ConnectionTrait>(&self, db: &C, user: users::Model) -> ApiResult<users::Model> {
-        let mut user: users::ActiveModel = user.into();
-        // Q5: the PHP sets is_account_administrator = false here, which undid
-        // InviteUser's administrator flag; it is kept as invited.
-        user.first_name = Set(Some(self.first_name.clone()));
-        user.last_name = Set(Some(self.last_name.clone()));
-        user.invitation_accepted_at = Set(Some(crate::db::now()));
-        user.email_verified_at = Set(Some(crate::db::now()));
-        user.password = Set(Some(crate::password::hash(&self.password)));
-        user.timezone = Set(Some("UTC".into()));
-        Ok(user.update(db).await?)
-    }
-
-    async fn create_notification_channel<C: ConnectionTrait>(
-        db: &C,
-        mailer: &Mailer,
-        config: &Config,
-        user: &users::Model,
-    ) -> ApiResult<()> {
-        let channel = CreateUserNotificationChannel {
-            account_id: user.account_id,
-            author_id: user.id,
-            label: "Email address".into(),
-            r#type: TYPE_EMAIL.into(),
-            content: user.email.clone(),
-            verify_email: Some(false),
-            preferred_time: Some("09:00".into()),
+        let now = crate::db::now();
+        Ok(users::ActiveModel {
+            id: Set(Uuid::new()),
+            account_id: Set(self.account_id),
+            first_name: Set(Some(self.first_name)),
+            last_name: Set(Some(self.last_name)),
+            username: Set(username),
+            password: Set(Some(crate::password::hash(&self.password))),
+            is_account_administrator: Set(self.is_administrator),
+            timezone: Set(Some("UTC".into())),
+            created_at: Set(Some(now)),
+            updated_at: Set(Some(now)),
+            ..Default::default()
         }
-        .execute(db, mailer, config)
-        .await?;
-
-        let mut channel: user_notification_channels::ActiveModel = channel.into();
-        channel.verified_at = Set(Some(crate::db::now()));
-        channel.active = Set(true);
-        channel.update(db).await?;
-        Ok(())
+        .insert(db)
+        .await?)
     }
 }
 
@@ -161,14 +161,6 @@ impl DestroyUser {
     }
 }
 
-/// Deletes `user` and the vaults only they manage, without DestroyUser's
-/// checks: self-service deletion (V032, Jetstream's `DeleteUser`, which
-/// calls DestroyUser with the user as author and so always fails today).
-pub async fn delete_user<C: ConnectionTrait>(db: &C, user: &users::Model) -> ApiResult<()> {
-    DestroyUser::destroy_all_vaults(db, user).await?;
-    DestroyUser::destroy(db, user).await
-}
-
 /// `GiveAdministratorPrivilege`.
 pub struct GiveAdministratorPrivilege {
     pub account_id: Uuid,
@@ -194,89 +186,6 @@ impl GiveAdministratorPrivilege {
         let mut user: users::ActiveModel = user.into();
         user.is_account_administrator = Set(true);
         Ok(user.update(db).await?)
-    }
-}
-
-/// `InviteUser`.
-pub struct InviteUser {
-    pub account_id: Uuid,
-    pub author_id: Uuid,
-    pub email: String,
-    pub is_administrator: bool,
-}
-
-impl InviteUser {
-    pub async fn execute<C: ConnectionTrait>(
-        self,
-        db: &C,
-        mailer: &Mailer,
-        config: &Config,
-    ) -> ApiResult<users::Model> {
-        let mut v = Validator::new();
-        if self.email.trim().is_empty() {
-            v.fail("email", "required", &[]);
-        } else if users::Entity::find().filter(users::Column::Email.eq(&self.email)).one(db).await?.is_some() {
-            v.fail("email", "unique", &[]);
-        }
-        v.max_len("email", Some(&self.email), 255);
-        v.finish()?;
-        let checked = check(
-            db,
-            &Check {
-                account_id: self.account_id,
-                author_id: self.author_id,
-                administrator: true,
-                ..Default::default()
-            },
-        )
-        .await?;
-
-        let user = self.create_user(db).await?;
-        Self::send_email(mailer, config, &user, &checked.author).await?;
-
-        Ok(user)
-    }
-
-    async fn create_user<C: ConnectionTrait>(&self, db: &C) -> ApiResult<users::Model> {
-        Ok(users::ActiveModel {
-            id: Set(Uuid::new()),
-            account_id: Set(self.account_id),
-            email: Set(self.email.clone()),
-            invitation_code: Set(Some(uuid::Uuid::new_v4().to_string())),
-            is_account_administrator: Set(self.is_administrator),
-            ..Default::default()
-        }
-        .insert(db)
-        .await?)
-    }
-
-    async fn send_email(mailer: &Mailer, config: &Config, user: &users::Model, author: &users::Model) -> ApiResult<()> {
-        let l = i18n::current();
-        let code = user.invitation_code.as_deref().expect("create_user sets the invitation code");
-        let url = format!("{}/invitation/{code}", config.url);
-        let user_name =
-            format!("{} {}", author.first_name.as_deref().unwrap_or(""), author.last_name.as_deref().unwrap_or(""));
-        let (text, html) = Mailer::render(
-            &[
-                i18n::t(&l, "Please join Monica", &[]),
-                i18n::t(
-                    &l,
-                    ":UserName invites you to join Monica, an open source personal CRM, designed to help you document your relationships.",
-                    &[("userName", &user_name)],
-                ),
-            ],
-            Some((&i18n::t(&l, "Accept invitation and create your account", &[]), &url)),
-            &[i18n::t(&l, "Thanks,", &[]), "Monica".into()],
-        );
-        mailer
-            .send(Email {
-                to: user.email.clone(),
-                subject: i18n::t(&l, "You are invited to join Monica", &[]),
-                text,
-                html,
-            })
-            .await
-            .map_err(ApiError::internal)
     }
 }
 

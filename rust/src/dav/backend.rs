@@ -105,7 +105,6 @@ pub const PRINCIPAL_PREFIX: &str = "principals/";
 pub struct Principal {
     pub uri: String,
     pub displayname: String,
-    pub email_address: String,
 }
 
 impl Principal {
@@ -114,7 +113,6 @@ impl Principal {
         match key {
             "uri" => Some(&self.uri),
             "{DAV:}displayname" => Some(&self.displayname),
-            k if k == format!("{{{NS_SABREDAV}}}email-address") => Some(&self.email_address),
             _ => None,
         }
     }
@@ -122,7 +120,7 @@ impl Principal {
 
 /// `PrincipalBackend::getPrincipalUser($user)`.
 pub fn get_principal_user(user: &users::Model) -> String {
-    format!("{PRINCIPAL_PREFIX}{}", user.email)
+    format!("{PRINCIPAL_PREFIX}{}", user.username)
 }
 
 /// `$user->name`.
@@ -131,11 +129,7 @@ fn user_name(user: &users::Model) -> String {
 }
 
 fn get_principals(ctx: &Ctx) -> Vec<Principal> {
-    vec![Principal {
-        uri: get_principal_user(&ctx.user),
-        displayname: user_name(&ctx.user),
-        email_address: ctx.user.email.clone(),
-    }]
+    vec![Principal { uri: get_principal_user(&ctx.user), displayname: user_name(&ctx.user) }]
 }
 
 /// `PrincipalBackend::getPrincipalsByPrefix($prefixPath)`.

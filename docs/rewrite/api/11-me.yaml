@@ -14,7 +14,7 @@ paths:
       summary: The logged-in user
       description: |
         Also replaces `GET /api/user` (R329) and the user part of the profile
-        page (V029). No verified email needed.
+        page (V029).
       x-permission: user
       x-inventory: [R329, V029]
       x-services: []
@@ -29,10 +29,10 @@ paths:
     patch:
       operationId: updateMe
       tags: [Me]
-      summary: Update name and email
+      summary: Update name and username
       description: |
-        Changing `email` clears `email_verified_at` and sends the verification
-        email (E005). No verified email needed.
+        The username is kept trimmed and in lower case, and must be no other
+        user's.
       x-permission: user
       x-inventory: [V013]
       x-services: [UpdateUserProfileInformation]
@@ -50,33 +50,6 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
-    delete:
-      operationId: deleteMe
-      tags: [Me]
-      summary: Delete my user
-      description: |
-        Only when the server flag `ENABLE_ACCOUNT_DELETION` is on. It defaults
-        to off, and then this answers 404, as today where the route isn't
-        registered (`Instance.features.account_deletion`). Deletes the user and
-        the vaults they are the only manager of (DestroyUser), then ends the
-        session. 409 when they are the account's last administrator.
-        Sensitive action. No verified email needed.
-      x-permission: user
-      x-inventory: [V032]
-      x-services: [DeleteUser, DestroyUser]
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PasswordConfirmation' }
-      responses:
-        '204': { $ref: '#/components/responses/NoContent' }
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
-
   /me/bootstrap:
     get:
       operationId: getBootstrap
@@ -86,7 +59,7 @@ paths:
         Aggregate (api-design.md §12) replacing `VaultIndexViewHelper::layoutData`
         and the shared Inertia props: the user with preferences, their vaults
         with permission and tab visibility, and the instance info (footer
-        version). No verified email needed.
+        version).
       x-permission: user
       x-inventory: []
       x-services: []
@@ -107,7 +80,7 @@ paths:
       description: |
         Wrong `current_password`: 422 on it. Deletes pending reset tokens and
         ends the user's other sessions (today through `AuthenticateSession`);
-        the current session stays. No verified email needed.
+        the current session stays.
       x-permission: user
       x-inventory: [V014]
       x-services: [UpdateUserPassword]
@@ -178,7 +151,7 @@ paths:
       description: |
         Generates a TOTP secret and 8 recovery codes, replacing an unconfirmed
         secret. 2FA is active only after confirmTwoFactor. 409 when 2FA is
-        already confirmed. Sensitive action. No verified email needed.
+        already confirmed. Sensitive action.
       x-permission: user
       x-inventory: [V020, V023, V024]
       x-services: [EnableTwoFactorAuthentication]
@@ -203,7 +176,7 @@ paths:
       summary: Disable 2FA
       description: |
         Clears the secret, recovery codes and confirmation. Sensitive action.
-        No verified email needed.
+       
       x-permission: user
       x-inventory: [V022]
       x-services: [DisableTwoFactorAuthentication]
@@ -225,8 +198,7 @@ paths:
       summary: Confirm 2FA with a code from the app
       description: |
         Sets `two_factor_confirmed_at`; from then on login asks for a code.
-        Wrong code or no pending secret: 422 on `code`. No verified email
-        needed.
+        Wrong code or no pending secret: 422 on `code`.
       x-permission: user
       x-inventory: [V021]
       x-services: [ConfirmTwoFactorAuthentication]
@@ -249,7 +221,7 @@ paths:
       description: |
         Empty list when 2FA has no secret. Sensitive action; as a GET has no
         body, it needs the session confirmation (bearer clients regenerate
-        instead). No verified email needed.
+        instead).
       x-permission: user
       x-inventory: [V025]
       x-services: []
@@ -266,7 +238,7 @@ paths:
       tags: [Me]
       summary: Replace the recovery codes with 8 new ones
       description: |
-        409 when 2FA has no secret. Sensitive action. No verified email needed.
+        409 when 2FA has no secret. Sensitive action.
       x-permission: user
       x-inventory: [V026]
       x-services: [GenerateNewRecoveryCodes]
@@ -294,8 +266,7 @@ paths:
       summary: My browser sessions
       description: |
         Rows of `sessions` for this user, most recently active first, for the
-        profile page (V029). Session ids are never returned. No verified email
-        needed.
+        profile page (V029). Session ids are never returned.
       x-permission: user
       x-inventory: [V029]
       x-services: []
@@ -315,8 +286,7 @@ paths:
       summary: Log out every other browser session
       description: |
         Deletes this user's `sessions` rows except the current one (X026).
-        Sensitive action; wrong password: 422 on `password`. No verified email
-        needed.
+        Sensitive action; wrong password: 422 on `password`.
       x-permission: user
       x-inventory: [V030]
       x-services: []
@@ -422,7 +392,7 @@ paths:
       operationId: listNotificationChannels
       tags: [Me]
       summary: My reminder notification channels
-      description: Email channels (Telegram is removed), ordered by `id`.
+      description: Pushover channels (email and Telegram are removed), ordered by `id`.
       x-permission: user
       x-inventory: [R221]
       x-services: []
@@ -437,12 +407,12 @@ paths:
     post:
       operationId: createNotificationChannel
       tags: [Me]
-      summary: Add an email address to be notified at
+      summary: Add a Pushover channel
       description: |
-        Creates an inactive, unverified channel with a new `verification_token`
-        and queues the verification email (J015, E004), whose link opens the
-        SPA at `/settings/notifications/{id}/verify/{token}`. An address already
-        used by any channel is a 422 on `content`.
+        Checks the user key and application token with Pushover
+        (`users/validate.json`): refused or unreachable is a 422 on
+        `user_key`. The channel is then verified and active, and the user's
+        contact reminders are scheduled on it. The token is never returned.
       x-permission: user
       x-inventory: [R222]
       x-services: [CreateUserNotificationChannel]
@@ -524,13 +494,14 @@ paths:
     post:
       operationId: sendNotificationChannelTest
       tags: [Me]
-      summary: Send a test email to the channel
+      summary: Send a test notification to the channel
       description: |
-        Sends E003 to `content` and adds a log entry (`subject_line` "Test
-        email for Monica" in the user's locale).
+        Sends "This is a test notification for <name>" (in the user's locale)
+        through Pushover and adds a log entry with that text. 502
+        `notification_failed` when Pushover doesn't take it.
       x-permission: user
       x-inventory: [R225]
-      x-services: [SendTestEmail]
+      x-services: [SendTestNotification]
       parameters:
         - $ref: '#/components/parameters/NotificationChannelId'
       responses:
@@ -538,37 +509,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
-
-  /me/notification-channels/{notification_channel_id}/verify:
-    post:
-      operationId: verifyNotificationChannel
-      tags: [Me]
-      summary: Verify a channel's email address from the emailed link
-      description: |
-        Called by the SPA page the verification link opens, which then shows
-        the channels list (R224). Sets `verified_at` and schedules the user's
-        contact reminders on the channel. `token` must equal the channel's
-        `verification_token` (422 otherwise).
-      x-permission: user
-      x-inventory: [R224]
-      x-services: [VerifyUserNotificationChannelEmailAddress, ScheduleAllContactRemindersForNotificationChannel]
-      parameters:
-        - $ref: '#/components/parameters/NotificationChannelId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/NotificationChannelVerification' }
-      responses:
-        '200':
-          description: The verified channel.
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/NotificationChannel' }
-        '401': { $ref: '#/components/responses/Unauthenticated' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '502': { $ref: '#/components/responses/NotificationFailed' }
 
   /me/notification-channels/{notification_channel_id}/logs:
     get:
@@ -607,18 +548,13 @@ components:
     # ------------------------------------------------------------ user
     CurrentUser:
       type: object
-      required: [id, account_id, first_name, last_name, email, email_verified_at, is_account_administrator, is_instance_administrator, two_factor_enabled, preferences, created_at, updated_at]
+      required: [id, account_id, first_name, last_name, username, is_account_administrator, is_instance_administrator, two_factor_enabled, preferences, created_at, updated_at]
       properties:
         id: { $ref: '#/components/schemas/Uuid' }
         account_id: { $ref: '#/components/schemas/Uuid' }
         first_name: { type: [string, 'null'] }
         last_name: { type: [string, 'null'] }
-        email: { type: string, format: email }
-        email_verified_at:
-          description: Null until the email is verified; most endpoints answer 403 `email_not_verified` until then.
-          oneOf:
-            - $ref: '#/components/schemas/Timestamp'
-            - type: 'null'
+        username: { $ref: '#/components/schemas/Username' }
         is_account_administrator: { type: boolean }
         is_instance_administrator: { type: boolean, description: X010. }
         two_factor_enabled:
@@ -633,7 +569,7 @@ components:
       properties:
         first_name: { type: string, minLength: 1, maxLength: 255 }
         last_name: { type: string, minLength: 1, maxLength: 255 }
-        email: { type: string, format: email, maxLength: 255, description: Unique across users. }
+        username: { $ref: '#/components/schemas/Username' }
     PasswordUpdate:
       type: object
       required: [current_password, password, password_confirmation]
@@ -823,12 +759,12 @@ components:
     # ------------------------------------------------------------ notification channels
     NotificationChannel:
       type: object
-      required: [id, type, label, content, preferred_time, active, fails, verified_at, created_at, updated_at]
+      required: [id, type, label, user_key, preferred_time, active, fails, verified_at, created_at, updated_at]
       properties:
         id: { $ref: '#/components/schemas/Id' }
-        type: { type: string, enum: [email] }
+        type: { type: string, enum: [pushover] }
         label: { type: [string, 'null'] }
-        content: { type: string, description: The email address. }
+        user_key: { type: string, description: The Pushover user (or group) key; the application token is never returned. }
         preferred_time:
           type: [string, 'null']
           pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$'
@@ -839,7 +775,7 @@ components:
           minimum: 0
           description: Consecutive send failures; at 10 (`max_notification_failures`) the channel is deactivated.
         verified_at:
-          description: Null until the address is verified; the UI offers activate and test only once verified.
+          description: When Pushover accepted the keys (at creation).
           oneOf:
             - $ref: '#/components/schemas/Timestamp'
             - type: 'null'
@@ -854,21 +790,17 @@ components:
           items: { $ref: '#/components/schemas/NotificationChannel' }
     NotificationChannelCreate:
       type: object
-      required: [label, content, preferred_time]
+      required: [label, user_key, app_token, preferred_time]
       properties:
         label: { type: string, minLength: 1, maxLength: 255 }
-        content: { type: string, format: email, maxLength: 255 }
+        user_key: { type: string, maxLength: 255, description: The Pushover user (or group) key. }
+        app_token: { type: string, maxLength: 255, description: The token of your Pushover application. }
         preferred_time: { type: string, pattern: '^([01][0-9]|2[0-3]):[0-5][0-9]$', examples: ['09:00'] }
     NotificationChannelUpdate:
       type: object
       required: [active]
       properties:
         active: { type: boolean }
-    NotificationChannelVerification:
-      type: object
-      required: [token]
-      properties:
-        token: { $ref: '#/components/schemas/Uuid' }
     NotificationLog:
       type: object
       required: [id, sent_at, subject_line, error]
