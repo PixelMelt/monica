@@ -154,6 +154,25 @@ impl TestApp {
         } else {
             format!("/api/v1{path}")
         };
+        self.send_uri(method, uri, body.map(|(t, b)| (Some(t), b)), headers).await
+    }
+
+    /// Sends `method` (any verb, e.g. `PROPFIND`) to `uri` as given, with a
+    /// raw body and no `Content-Type` but the headers', as the browser or
+    /// the bearer-token client.
+    pub async fn raw(&mut self, method: &str, uri: &str, body: &str, headers: &[(&str, &str)]) -> TestResponse {
+        let method = Method::from_bytes(method.as_bytes()).expect("method");
+        let body = (!body.is_empty()).then(|| (None, body.as_bytes().to_vec()));
+        self.send_uri(method, uri.to_owned(), body, headers).await
+    }
+
+    async fn send_uri(
+        &mut self,
+        method: Method,
+        uri: String,
+        body: Option<(Option<String>, Vec<u8>)>,
+        headers: &[(&str, &str)],
+    ) -> TestResponse {
         let mut req = Request::builder().method(method.clone()).uri(uri);
         if let Some(token) = &self.bearer {
             req = req.header(header::AUTHORIZATION, format!("Bearer {token}"));
@@ -172,7 +191,10 @@ impl TestApp {
             req = req.header(*k, *v);
         }
         let req = match body {
-            Some((content_type, b)) => req.header(header::CONTENT_TYPE, content_type).body(Body::from(b)).unwrap(),
+            Some((Some(content_type), b)) => {
+                req.header(header::CONTENT_TYPE, content_type).body(Body::from(b)).unwrap()
+            }
+            Some((None, b)) => req.body(Body::from(b)).unwrap(),
             None => req.body(Body::empty()).unwrap(),
         };
         let res = self.router.clone().oneshot(req).await.unwrap();

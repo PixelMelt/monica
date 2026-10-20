@@ -35,7 +35,8 @@ pub fn app(state: AppState) -> Router {
         .route("/up", get(|| async { "OK" }))
         .route("/.well-known/carddav", get(|| async { Redirect::permanent("/dav") }))
         .route("/.well-known/caldav", get(|| async { Redirect::permanent("/dav") }))
-        .route("/.well-known/security.txt", get(|| async { Redirect::permanent("/security.txt") }));
+        .route("/.well-known/security.txt", get(|| async { Redirect::permanent("/security.txt") }))
+        .merge(crate::dav::router(state.clone()));
     if let Some(dir) = &state.config.spa_dir {
         let index = dir.join("index.html");
         app = app.fallback_service(ServeDir::new(dir).fallback(ServeFile::new(index)));

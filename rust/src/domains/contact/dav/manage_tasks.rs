@@ -354,7 +354,7 @@ async fn vault_task<C: ConnectionTrait>(
 
 /// `(new CalDAVTasks)->withVault($vault)->getObject($vault->id, $uri)`: the
 /// task whose uuid is the uri's file name.
-async fn cal_dav_tasks_get_object<C: ConnectionTrait>(
+pub async fn cal_dav_tasks_get_object<C: ConnectionTrait>(
     db: &C,
     vault: &vaults::Model,
     uri: &str,

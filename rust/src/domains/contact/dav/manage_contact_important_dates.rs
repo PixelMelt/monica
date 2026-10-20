@@ -449,7 +449,7 @@ async fn vault_important_date<C: ConnectionTrait>(
 
 /// `(new CalDAVDates)->withVault($vault)->getObject($vault->id, $uri)`: the
 /// date whose uuid is the uri's file name.
-async fn cal_dav_dates_get_object<C: ConnectionTrait>(
+pub async fn cal_dav_dates_get_object<C: ConnectionTrait>(
     db: &C,
     vault: &vaults::Model,
     uri: &str,

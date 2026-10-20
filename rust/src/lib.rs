@@ -5,6 +5,7 @@ pub mod auth;
 pub mod commands;
 pub mod config;
 pub mod crypto;
+pub mod dav;
 pub mod db;
 pub mod domains;
 pub mod dummy;
