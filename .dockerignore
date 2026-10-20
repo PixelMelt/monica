@@ -37,3 +37,6 @@ storage/logs/*
 .styleci.yml
 vendor/
 yarn-error.log
+rust/target/
+rust/data/
+dist/
