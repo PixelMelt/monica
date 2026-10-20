@@ -19,9 +19,9 @@ pub mod multiavatar;
 pub mod password;
 pub mod scheduler;
 pub mod storage;
-pub mod text;
 #[doc(hidden)]
 pub mod testing;
+pub mod text;
 pub mod validate;
 pub mod vobject;
 pub mod wikipedia;

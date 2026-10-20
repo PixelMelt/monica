@@ -73,22 +73,22 @@ repo. No external services are required except SMTP.
 Stop for approval at each ★.
 
 - [x] **0. Inventory.** One table mapping every web route → controller →
-  service → ViewHelper → Vue page, plus every job, command and integration,
-  each marked port or remove. This is the parity checklist for the project.
+      service → ViewHelper → Vue page, plus every job, command and integration,
+      each marked port or remove. This is the parity checklist for the project.
 - [x] **1. API design.** ★ Claude drafts the OpenAPI spec from the inventory:
-  resources, pagination, error format, permission model, file upload/serving,
-  and which heavy pages (e.g. the contact page) get an aggregate endpoint.
-  Astra reviews it once for gaps against the inventory and for
-  inconsistencies. Claude triages; no review loops. The user approves the spec.
+      resources, pagination, error format, permission model, file upload/serving,
+      and which heavy pages (e.g. the contact page) get an aggregate endpoint.
+      Astra reviews it once for gaps against the inventory and for
+      inconsistencies. Claude triages; no review loops. The user approves the spec.
 - [x] **2. Skeleton.** ★ Config, DB layer and migrations on all 3 engines,
-  auth, accounts, users, vaults, permissions, error handling, test harness.
-- [ ] **3. Domains.** One module per commit: port each service and its PHP
-  tests. Astra may port backend modules under the CLAUDE.md porting rules, in
-  its own worktree; Claude reviews the diff and commits.
-- [ ] **4. Frontend.** Migrate page by page from Inertia props to the API
-  client, and remove the UI for removed features. Claude only; Astra never
-  touches frontend.
-- [ ] **5. Integrations.** ★ Scheduler/jobs, email, search, file storage, DAV.
+      auth, accounts, users, vaults, permissions, error handling, test harness.
+- [x] **3. Domains.** One module per commit: port each service and its PHP
+      tests. Astra may port backend modules under the CLAUDE.md porting rules, in
+      its own worktree; Claude reviews the diff and commits.
+- [x] **4. Frontend.** Migrate page by page from Inertia props to the API
+      client, and remove the UI for removed features. Claude only; Astra never
+      touches frontend.
+- [x] **5. Integrations.** ★ Scheduler/jobs, email, search, file storage, DAV.
 
 ## Done when
 
