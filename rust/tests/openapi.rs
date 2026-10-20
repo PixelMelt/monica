@@ -65,7 +65,7 @@ fn generated_operations_match_the_draft() {
 /// `$ref`s are resolved, `allOf` merged, and nullable variants dropped,
 /// so the generated and the drafted documents compare field by field.
 fn shape(doc: &Value, schema: &Value, depth: usize) -> Value {
-    if depth > 12 {
+    if depth > 64 {
         return Value::from("*");
     }
     if let Some(r) = schema["$ref"].as_str() {
@@ -85,6 +85,10 @@ fn shape(doc: &Value, schema: &Value, depth: usize) -> Value {
         return Value::Object(merged);
     }
     for key in ["oneOf", "anyOf"] {
+        // `oneOf` next to `properties` only constrains which are required.
+        if schema.get("properties").is_some() {
+            break;
+        }
         if let Some(variants) = schema[key].as_array() {
             let real: Vec<&Value> = variants.iter().filter(|v| v["type"] != "null").collect();
             if real.len() == 1 {
