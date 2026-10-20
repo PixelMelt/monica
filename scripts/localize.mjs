@@ -7,8 +7,9 @@
 //
 // Keys are found as amirami/localizator found them (config/localizator.php)
 // in the SPA (`$t`, `trans`, `wTrans`, `transChoice`, `$tChoice`), and in the
-// Rust server: the strings of `i18n::t(…, "key", …)` calls, and any string
-// literal that already is a key (seeded names such as `trans_key('Male')`).
+// Rust server: the strings of `i18n::t(…, "key", …)` calls. In both, any string
+// literal that already is a key counts too (the server's seeded names such as
+// `trans_key('Male')`, the SPA's tables of feed action labels).
 // The framework files (lang/<locale>/*.php, the PHP `lang:add`/`lang:update`
 // of laravel-lang) are left alone.
 
@@ -18,14 +19,45 @@ import { pathToFileURL } from 'node:url';
 import { getPluralIndex } from 'laravel-vue-i18n/utils/get-plural-index';
 
 const ROOT = new URL('..', import.meta.url).pathname;
-const LOCALES = ['en', 'ar', 'bn', 'ca', 'da', 'de', 'es', 'el', 'fr', 'he', 'hi', 'it', 'ja', 'ml', 'nl', 'nn', 'pa', 'pl', 'pt', 'pt_BR', 'ro', 'ru', 'sv', 'te', 'tr', 'ur', 'vi', 'zh_CN', 'zh_TW'];
+const LOCALES = [
+  'en',
+  'ar',
+  'bn',
+  'ca',
+  'da',
+  'de',
+  'es',
+  'el',
+  'fr',
+  'he',
+  'hi',
+  'it',
+  'ja',
+  'ml',
+  'nl',
+  'nn',
+  'pa',
+  'pl',
+  'pt',
+  'pt_BR',
+  'ro',
+  'ru',
+  'sv',
+  'te',
+  'tr',
+  'ur',
+  'vi',
+  'zh_CN',
+  'zh_TW',
+];
 const args = new Set(process.argv.slice(2));
 
 function* files(dir, exts) {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) {
-      if (name !== 'node_modules' && name !== 'api') yield* files(path, exts);
+      // The generated API client holds no translation keys.
+      if (name !== 'node_modules' && path !== join(ROOT, 'resources/js/api')) yield* files(path, exts);
     } else if (exts.includes(extname(name))) {
       yield path;
     }
@@ -38,18 +70,24 @@ const unescape = (s, quote) => s.replaceAll(`\\${quote}`, quote).replaceAll('\\\
 function usedKeys(known) {
   const keys = new Set();
   const js = /(?:\$t|\btrans|\bwTrans|\btransChoice|\$tChoice)\(\s*(['"`])((?:\\.|(?!\1)[^\\])*)\1/gs;
+  let spa = '';
   for (const path of files(join(ROOT, 'resources/js'), ['.vue', '.js'])) {
-    for (const m of readFileSync(path, 'utf8').matchAll(js)) keys.add(unescape(m[2], m[1]));
+    const text = readFileSync(path, 'utf8');
+    for (const m of text.matchAll(js)) keys.add(unescape(m[2], m[1]));
+    spa += text;
   }
-  const call = /i18n::t\(\s*&?[\w.()]+\s*,\s*"((?:\\.|[^"\\])*)"/g;
-  const literal = /"((?:\\.|[^"\\])*)"/g;
+  const call = /i18n::t\(\s*&?[\w.():]+\s*,\s*"((?:\\.|[^"\\])*)"/g;
+  let rust = '';
   for (const path of files(join(ROOT, 'rust/src'), ['.rs'])) {
     const text = readFileSync(path, 'utf8');
     for (const m of text.matchAll(call)) keys.add(unescape(m[1], '"'));
-    for (const m of text.matchAll(literal)) {
-      const s = unescape(m[1], '"');
-      if (known.has(s)) keys.add(s);
-    }
+    rust += text;
+  }
+  // Any string literal that is a key: the SPA's tables of labels it
+  // translates later (`trans(labels[action])`), the server's seeded names.
+  const quoted = (key, quote) => quote + key.replaceAll('\\', '\\\\').replaceAll(quote, `\\${quote}`) + quote;
+  for (const key of known) {
+    if (["'", '"', '`'].some((q) => spa.includes(quoted(key, q))) || rust.includes(quoted(key, '"'))) keys.add(key);
   }
   // `group.key` of a lang/<locale>/<group>.php file is not a JSON key.
   for (const key of keys) {
@@ -93,36 +131,88 @@ async function translateCount(locale, text, target) {
       : await translateText(message, target);
     result.set(j, translated);
   }
-  return [...result.keys()].sort((a, b) => a - b).map((k) => result.get(k)).join('|');
+  return [...result.keys()]
+    .sort((a, b) => a - b)
+    .map((k) => result.get(k))
+    .join('|');
+}
+
+const isdigit = (c) => c >= 0x30 && c <= 0x39;
+const isspace = (c) => c === 0x20 || (c >= 0x09 && c <= 0x0d);
+const toupper = (c) => (c >= 0x61 && c <= 0x7a ? c - 0x20 : c);
+
+/** `compare_right` of PHP's strnatcmp.c: the longer run of digits wins, then the greater value. */
+function compareRight(a, p, b, q) {
+  let bias = 0;
+  for (; ; p.i++, q.i++) {
+    const da = p.i < a.length && isdigit(a[p.i]);
+    const db = q.i < b.length && isdigit(b[q.i]);
+    if (!da && !db) return bias;
+    if (!da) return -1;
+    if (!db) return +1;
+    if (a[p.i] < b[q.i]) {
+      if (!bias) bias = -1;
+    } else if (a[p.i] > b[q.i]) {
+      if (!bias) bias = +1;
+    }
+  }
+}
+
+/** `compare_left` of PHP's strnatcmp.c: left-aligned digits, the first different one wins. */
+function compareLeft(a, p, b, q) {
+  for (; ; p.i++, q.i++) {
+    const da = p.i < a.length && isdigit(a[p.i]);
+    const db = q.i < b.length && isdigit(b[q.i]);
+    if (!da && !db) return 0;
+    if (!da) return -1;
+    if (!db) return +1;
+    if (a[p.i] < b[q.i]) return -1;
+    if (a[p.i] > b[q.i]) return +1;
+  }
 }
 
 /**
- * PHP's `strnatcasecmp`: bytes compared case-insensitively, whitespace
- * skipped, digit runs as numbers.
+ * PHP's `strnatcasecmp` (`strnatcmp_ex` with `is_case_insensitive`), on the
+ * UTF-8 bytes: leading zeros skipped, whitespace skipped, digit runs
+ * compared as numbers, ASCII letters folded to upper case.
  */
-function natcasecmp(a, b) {
-  const x = Buffer.from(a.toLowerCase().replace(/\s+/g, ''));
-  const y = Buffer.from(b.toLowerCase().replace(/\s+/g, ''));
-  const digit = (c) => c >= 0x30 && c <= 0x39;
-  let i = 0;
-  let j = 0;
-  while (i < x.length && j < y.length) {
-    if (digit(x[i]) && digit(y[j])) {
-      let ei = i;
-      let ej = j;
-      while (ei < x.length && digit(x[ei])) ei++;
-      while (ej < y.length && digit(y[ej])) ej++;
-      const n = BigInt(x.subarray(i, ei).toString()) - BigInt(y.subarray(j, ej).toString());
-      if (n !== 0n) return n < 0n ? -1 : 1;
-      i = ei;
-      j = ej;
-    } else {
-      if (x[i] !== y[j]) return x[i] - y[j];
-      i++;
-      j++;
+function natcasecmp(sa, sb) {
+  const a = Buffer.from(sa);
+  const b = Buffer.from(sb);
+  // Past the end reads the terminating NUL, as in C.
+  const at = (s, i) => (i < s.length ? s[i] : 0);
+  if (a.length === 0 || b.length === 0) return a.length === b.length ? 0 : a.length > b.length ? 1 : -1;
+  const p = { i: 0 };
+  const q = { i: 0 };
+  let leading = true;
+  for (;;) {
+    let ca = at(a, p.i);
+    let cb = at(b, q.i);
+    while (leading && ca === 0x30 && p.i + 1 < a.length && isdigit(a[p.i + 1])) ca = at(a, ++p.i);
+    while (leading && cb === 0x30 && q.i + 1 < b.length && isdigit(b[q.i + 1])) cb = at(b, ++q.i);
+    leading = false;
+    while (isspace(ca)) ca = at(a, ++p.i);
+    while (isspace(cb)) cb = at(b, ++q.i);
+    if (isdigit(ca) && isdigit(cb)) {
+      const fractional = ca === 0x30 || cb === 0x30;
+      const result = fractional ? compareLeft(a, p, b, q) : compareRight(a, p, b, q);
+      if (result !== 0) return result;
+      if (p.i === a.length && q.i === b.length) return 0;
+      if (p.i === a.length) return -1;
+      if (q.i === b.length) return 1;
+      ca = a[p.i];
+      cb = b[q.i];
     }
+    ca = toupper(ca);
+    cb = toupper(cb);
+    if (ca < cb) return -1;
+    if (ca > cb) return +1;
+    p.i++;
+    q.i++;
+    if (p.i >= a.length && q.i >= b.length) return 0;
+    if (p.i >= a.length) return -1;
+    if (q.i >= b.length) return 1;
   }
-  return x.length - i - (y.length - j);
 }
 
 /** `ksort($strings, SORT_NATURAL | SORT_FLAG_CASE)`. */
@@ -143,7 +233,9 @@ async function main() {
         const target = locale === 'nn' ? 'no' : locale.replace('_', '-');
         for (const [key, value] of Object.entries(strings)) {
           if (value === '' || args.has('--restart')) {
-            strings[key] = key.includes('|') ? await translateCount(locale, key, target) : await translateText(key, target);
+            strings[key] = key.includes('|')
+              ? await translateCount(locale, key, target)
+              : await translateText(key, target);
             console.log(`translating: \`${key}\` to \`${strings[key]}\``);
           }
         }
@@ -162,4 +254,4 @@ async function main() {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
