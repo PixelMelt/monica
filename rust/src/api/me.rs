@@ -686,7 +686,6 @@ pub struct UserPreferencesUpdate {
     /// `google_maps` or `open_street_maps`.
     pub default_map_site: Option<String>,
     pub locale: Option<String>,
-    pub help_shown: Option<bool>,
 }
 
 #[utoipa::path(
@@ -699,8 +698,8 @@ pub struct UserPreferencesUpdate {
     responses((status = 200, description = "The preferences.", body = UserPreferences), (status = 422, description = "Validation failed.")),
     extensions(
         ("x-permission" = json!("user")),
-        ("x-inventory" = json!(["R038", "R213", "R214", "R215", "R216", "R217", "R218", "R219", "R220"])),
-        ("x-services" = json!(["StoreNameOrderPreference", "StoreDateFormatPreference", "StoreTimezone", "StoreNumberFormatPreference", "StoreDistanceFormatPreference", "StoreMapsPreference", "StoreLocale", "StoreHelpPreference", "UpdateContactSortOrder"]))
+        ("x-inventory" = json!(["R038", "R213", "R214", "R215", "R216", "R217", "R218", "R219"])),
+        ("x-services" = json!(["StoreNameOrderPreference", "StoreDateFormatPreference", "StoreTimezone", "StoreNumberFormatPreference", "StoreDistanceFormatPreference", "StoreMapsPreference", "StoreLocale", "UpdateContactSortOrder"]))
     )
 )]
 pub async fn update_my_preferences(
@@ -759,9 +758,6 @@ pub async fn update_my_preferences(
     }
     if let Some(locale) = body.locale {
         user = prefs::StoreLocale { account_id, author_id, locale }.execute(&tx).await?;
-    }
-    if let Some(visibility) = body.help_shown {
-        user = prefs::StoreHelpPreference { account_id, author_id, visibility }.execute(&tx).await?;
     }
     tx.commit().await?;
     Ok(Json(CurrentUser::from(user).preferences))

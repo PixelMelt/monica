@@ -11,7 +11,7 @@ use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, 
 use crate::db::timestamp::Timestamp;
 use crate::domains::contact::dav::jobs::CleanSyncToken;
 use crate::domains::contact::manage_reminders::ProcessScheduledContactReminders;
-use crate::entities::{crons, failed_jobs, job_batches, logs, sessions};
+use crate::entities::{crons, job_batches, logs, sessions};
 use crate::error::ApiResult;
 use crate::http::state::AppState;
 
@@ -94,11 +94,6 @@ pub fn tasks() -> Vec<Task> {
             run: |s| Box::pin(prune_batches(s)),
         },
         Task {
-            command: "queue:prune-failed --hours=48",
-            frequency: Frequency::Daily,
-            run: |s| Box::pin(prune_failed(s)),
-        },
-        Task {
             command: "App\\Domains\\Contact\\DavClient\\Jobs\\UpdateAddressBooks",
             frequency: Frequency::Hourly,
             run: |s| Box::pin(crate::domains::contact::dav_client::update_address_books(s)),
@@ -172,13 +167,6 @@ async fn prune_batches(state: &AppState) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// `queue:prune-failed --hours=48` (J007).
-async fn prune_failed(state: &AppState) -> anyhow::Result<()> {
-    let cutoff = Timestamp(crate::db::now().0 - Duration::hours(48));
-    failed_jobs::Entity::delete_many().filter(failed_jobs::Column::FailedAt.lt(cutoff)).exec(&state.db).await?;
-    Ok(())
-}
-
 /// `ProcessScheduledContactReminders` (J001).
 async fn process_reminders(state: &AppState) -> anyhow::Result<()> {
     ProcessScheduledContactReminders.execute(&state.db, &state.pushover).await?;
@@ -237,7 +225,6 @@ mod tests {
             [
                 ("model:prune", Frequency::Daily),
                 ("queue:prune-batches --hours=48 --unfinished=72 --cancelled=72", Frequency::Daily),
-                ("queue:prune-failed --hours=48", Frequency::Daily),
                 ("App\\Domains\\Contact\\DavClient\\Jobs\\UpdateAddressBooks", Frequency::Hourly),
                 (
                     "App\\Domains\\Contact\\ManageReminders\\Jobs\\ProcessScheduledContactReminders",
@@ -255,21 +242,6 @@ mod tests {
         let db = TestDb::migrated().await;
         let state = AppState::new(db.conn.clone(), crate::config::Config::for_tests("", std::env::temp_dir())).unwrap();
         let now = crate::db::now();
-        let old = Timestamp(now.0 - Duration::hours(49));
-        for (uuid, failed_at) in [("old", old), ("new", now)] {
-            failed_jobs::ActiveModel {
-                uuid: Set(uuid.into()),
-                connection: Set("database".into()),
-                queue: Set("default".into()),
-                payload: Set("{}".into()),
-                exception: Set("boom".into()),
-                failed_at: Set(failed_at),
-                ..Default::default()
-            }
-            .insert(&db.conn)
-            .await
-            .unwrap();
-        }
         // queue:prune-batches: finished 48 h ago, unfinished or cancelled 72 h ago.
         let hours_ago = |h: i64| i32::try_from(now.0.and_utc().timestamp() - h * 3600).unwrap();
         for (id, created, finished, cancelled) in [
@@ -332,9 +304,6 @@ mod tests {
 
         run_due(&state, now.0).await.unwrap();
 
-        let left: Vec<String> =
-            failed_jobs::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|f| f.uuid).collect();
-        assert_eq!(left, ["new"]);
         let mut batches: Vec<String> =
             job_batches::Entity::find().all(&db.conn).await.unwrap().into_iter().map(|b| b.id).collect();
         batches.sort();

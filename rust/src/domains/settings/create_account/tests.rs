@@ -27,13 +27,14 @@ async fn it_creates_an_account() {
         last_name: "john".into(),
         username: " John ".into(),
         password: Some("john".into()),
+        is_instance_administrator: false,
     }
     .execute(&db.conn)
     .await
     .unwrap();
 
     let account = accounts::Entity::find_by_id(user.account_id).one(&db.conn).await.unwrap().unwrap();
-    assert_eq!(account.storage_limit_in_mb, 0, "no storage limit");
+    assert!(account.created_at.is_some());
 
     let row = users::Entity::find_by_id(user.id).one(&db.conn).await.unwrap().unwrap();
     assert_eq!(row.account_id, user.account_id);
@@ -51,11 +52,16 @@ async fn it_creates_an_account() {
 #[tokio::test]
 async fn it_fails_if_wrong_parameters_are_given() {
     let db = TestDb::migrated().await;
-    let err =
-        CreateAccount { first_name: String::new(), last_name: String::new(), username: String::new(), password: None }
-            .execute(&db.conn)
-            .await
-            .unwrap_err();
+    let err = CreateAccount {
+        first_name: String::new(),
+        last_name: String::new(),
+        username: String::new(),
+        password: None,
+        is_instance_administrator: false,
+    }
+    .execute(&db.conn)
+    .await
+    .unwrap_err();
     assert_eq!(err.code, Code::ValidationFailed);
     db.drop().await;
 }

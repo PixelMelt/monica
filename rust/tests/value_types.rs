@@ -32,13 +32,7 @@ async fn uuid_and_id_keys_round_trip() {
         }
     };
 
-    db.conn
-        .execute_raw(q(
-            &sql("insert into accounts (id, storage_limit_in_mb) values (?, ?)"),
-            vec![account.into(), 7.into()],
-        ))
-        .await
-        .unwrap();
+    db.conn.execute_raw(q(&sql("insert into accounts (id) values (?)"), vec![account.into()])).await.unwrap();
     db.conn
         .execute_raw(q(
             &sql("insert into templates (account_id, name) values (?, ?)"),
@@ -49,7 +43,7 @@ async fn uuid_and_id_keys_round_trip() {
 
     let row = db
         .conn
-        .query_one_raw(q(&sql("select id, storage_limit_in_mb from accounts where id = ?"), vec![account.into()]))
+        .query_one_raw(q(&sql("select id from accounts where id = ?"), vec![account.into()]))
         .await
         .unwrap()
         .expect("account found by uuid");

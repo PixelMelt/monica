@@ -62,27 +62,6 @@ impl StoreDistanceFormatPreference {
     }
 }
 
-/// `StoreHelpPreference`.
-pub struct StoreHelpPreference {
-    pub account_id: Uuid,
-    pub author_id: Uuid,
-    pub visibility: bool,
-}
-
-impl StoreHelpPreference {
-    pub async fn execute<C: ConnectionTrait>(self, db: &C) -> ApiResult<users::Model> {
-        let author = author(db, self.account_id, self.author_id).await?;
-
-        self.update_user(db, author).await
-    }
-
-    async fn update_user<C: ConnectionTrait>(self, db: &C, author: users::Model) -> ApiResult<users::Model> {
-        let mut author: users::ActiveModel = author.into();
-        author.help_shown = Set(self.visibility);
-        Ok(author.update(db).await?)
-    }
-}
-
 /// `StoreLocale`.
 pub struct StoreLocale {
     pub account_id: Uuid,

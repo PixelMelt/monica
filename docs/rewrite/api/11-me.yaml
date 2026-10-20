@@ -122,11 +122,11 @@ paths:
       tags: [Me]
       summary: Change one or more preferences
       description: |
-        One field per former form (R213–R220) plus the contacts list sort
-        (R038). `help_shown` is set, not flipped.
+        One field per former form (R213–R219) plus the contacts list sort
+        (R038).
       x-permission: user
-      x-inventory: [R038, R213, R214, R215, R216, R217, R218, R219, R220]
-      x-services: [StoreNameOrderPreference, StoreDateFormatPreference, StoreTimezone, StoreNumberFormatPreference, StoreDistanceFormatPreference, StoreMapsPreference, StoreLocale, StoreHelpPreference, UpdateContactSortOrder]
+      x-inventory: [R038, R213, R214, R215, R216, R217, R218, R219]
+      x-services: [StoreNameOrderPreference, StoreDateFormatPreference, StoreTimezone, StoreNumberFormatPreference, StoreDistanceFormatPreference, StoreMapsPreference, StoreLocale, UpdateContactSortOrder]
       requestBody:
         required: true
         content:
@@ -579,7 +579,7 @@ components:
         password_confirmation: { type: string, description: Must equal `password`. }
     UserPreferences:
       type: object
-      required: [name_order, contact_sort_order, date_format, timezone, number_format, distance_format, default_map_site, locale, help_shown]
+      required: [name_order, contact_sort_order, date_format, timezone, number_format, distance_format, default_map_site, locale]
       properties:
         name_order:
           type: string
@@ -607,7 +607,6 @@ components:
         distance_format: { type: string, enum: [km, mi] }
         default_map_site: { type: string, enum: [google_maps, open_street_maps] }
         locale: { $ref: '#/components/schemas/LocaleCode' }
-        help_shown: { type: boolean, description: Show help links next to features. }
     UserPreferencesUpdate:
       type: object
       minProperties: 1
@@ -624,7 +623,6 @@ components:
         distance_format: { type: string, enum: [km, mi] }
         default_map_site: { type: string, enum: [google_maps, open_street_maps] }
         locale: { $ref: '#/components/schemas/LocaleCode' }
-        help_shown: { type: boolean }
 
     # ------------------------------------------------------------ bootstrap
     Bootstrap:

@@ -100,6 +100,8 @@ pub struct CreateAccount {
     pub last_name: String,
     pub username: String,
     pub password: Option<String>,
+    /// The first user of the install (first-run setup) manages its accounts.
+    pub is_instance_administrator: bool,
 }
 
 impl CreateAccount {
@@ -114,10 +116,11 @@ impl CreateAccount {
         validate_username(db, &mut v, &normalize_username(&self.username), None).await?;
         v.finish()?;
 
-        // `storage_limit_in_mb` 0: no limit.
-        let account = accounts::ActiveModel { id: Set(Uuid::new()), storage_limit_in_mb: Set(0), ..Default::default() }
-            .insert(db)
-            .await?;
+        let now = crate::db::now();
+        let account =
+            accounts::ActiveModel { id: Set(Uuid::new()), created_at: Set(Some(now)), updated_at: Set(Some(now)) }
+                .insert(db)
+                .await?;
 
         let user = self.add_first_user(db, &account).await?;
         Self::setup_account(db, &account, &user).await?;
@@ -134,7 +137,10 @@ impl CreateAccount {
             password: Set(self.password.as_deref().map(crate::password::hash)),
             locale: Set(i18n::current()),
             is_account_administrator: Set(true),
+            is_instance_administrator: Set(self.is_instance_administrator),
             timezone: Set(Some("UTC".into())),
+            created_at: Set(account.created_at),
+            updated_at: Set(account.updated_at),
             ..Default::default()
         }
         .insert(db)

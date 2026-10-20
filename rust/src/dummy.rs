@@ -117,6 +117,7 @@ async fn create_first_user(db: &DatabaseConnection) -> anyhow::Result<users::Mod
         password: Some("admin123".into()),
         first_name: "Michael".into(),
         last_name: "Scott".into(),
+        is_instance_administrator: true,
     }
     .execute(db)
     .await?)
@@ -399,6 +400,7 @@ async fn create_second_user(db: &DatabaseConnection) -> anyhow::Result<()> {
         password: Some("blank123".into()),
         first_name: "John".into(),
         last_name: "Doe".into(),
+        is_instance_administrator: false,
     }
     .execute(db)
     .await?;

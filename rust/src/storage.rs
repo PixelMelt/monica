@@ -80,6 +80,11 @@ impl Storage {
         let _ = tokio::fs::remove_file(self.thumbnail_path(vault_id, uuid)).await;
     }
 
+    /// Deletes everything stored for `vault_id` (a deleted vault or account).
+    pub async fn delete_vault(&self, vault_id: Uuid) {
+        let _ = tokio::fs::remove_dir_all(self.dir(vault_id)).await;
+    }
+
     /// Deletes stored bytes that no `files` row points at, and the
     /// directories of vaults that are gone. Returns how many files went.
     pub async fn sweep<C: ConnectionTrait>(&self, db: &C) -> std::io::Result<usize> {

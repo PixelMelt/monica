@@ -98,36 +98,6 @@ async fn distance_format_fails_if_user_doesnt_belong_to_account() {
     db.drop().await;
 }
 
-// ---- StoreHelpPreferenceTest
-
-async fn store_help(db: &TestDb, author: &users::Model, account_id: Uuid) -> ApiResult<()> {
-    let user = StoreHelpPreference { account_id, author_id: author.id, visibility: false }.execute(&db.conn).await?;
-
-    let row = row(db, &user).await;
-    assert_eq!(row.account_id, account_id);
-    assert!(!row.help_shown);
-    Ok(())
-}
-
-#[tokio::test]
-async fn it_stores_the_help_preferences() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_user(&db.conn).await;
-    store_help(&db, &ross, ross.account_id).await.unwrap();
-    db.drop().await;
-}
-
-// help_fails_if_wrong_parameters_are_given: every field is typed, no invalid input can be built.
-
-#[tokio::test]
-async fn help_fails_if_user_doesnt_belong_to_account() {
-    let db = TestDb::migrated().await;
-    let ross = factory::create_administrator(&db.conn).await;
-    let account = factory::create_account(&db.conn).await;
-    assert_eq!(store_help(&db, &ross, account.id).await.unwrap_err().code, Code::NotFound);
-    db.drop().await;
-}
-
 // ---- StoreLocaleTest
 
 async fn store_locale(db: &TestDb, author: &users::Model, account_id: Uuid) -> ApiResult<()> {

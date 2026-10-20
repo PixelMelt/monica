@@ -44,3 +44,9 @@ pub async fn vault(state: &AppState, id: &Identity, vault_id: Uuid, needed: Vaul
 pub fn administrator(id: &Identity) -> ApiResult<()> {
     if id.user.is_account_administrator { Ok(()) } else { Err(ApiError::forbidden()) }
 }
+
+/// 403 unless the caller is an instance administrator: they manage the
+/// accounts of the install.
+pub fn instance_administrator(id: &Identity) -> ApiResult<()> {
+    if id.user.is_instance_administrator { Ok(()) } else { Err(ApiError::forbidden()) }
+}

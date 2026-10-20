@@ -42,7 +42,7 @@ async fn updates_preferences() {
         .patch(
             "/me/preferences",
             json!({"name_order": "%last_name% %first_name%", "date_format": "DD/MM/YYYY", "timezone": "Europe/Paris",
-                   "distance_format": "km", "default_map_site": "open_street_maps", "locale": "fr", "help_shown": false,
+                   "distance_format": "km", "default_map_site": "open_street_maps", "locale": "fr",
                    "contact_sort_order": "asc", "number_format": "1 234,56"}),
         )
         .await
@@ -51,7 +51,7 @@ async fn updates_preferences() {
     assert_eq!(p["name_order"], "%last_name% %first_name%");
     assert_eq!(p["timezone"], "Europe/Paris");
     assert_eq!(p["locale"], "fr");
-    assert_eq!(p["help_shown"], false);
+    assert!(p.get("help_shown").is_none());
     assert_eq!(p["contact_sort_order"], "asc");
     assert_eq!(app.get("/me/preferences").await.json()["date_format"], "DD/MM/YYYY");
 

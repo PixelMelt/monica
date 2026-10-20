@@ -17,7 +17,6 @@ pub struct Model {
     pub preferred_time: Option<Time>,
     pub active: bool,
     pub verified_at: Option<Timestamp>,
-    pub verification_token: Option<String>,
     pub created_at: Option<Timestamp>,
     pub updated_at: Option<Timestamp>,
     pub fails: i32,
