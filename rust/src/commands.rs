@@ -15,6 +15,10 @@ use crate::i18n;
 
 /// `WaitForDb` (K005): connects, retrying every second, 30 times.
 pub async fn wait_for_db(url: &str) -> anyhow::Result<DatabaseConnection> {
+    // A missing SQLite file is created (`touch($e->path)`), with its directory.
+    if let Some(dir) = url.strip_prefix("sqlite://").and_then(|p| std::path::Path::new(p).parent()) {
+        std::fs::create_dir_all(dir)?;
+    }
     let mut attempts = 30;
     loop {
         match crate::db::connect(url).await {

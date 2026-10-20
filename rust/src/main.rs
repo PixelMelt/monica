@@ -48,11 +48,6 @@ async fn main() -> anyhow::Result<()> {
     match Cli::parse().command.unwrap_or(Command::Serve) {
         Command::Serve => {
             let config = Config::from_env()?;
-            if let Some(dir) =
-                config.database_url.strip_prefix("sqlite://").and_then(|p| std::path::Path::new(p).parent())
-            {
-                std::fs::create_dir_all(dir)?;
-            }
             let db = monica::commands::wait_for_db(&config.database_url).await?;
             monica::db::migrate(&db).await?;
             let bind = config.bind;
@@ -65,7 +60,7 @@ async fn main() -> anyhow::Result<()> {
         }
         Command::Migrate => {
             let config = Config::from_env()?;
-            let db = monica::db::connect(&config.database_url).await?;
+            let db = monica::commands::wait_for_db(&config.database_url).await?;
             monica::db::migrate(&db).await?;
         }
         Command::TestReminders => {
