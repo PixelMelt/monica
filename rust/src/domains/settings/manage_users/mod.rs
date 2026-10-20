@@ -160,6 +160,14 @@ impl DestroyUser {
     }
 }
 
+/// Deletes `user` and the vaults only they manage, without DestroyUser's
+/// checks: self-service deletion (V032, Jetstream's `DeleteUser`, which
+/// calls DestroyUser with the user as author and so always fails today).
+pub async fn delete_user<C: ConnectionTrait>(db: &C, user: &users::Model) -> ApiResult<()> {
+    DestroyUser::destroy_all_vaults(db, user).await?;
+    DestroyUser::destroy(db, user).await
+}
+
 /// `GiveAdministratorPrivilege`.
 pub struct GiveAdministratorPrivilege {
     pub account_id: Uuid,

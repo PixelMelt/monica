@@ -12,6 +12,7 @@ pub mod manage_pet_categories;
 pub mod manage_post_templates;
 pub mod manage_pronouns;
 pub mod manage_relationship_types;
+pub mod manage_storage;
 pub mod manage_templates;
 pub mod manage_user_preferences;
 pub mod manage_users;

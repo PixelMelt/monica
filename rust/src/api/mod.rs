@@ -1,8 +1,11 @@
 //! The `/api/v1` operations and the OpenAPI document generated from them.
 
+pub mod account;
 pub mod auth;
 pub mod instance;
 pub mod me;
+pub mod notification_channels;
+pub mod paging;
 pub mod schemas;
 pub mod vaults;
 
@@ -69,10 +72,10 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(auth::reset_password))
         .routes(routes!(auth::confirm_password))
         .routes(routes!(auth::get_password_confirmation_status))
-        .routes(routes!(me::get_me, me::update_me))
+        .routes(routes!(me::get_me, me::update_me, me::delete_me))
         .routes(routes!(me::update_my_password))
         .routes(routes!(me::get_bootstrap))
-        .routes(routes!(me::get_my_preferences))
+        .routes(routes!(me::get_my_preferences, me::update_my_preferences))
         .routes(routes!(me::list_my_sessions))
         .routes(routes!(me::log_out_other_sessions))
         .routes(routes!(me::list_my_tokens, me::create_my_token))
@@ -80,6 +83,24 @@ pub fn router() -> OpenApiRouter<AppState> {
         .routes(routes!(me::enable_two_factor, me::disable_two_factor))
         .routes(routes!(me::confirm_two_factor))
         .routes(routes!(me::get_two_factor_recovery_codes, me::regenerate_two_factor_recovery_codes))
+        .routes(routes!(
+            notification_channels::list_notification_channels,
+            notification_channels::create_notification_channel
+        ))
+        .routes(routes!(
+            notification_channels::get_notification_channel,
+            notification_channels::update_notification_channel,
+            notification_channels::delete_notification_channel
+        ))
+        .routes(routes!(notification_channels::list_notification_channel_logs))
+        .routes(routes!(notification_channels::send_notification_channel_test))
+        .routes(routes!(notification_channels::verify_notification_channel))
+        .routes(routes!(account::get_account, account::cancel_account))
+        .routes(routes!(account::get_account_storage))
+        .routes(routes!(account::list_account_users, account::invite_account_user))
+        .routes(routes!(account::get_account_user, account::update_account_user, account::delete_account_user))
+        .routes(routes!(account::get_invitation))
+        .routes(routes!(account::accept_invitation))
         .routes(routes!(vaults::list_vaults, vaults::create_vault))
         .routes(routes!(vaults::get_vault, vaults::update_vault, vaults::delete_vault))
         .routes(routes!(vaults::list_vault_members, vaults::add_vault_member))

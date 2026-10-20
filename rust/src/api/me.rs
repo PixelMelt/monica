@@ -2,6 +2,7 @@
 
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
+use sea_orm::TransactionTrait;
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, ColumnTrait, EntityTrait, IntoActiveModel, QueryFilter, QueryOrder};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -686,4 +687,142 @@ mod tests {
         assert_eq!(describe_agent(android), (Some("AndroidOS".into()), Some("Chrome".into()), false));
         assert_eq!(describe_agent(""), (None, None, false));
     }
+}
+
+// ---------------------------------------------------------------- preferences
+
+#[derive(Deserialize, ToSchema)]
+pub struct UserPreferencesUpdate {
+    pub name_order: Option<String>,
+    /// `last_updated`, `asc` or `desc`.
+    pub contact_sort_order: Option<String>,
+    pub date_format: Option<String>,
+    pub timezone: Option<String>,
+    pub number_format: Option<String>,
+    /// `km` or `mi`.
+    pub distance_format: Option<String>,
+    /// `google_maps` or `open_street_maps`.
+    pub default_map_site: Option<String>,
+    pub locale: Option<String>,
+    pub help_shown: Option<bool>,
+}
+
+#[utoipa::path(
+    patch,
+    path = "/me/preferences",
+    operation_id = "updateMyPreferences",
+    tag = "Me",
+    summary = "Change display and format preferences",
+    request_body = UserPreferencesUpdate,
+    responses((status = 200, description = "The preferences.", body = UserPreferences), (status = 422, description = "Validation failed.")),
+    extensions(
+        ("x-permission" = json!("user")),
+        ("x-inventory" = json!(["R038", "R213", "R214", "R215", "R216", "R217", "R218", "R219", "R220"])),
+        ("x-services" = json!(["StoreNameOrderPreference", "StoreDateFormatPreference", "StoreTimezone", "StoreNumberFormatPreference", "StoreDistanceFormatPreference", "StoreMapsPreference", "StoreLocale", "StoreHelpPreference", "UpdateContactSortOrder"]))
+    )
+)]
+pub async fn update_my_preferences(
+    State(state): State<AppState>,
+    AuthUnverified(id): AuthUnverified,
+    Json(body): Json<UserPreferencesUpdate>,
+) -> ApiResult<Json<UserPreferences>> {
+    use crate::domains::settings::manage_user_preferences as prefs;
+    let (account_id, author_id) = (id.user.account_id, id.user.id);
+    let mut v = Validator::new();
+    v.one_of("contact_sort_order", body.contact_sort_order.as_deref(), &["last_updated", "asc", "desc"]);
+    v.one_of("date_format", body.date_format.as_deref(), &["MMM DD, YYYY", "DD MMM YYYY", "YYYY/MM/DD", "DD/MM/YYYY"]);
+    v.one_of(
+        "number_format",
+        body.number_format.as_deref(),
+        &["locale", "1,234.56", "1 234,56", "1.234,56", "1234.56"],
+    );
+    v.one_of("distance_format", body.distance_format.as_deref(), &["km", "mi"]);
+    v.one_of("default_map_site", body.default_map_site.as_deref(), &["google_maps", "open_street_maps"]);
+    if let Some(l) = body.locale.as_deref()
+        && !i18n::is_supported(l)
+    {
+        v.fail("locale", "in", &[]);
+    }
+    if let Some(tz) = body.timezone.as_deref()
+        && tz.parse::<chrono_tz::Tz>().is_err()
+    {
+        v.fail("timezone", "timezone", &[]);
+    }
+    v.finish()?;
+
+    let tx = state.db.begin().await?;
+    let mut user = id.user;
+    if let Some(name_order) = body.name_order {
+        user = prefs::StoreNameOrderPreference { account_id, author_id, name_order }.execute(&tx).await?;
+    }
+    if let Some(order) = body.contact_sort_order {
+        let mut u = user.into_active_model();
+        u.contact_sort_order = Set(order);
+        user = u.update(&tx).await?;
+    }
+    if let Some(date_format) = body.date_format {
+        user = prefs::StoreDateFormatPreference { account_id, author_id, date_format }.execute(&tx).await?;
+    }
+    if let Some(timezone) = body.timezone {
+        user = prefs::StoreTimezone { account_id, author_id, timezone }.execute(&tx).await?;
+    }
+    if let Some(number_format) = body.number_format {
+        user = prefs::StoreNumberFormatPreference { account_id, author_id, number_format }.execute(&tx).await?;
+    }
+    if let Some(distance_format) = body.distance_format {
+        user = prefs::StoreDistanceFormatPreference { account_id, author_id, distance_format }.execute(&tx).await?;
+    }
+    if let Some(maps_site) = body.default_map_site {
+        user = prefs::StoreMapsPreference { account_id, author_id, maps_site }.execute(&tx).await?;
+    }
+    if let Some(locale) = body.locale {
+        user = prefs::StoreLocale { account_id, author_id, locale }.execute(&tx).await?;
+    }
+    if let Some(visibility) = body.help_shown {
+        user = prefs::StoreHelpPreference { account_id, author_id, visibility }.execute(&tx).await?;
+    }
+    tx.commit().await?;
+    Ok(Json(CurrentUser::from(user).preferences))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/me",
+    operation_id = "deleteMe",
+    tag = "Me",
+    summary = "Delete your own user (when enabled)",
+    request_body = PasswordConfirmation,
+    responses(
+        (status = 204, description = "Deleted; the session ends."),
+        (status = 403, description = "`password_confirmation_required`."),
+        (status = 404, description = "Account deletion is off on this server."),
+        (status = 409, description = "You are the account's last administrator."),
+    ),
+    extensions(("x-permission" = json!("user")), ("x-inventory" = json!(["V032"])), ("x-services" = json!(["DeleteUser", "DestroyUser"])))
+)]
+pub async fn delete_me(
+    State(state): State<AppState>,
+    AuthUnverified(id): AuthUnverified,
+    session: Session,
+    Json(body): Json<PasswordConfirmation>,
+) -> ApiResult<StatusCode> {
+    if !state.config.enable_account_deletion {
+        return Err(ApiError::not_found());
+    }
+    require_password_confirmation(&id, &session, body.password.as_deref())?;
+    if id.user.is_account_administrator {
+        let admins = users::Entity::find()
+            .filter(users::Column::AccountId.eq(id.user.account_id))
+            .filter(users::Column::IsAccountAdministrator.eq(true))
+            .all(&state.db)
+            .await?;
+        if admins.len() <= 1 {
+            return Err(ApiError::conflict("You are the account's last administrator."));
+        }
+    }
+    let tx = state.db.begin().await?;
+    crate::domains::settings::manage_users::delete_user(&tx, &id.user).await?;
+    tx.commit().await?;
+    session.destroy();
+    Ok(StatusCode::NO_CONTENT)
 }
