@@ -1202,8 +1202,11 @@ behaviour, so the port fixes them:
 Decisions (2026-10-19: the user asked to take the rewrite to the finish
 without stopping at the ★s; the recommendations below are applied):
 
-- Q1 → (b): the city/country report pages call Wikipedia from the browser;
-  the server makes no outbound call.
+- Q1 → (a), changed from (b) during Phase 4: the server asks Wikipedia when
+  a city/country report is requested (5 s timeout, empty fields on failure,
+  `WIKIPEDIA_URL=` disables it), so the SPA makes no request outside the
+  generated client (plan, Done when). The server already makes outbound
+  calls for the CardDAV client.
 - Q4 → self-service deletion stays, behind `ENABLE_ACCOUNT_DELETION` (off).
 - Q5 → fixed: an invited administrator stays an administrator.
 - Q6 → goal streak numbers fixed; un-settling a loan and un-completing a task

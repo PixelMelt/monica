@@ -17421,10 +17421,39 @@ components:
       required:
       - name
       - addresses
+      - wikipedia
       properties:
         name:
           type: string
           description: The requested city or country.
+        wikipedia:
+          type: object
+          description: '`WikipediaHelper::getInformation` of the place, asked by the server
+
+            in the request''s language when the report is requested; every
+
+            field is null when Wikipedia can''t be reached or `WIKIPEDIA_URL`
+
+            is empty (Q1).
+
+            '
+          required:
+          - url
+          - description
+          - thumbnail
+          properties:
+            url:
+              type:
+              - string
+              - 'null'
+            description:
+              type:
+              - string
+              - 'null'
+            thumbnail:
+              type:
+              - string
+              - 'null'
         addresses:
           type: array
           items:

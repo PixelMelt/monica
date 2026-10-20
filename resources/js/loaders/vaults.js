@@ -104,13 +104,10 @@ export async function addressReport(to) {
 export async function cityReport(to) {
   const vaultId = to.params.vault;
   const city = to.params.city;
-  const [report, info] = await Promise.all([
-    getVaultCityAddressReport({ vault_id: vaultId, city }),
-    dto.wikipedia(city),
-  ]);
+  const report = await getVaultCityAddressReport({ vault_id: vaultId, city });
   return {
     layoutData: layoutData(vaultId),
-    data: dto.cityReport(report, city, info, vaultId),
+    data: dto.cityReport(report, city, report.wikipedia, vaultId),
   };
 }
 
@@ -118,13 +115,10 @@ export async function cityReport(to) {
 export async function countryReport(to) {
   const vaultId = to.params.vault;
   const country = to.params.country;
-  const [report, info] = await Promise.all([
-    getVaultCountryAddressReport({ vault_id: vaultId, country }),
-    dto.wikipedia(country),
-  ]);
+  const report = await getVaultCountryAddressReport({ vault_id: vaultId, country });
   return {
     layoutData: layoutData(vaultId),
-    data: dto.countryReport(report, country, info, vaultId),
+    data: dto.countryReport(report, country, report.wikipedia, vaultId),
   };
 }
 
