@@ -95,6 +95,7 @@
 <script>
 import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
+import { updateContact } from '@/api/client';
 
 export default {
   components: {
@@ -126,11 +127,13 @@ export default {
     submit(template) {
       this.form.templateId = template.id;
 
-      axios
-        .put(this.data.url.update, this.form)
-        .then((response) => {
+      updateContact(
+        { vault_id: this.$route.params.vault, contact_id: this.$route.params.contact },
+        { template_id: this.form.templateId },
+      )
+        .then((contact) => {
           localStorage.success = this.$t('The template has been set');
-          this.$inertia.visit(response.data.data);
+          this.$router.push(this.route('contact.show', { vault: contact.vault_id, contact: contact.id }));
         })
         .catch((error) => {
           this.form.errors = error.response.data;

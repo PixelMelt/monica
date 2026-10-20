@@ -1,6 +1,15 @@
 <script setup>
 import { ref, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
+import {
+  updateContact,
+  listContactQuickFacts,
+  createContactQuickFact,
+  updateContactQuickFact,
+  deleteContactQuickFact,
+} from '@/api/client';
+import * as dto from '@/adapters/contacts';
 import Loading from '@/Shared/Loading.vue';
 import HoverMenu from '@/Shared/HoverMenu.vue';
 import Errors from '@/Shared/Form/Errors.vue';
@@ -19,6 +28,8 @@ const form = useForm({
   content: '',
 });
 
+const current = useRoute();
+const ids = () => ({ vault_id: current.params.vault, contact_id: current.params.contact });
 const loading = ref(false);
 const loadingState = ref(false);
 const createQuickFactModalShown = ref(false);
@@ -29,7 +40,7 @@ const contentField = useTemplateRef('contentField');
 const editedQuickFactId = ref(null);
 
 const toggle = () => {
-  axios.put(props.data.url.toggle).then(() => {
+  updateContact(ids(), { show_quick_facts: !openState.value }).then(() => {
     openState.value = !openState.value;
   });
 };
@@ -51,9 +62,9 @@ const showEditQuickFactModal = (quickFact) => {
 const get = (template) => {
   loading.value = true;
 
-  axios.get(template.url.show).then((response) => {
-    localTemplate.value = response.data.data.template;
-    localQuickFacts.value = response.data.data.quick_facts;
+  listContactQuickFacts({ ...ids(), vault_quick_facts_template_id: template.id }).then((response) => {
+    localTemplate.value = dto.quickFactTemplate(template);
+    localQuickFacts.value = response.data.map(dto.quickFact);
     loading.value = false;
   });
 };
@@ -61,12 +72,11 @@ const get = (template) => {
 const store = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(localTemplate.value.url.store, form)
+  createContactQuickFact(ids(), { vault_quick_facts_template_id: localTemplate.value.id, content: form.content })
     .then((response) => {
       loadingState.value = '';
       createQuickFactModalShown.value = false;
-      localQuickFacts.value.push(response.data.data);
+      localQuickFacts.value.push(dto.quickFact(response));
     })
     .catch(() => {
       loadingState.value = '';
@@ -76,12 +86,11 @@ const store = () => {
 const update = (quickFact) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(quickFact.url.update, form)
+  updateContactQuickFact({ ...ids(), quick_fact_id: quickFact.id }, { content: form.content })
     .then((response) => {
       loadingState.value = '';
       editedQuickFactId.value = 0;
-      localQuickFacts.value[localQuickFacts.value.findIndex((x) => x.id === quickFact.id)] = response.data.data;
+      localQuickFacts.value[localQuickFacts.value.findIndex((x) => x.id === quickFact.id)] = dto.quickFact(response);
     })
     .catch(() => {
       loadingState.value = '';
@@ -89,7 +98,7 @@ const update = (quickFact) => {
 };
 
 const destroy = (quickFact) => {
-  axios.delete(quickFact.url.destroy).then(() => {
+  deleteContactQuickFact({ ...ids(), quick_fact_id: quickFact.id }).then(() => {
     var id = localQuickFacts.value.findIndex((x) => x.id === quickFact.id);
     localQuickFacts.value.splice(id, 1);
   });

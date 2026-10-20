@@ -169,6 +169,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { updateContact } from '@/api/client';
+import { nullable, toId } from '@/adapters/contacts';
 
 export default {
   components: {
@@ -226,11 +228,23 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.update, this.form)
-        .then((response) => {
+      updateContact(
+        { vault_id: this.$route.params.vault, contact_id: this.data.contact.id },
+        {
+          first_name: nullable(this.form.first_name),
+          last_name: nullable(this.form.last_name),
+          middle_name: nullable(this.form.middle_name),
+          nickname: nullable(this.form.nickname),
+          maiden_name: nullable(this.form.maiden_name),
+          gender_id: toId(this.form.gender_id),
+          pronoun_id: toId(this.form.pronoun_id),
+          prefix: nullable(this.form.prefix),
+          suffix: nullable(this.form.suffix),
+        },
+      )
+        .then((contact) => {
           localStorage.success = this.$t('The contact has been updated');
-          this.$inertia.visit(response.data.data);
+          this.$router.push(this.route('contact.show', { vault: contact.vault_id, contact: contact.id }));
         })
         .catch((error) => {
           this.form.errors = error.response.data;

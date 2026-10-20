@@ -1,8 +1,12 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-import { Link, router, useForm } from '@inertiajs/vue3';
+import { useRoute } from 'vue-router';
+import Link from '@/router/Link.vue';
+import { route, visit } from '@/router';
 import { trans } from 'laravel-vue-i18n';
 import { flash } from '@/methods.js';
+import { deleteContact, updateContact, setContactAvatar, deleteContactAvatar } from '@/api/client';
+import { visitPage } from '@/adapters/contacts';
 import JetDialogModal from '@/Components/Jetstream/DialogModal.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import JetButton from '@/Components/Button.vue';
@@ -34,7 +38,7 @@ import Religion from '@/Shared/Modules/Religion.vue';
 import Posts from '@/Shared/Modules/Posts.vue';
 import LifeEvent from '@/Shared/Modules/LifeEvent.vue';
 import QuickFacts from '@/Shared/Modules/QuickFacts.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+import FileUpload from '@/Components/FileUpload.vue';
 import { ChevronRight } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -42,16 +46,13 @@ const props = defineProps({
   data: Object,
 });
 
-const form = useForm({
-  searchTerm: null,
-  uuid: null,
-  name: null,
-  original_url: null,
-  cdn_url: null,
-  mime_type: null,
-  size: null,
+const form = reactive({
   errors: [],
 });
+
+const current = useRoute();
+const ids = () => ({ vault_id: current.params.vault, contact_id: current.params.contact });
+const contactUrl = () => route('contact.show', { vault: current.params.vault, contact: current.params.contact });
 
 const deletingContact = ref(false);
 const deleteContactForm = reactive({
@@ -66,13 +67,12 @@ const toggleArchiveForm = reactive({
 const destroy = () => {
   deleteContactForm.processing = true;
 
-  axios
-    .delete(props.data.url.destroy)
-    .then((response) => {
+  deleteContact(ids())
+    .then(() => {
       deleteContactForm.processing = false;
 
       localStorage.success = trans('The contact has been deleted');
-      router.visit(response.data.data);
+      visit(route('contact.index', { vault: props.layoutData.vault.id }));
     })
     .catch((error) => {
       deleteContactForm.processing = false;
@@ -83,13 +83,13 @@ const destroy = () => {
 const toggleArchive = () => {
   toggleArchiveForm.processing = true;
 
-  axios
-    .put(props.data.url.toggle_archive)
-    .then((response) => {
+  updateContact(ids(), { listed: !props.data.listed })
+    .then(() => {
       toggleArchiveForm.processing = false;
+      togglingArchive.value = false;
 
       localStorage.success = trans('Changes saved');
-      router.visit(response.data.data);
+      visitPage(contactUrl());
     })
     .catch((error) => {
       toggleArchiveForm.processing = false;
@@ -97,60 +97,22 @@ const toggleArchive = () => {
     });
 };
 
-const onSuccess = (file) => {
-  form.uuid = file.uuid;
-  form.name = file.name;
-  form.original_url = file.originalUrl;
-  form.cdn_url = file.cdnUrl;
-  form.mime_type = file.mimeType;
-  form.size = file.size;
+const uploadAvatar = (body) => setContactAvatar(ids(), body);
 
-  upload();
-};
-
-const upload = () => {
-  axios
-    .put(props.data.url.update_avatar, form)
-    .then((response) => {
-      router.visit(response.data.data);
-      flash(trans('The photo has been added'), 'success');
-    })
-    .catch((error) => {
-      form.errors = error.response.data;
-    });
+const onSuccess = () => {
+  visitPage(contactUrl());
+  flash(trans('The photo has been added'), 'success');
 };
 
 const destroyAvatar = () => {
-  axios
-    .delete(props.data.url.destroy_avatar)
-    .then((response) => {
-      router.visit(response.data.data);
+  deleteContactAvatar(ids())
+    .then(() => {
+      visitPage(contactUrl());
       flash(trans('Changes saved'), 'success');
     })
     .catch((error) => {
       form.errors = error.response.data;
     });
-};
-
-const download = () => {
-  router.post(props.data.url.download_vcard, null, {
-    preserveScroll: true,
-    onSuccess: (response) => {
-      const filename = response.props.jetstream.flash.filename;
-      if (filename !== undefined) {
-        const url = window.URL.createObjectURL(new Blob([response.props.jetstream.flash.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        try {
-          document.body.appendChild(link);
-          link.click();
-        } catch {
-          document.body.removeChild(link);
-        }
-      }
-    },
-  });
 };
 
 const selectedOption = ref('');
@@ -163,7 +125,7 @@ onMounted(() => {
 });
 
 const navigateToSelected = () => {
-  router.visit(selectedOption.value);
+  visit(selectedOption.value);
 };
 </script>
 
@@ -233,17 +195,13 @@ const navigateToSelected = () => {
               </li>
               <!-- upload new avatar -->
               <li v-if="!data.avatar.hasFile" class="mb-2">
-                <Uploadcare
-                  v-if="data.avatar.uploadcare.publicKey && data.avatar.canUploadFile"
-                  :public-key="data.avatar.uploadcare.publicKey"
-                  :secure-signature="data.avatar.uploadcare.signature"
-                  :secure-expire="data.avatar.uploadcare.expire"
-                  :tabs="'file'"
-                  :preview-step="false"
-                  @success="onSuccess"
-                  @error="onError">
+                <FileUpload
+                  v-if="data.avatar.canUploadFile"
+                  :upload="uploadAvatar"
+                  :images-only="true"
+                  @success="onSuccess">
                   <span class="cursor-pointer text-blue-500 hover:underline"> {{ $t('Upload photo as avatar') }} </span>
-                </Uploadcare>
+                </FileUpload>
               </li>
               <!-- archive contact -->
               <li v-if="data.listed && data.options.can_be_archived" class="mb-2">
@@ -271,9 +229,9 @@ const navigateToSelected = () => {
               </li>
               <!-- download as vcard -->
               <li class="mb-2">
-                <Link @click.prevent="download()" class="cursor-pointer text-blue-500 hover:underline">
+                <a :href="data.url.download_vcard" class="cursor-pointer text-blue-500 hover:underline">
                   {{ $t('Download as vCard') }}
-                </Link>
+                </a>
               </li>
               <!-- delete contact -->
               <li v-if="data.options.can_be_deleted">
