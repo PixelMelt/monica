@@ -160,6 +160,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createPetCategory, updatePetCategory, deletePetCategory } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -223,11 +225,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.pet_category_store, this.form)
-        .then((response) => {
+      createPetCategory({}, { name: this.form.name })
+        .then((petCategory) => {
           this.flash(this.$t('The pet category has been created'), 'success');
-          this.localPetCategories.unshift(response.data.data);
+          this.localPetCategories.unshift(dto.petCategory(petCategory));
           this.loadingState = null;
           this.createPetCategoryModalShown = false;
         })
@@ -240,12 +241,11 @@ export default {
     update(petCategory) {
       this.loadingState = 'loading';
 
-      axios
-        .put(petCategory.url.update, this.form)
-        .then((response) => {
+      updatePetCategory({ pet_category_id: petCategory.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The pet category has been updated'), 'success');
           this.localPetCategories[this.localPetCategories.findIndex((x) => x.id === petCategory.id)] =
-            response.data.data;
+            dto.petCategory(updated);
           this.loadingState = null;
           this.renamePetCategoryModalShownId = 0;
         })
@@ -257,8 +257,7 @@ export default {
 
     destroy(petCategory) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(petCategory.url.destroy)
+        deletePetCategory({ pet_category_id: petCategory.id })
           .then(() => {
             this.flash(this.$t('The pet category has been deleted'), 'success');
             var id = this.localPetCategories.findIndex((x) => x.id === petCategory.id);

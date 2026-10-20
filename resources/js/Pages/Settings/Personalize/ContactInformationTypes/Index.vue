@@ -11,6 +11,8 @@ import Errors from '@/Shared/Form/Errors.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import Dropdown from '@/Shared/Form/Dropdown.vue';
 import { filter } from 'lodash';
+import { createContactInformationType, updateContactInformationType, deleteContactInformationType } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 const props = defineProps({
   layoutData: Object,
@@ -53,10 +55,9 @@ const updateAdressTypeModal = (contactInformationType) => {
 const submit = () => {
   loadingState.value = 'loading';
 
-  axios
-    .post(props.data.url.contact_information_type_store, form)
-    .then((response) => {
-      localContactInformationTypes.value.unshift(response.data.data);
+  createContactInformationType({}, { name: form.name, type: form.type, protocol: form.protocol })
+    .then((contactInformationType) => {
+      localContactInformationTypes.value.unshift(dto.contactInformationType(contactInformationType));
       loadingState.value = null;
       creatingContactInformation.value = false;
       flash(trans('The contact information type has been created'), 'success');
@@ -70,13 +71,15 @@ const submit = () => {
 const update = (contactInformationType) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(contactInformationType.url.update, form)
-    .then((response) => {
+  updateContactInformationType(
+    { contact_information_type_id: contactInformationType.id },
+    { name: form.name, type: form.type, protocol: form.protocol },
+  )
+    .then((updated) => {
       let id = localContactInformationTypes.value[contactInformationType.type].findIndex(
         (x) => x.id === contactInformationType.id,
       );
-      localContactInformationTypes.value[contactInformationType.type][id] = response.data.data;
+      localContactInformationTypes.value[contactInformationType.type][id] = dto.contactInformationType(updated);
       loadingState.value = null;
       contactInformationEditing.value = 0;
       flash(trans('The contact information type has been updated'), 'success');
@@ -88,8 +91,7 @@ const update = (contactInformationType) => {
 };
 
 const destroy = () => {
-  axios
-    .delete(contactInformationDeleting.value.url.destroy)
+  deleteContactInformationType({ contact_information_type_id: contactInformationDeleting.value.id })
     .then(() => {
       let id = localContactInformationTypes.value.findIndex((x) => x.id === contactInformationDeleting.value.id);
       localContactInformationTypes.value.splice(id, 1);

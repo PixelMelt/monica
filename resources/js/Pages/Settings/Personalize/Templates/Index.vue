@@ -198,6 +198,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createTemplate, updateTemplate, deleteTemplate } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -261,11 +263,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.template_store, this.form)
-        .then((response) => {
+      createTemplate({}, { name: this.form.name })
+        .then((template) => {
           this.flash(this.$t('The template has been created'), 'success');
-          this.localTemplates.unshift(response.data.data);
+          this.localTemplates.unshift(dto.template(template));
           this.loadingState = null;
           this.createTemplateModalShown = false;
         })
@@ -278,11 +279,10 @@ export default {
     update(template) {
       this.loadingState = 'loading';
 
-      axios
-        .put(template.url.update, this.form)
-        .then((response) => {
+      updateTemplate({ template_id: template.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The template has been updated'), 'success');
-          this.localTemplates[this.localTemplates.findIndex((x) => x.id === template.id)] = response.data.data;
+          this.localTemplates[this.localTemplates.findIndex((x) => x.id === template.id)] = dto.template(updated);
           this.loadingState = null;
           this.renameTemplateModalShownId = 0;
         })
@@ -300,8 +300,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(template.url.destroy)
+        deleteTemplate({ template_id: template.id })
           .then(() => {
             this.flash(this.$t('The template has been deleted'), 'success');
             var id = this.localTemplates.findIndex((x) => x.id === template.id);

@@ -111,6 +111,8 @@
 <script>
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import draggable from 'vuedraggable';
+import { addTemplatePageModule, updateTemplatePageModule, removeTemplatePageModule } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -159,11 +161,14 @@ export default {
     add(module) {
       this.form.module_id = module.id;
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      addTemplatePageModule({
+        template_id: this.$route.params.template,
+        template_page_id: this.data.page.id,
+        module_id: this.form.module_id,
+      })
+        .then((added) => {
           this.flash(this.$t('The module has been added'), 'success');
-          this.localPageModules.unshift(response.data.data);
+          this.localPageModules.unshift(dto.templatePageModule(added));
           this.addModuleModalShown = false;
           this.localAllModules[this.localAllModules.findIndex((x) => x.id === module.id)].already_used = true;
         })
@@ -173,8 +178,11 @@ export default {
     },
 
     remove(module) {
-      axios
-        .delete(module.url.destroy)
+      removeTemplatePageModule({
+        template_id: this.$route.params.template,
+        template_page_id: this.data.page.id,
+        module_id: module.id,
+      })
         .then(() => {
           this.flash(this.$t('The module has been removed'), 'success');
           this.localAllModules[this.localAllModules.findIndex((x) => x.id === module.id)].already_used = false;
@@ -191,8 +199,14 @@ export default {
       // the event object comes from the draggable component
       this.form.position = event.moved.newIndex + 1;
 
-      axios
-        .post(event.moved.element.url.position, this.form)
+      updateTemplatePageModule(
+        {
+          template_id: this.$route.params.template,
+          template_page_id: this.data.page.id,
+          module_id: event.moved.element.id,
+        },
+        { position: this.form.position },
+      )
         .then(() => {
           this.flash(this.$t('The position has been saved'), 'success');
         })

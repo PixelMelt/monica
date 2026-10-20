@@ -341,6 +341,15 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import {
+  createRelationshipGroupType,
+  updateRelationshipGroupType,
+  deleteRelationshipGroupType,
+  createRelationshipType,
+  updateRelationshipType,
+  deleteRelationshipType,
+} from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -438,11 +447,10 @@ export default {
     submitGroupType() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.group_type_store, this.form)
-        .then((response) => {
+      createRelationshipGroupType({}, { name: this.form.relationshipGroupTypeName })
+        .then((groupType) => {
           this.flash(this.$t('The group type has been created'), 'success');
-          this.localGroupTypes.unshift(response.data.data);
+          this.localGroupTypes.unshift(dto.relationshipGroupType(groupType));
           this.loadingState = null;
           this.createRelationshipTypeModalShown = false;
         })
@@ -455,11 +463,14 @@ export default {
     updateGroupType(groupType) {
       this.loadingState = 'loading';
 
-      axios
-        .put(groupType.url.update, this.form)
-        .then((response) => {
+      updateRelationshipGroupType(
+        { relationship_group_type_id: groupType.id },
+        { name: this.form.relationshipGroupTypeName },
+      )
+        .then((updated) => {
           this.flash(this.$t('The group type has been updated'), 'success');
-          this.localGroupTypes[this.localGroupTypes.findIndex((x) => x.id === groupType.id)] = response.data.data;
+          this.localGroupTypes[this.localGroupTypes.findIndex((x) => x.id === groupType.id)] =
+            dto.relationshipGroupType(updated);
           this.loadingState = null;
           this.renameRelationshipGroupTypeModalShownId = 0;
         })
@@ -477,8 +488,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(groupType.url.destroy)
+        deleteRelationshipGroupType({ relationship_group_type_id: groupType.id })
           .then(() => {
             this.flash(this.$t('The group type has been deleted'), 'success');
             var id = this.localGroupTypes.findIndex((x) => x.id === groupType.id);
@@ -494,14 +504,16 @@ export default {
     storeRelationshipType(groupType) {
       this.loadingState = 'loading';
 
-      axios
-        .post(groupType.url.store, this.form)
-        .then((response) => {
+      createRelationshipType(
+        { relationship_group_type_id: groupType.id },
+        { name: this.form.name, name_reverse_relationship: this.form.nameReverseRelationship },
+      )
+        .then((type) => {
           this.flash(this.$t('The relationship type has been created'), 'success');
           this.loadingState = null;
           this.createRelationshipTypeModalId = 0;
           var id = this.localGroupTypes.findIndex((x) => x.id === groupType.id);
-          this.localGroupTypes[id].types.unshift(response.data.data);
+          this.localGroupTypes[id].types.unshift(dto.relationshipType(type));
         })
         .catch((error) => {
           this.loadingState = null;
@@ -512,15 +524,17 @@ export default {
     updateRelationType(groupType, type) {
       this.loadingState = 'loading';
 
-      axios
-        .put(type.url.update, this.form)
-        .then((response) => {
+      updateRelationshipType(
+        { relationship_group_type_id: groupType.id, relationship_type_id: type.id },
+        { name: this.form.name, name_reverse_relationship: this.form.nameReverseRelationship },
+      )
+        .then((updated) => {
           this.flash(this.$t('The relationship type has been updated'), 'success');
           this.loadingState = null;
           this.renameRelationshipTypeModalId = 0;
           var groupTypeId = this.localGroupTypes.findIndex((x) => x.id === groupType.id);
           var typeId = this.localGroupTypes[groupTypeId].types.findIndex((x) => x.id === type.id);
-          this.localGroupTypes[groupTypeId].types[typeId] = response.data.data;
+          this.localGroupTypes[groupTypeId].types[typeId] = dto.relationshipType(updated);
         })
         .catch((error) => {
           this.loadingState = null;
@@ -536,8 +550,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(type.url.destroy)
+        deleteRelationshipType({ relationship_group_type_id: groupType.id, relationship_type_id: type.id })
           .then(() => {
             this.flash(this.$t('The relationship type has been deleted'), 'success');
             var groupTypeId = this.localGroupTypes.findIndex((x) => x.id === groupType.id);

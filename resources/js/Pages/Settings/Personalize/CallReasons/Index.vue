@@ -272,6 +272,15 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import {
+  createCallReasonType,
+  updateCallReasonType,
+  deleteCallReasonType,
+  createCallReason,
+  updateCallReason,
+  deleteCallReason,
+} from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -356,11 +365,10 @@ export default {
     submitCallReasonType() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.call_reason_type_store, this.form)
-        .then((response) => {
+      createCallReasonType({}, { label: this.form.callReasonTypeName })
+        .then((callReasonType) => {
           this.flash(this.$t('The call reason type has been created'), 'success');
-          this.localCallReasonTypes.unshift(response.data.data);
+          this.localCallReasonTypes.unshift(dto.callReasonType(callReasonType));
           this.loadingState = null;
           this.createCallReasonTypeModalShown = false;
         })
@@ -373,12 +381,11 @@ export default {
     updateCallReasonType(callReasonType) {
       this.loadingState = 'loading';
 
-      axios
-        .put(callReasonType.url.update, this.form)
-        .then((response) => {
+      updateCallReasonType({ call_reason_type_id: callReasonType.id }, { label: this.form.callReasonTypeName })
+        .then((updated) => {
           this.flash(this.$t('The call reason type has been updated'), 'success');
           this.localCallReasonTypes[this.localCallReasonTypes.findIndex((x) => x.id === callReasonType.id)] =
-            response.data.data;
+            dto.callReasonType(updated);
           this.loadingState = null;
           this.renameCallReasonTypeModalShownId = 0;
         })
@@ -396,8 +403,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(callReasonType.url.destroy)
+        deleteCallReasonType({ call_reason_type_id: callReasonType.id })
           .then(() => {
             this.flash(this.$t('The call reason type has been deleted'), 'success');
             var id = this.localCallReasonTypes.findIndex((x) => x.id === callReasonType.id);
@@ -413,14 +419,13 @@ export default {
     storeReason(callReasonType) {
       this.loadingState = 'loading';
 
-      axios
-        .post(callReasonType.url.store, this.form)
-        .then((response) => {
+      createCallReason({ call_reason_type_id: callReasonType.id }, { label: this.form.label })
+        .then((reason) => {
           this.flash(this.$t('The call reason has been created'), 'success');
           this.loadingState = null;
           this.createReasonModalId = 0;
           var id = this.localCallReasonTypes.findIndex((x) => x.id === callReasonType.id);
-          this.localCallReasonTypes[id].reasons.unshift(response.data.data);
+          this.localCallReasonTypes[id].reasons.unshift(dto.callReason(reason));
         })
         .catch((error) => {
           this.loadingState = null;
@@ -431,15 +436,17 @@ export default {
     updateReason(callReasonType, reason) {
       this.loadingState = 'loading';
 
-      axios
-        .put(reason.url.update, this.form)
-        .then((response) => {
+      updateCallReason(
+        { call_reason_type_id: callReasonType.id, call_reason_id: reason.id },
+        { label: this.form.label },
+      )
+        .then((updated) => {
           this.flash(this.$t('The call reason has been updated'), 'success');
           this.loadingState = null;
           this.renameReasonModalId = 0;
           var callReasonTypeId = this.localCallReasonTypes.findIndex((x) => x.id === callReasonType.id);
           var typeId = this.localCallReasonTypes[callReasonTypeId].reasons.findIndex((x) => x.id === reason.id);
-          this.localCallReasonTypes[callReasonTypeId].reasons[typeId] = response.data.data;
+          this.localCallReasonTypes[callReasonTypeId].reasons[typeId] = dto.callReason(updated);
         })
         .catch((error) => {
           this.loadingState = null;
@@ -455,8 +462,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(reason.url.destroy)
+        deleteCallReason({ call_reason_type_id: callReasonType.id, call_reason_id: reason.id })
           .then(() => {
             this.flash(this.$t('The call reason has been deleted'), 'success');
             var callReasonTypeId = this.localCallReasonTypes.findIndex((x) => x.id === callReasonType.id);

@@ -158,6 +158,8 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createAddressType, updateAddressType, deleteAddressType } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -221,11 +223,10 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.address_type_store, this.form)
-        .then((response) => {
+      createAddressType({}, { name: this.form.name })
+        .then((addressType) => {
           this.flash(this.$t('The address type has been created'), 'success');
-          this.localAddressTypes.unshift(response.data.data);
+          this.localAddressTypes.unshift(dto.addressType(addressType));
           this.loadingState = null;
           this.createAddressTypeModalShown = false;
         })
@@ -238,11 +239,11 @@ export default {
     update(addressType) {
       this.loadingState = 'loading';
 
-      axios
-        .put(addressType.url.update, this.form)
-        .then((response) => {
+      updateAddressType({ address_type_id: addressType.id }, { name: this.form.name })
+        .then((updated) => {
           this.flash(this.$t('The address type has been updated'), 'success');
-          this.localAddressTypes[this.localAddressTypes.findIndex((x) => x.id === addressType.id)] = response.data.data;
+          this.localAddressTypes[this.localAddressTypes.findIndex((x) => x.id === addressType.id)] =
+            dto.addressType(updated);
           this.loadingState = null;
           this.renameAddressTypeModalShownId = 0;
         })
@@ -260,8 +261,7 @@ export default {
           ),
         )
       ) {
-        axios
-          .delete(addressType.url.destroy)
+        deleteAddressType({ address_type_id: addressType.id })
           .then(() => {
             this.flash(this.$t('The address type has been deleted'), 'success');
             var id = this.localAddressTypes.findIndex((x) => x.id === addressType.id);

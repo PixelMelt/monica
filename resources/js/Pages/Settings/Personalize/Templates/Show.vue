@@ -127,6 +127,8 @@ import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import Pages from '@/Pages/Settings/Personalize/Templates/Partials/Pages.vue';
 import Modules from '@/Pages/Settings/Personalize/Templates/Partials/Modules.vue';
+import { getTemplatePage } from '@/api/client';
+import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
@@ -162,10 +164,9 @@ export default {
     },
 
     loadModules(page) {
-      axios
-        .get(page.url.show)
-        .then((response) => {
-          this.localModules = response.data.data;
+      getTemplatePage({ template_id: this.data.template.id, template_page_id: page.id })
+        .then((templatePage) => {
+          this.localModules = dto.templatePageShow(templatePage);
         })
         .catch((error) => {
           this.loadingState = null;
