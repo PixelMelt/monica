@@ -8,6 +8,8 @@
 mod initial;
 mod m20250101_000001_initial;
 
+pub use initial::seed;
+
 use sea_orm_migration::prelude::*;
 
 pub struct Migrator;
