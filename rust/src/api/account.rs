@@ -66,7 +66,11 @@ pub async fn get_account(State(state): State<AppState>, Auth(id): Auth) -> ApiRe
     tag = "Account",
     summary = "Delete the account and everything in it",
     request_body = PasswordConfirmation,
-    responses((status = 202, description = "Deleted."), (status = 403, description = "Not an administrator, or `password_confirmation_required`.")),
+    responses(
+        (status = 202, description = "Deleted."),
+        (status = 403, description = "Not an administrator, or `password_confirmation_required`."),
+        (status = 422, description = "Wrong password."),
+    ),
     extensions(("x-permission" = json!("account:admin")), ("x-inventory" = json!(["R326"])), ("x-services" = json!(["CancelAccount"])))
 )]
 pub async fn cancel_account(
@@ -311,7 +315,7 @@ pub async fn update_account_user(
     summary = "Delete a user of the account",
     params(("user_id" = uuid::Uuid, Path)),
     request_body = PasswordConfirmation,
-    responses((status = 204, description = "Deleted."), (status = 409, description = "Yourself.")),
+    responses((status = 204, description = "Deleted."), (status = 409, description = "Yourself."), (status = 422, description = "Wrong password.")),
     extensions(("x-permission" = json!("account:admin")), ("x-inventory" = json!(["R234"])), ("x-services" = json!(["DestroyUser"])))
 )]
 pub async fn delete_account_user(

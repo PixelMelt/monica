@@ -31,7 +31,8 @@ fn server_url(engine: Engine) -> String {
     let base = if engine == Engine::MySql {
         std::env::var("MONICA_TEST_MYSQL_URL").unwrap_or_else(|_| "mysql://root:root@127.0.0.1:33306".into())
     } else {
-        std::env::var("MONICA_TEST_POSTGRES_URL").unwrap_or_else(|_| "postgres://postgres:postgres@127.0.0.1:55432".into())
+        std::env::var("MONICA_TEST_POSTGRES_URL")
+            .unwrap_or_else(|_| "postgres://postgres:postgres@127.0.0.1:55432".into())
     };
     base.trim_end_matches('/').to_owned()
 }

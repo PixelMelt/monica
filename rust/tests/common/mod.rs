@@ -85,6 +85,11 @@ impl TestApp {
         self.cookies.clear();
     }
 
+    /// Swaps the cookie jar, to act as another browser.
+    pub fn swap_cookies(&mut self, other: &mut HashMap<String, String>) {
+        std::mem::swap(&mut self.cookies, other);
+    }
+
     pub fn remove_cookie(&mut self, name: &str) {
         self.cookies.remove(name);
     }

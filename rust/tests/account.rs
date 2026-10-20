@@ -162,7 +162,7 @@ async fn cancels_the_account() {
     login(&mut app, &admin.email, factory::PASSWORD).await;
     app.post("/vaults", json!({"name": "Mine"})).await.assert(201);
 
-    app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": "nope"}))).await.assert(403);
+    app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": "nope"}))).await.assert(422);
     app.request(axum::http::Method::DELETE, "/account", Some(json!({"password": factory::PASSWORD}))).await.assert(202);
     app.get("/me").await.assert(401);
     app.get("/auth/csrf").await.assert(204);
