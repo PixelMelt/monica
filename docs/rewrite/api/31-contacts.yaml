@@ -177,13 +177,13 @@ paths:
       tags: [Contacts]
       summary: Everything the contact page shows (aggregate, api-design.md §12)
       description: |
-        Also counts a view for the current user (`UpdateContactView`,
-        `contact_vault_user.number_of_views`). When the contact has no
-        template, `header_modules`, `template_pages` and `modules` are empty,
-        no view is counted, and the SPA shows the template picker (R055).
+        Has no side effect; the SPA calls `recordContactView` when it opens the
+        page. When the contact has no template, `header_modules`,
+        `template_pages` and `modules` are empty and the SPA shows the
+        template picker (R055).
       x-permission: vault:view
       x-inventory: [R041, R057]
-      x-services: [UpdateContactView]
+      x-services: []
       parameters:
         - name: template_page
           in: query
@@ -198,6 +198,28 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/ContactPage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /vaults/{vault_id}/contacts/{contact_id}/view:
+    parameters:
+      - $ref: '#/components/parameters/VaultId'
+      - $ref: '#/components/parameters/ContactId'
+    post:
+      operationId: recordContactView
+      tags: [Contacts]
+      summary: Count one view of a contact by the current user
+      description: |
+        Increments `contact_vault_user.number_of_views`, which orders
+        `listMostConsultedContacts`. Today R041 does this on every page load;
+        the SPA calls it when it opens the contact page. Not counted for a
+        contact without a template, as today.
+      x-permission: vault:view
+      x-inventory: [R041]
+      x-services: [UpdateContactView]
+      responses:
+        '204': { $ref: '#/components/responses/NoContent' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -487,17 +509,29 @@ components:
             last_updated_at: { oneOf: [{ $ref: '#/components/schemas/Timestamp' }, { type: 'null' }] }
             created_at: { $ref: '#/components/schemas/Timestamp' }
             updated_at: { $ref: '#/components/schemas/Timestamp' }
-    ContactSummaryWithAge:
+    ContactCard:
+      description: |
+        A contact with what the hover card shows (today `ContactCardHelper`):
+        age and the groups the contact belongs to.
       allOf:
         - $ref: '#/components/schemas/ContactSummary'
         - type: object
-          required: [age]
+          required: [age, groups]
           properties:
             age:
               type: [integer, 'null']
               description: |
                 Computed: whole years since the contact's birthdate important
                 date; null when there is none or it has no year.
+            groups:
+              type: array
+              description: The contact's groups, by name.
+              items:
+                type: object
+                required: [id, name]
+                properties:
+                  id: { $ref: '#/components/schemas/Id' }
+                  name: { type: string }
     ContactList:
       type: object
       required: [data, meta]
@@ -649,7 +683,7 @@ components:
           oneOf:
             - $ref: '#/components/schemas/UserSummary'
             - type: 'null'
-        contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+        contact: { $ref: '#/components/schemas/ContactCard' }
         description: { type: [string, 'null'], description: Text stored with the item (e.g. the label name or a note excerpt). }
         label:
           oneOf: [{ $ref: '#/components/schemas/Label' }, { type: 'null' }]
@@ -927,7 +961,7 @@ components:
         relationship_type_id: { $ref: '#/components/schemas/Id' }
         contact:
           description: The other contact; the client links to it only when `listed`.
-          allOf: [{ $ref: '#/components/schemas/ContactSummaryWithAge' }]
+          allOf: [{ $ref: '#/components/schemas/ContactCard' }]
     FeedModule:
       type: object
       description: The first page of listContactFeedItems; further pages come from that endpoint.

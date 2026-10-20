@@ -898,7 +898,7 @@ components:
         - type: object
           required: [contact]
           properties:
-            contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+            contact: { $ref: '#/components/schemas/ContactCard' }
 
     AddressReport:
       type: object
@@ -935,7 +935,7 @@ components:
                 properties:
                   contacts:
                     type: array
-                    items: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+                    items: { $ref: '#/components/schemas/ContactCard' }
     MoodTrackingReport:
       type: object
       required: [year, months]
@@ -990,7 +990,7 @@ components:
                     - type: object
                       required: [contact]
                       properties:
-                        contact: { $ref: '#/components/schemas/ContactSummaryWithAge' }
+                        contact: { $ref: '#/components/schemas/ContactCard' }
 
     LifeMetric:
       type: object

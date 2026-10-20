@@ -103,9 +103,8 @@ paths:
       summary: Delete a template
       description: |
         Deletes its pages too. Contacts using it get `template_id = null` and
-        vaults using it as default get `default_template_id = null`. As today,
-        `can_be_deleted` isn't enforced here; the settings page hides the
-        action.
+        vaults using it as default get `default_template_id = null`. 409 when
+        `can_be_deleted` is false (today only the UI prevents it).
       x-permission: account:admin
       x-inventory: [R301]
       x-services: [DestroyTemplate]
@@ -114,6 +113,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /account/templates/{template_id}/pages:
     parameters:
@@ -210,9 +210,9 @@ paths:
       summary: Delete a template page
       description: |
         Removes the page's module assignments; the modules and the contacts'
-        data stay. The other pages keep their positions. As today,
-        `can_be_deleted` isn't enforced here; the settings page offers no
-        delete for the contact information page.
+        data stay. The other pages keep their positions. 409 when
+        `can_be_deleted` is false (the contact information page; today only
+        the UI prevents it, and deleting it breaks the contact page).
       x-permission: account:admin
       x-inventory: [R305]
       x-services: [DestroyTemplatePage]
@@ -221,6 +221,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /account/templates/{template_id}/pages/{template_page_id}/modules/{module_id}:
     parameters:
@@ -394,8 +395,8 @@ paths:
       summary: Delete a post template
       description: |
         Deletes its sections; existing posts keep their own sections. The
-        others keep their positions. As today, `can_be_deleted` isn't enforced
-        here; the settings page hides the action.
+        others keep their positions. 409 when `can_be_deleted` is false
+        (today only the UI prevents it).
       x-permission: account:admin
       x-inventory: [R263]
       x-services: [DestroyPostTemplate]
@@ -404,6 +405,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /account/post-templates/{post_template_id}/sections:
     parameters:
@@ -473,8 +475,8 @@ paths:
       tags: [Account]
       summary: Delete a post template section
       description: |
-        The other sections keep their positions. As today, `can_be_deleted`
-        isn't enforced here.
+        The other sections keep their positions. 409 when `can_be_deleted` is
+        false (today not checked).
       x-permission: account:admin
       x-inventory: [R267]
       x-services: [DestroyPostTemplateSection]
@@ -483,6 +485,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   # ---------------------------------------------------------------- group types
   /account/group-types:
