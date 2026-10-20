@@ -49,9 +49,9 @@
             </div>
 
             <div>
-              <InertiaLink :href="goal.url.show" class="text-sm text-blue-500 hover:underline">
+              <AppLink :href="goal.url.show" class="text-sm text-blue-500 hover:underline">
                 {{ $t('View details') }}
-              </InertiaLink>
+              </AppLink>
             </div>
           </div>
 
@@ -135,7 +135,7 @@ import * as dto from '@/adapters/modules-a';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     PrettyButton,
     PrettySpan,
     TextInput,

@@ -1,5 +1,5 @@
 <template>
-  <InertiaLink
+  <AppLink
     :class="'flex items-center gap-1 dark:box-s relative border-zinc-900 bg-white text-sm dark:border-zinc-100 dark:bg-gray-800 dark:text-gray-100'"
     :href="href"
     preserve-scroll>
@@ -12,7 +12,7 @@
     <span>
       {{ text }}
     </span>
-  </InertiaLink>
+  </AppLink>
 </template>
 
 <script>
@@ -21,7 +21,7 @@ import { Plus, Check, DoorOpen } from 'lucide-vue-next';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Plus,
     Check,
     DoorOpen,

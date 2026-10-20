@@ -9,10 +9,10 @@
             <div>
               <ul class="mb-4">
                 <li class="border-s-2 ps-2" :class="{ 'border-orange-500': tab === 'index' }">
-                  <InertiaLink :href="data.statistics.url.index">
+                  <AppLink :href="data.statistics.url.index">
                     {{ $t('All files') }}
                     <span class="text-sm text-gray-500">({{ data.statistics.statistics.all }})</span>
-                  </InertiaLink>
+                  </AppLink>
                 </li>
               </ul>
 
@@ -21,22 +21,22 @@
               </p>
               <ul>
                 <li class="mb-2 border-s-2 ps-2" :class="{ 'border-orange-500': tab === 'documents' }">
-                  <InertiaLink :href="data.statistics.url.documents">
+                  <AppLink :href="data.statistics.url.documents">
                     {{ $t('Documents') }}
                     <span class="text-sm text-gray-500">({{ data.statistics.statistics.documents }})</span>
-                  </InertiaLink>
+                  </AppLink>
                 </li>
                 <li class="mb-2 border-s-2 ps-2" :class="{ 'border-orange-500': tab === 'photos' }">
-                  <InertiaLink :href="data.statistics.url.photos">
+                  <AppLink :href="data.statistics.url.photos">
                     {{ $t('Photos') }}
                     <span class="text-sm text-gray-500">({{ data.statistics.statistics.photos }})</span>
-                  </InertiaLink>
+                  </AppLink>
                 </li>
                 <li class="mb-2 border-s-2 ps-2" :class="{ 'border-orange-500': tab === 'avatars' }">
-                  <InertiaLink :href="data.statistics.url.avatars">
+                  <AppLink :href="data.statistics.url.avatars">
                     {{ $t('Avatars') }}
                     <span class="text-sm text-gray-500">({{ data.statistics.statistics.avatars }})</span>
-                  </InertiaLink>
+                  </AppLink>
                 </li>
               </ul>
             </div>
@@ -83,9 +83,9 @@
                   <!-- avatar -->
                   <div v-if="file.object.type === 'contact'" class="flex items-center">
                     <avatar :data="file.object.avatar" :class="'me-2 h-4 w-4 rounded-full'" />
-                    <InertiaLink :href="file.object.url.show" class="text-sm text-blue-500 hover:underline">
+                    <AppLink :href="file.object.url.show" class="text-sm text-blue-500 hover:underline">
                       {{ file.object.name }}
-                    </InertiaLink>
+                    </AppLink>
                   </div>
                 </div>
 
@@ -129,7 +129,7 @@ import { deleteVaultFile } from '@/api/client';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     Avatar,
     Pagination,

@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.back" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.back" class="text-blue-500 hover:underline">
                 {{ $t('All the vaults') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -65,7 +65,7 @@
           </div>
 
           <div class="flex justify-between p-5">
-            <InertiaLink
+            <AppLink
               :href="data.url.back"
               :text="$t('Cancel')"
               class="cursor-pointer inline-flex items-center rounded-md border border-gray-300 bg-white px-3 py-1 font-semibold text-gray-700 hover:shadow-xs transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25" />
@@ -95,7 +95,7 @@ import { route, visit } from '@/router';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrimaryButton,
     TextInput,

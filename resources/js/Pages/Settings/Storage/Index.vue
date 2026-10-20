@@ -12,14 +12,14 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink
+              <AppLink
                 :href="data.url.settings.index"
                 class="text-blue-500 hover:underline"
               >
                 {{
                   $t('Settings')
                 }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -105,7 +105,7 @@ import Layout from '@/Layouts/Layout.vue';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
   },
 

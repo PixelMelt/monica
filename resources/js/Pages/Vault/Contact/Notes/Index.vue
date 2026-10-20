@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
+              <AppLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
                 {{ $t('Contacts') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -24,9 +24,9 @@
               </svg>
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.contact" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.contact" class="text-blue-500 hover:underline">
                 {{ $t('Profile of :name', { name: data.contact.name }) }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -61,7 +61,7 @@ import Notes from '@/Shared/Modules/Notes.vue';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     Notes,
   },

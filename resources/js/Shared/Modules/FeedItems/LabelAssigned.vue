@@ -9,9 +9,9 @@
         :class="'relative me-2 h-5 w-5 rounded-full border border-gray-200 dark:border-gray-800'" />
 
       <div class="flex flex-col">
-        <InertiaLink :href="data.contact.url" class="text-gray-800 hover:underline dark:text-gray-200">{{
+        <AppLink :href="data.contact.url" class="text-gray-800 hover:underline dark:text-gray-200">{{
           data.contact.name
-        }}</InertiaLink>
+        }}</AppLink>
       </div>
     </div>
 
@@ -21,7 +21,7 @@
         v-if="data.label.object"
         class="mb-2 me-2 inline-block rounded-xs px-2 py-1 text-xs font-semibold last:me-0"
         :class="data.label.object.bg_color + ' ' + data.label.object.text_color">
-        <InertiaLink :href="data.label.object.url">{{ data.label.object.name }}</InertiaLink>
+        <AppLink :href="data.label.object.url">{{ data.label.object.name }}</AppLink>
       </span>
 
       <!-- the label was deleted -->
@@ -40,7 +40,7 @@ import Avatar from '@/Shared/Avatar.vue';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Avatar,
   },
 

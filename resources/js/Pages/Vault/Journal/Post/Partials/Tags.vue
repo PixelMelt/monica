@@ -85,7 +85,7 @@
         v-for="tag in localTags"
         :key="tag.id"
         class="me-2 inline-block rounded-xs bg-neutral-200 px-2 py-1 text-xs font-semibold text-neutral-500 last:me-0">
-        <InertiaLink :href="tag.url.show">{{ tag.name }}</InertiaLink>
+        <AppLink :href="tag.url.show">{{ tag.name }}</AppLink>
       </span>
     </div>
 
@@ -103,7 +103,7 @@ import * as dto from '@/adapters/journals';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     TextInput,
     Errors,
   },

@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.back" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.back" class="text-blue-500 hover:underline">
                 {{ $t('Contacts') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -234,7 +234,7 @@ import { nullable, toId } from '@/adapters/contacts';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrettyLink,
     PrettyButton,

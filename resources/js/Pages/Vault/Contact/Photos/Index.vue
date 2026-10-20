@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
+              <AppLink :href="layoutData.vault.url.contacts" class="text-blue-500 hover:underline">
                 {{ $t('Contacts') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -24,9 +24,9 @@
               </svg>
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.show" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.show" class="text-blue-500 hover:underline">
                 {{ $t('Profile of :name', { name: data.contact.name }) }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -92,9 +92,9 @@
               v-for="photo in localPhotos"
               :key="photo.id"
               class="rounded-md border border-gray-200 p-2 shadow-xs hover:bg-slate-50 hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-              <InertiaLink :href="photo.url.show">
+              <AppLink :href="photo.url.show">
                 <img :src="photo.url.display" :alt="photo.name" class="aspect-square w-full object-cover" />
-              </InertiaLink>
+              </AppLink>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ import * as dto from '@/adapters/modules-b';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrettyButton,
     Pagination,

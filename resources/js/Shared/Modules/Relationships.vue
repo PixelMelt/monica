@@ -31,12 +31,12 @@
                 <avatar :data="relationshipType.contact.avatar" :class="'me-2 h-5 w-5'" />
 
                 <!-- name -->
-                <InertiaLink
+                <AppLink
                   v-if="relationshipType.contact.url.show"
                   :href="relationshipType.contact.url.show"
                   class="text-blue-500 hover:underline">
                   {{ relationshipType.contact.name }}
-                </InertiaLink>
+                </AppLink>
                 <span v-else>{{ relationshipType.contact.name }}</span>
 
                 <!-- age -->
@@ -79,7 +79,7 @@ import { deleteContactRelationship } from '@/api/client';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     PrettyLink,
     Avatar,
     UsersRound,

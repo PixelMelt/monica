@@ -9,9 +9,9 @@
               {{ $t('You are here:') }}
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.settings" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.settings" class="text-blue-500 hover:underline">
                 {{ $t('Settings') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -24,9 +24,9 @@
               </svg>
             </li>
             <li class="me-2 inline">
-              <InertiaLink :href="data.url.personalize" class="text-blue-500 hover:underline">
+              <AppLink :href="data.url.personalize" class="text-blue-500 hover:underline">
                 {{ $t('Personalize your account') }}
-              </InertiaLink>
+              </AppLink>
             </li>
             <li class="relative me-2 inline">
               <svg
@@ -131,9 +131,9 @@
             class="item-list border-b border-gray-200 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
             <!-- detail of the template -->
             <div v-if="renameTemplateModalShownId !== template.id" class="flex items-center justify-between px-5 py-2">
-              <InertiaLink :href="template.url.show" class="text-blue-500 hover:underline">
+              <AppLink :href="template.url.show" class="text-blue-500 hover:underline">
                 {{ template.name }}
-              </InertiaLink>
+              </AppLink>
 
               <!-- actions -->
               <ul class="text-sm">
@@ -203,7 +203,7 @@ import * as dto from '@/adapters/personalize';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     PrettyButton,
     PrettySpan,

@@ -16,9 +16,9 @@
           <div class="mb-2 flex items-center">
             <avatar :data="task.contact.avatar" :class="'me-2 h-5 w-5 rounded-full'" />
 
-            <InertiaLink :href="task.contact.url.show" class="text-blue-500 hover:underline">
+            <AppLink :href="task.contact.url.show" class="text-blue-500 hover:underline">
               {{ task.contact.name }}
-            </InertiaLink>
+            </AppLink>
           </div>
 
           <!-- tasks -->
@@ -92,7 +92,7 @@ import { updateContactTask } from '@/api/client';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Layout,
     Avatar,
     LayoutList,

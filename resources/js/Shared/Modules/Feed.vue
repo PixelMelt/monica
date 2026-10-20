@@ -14,11 +14,11 @@
             <!-- action description -->
             <p class="me-2 text-gray-400">
               <!-- author name + link to profile -->
-              <InertiaLink
+              <AppLink
                 v-if="feedItem.author.url"
                 :href="feedItem.author.url"
                 class="font-medium text-gray-800 hover:underline dark:text-gray-200"
-                >{{ feedItem.author.name }}</InertiaLink
+                >{{ feedItem.author.name }}</AppLink
               >
               <span v-else class="font-medium text-gray-800 dark:text-gray-200">{{ feedItem.author.name }}</span>
 
@@ -207,7 +207,7 @@ import { feedItem } from '@/adapters/modules-a';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     Loading,
     Avatar,
     GenericAction,

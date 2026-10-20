@@ -90,9 +90,9 @@
 
           <div v-if="group.contacts" class="relative flex -space-x-2 overflow-hidden py-1">
             <div v-for="contact in group.contacts" :key="contact.id" class="inline-block">
-              <InertiaLink :href="contact.url.show">
+              <AppLink :href="contact.url.show">
                 <avatar :data="contact.avatar" :class="'h-8 w-8 rounded-full ring-2 ring-white'" />
-              </InertiaLink>
+              </AppLink>
             </div>
           </div>
         </div>
@@ -100,7 +100,7 @@
         <!-- actions -->
         <ul class="text-sm">
           <li class="me-4 inline cursor-pointer">
-            <InertiaLink :href="group.url.show" class="text-blue-500 hover:underline">{{ $t('Show') }}</InertiaLink>
+            <AppLink :href="group.url.show" class="text-blue-500 hover:underline">{{ $t('Show') }}</AppLink>
           </li>
           <li class="inline cursor-pointer text-red-500 hover:text-red-900" @click="destroy(group)">
             {{ $t('Leave') }}
@@ -133,7 +133,7 @@ import * as dto from '@/adapters/modules-b';
 
 export default {
   components: {
-    InertiaLink: Link,
+    AppLink: Link,
     PrettyButton,
     PrettySpan,
     TextInput,
