@@ -75,6 +75,11 @@ pub async fn signup_enabled(state: &AppState) -> ApiResult<bool> {
     extensions(("x-permission" = json!("public")), ("x-inventory" = json!(["V001", "V008"])), ("x-services" = json!([])))
 )]
 pub async fn get_instance(State(state): State<AppState>) -> ApiResult<Json<Instance>> {
+    Ok(Json(build_instance(&state).await?))
+}
+
+/// The instance information of `getInstance` (also part of the bootstrap).
+pub async fn build_instance(state: &AppState) -> ApiResult<Instance> {
     let mut locales: Vec<Locale> = i18n::locales()
         .map(|l| Locale {
             id: l.to_owned(),
@@ -83,8 +88,8 @@ pub async fn get_instance(State(state): State<AppState>) -> ApiResult<Json<Insta
         })
         .collect();
     locales.sort_by_key(|l| l.name.to_lowercase());
-    Ok(Json(Instance {
-        signup_enabled: signup_enabled(&state).await?,
+    Ok(Instance {
+        signup_enabled: signup_enabled(state).await?,
         show_deletion_notice: state.config.show_deletion_notice,
         locale: i18n::current(),
         default_locale: state.config.locale.clone(),
@@ -92,5 +97,5 @@ pub async fn get_instance(State(state): State<AppState>) -> ApiResult<Json<Insta
         version: env!("CARGO_PKG_VERSION").to_owned(),
         commit: option_env!("MONICA_COMMIT").map(str::to_owned),
         features: Features { account_deletion: state.config.enable_account_deletion },
-    }))
+    })
 }
