@@ -7,6 +7,7 @@
 
 import * as auth from '@/loaders/auth';
 import * as settings from '@/loaders/settings';
+import * as admin from '@/loaders/admin';
 import * as personalize from '@/loaders/personalize';
 import * as vaults from '@/loaders/vaults';
 import * as contacts from '@/loaders/contacts';
@@ -56,6 +57,9 @@ export default [
   ),
   r('/settings/users', 'settings.user.index', 'Settings/Users/Index', settings.users),
   r('/settings/users/create', 'settings.user.create', 'Settings/Users/Create', settings.createUser),
+
+  // Instance administration
+  r('/admin/accounts', 'admin.accounts.index', 'Admin/Accounts/Index', admin.accounts),
 
   // Personalize the account
   r('/settings/personalize', 'settings.personalize.index', 'Settings/Personalize/Index', personalize.index),

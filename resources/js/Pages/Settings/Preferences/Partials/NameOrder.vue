@@ -9,7 +9,6 @@ import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
-import Help from '@/Shared/Help.vue';
 
 const props = defineProps({
   data: Object,
@@ -33,20 +32,6 @@ const focusNameOrder = () => {
   disableNameOrder.value = false;
 
   nextTick().then(() => nameOrder.value.focus());
-};
-
-const helpDocumentation = () => {
-  let msg = trans(
-    'Please read our <link>documentation</link> to know more about this feature, and which variables you have access to.',
-  );
-  let link = 'https://docs.monicahq.com/user-and-account-settings/manage-preferences#customize-contact-names';
-
-  return msg
-    .replace(
-      '<link>',
-      `<a href="${link}" lang="en" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">`,
-    )
-    .replace('</link>', '</a>');
 };
 
 const submit = () => {
@@ -77,8 +62,6 @@ const submit = () => {
         <span class="me-2">
           {{ $t('Customize how contacts should be displayed') }}
         </span>
-
-        <help :url="helpLinks.settings_preferences_contact_names" :top="'5px'" />
       </h3>
       <pretty-button v-if="!editMode" :text="$t('Edit')" @click="enableEditMode" />
     </div>
@@ -209,10 +192,6 @@ const submit = () => {
             :disabled="disableNameOrder"
             :autocomplete="false"
             :maxlength="255" />
-
-          <p class="mb-4 text-sm">
-            <span class="mr-1" v-html="helpDocumentation()"></span>
-          </p>
         </div>
       </div>
 

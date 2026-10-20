@@ -1634,6 +1634,34 @@ ${storage('calendars', 'caldav')}`,
   await see('Grace Murray Hopper', { absent: true });
 }
 
+// --- step 9: instance administration ----------------------------------------
+
+/** The first user administers the install: they add an account on the admin dashboard, then delete it. */
+async function adminAccounts() {
+  const username = `charles-${run}`;
+  await goto('/settings');
+  await click('Manage the accounts of this Monica', { selector: 'a' });
+  await waitForPath(/^\/admin\/accounts$/);
+  await see('Your account');
+  await click('Add an account', { selector: 'button' });
+  await fill('First name', 'Charles');
+  await fill('Last name', 'Babbage');
+  await fill('Username', username);
+  await fill('Password', user.password);
+  await fill('Confirm Password', user.password);
+  await click('Add', { selector: 'button' });
+  await see('The account has been created');
+  await reload();
+  await see(username);
+
+  const item = await itemWith(username, 'Delete');
+  await click('Delete', { within: item });
+  await confirmPasswordIfAsked();
+  await see('The account has been deleted');
+  await reload();
+  await see(username, { absent: true });
+}
+
 // --- main ----------------------------------------------------------------------
 
 page.on('dialog', (d) => d.accept());
@@ -1651,6 +1679,7 @@ const steps = [
   ['6-reminder-pushover', reminderPushover],
   ['7-every-page', everyPage],
   ['8-carddav-sync', cardDav],
+  ['9-admin-accounts', adminAccounts],
 ];
 
 let stopped = false;

@@ -1197,6 +1197,39 @@ export const deleteAccountUser = (params = {}, body = undefined) =>
   );
 
 /**
+ * The accounts of this install (`GET /admin/accounts`).
+ * @param {import('./schema').operations['listAdminAccounts']['parameters']['path'] & import('./schema').operations['listAdminAccounts']['parameters']['query']} [params]
+ */
+export const listAdminAccounts = (params = {}, body = undefined) =>
+  request({ method: 'GET', path: '/admin/accounts', pathParams: [], queryParams: [], binary: false }, params, body);
+
+/**
+ * Create an account and its first user (`POST /admin/accounts`).
+ * @param {import('./schema').operations['createAdminAccount']['parameters']['path'] & import('./schema').operations['createAdminAccount']['parameters']['query']} [params]
+ * @param {import('./schema').operations['createAdminAccount']['requestBody']['content']['application/json']} [body]
+ */
+export const createAdminAccount = (params = {}, body = undefined) =>
+  request({ method: 'POST', path: '/admin/accounts', pathParams: [], queryParams: [], binary: false }, params, body);
+
+/**
+ * Delete an account with its users, vaults and files (`DELETE /admin/accounts/{account_id}`).
+ * @param {import('./schema').operations['deleteAdminAccount']['parameters']['path'] & import('./schema').operations['deleteAdminAccount']['parameters']['query']} [params]
+ * @param {import('./schema').operations['deleteAdminAccount']['requestBody']['content']['application/json']} [body]
+ */
+export const deleteAdminAccount = (params = {}, body = undefined) =>
+  request(
+    {
+      method: 'DELETE',
+      path: '/admin/accounts/{account_id}',
+      pathParams: ['account_id'],
+      queryParams: [],
+      binary: false,
+    },
+    params,
+    body,
+  );
+
+/**
  * Confirm the password for sensitive actions (3 hours) (`POST /auth/confirm-password`).
  * @param {import('./schema').operations['confirmPassword']['parameters']['path'] & import('./schema').operations['confirmPassword']['parameters']['query']} [params]
  * @param {import('./schema').operations['confirmPassword']['requestBody']['content']['application/json']} [body]

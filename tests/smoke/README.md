@@ -28,6 +28,8 @@ Steps:
    the API tokens page, let `vdirsyncer` discover and pull the vault's
    address book and its dates and tasks calendars, then push a new card, an
    edit and a deletion, each checked in the UI.
+9. Instance administration: add an account on the admin dashboard, then
+   delete it.
 
 Every step fails on a console error, a page error, a failed request or an
 HTTP response ≥ 400 that the step doesn't expect; pages also fail when blank
