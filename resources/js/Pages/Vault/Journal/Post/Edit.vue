@@ -2,10 +2,21 @@
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
 import { watch, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { debounce } from 'lodash';
 import { trans } from 'laravel-vue-i18n';
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
+import { route, visit } from '@/router';
+import {
+  updateJournalPost,
+  deleteJournalPost,
+  addJournalPostContact,
+  removeJournalPostContact,
+  uploadJournalPostPhoto,
+  deleteJournalPostPhoto,
+} from '@/api/client';
+import * as dto from '@/adapters/journals';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
@@ -13,7 +24,7 @@ import TextArea from '@/Shared/Form/TextArea.vue';
 import Tags from '@/Pages/Vault/Journal/Post/Partials/Tags.vue';
 import SlicesOfLife from '@/Pages/Vault/Journal/Post/Partials/SlicesOfLife.vue';
 import PostMetrics from '@/Pages/Vault/Journal/Post/Partials/PostMetrics.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+import FileUpload from '@/Components/FileUpload.vue';
 import ContactSelector from '@/Shared/Form/ContactSelector.vue';
 import JetConfirmationModal from '@/Components/Jetstream/ConfirmationModal.vue';
 import JetDangerButton from '@/Components/Jetstream/DangerButton.vue';
@@ -22,6 +33,13 @@ import JetSecondaryButton from '@/Components/Jetstream/SecondaryButton.vue';
 const props = defineProps({
   layoutData: Object,
   data: Object,
+});
+
+const currentRoute = useRoute();
+const postParams = () => ({
+  vault_id: currentRoute.params.vault,
+  journal_id: currentRoute.params.journal,
+  post_id: props.data.id,
 });
 
 const form = useForm({
@@ -33,12 +51,6 @@ const form = useForm({
     label: section.label,
     content: section.content,
   })),
-  uuid: null,
-  name: null,
-  original_url: null,
-  cdn_url: null,
-  mime_type: null,
-  size: null,
 });
 
 const saveInProgress = ref(false);
@@ -50,6 +62,9 @@ const localPhotos = ref(props.data.photos);
 const masks = ref({
   modelValue: 'YYYY-MM-DD',
 });
+
+// the contacts mentioned in the post on the server
+let savedContactIds = props.data.contacts.map((contact) => contact.id);
 
 watch(
   () => _.cloneDeep(form.sections),
@@ -83,15 +98,19 @@ const debouncedWatch = debounce(() => {
   update();
 }, 500);
 
-const onSuccess = (file) => {
-  form.uuid = file.uuid;
-  form.name = file.name;
-  form.original_url = file.originalUrl;
-  form.cdn_url = file.cdnUrl;
-  form.mime_type = file.mimeType;
-  form.size = file.size;
+const upload = (body) => {
+  saveInProgress.value = true;
 
-  upload();
+  return uploadJournalPostPhoto(postParams(), body);
+};
+
+const onSuccess = (file) => {
+  saveInProgress.value = false;
+  localPhotos.value.push(dto.postPhoto(file, currentRoute.params.vault));
+};
+
+const onError = (error) => {
+  form.errors = error.response?.data;
 };
 
 const showDeletePhotoModal = (file) => {
@@ -99,25 +118,10 @@ const showDeletePhotoModal = (file) => {
   deletePhotoModalShown.value = true;
 };
 
-const upload = () => {
-  saveInProgress.value = true;
-
-  axios
-    .post(props.data.url.upload_photo, form)
-    .then((response) => {
-      saveInProgress.value = false;
-      localPhotos.value.push(response.data.data);
-    })
-    .catch((error) => {
-      form.errors = error.response.data;
-    });
-};
-
 const destroyPhoto = () => {
   processPhotoDeletion.value = true;
 
-  axios
-    .delete(photoToDelete.value.url.destroy)
+  deleteJournalPostPhoto({ ...postParams(), file_id: photoToDelete.value.id })
     .then(() => {
       processPhotoDeletion.value = false;
       var id = localPhotos.value.findIndex((x) => x.id === photoToDelete.value.id);
@@ -129,21 +133,42 @@ const destroyPhoto = () => {
     });
 };
 
+/** Mentions the contacts added to the selector and drops the removed ones. */
+const updateContacts = () => {
+  const ids = form.contacts.map((contact) => contact.id);
+  const added = ids.filter((id) => !savedContactIds.includes(id));
+  const removed = savedContactIds.filter((id) => !ids.includes(id));
+  savedContactIds = ids;
+
+  return Promise.all([
+    ...added.map((id) => addJournalPostContact({ ...postParams(), contact_id: id })),
+    ...removed.map((id) => removeJournalPostContact({ ...postParams(), contact_id: id })),
+  ]);
+};
+
 const update = () => {
   saveInProgress.value = true;
 
-  axios
-    .put(props.data.url.update, form)
-    .then((response) => {
+  Promise.all([
+    updateJournalPost(postParams(), {
+      title: dto.orNull(form.title),
+      written_at: form.date,
+      sections: form.sections.map((section) => ({ id: section.id, content: dto.orNull(section.content) })),
+    }),
+    updateContacts(),
+  ])
+    .then(([post]) => {
       setTimeout(() => (saveInProgress.value = false), 350);
-      statistics.value = response.data.data;
+      statistics.value = dto.postStatistics(post);
     })
     .catch(() => {});
 };
 
 const destroy = () => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    form.delete(props.data.url.destroy, {
+    form.submit(() => deleteJournalPost(postParams()), {
+      onSuccess: () =>
+        visit(route('journal.show', { vault: currentRoute.params.vault, journal: currentRoute.params.journal })),
       onFinish: () => {},
     });
   }
@@ -246,13 +271,10 @@ const destroy = () => {
               </ul>
 
               <!-- upload component -->
-              <uploadcare
-                v-if="data.uploadcare.publicKey && data.canUploadFile"
-                :public-key="data.uploadcare.publicKey"
-                :secure-signature="data.uploadcare.signature"
-                :secure-expire="data.uploadcare.expire"
-                :tabs="'file'"
-                :preview-step="false"
+              <file-upload
+                v-if="data.canUploadFile"
+                :upload="upload"
+                :images-only="true"
                 @success="onSuccess"
                 @error="onError">
                 <!-- case when there are no photos yet -->
@@ -282,16 +304,7 @@ const destroy = () => {
                     {{ $t('+ add another photo') }}
                   </p>
                 </div>
-              </uploadcare>
-
-              <!-- uploadcare api key not set -->
-              <div
-                v-if="!data.uploadcare.publicKey"
-                class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-                <p class="p-5 text-center">
-                  {{ $t('The keys to manage uploads have not been set in this Monica instance.') }}
-                </p>
-              </div>
+              </file-upload>
 
               <!-- not enough storage -->
               <div
@@ -395,8 +408,6 @@ const destroy = () => {
             </p>
             <contact-selector
               v-model="form.contacts"
-              :search-url="layoutData.vault.url.search_contacts_only"
-              :most-consulted-contacts-url="layoutData.vault.url.get_most_consulted_contacts"
               :display-most-consulted-contacts="true"
               :add-multiple-contacts="true"
               :required="true"

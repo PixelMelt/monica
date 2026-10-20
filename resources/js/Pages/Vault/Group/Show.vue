@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { useRoute } from 'vue-router';
+import Link from '@/router/Link.vue';
+import { route, visit } from '@/router';
+import { deleteVaultGroup } from '@/api/client';
 import { trans } from 'laravel-vue-i18n';
 import Layout from '@/Layouts/Layout.vue';
 import Avatar from '@/Shared/Avatar.vue';
@@ -13,6 +16,7 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
 const deletingGroup = ref(false);
 const deleteGroupForm = reactive({
   processing: false,
@@ -21,13 +25,12 @@ const deleteGroupForm = reactive({
 const destroy = () => {
   deleteGroupForm.processing = true;
 
-  axios
-    .delete(props.data.url.destroy)
-    .then((response) => {
+  deleteVaultGroup({ vault_id: currentRoute.params.vault, group_id: props.data.id })
+    .then(() => {
       deleteGroupForm.processing = false;
 
       localStorage.success = trans('The group has been deleted');
-      router.visit(response.data.data);
+      visit(route('group.index', { vault: currentRoute.params.vault }));
     })
     .catch((error) => {
       deleteGroupForm.processing = false;

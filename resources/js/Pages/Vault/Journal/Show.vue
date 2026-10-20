@@ -1,6 +1,9 @@
 <script setup>
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { deleteJournal } from '@/api/client';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import { trans } from 'laravel-vue-i18n';
@@ -10,13 +13,15 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
 const form = useForm({});
 
 const destroy = () => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    form.delete(props.data.url.destroy, {
-      onFinish: () => {
+    form.submit(() => deleteJournal({ vault_id: currentRoute.params.vault, journal_id: props.data.id }), {
+      onSuccess: () => {
         localStorage.success = trans('Changes saved');
+        visit(route('journal.index', { vault: currentRoute.params.vault }));
       },
     });
   }
@@ -181,7 +186,7 @@ const destroy = () => {
                         <div
                           v-if="post.photo"
                           class="mr-2 rounded-md border border-gray-200 p-1 shadow-xs hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
-                          <img :src="post.photo.url.show" :alt="post.photo.id" />
+                          <img :src="post.photo.url.show" :alt="post.photo.id" width="75" height="75" />
                         </div>
                       </div>
                     </li>
@@ -215,7 +220,11 @@ const destroy = () => {
             <p class="mb-2 font-medium"><span class="me-1"> 🍕 </span> {{ $t('Slices of life') }}</p>
             <div v-if="data.slices.length > 0" class="mb-2">
               <div v-for="slice in data.slices" :key="slice.id" class="mb-6 last:mb-0">
-                <img v-if="slice.cover_image" class="h-32 w-full rounded-t" :src="slice.cover_image" alt="" />
+                <img
+                  v-if="slice.cover_image"
+                  class="h-32 w-full rounded-t object-cover"
+                  :src="slice.cover_image"
+                  alt="" />
                 <div
                   class="rounded-b border-b border-s border-gray-200 px-3 py-2 hover:bg-slate-50 dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                   :class="slice.cover_image ? '' : 'border-t'">

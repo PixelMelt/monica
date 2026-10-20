@@ -943,8 +943,8 @@ components:
           items: { $ref: '#/components/schemas/Tag' }
         contacts:
           type: array
-          description: Contacts mentioned in the post.
-          items: { $ref: '#/components/schemas/ContactSummary' }
+          description: Contacts mentioned in the post, with what the show page's hover card shows (`ContactCardHelper`).
+          items: { $ref: '#/components/schemas/ContactCard' }
         photos:
           type: array
           description: The post's photos, by id.
@@ -1071,8 +1071,8 @@ components:
               items: { $ref: '#/components/schemas/PostSummary' }
             contacts:
               type: array
-              description: Computed. Distinct contacts mentioned in those posts.
-              items: { $ref: '#/components/schemas/ContactSummary' }
+              description: Computed. Distinct contacts mentioned in those posts, with what the hover card shows (`ContactCardHelper`).
+              items: { $ref: '#/components/schemas/ContactCard' }
     SliceOfLifeList:
       type: object
       required: [data]

@@ -1,7 +1,11 @@
 <script setup>
 import { onMounted, nextTick, useTemplateRef } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { updateJournal } from '@/api/client';
+import { orNull } from '@/adapters/journals';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
@@ -19,6 +23,7 @@ const form = useForm({
   description: props.data.description,
 });
 
+const currentRoute = useRoute();
 const nameField = useTemplateRef('nameField');
 
 onMounted(() => {
@@ -26,9 +31,17 @@ onMounted(() => {
 });
 
 const submit = () => {
-  form.put(props.data.url.update, {
-    onFinish: () => {},
-  });
+  form.submit(
+    (data) =>
+      updateJournal(
+        { vault_id: currentRoute.params.vault, journal_id: props.data.id },
+        { name: data.name, description: orNull(data.description) },
+      ),
+    {
+      onSuccess: (journal) => visit(route('journal.show', { vault: journal.vault_id, journal: journal.id })),
+      onFinish: () => {},
+    },
+  );
 };
 </script>
 

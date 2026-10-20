@@ -98,6 +98,8 @@
 import Link from '@/router/Link.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
 import Errors from '@/Shared/Form/Errors.vue';
+import { createJournalPostTag, assignJournalPostTag, removeJournalPostTag } from '@/api/client';
+import * as dto from '@/adapters/journals';
 
 export default {
   components: {
@@ -143,6 +145,14 @@ export default {
   },
 
   methods: {
+    postParams() {
+      return {
+        vault_id: this.$route.params.vault,
+        journal_id: this.$route.params.journal,
+        post_id: this.data.id,
+      };
+    },
+
     showEditModal() {
       this.form.name = '';
       this.editTagModalShown = true;
@@ -155,13 +165,12 @@ export default {
     store() {
       this.form.name = this.form.search;
 
-      axios
-        .post(this.data.url.tag_store, this.form)
-        .then((response) => {
+      createJournalPostTag(this.postParams(), { name: this.form.name })
+        .then((tag) => {
           this.flash(this.$t('The tag has been added'), 'success');
           this.form.search = '';
-          this.localTagsInVault.push(response.data.data);
-          this.localTags.push(response.data.data);
+          this.localTagsInVault.push(dto.postTag(tag, true));
+          this.localTags.push(dto.postTag(tag, true));
         })
         .catch((error) => {
           this.form.errors = error.response.data;
@@ -174,11 +183,10 @@ export default {
         return;
       }
 
-      axios
-        .put(tag.url.update)
-        .then((response) => {
-          this.localTagsInVault[this.localTagsInVault.findIndex((x) => x.id === tag.id)] = response.data.data;
-          this.localTags.push(response.data.data);
+      assignJournalPostTag({ ...this.postParams(), tag_id: tag.id })
+        .then((assigned) => {
+          this.localTagsInVault[this.localTagsInVault.findIndex((x) => x.id === tag.id)] = dto.postTag(assigned, true);
+          this.localTags.push(dto.postTag(assigned, true));
         })
         .catch((error) => {
           this.form.errors = error.response.data;
@@ -186,10 +194,9 @@ export default {
     },
 
     remove(tag) {
-      axios
-        .delete(tag.url.destroy)
-        .then((response) => {
-          this.localTagsInVault[this.localTagsInVault.findIndex((x) => x.id === tag.id)] = response.data.data;
+      removeJournalPostTag({ ...this.postParams(), tag_id: tag.id })
+        .then(() => {
+          this.localTagsInVault[this.localTagsInVault.findIndex((x) => x.id === tag.id)] = { ...tag, taken: false };
 
           var id = this.localTags.findIndex((x) => x.id === tag.id);
           this.localTags.splice(id, 1);

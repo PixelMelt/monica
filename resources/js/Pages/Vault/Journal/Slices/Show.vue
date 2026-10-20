@@ -1,57 +1,58 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
 import { trans } from 'laravel-vue-i18n';
+import { route, visit } from '@/router';
+import { setJournalSliceCover, deleteJournalSliceCover, deleteJournalSlice, urls } from '@/api/client';
 import Layout from '@/Layouts/Layout.vue';
 import ContactCard from '@/Shared/ContactCard.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+import FileUpload from '@/Components/FileUpload.vue';
 
 const props = defineProps({
   layoutData: Object,
   data: Object,
 });
 
-const localSlice = ref(props.data.slice);
-
-const form = useForm({
-  uuid: null,
-  name: null,
-  original_url: null,
-  cdn_url: null,
-  mime_type: null,
-  size: null,
+const currentRoute = useRoute();
+const sliceParams = () => ({
+  vault_id: currentRoute.params.vault,
+  journal_id: props.data.journal.id,
+  slice_id: props.data.slice.id,
 });
 
-const upload = () => {
-  axios
-    .put(props.data.slice.url.update_cover_image, form)
-    .then((response) => {
-      localSlice.value = response.data.data;
-    })
-    .catch(() => {});
-};
+const localSlice = ref(props.data.slice);
+
+const form = useForm({});
+
+const upload = (body) => setJournalSliceCover(sliceParams(), body);
 
 const onSuccess = (file) => {
-  form.uuid = file.uuid;
-  form.name = file.name;
-  form.original_url = file.originalUrl;
-  form.cdn_url = file.cdnUrl;
-  form.mime_type = file.mimeType;
-  form.size = file.size;
-
-  upload();
+  localSlice.value = {
+    ...localSlice.value,
+    cover_image: urls.getVaultFileContent({
+      vault_id: currentRoute.params.vault,
+      file_id: file.id,
+      variant: 'original',
+    }),
+  };
 };
 
+const onError = () => {};
+
 const destroyCoverImage = () => {
-  axios.delete(props.data.slice.url.destroy_cover_image).then((response) => {
-    localSlice.value = response.data.data;
+  deleteJournalSliceCover(sliceParams()).then(() => {
+    localSlice.value = { ...localSlice.value, cover_image: null };
   });
 };
 
 const destroy = () => {
   if (confirm(trans('Are you sure? This action cannot be undone.'))) {
-    form.delete(props.data.slice.url.destroy);
+    form.submit(() => deleteJournalSlice(sliceParams()), {
+      onSuccess: () =>
+        visit(route('slices.index', { vault: currentRoute.params.vault, journal: props.data.journal.id })),
+    });
   }
 };
 </script>
@@ -121,13 +122,10 @@ const destroy = () => {
       <div class="mx-auto max-w-4xl px-2 py-2 sm:px-6 sm:py-6 lg:px-8">
         <div>
           <!-- header image -->
-          <uploadcare
-            v-if="data.uploadcare.publicKey && data.canUploadFile && !localSlice.cover_image"
-            :public-key="data.uploadcare.publicKey"
-            :secure-signature="data.uploadcare.signature"
-            :secure-expire="data.uploadcare.expire"
-            :tabs="'file'"
-            :preview-step="false"
+          <file-upload
+            v-if="data.canUploadFile && !localSlice.cover_image"
+            :upload="upload"
+            :images-only="true"
             @success="onSuccess"
             @error="onError">
             <div
@@ -147,16 +145,7 @@ const destroy = () => {
 
               <p class="text-sm text-gray-500">{{ $t('Add a header image') }}</p>
             </div>
-          </uploadcare>
-
-          <!-- uploadcare api key not set -->
-          <div
-            v-if="!data.uploadcare.publicKey"
-            class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-            <p class="p-5 text-center">
-              {{ $t('The keys to manage uploads have not been set in this Monica instance.') }}
-            </p>
-          </div>
+          </file-upload>
 
           <!-- not enough storage -->
           <div
@@ -167,7 +156,11 @@ const destroy = () => {
             </p>
           </div>
 
-          <img :src="localSlice.cover_image" :alt="localSlice.uuid" class="mb-8 w-full rounded-lg" />
+          <img
+            v-if="localSlice.cover_image"
+            :src="localSlice.cover_image"
+            :alt="localSlice.uuid"
+            class="mb-8 aspect-[8/1] w-full rounded-lg object-cover" />
         </div>
 
         <div class="special-grid grid grid-cols-1 gap-6 sm:grid-cols-3">

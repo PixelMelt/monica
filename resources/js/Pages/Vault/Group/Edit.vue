@@ -1,6 +1,10 @@
 <script setup>
 import { onMounted, nextTick, ref, useTemplateRef } from 'vue';
-import { Link, router, useForm } from '@inertiajs/vue3';
+import { useRoute } from 'vue-router';
+import Link from '@/router/Link.vue';
+import { useForm } from '@/lib/form';
+import { route, visit } from '@/router';
+import { updateVaultGroup } from '@/api/client';
 import { trans } from 'laravel-vue-i18n';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyLink from '@/Shared/Form/PrettyLink.vue';
@@ -14,10 +18,11 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
+
 const form = useForm({
   name: props.data.name,
   group_type_id: props.data.group_type_id,
-  errors: [],
 });
 
 const loadingState = ref(null);
@@ -30,12 +35,14 @@ onMounted(() => {
 const update = () => {
   loadingState.value = 'loading';
 
-  axios
-    .put(props.data.url.update, form)
-    .then((response) => {
+  updateVaultGroup(
+    { vault_id: currentRoute.params.vault, group_id: props.data.id },
+    { name: form.name, group_type_id: form.group_type_id === '' ? null : form.group_type_id },
+  )
+    .then((group) => {
       loadingState.value = null;
       localStorage.success = trans('The group has been updated');
-      router.visit(response.data.data);
+      visit(route('group.show', { vault: group.vault_id, group: group.id }));
     })
     .catch((error) => {
       form.errors = error.response.data;

@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import Link from '@/router/Link.vue';
 import { useForm } from '@/lib/form';
+import { setJournalPostSlice, clearJournalPostSlice } from '@/api/client';
+import * as dto from '@/adapters/journals';
 import Errors from '@/Shared/Form/Errors.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
@@ -9,6 +12,13 @@ import Dropdown from '@/Shared/Form/Dropdown.vue';
 
 const props = defineProps({
   data: Object,
+});
+
+const currentRoute = useRoute();
+const postParams = () => ({
+  vault_id: currentRoute.params.vault,
+  journal_id: currentRoute.params.journal,
+  post_id: props.data.id,
 });
 
 const form = useForm({
@@ -27,12 +37,11 @@ const showSliceModal = () => {
 const update = () => {
   loadingState.value = 'loading';
 
-  axios
-    .put(props.data.url.slice_store, form)
-    .then((response) => {
+  setJournalPostSlice(postParams(), { slice_of_life_id: Number(form.slice_of_life_id) })
+    .then((updated) => {
       editSlicesModalShown.value = false;
       loadingState.value = '';
-      slice.value = response.data.data;
+      slice.value = dto.sliceOfLifeShowSlice(updated, currentRoute.params.vault);
     })
     .catch(() => {
       loadingState.value = '';
@@ -41,7 +50,7 @@ const update = () => {
 
 const reset = () => {
   form.slice_of_life_id = null;
-  axios.delete(props.data.url.slice_reset, form).then(() => {
+  clearJournalPostSlice(postParams()).then(() => {
     editSlicesModalShown.value = false;
     slice.value = null;
   });
