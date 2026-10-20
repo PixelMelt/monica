@@ -2,5 +2,6 @@
 //! See `docs/rewrite/porting.md`.
 
 pub mod base;
+pub mod contact;
 pub mod settings;
 pub mod vault;
