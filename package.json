@@ -12,7 +12,9 @@
     "docker:build": "docker build -f rust/Dockerfile -t monica-next .",
     "docker:run": "docker run --name monica -p 8080:8080 -e APP_KEY=\"$(docker run --rm monica-next monica key-generate)\" -v monica-data:/var/lib/monica monica-next",
     "api:generate": "cargo run -q --manifest-path rust/Cargo.toml -- openapi > resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts",
-    "api:draft": "python3 docs/rewrite/tools/spec.py --json resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts"
+    "api:draft": "python3 docs/rewrite/tools/spec.py --json resources/js/api/openapi.json && openapi-typescript resources/js/api/openapi.json -o resources/js/api/schema.d.ts && node scripts/generate-api-client.mjs resources/js/api/openapi.json && prettier --write resources/js/api/client.js resources/js/api/schema.d.ts",
+    "localize": "node scripts/localize.mjs",
+    "test:scripts": "node --test scripts/"
   },
   "devDependencies": {
     "@popperjs/core": "^2.11.8",
@@ -36,6 +38,7 @@
     "openapi-typescript": "7.8.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
+    "puppeteer-core": "24.10.0",
     "sass": "^1.90.0",
     "tailwindcss": "^4.1.11",
     "tiny-emitter": "^2.1.0",
