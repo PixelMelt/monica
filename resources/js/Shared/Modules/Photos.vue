@@ -9,17 +9,9 @@
           {{ $t('Photos') }}
         </span>
       </div>
-      <uploadcare
-        v-if="data.uploadcare.publicKey && data.canUploadFile"
-        :public-key="data.uploadcare.publicKey"
-        :secure-signature="data.uploadcare.signature"
-        :secure-expire="data.uploadcare.expire"
-        :tabs="'file'"
-        :preview-step="false"
-        @success="onSuccess"
-        @error="onError">
+      <file-upload v-if="data.canUploadFile" :upload="upload" :images-only="true" @success="onSuccess">
         <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" />
-      </uploadcare>
+      </file-upload>
     </div>
 
     <!-- not enough space in storage -->
@@ -63,29 +55,22 @@
         {{ $t('There are no photos yet.') }}
       </p>
     </div>
-
-    <!-- uploadcare api key not set -->
-    <div
-      v-if="!data.uploadcare.publicKey"
-      class="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-      <p class="p-5 text-center">
-        {{ $t('The keys to manage uploads have not been set in this Monica instance.') }}
-      </p>
-    </div>
   </div>
 </template>
 
 <script>
 import Link from '@/router/Link.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+import FileUpload from '@/Components/FileUpload.vue';
 import { FileImage } from 'lucide-vue-next';
+import { deleteContactPhoto, uploadContactPhoto } from '@/api/client';
+import * as dto from '@/adapters/modules-b';
 
 export default {
   components: {
     InertiaLink: Link,
     PrettyButton,
-    Uploadcare,
+    FileUpload,
     FileImage,
   },
 
@@ -101,12 +86,6 @@ export default {
       localPhotos: [],
       form: {
         searchTerm: null,
-        uuid: null,
-        name: null,
-        original_url: null,
-        cdn_url: null,
-        mime_type: null,
-        size: null,
         errors: [],
       },
     };
@@ -117,33 +96,22 @@ export default {
   },
 
   methods: {
-    onSuccess(file) {
-      this.form.uuid = file.uuid;
-      this.form.name = file.name;
-      this.form.original_url = file.originalUrl;
-      this.form.cdn_url = file.cdnUrl;
-      this.form.mime_type = file.mimeType;
-      this.form.size = file.size;
-
-      this.upload();
+    upload(body) {
+      return uploadContactPhoto({ vault_id: this.$route.params.vault, contact_id: this.$route.params.contact }, body);
     },
 
-    upload() {
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
-          this.localPhotos.unshift(response.data.data);
-          this.flash(this.$t('The photo has been added'), 'success');
-        })
-        .catch((error) => {
-          this.form.errors = error.response.data;
-        });
+    onSuccess(file) {
+      this.localPhotos.unshift(dto.photo(file, this.$route.params.vault, this.$route.params.contact));
+      this.flash(this.$t('The photo has been added'), 'success');
     },
 
     destroy(photo) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(photo.url.destroy)
+        deleteContactPhoto({
+          vault_id: this.$route.params.vault,
+          contact_id: this.$route.params.contact,
+          photo_id: photo.id,
+        })
           .then(() => {
             this.flash(this.$t('The photo has been deleted'), 'success');
             var id = this.localPhotos.findIndex((x) => x.id === photo.id);

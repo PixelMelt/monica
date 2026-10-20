@@ -81,17 +81,9 @@
           </div>
 
           <!-- upload -->
-          <uploadcare
-            v-if="data.uploadcare.publicKey && data.canUploadFile"
-            :public-key="data.uploadcare.publicKey"
-            :secure-signature="data.uploadcare.signature"
-            :secure-expire="data.uploadcare.expire"
-            :tabs="'file'"
-            :preview-step="false"
-            @success="onSuccess"
-            @error="onError">
+          <file-upload v-if="data.canUploadFile" :upload="upload" :images-only="true" @success="onSuccess">
             <pretty-button :text="$t('Add a photo')" :icon="'plus'" :class="'w-full sm:w-fit'" />
-          </uploadcare>
+          </file-upload>
         </div>
 
         <div v-if="localPhotos.length > 0" class="mb-4">
@@ -101,7 +93,7 @@
               :key="photo.id"
               class="rounded-md border border-gray-200 p-2 shadow-xs hover:bg-slate-50 hover:shadow-lg dark:border-gray-700 dark:bg-slate-900 dark:hover:bg-slate-800">
               <InertiaLink :href="photo.url.show">
-                <img :src="photo.url.display" :alt="photo.name" />
+                <img :src="photo.url.display" :alt="photo.name" class="aspect-square w-full object-cover" />
               </InertiaLink>
             </div>
           </div>
@@ -127,7 +119,9 @@ import Link from '@/router/Link.vue';
 import Layout from '@/Layouts/Layout.vue';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import Pagination from '@/Components/Pagination.vue';
-import Uploadcare from '@/Components/Uploadcare.vue';
+import FileUpload from '@/Components/FileUpload.vue';
+import { uploadContactPhoto } from '@/api/client';
+import * as dto from '@/adapters/modules-b';
 
 export default {
   components: {
@@ -135,7 +129,7 @@ export default {
     Layout,
     PrettyButton,
     Pagination,
-    Uploadcare,
+    FileUpload,
   },
 
   props: {
@@ -156,14 +150,6 @@ export default {
   data() {
     return {
       localPhotos: [],
-      form: {
-        uuid: null,
-        name: null,
-        original_url: null,
-        cdn_url: null,
-        mime_type: null,
-        size: null,
-      },
     };
   },
 
@@ -172,27 +158,14 @@ export default {
   },
 
   methods: {
-    onSuccess(file) {
-      this.form.uuid = file.uuid;
-      this.form.name = file.name;
-      this.form.original_url = file.originalUrl;
-      this.form.cdn_url = file.cdnUrl;
-      this.form.mime_type = file.mimeType;
-      this.form.size = file.size;
-
-      this.upload();
+    upload(body) {
+      return uploadContactPhoto({ vault_id: this.$route.params.vault, contact_id: this.$route.params.contact }, body);
     },
 
-    upload() {
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
-          this.localPhotos.unshift(response.data.data);
-          this.flash(this.$t('The photo has been added'), 'success');
-        })
-        .catch((error) => {
-          this.form.errors = error.response.data;
-        });
+    // the store response is `ModulePhotosViewHelper::dto`
+    onSuccess(file) {
+      this.localPhotos.unshift(dto.photo(file, this.$route.params.vault, this.$route.params.contact));
+      this.flash(this.$t('The photo has been added'), 'success');
     },
   },
 };

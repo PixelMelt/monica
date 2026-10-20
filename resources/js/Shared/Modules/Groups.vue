@@ -54,7 +54,7 @@
           <!-- group type -->
           <dropdown
             v-model.number="form.group_type_id"
-            :data="data.group_types"
+            :data="groupTypes"
             :placeholder="$t('Choose a value')"
             :dropdown-class="'block w-full'"
             :label="$t('Group type')"
@@ -128,6 +128,8 @@ import Dropdown from '@/Shared/Form/Dropdown.vue';
 import Errors from '@/Shared/Form/Errors.vue';
 import Avatar from '@/Shared/Avatar.vue';
 import { Handshake } from 'lucide-vue-next';
+import { addContactToGroup, createVaultGroup, listGroupTypes, removeContactFromGroup } from '@/api/client';
+import * as dto from '@/adapters/modules-b';
 
 export default {
   components: {
@@ -154,6 +156,7 @@ export default {
       localGroups: [],
       localAvailableGroups: [],
       localGroupTypeRoles: [],
+      groupTypes: [],
       addGroupMode: false,
       nameInputShown: false,
       chooseGroupTypeShown: false,
@@ -180,6 +183,10 @@ export default {
   created() {
     this.localGroups = this.data.groups;
     this.localAvailableGroups = this.data.available_groups;
+
+    listGroupTypes().then((list) => {
+      this.groupTypes = list.data.map(dto.groupType);
+    });
   },
 
   methods: {
@@ -211,9 +218,9 @@ export default {
     },
 
     loadGroupTypeRoles() {
-      for (let i = 0; i < this.data.group_types.length; i++) {
-        if (this.data.group_types[i].id === this.form.group_type_id) {
-          this.localGroupTypeRoles = this.data.group_types[i].roles;
+      for (let i = 0; i < this.groupTypes.length; i++) {
+        if (this.groupTypes[i].id === this.form.group_type_id) {
+          this.localGroupTypeRoles = this.groupTypes[i].roles;
         }
       }
     },
@@ -221,11 +228,30 @@ export default {
     submit() {
       this.loadingState = 'loading';
 
-      axios
-        .post(this.data.url.store, this.form)
-        .then((response) => {
+      const vault = this.$route.params.vault;
+
+      // a name means a new group (ContactModuleGroupController@store)
+      const created =
+        this.form.name != ''
+          ? createVaultGroup(
+              { vault_id: vault },
+              { name: this.form.name, group_type_id: this.form.group_type_id || null },
+            )
+          : Promise.resolve(null);
+
+      created
+        .then((newGroup) =>
+          addContactToGroup(
+            { vault_id: vault, contact_id: this.$route.params.contact },
+            {
+              group_id: this.form.group_id != 0 ? this.form.group_id : newGroup.id,
+              group_type_role_id: this.form.group_type_role_id || null,
+            },
+          ),
+        )
+        .then((group) => {
           this.flash(this.$t('The group has been added'), 'success');
-          this.localGroups.unshift(response.data.data);
+          this.localGroups.unshift(dto.group(group, vault, true));
           this.loadingState = null;
           this.addGroupMode = false;
         })
@@ -237,8 +263,11 @@ export default {
 
     destroy(group) {
       if (confirm(this.$t('Are you sure? This action cannot be undone.'))) {
-        axios
-          .delete(group.url.destroy)
+        removeContactFromGroup({
+          vault_id: this.$route.params.vault,
+          contact_id: this.$route.params.contact,
+          group_id: group.id,
+        })
           .then(() => {
             this.flash(this.$t('The contact has been removed from the group'), 'success');
             var id = this.localGroups.findIndex((x) => x.id === group.id);

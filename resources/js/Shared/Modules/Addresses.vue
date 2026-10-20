@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useForm } from '@/lib/form';
+import { createContactAddress, deleteContactAddress, listAddressTypes, updateContactAddress } from '@/api/client';
+import * as dto from '@/adapters/modules-b';
 import PrettyButton from '@/Shared/Form/PrettyButton.vue';
 import PrettySpan from '@/Shared/Form/PrettySpan.vue';
 import TextInput from '@/Shared/Form/TextInput.vue';
@@ -16,6 +19,9 @@ const props = defineProps({
   data: Object,
 });
 
+const currentRoute = useRoute();
+const ids = () => ({ vault_id: currentRoute.params.vault, contact_id: currentRoute.params.contact });
+
 const loadingState = ref('');
 const createAddressModalShown = ref(false);
 const inactiveAddressesShown = ref(false);
@@ -26,6 +32,11 @@ const choiceChooseExisting = ref(props.data.active_addresses.length > 0);
 const deleteAddressModalShown = ref(false);
 const processAddressDeletion = ref(false);
 const addressToDelete = ref(null);
+const addressTypes = ref([]);
+
+listAddressTypes().then((list) => {
+  addressTypes.value = dto.addressTypes(list.data);
+});
 
 const form = useForm({
   existing_address: false,
@@ -39,7 +50,18 @@ const form = useForm({
   province: '',
   postal_code: '',
   country: '',
-  errors: [],
+});
+
+/** The address fields of the form (`address_type_id` 0 is none). */
+const addressFields = () => ({
+  is_past_address: form.is_past_address,
+  address_type_id: form.address_type_id || null,
+  line_1: form.line_1 || null,
+  line_2: form.line_2 || null,
+  city: form.city || null,
+  province: form.province || null,
+  postal_code: form.postal_code || null,
+  country: form.country || null,
 });
 
 const showCreateAddressModal = () => {
@@ -81,13 +103,17 @@ const submit = () => {
   loadingState.value = 'loading';
   form.existing_address = choiceChooseExisting.value;
 
-  axios
-    .post(props.data.url.store, form)
-    .then((response) => {
+  createContactAddress(
+    ids(),
+    form.existing_address
+      ? { address_id: form.existing_address_id, is_past_address: form.is_past_address }
+      : addressFields(),
+  )
+    .then((created) => {
       if (form.is_past_address) {
-        localInactiveAddresses.value.unshift(response.data.data);
+        localInactiveAddresses.value.unshift(dto.address(created));
       } else {
-        localActiveAddresses.value.unshift(response.data.data);
+        localActiveAddresses.value.unshift(dto.address(created));
       }
 
       loadingState.value = '';
@@ -102,17 +128,16 @@ const submit = () => {
 const update = (address) => {
   loadingState.value = 'loading';
 
-  axios
-    .put(address.url.update, form)
-    .then((response) => {
+  updateContactAddress({ ...ids(), address_id: address.id }, addressFields())
+    .then((updated) => {
       loadingState.value = '';
 
       if (form.is_past_address) {
         localInactiveAddresses.value[localInactiveAddresses.value.findIndex((x) => x.id === address.id)] =
-          response.data.data;
+          dto.address(updated);
       } else {
         localActiveAddresses.value[localActiveAddresses.value.findIndex((x) => x.id === address.id)] =
-          response.data.data;
+          dto.address(updated);
       }
       editedAddressId.value = 0;
     })
@@ -125,8 +150,7 @@ const update = (address) => {
 const destroy = () => {
   processAddressDeletion.value = true;
 
-  axios
-    .delete(addressToDelete.value.url.destroy)
+  deleteContactAddress({ ...ids(), address_id: addressToDelete.value.id })
     .then(() => {
       processAddressDeletion.value = false;
       if (addressToDelete.value.is_past_address) {
@@ -241,7 +265,7 @@ const destroy = () => {
           <div class="grid grid-cols-2 gap-4 border-b border-gray-200 p-5 dark:border-gray-700">
             <dropdown
               v-model.number="form.address_type_id"
-              :data="data.address_types"
+              :data="addressTypes"
               :required="false"
               :placeholder="$t('Choose a value')"
               :dropdown-class="'block w-full'"
@@ -402,7 +426,7 @@ const destroy = () => {
               <div class="grid grid-cols-2 gap-4 border-b border-gray-200 p-5 dark:border-gray-700">
                 <dropdown
                   v-model.number="form.address_type_id"
-                  :data="data.address_types"
+                  :data="addressTypes"
                   :required="false"
                   :placeholder="$t('Choose a value')"
                   :dropdown-class="'block w-full'"
@@ -583,7 +607,7 @@ const destroy = () => {
               <div class="grid grid-cols-2 gap-4 border-b border-gray-200 p-5 dark:border-gray-700">
                 <dropdown
                   v-model.number="form.address_type_id"
-                  :data="data.address_types"
+                  :data="addressTypes"
                   :required="false"
                   :placeholder="$t('Choose a value')"
                   :dropdown-class="'block w-full'"
