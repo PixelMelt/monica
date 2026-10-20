@@ -72,7 +72,7 @@ repo. No external services are required except SMTP.
 
 Stop for approval at each ★.
 
-- [ ] **0. Inventory.** One table mapping every web route → controller →
+- [x] **0. Inventory.** One table mapping every web route → controller →
   service → ViewHelper → Vue page, plus every job, command and integration,
   each marked port or remove. This is the parity checklist for the project.
 - [ ] **1. API design.** ★ Claude drafts the OpenAPI spec from the inventory:
